@@ -1,0 +1,62 @@
+# Atlas Core agent instructions
+
+These instructions are intended for the new AtlasCore repository when the contents of this handover are copied to its root.
+
+## Read first
+
+Read [README.md](README.md), [foundation.md](docs/foundation.md) and [first-steps.md](docs/first-steps.md). Before implementation, also read the relevant [architecture](docs/architecture.md), [lessons](docs/lessons-from-zenith.md) and [acceptance scenarios](docs/acceptance-tests.md).
+
+Do not assume access to the original conversation or that another session remembers it. Keep important decisions in repository documents.
+
+## Requirements
+
+- Atlas Core decides intentional access; it does not render, navigate, filter network traffic, manage website credentials, or implement browser security.
+- Keep domain logic independent of browser APIs, UI frameworks, filesystem APIs and networking. Storage implementations belong outside the domain logic.
+- Preserve Whitelist/Blacklist/Greylist meaning, Blacklist precedence for governed actions, explicit confirmation, scoped grants and protected policy changes.
+- Do not add shortcuts around waiting, confirmation, current-policy checks or successful persistence.
+- Treat invalid or unavailable authorization state conservatively. Do not silently create a fresh permissive policy over damaged state.
+- All frontends must use the same semantic decisions. They may adapt platform events, not invent independent access rules.
+- Keep website-supplied data outside privileged policy commands. Importing a library in an untrusted context does not make that context authoritative.
+- Never place credentials, cookies, tokens, private profiles or credential-bearing URLs in fixtures or logs.
+
+## Decisions already made
+
+- This is a fresh project. Do not import Zenith code, migrations, framework restrictions or its historical dependency/attribution graphs.
+- Future Firefox and Electron use must be possible without putting those platforms inside Core.
+- Supporting domains are hidden from the normal destination list but may appear during controlled login steps. See the foundation before designing their authorization rules.
+- Cooldown and confirmation are the product's primary friction. Do not make a password system a prerequisite for this Core.
+
+## Proposed architecture
+
+TypeScript and the layout in `docs/architecture.md` are recommendations, not already implemented facts. Do not treat the document as a request to build every module at once.
+
+Use one small package initially if TypeScript is adopted. Prefer pure functions, explicit dependencies and a small public API. Avoid service frameworks, generic workflow engines, plugin systems and package proliferation.
+
+## Open questions and authority
+
+Current user instructions take precedence over this packet. Requirements and settled decisions are distinguished from proposals in the foundation. Historical Zenith behavior is not authority for Atlas.
+
+Before implementing behavior affected by an open product question, resolve that question with the user or an explicit later decision. Do not request renewed approval for decisions already made. Routine reversible engineering choices within an authorized milestone can be made and documented without a separate approval ceremony.
+
+If documents conflict, identify the conflict before changing behavior. Do not invent an interpretation and silently turn it into a requirement.
+
+## Working method
+
+1. State the small milestone and observable result.
+2. Identify the responsible layer and relevant requirements.
+3. Resolve only blocking product questions; continue independent work where possible.
+4. Add behavior-oriented tests with fake time and isolated storage.
+5. Implement the smallest coherent change, without unrelated refactors.
+6. Run the project's actual build, type checks and tests as applicable.
+7. Review the diff and report changes, evidence and remaining limitations.
+
+There are no build commands yet. Do not copy Zenith's `dotnet` commands or claim that future npm scripts already exist. Record real verification commands once tooling is selected.
+
+## Evidence and maintenance
+
+- Test required failure cases as well as allowed behavior. Core tests must run without a browser.
+- Browser enforcement claims require separate adapter tests; domain tests alone are insufficient.
+- Distinguish passing tests, historical evidence, untested assumptions and compatibility limitations.
+- Record decisions in the foundation and keep architecture and test expectations consistent.
+- Update the owning document instead of repeating specifications across files.
+- Keep these instructions concise. The goal is a small decision library, not a reconstruction of Zenith.
