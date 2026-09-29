@@ -1,6 +1,6 @@
 # Atlas Core foundation
 
-Status: design handover, 2026-09-24. No Atlas implementation exists.
+Status: Milestones 1 through 3, D11 Journeys, and D13 aggregate planning implement pure domain logic. D14 adds a controller with repository/clock ports and fake-repository tests. Real storage backends and adapters remain unimplemented. Context Whitelist and broader models are deferred.
 
 ## How to read status labels
 
@@ -19,20 +19,20 @@ This is not a general-purpose focus toggle that immediately disables the access 
 ### R2. Three site classes
 
 - **Whitelist:** durable permission for ordinary access under the rule's defined scope.
-- **Blacklist:** exclusion that overrides Whitelist membership, temporary grants and supporting exceptions for actions governed by Atlas.
+- **Blacklist:** exclusion that overrides Whitelist membership, temporary grants, and Journey authorization for actions governed by Atlas.
 - **Greylist:** the remainder, including unknown sites. It need not be a stored list.
 
 The scope of a site rule must be explicit and consistent. Hostname matching must not use arbitrary substring comparisons. Blacklist precedence does not imply that every background connection is submitted to Atlas.
 
 ### R3. Temporary access is not durable permission
 
-A Greylist exception requires an explicit start, a cooldown and a later explicit confirmation. Time passing alone must not grant access. An Access Grant has a defined scope and expiry, does not reclassify the site, and cannot override the Blacklist.
+Ordinary intentional Greylist access requires an explicit start, a cooldown and a later explicit confirmation. Time passing alone must not grant access. An Access Grant has a defined scope and expiry, does not reclassify the site, and cannot override the Blacklist. D11 separately authorizes bounded Journey access to intermediate destinations while attempting to reach a Pure Whitelist root; it creates no Access Grant.
 
-Closing a prompt or restarting a frontend must not let the user skip the required wait or replay an already consumed confirmation. The exact lifetime of active grants across restart remains Q3.
+Closing a prompt or restarting a frontend must not let the user skip the required wait or replay an already consumed confirmation. D9 adopts fixed grant expiry across reload; actual durable restart protection still requires storage integration.
 
 ### R4. Vault protects commitments
 
-The **Vault** is the concept governing protected changes to durable access rules. It is not a website-password store. Proposing or previewing a change does not apply it. The previous policy remains active until the required wait and explicit confirmation complete successfully.
+The **Vault** is the concept governing protected changes to durable access rules. It is not a website-password store. Proposing or previewing a change does not apply it. The previous policy remains active until the required wait, explicit confirmation, and successful atomic commit complete.
 
 Changes must be reviewed as concrete consequences. Changing the proposal must not reuse a confirmation for different contents. A proposed reduction to a protective delay must not take effect early enough to bypass the delay already protecting that change.
 
@@ -48,11 +48,11 @@ Atlas controls intentional visible access. An authorized website's ordinary back
 
 The browser engine and websites handle JavaScript, cookies, origin isolation, TLS and normal authentication. The interface maintains a safe integration with that engine. Atlas Core does not reproduce those mechanisms.
 
-### R7. Supporting-domain knowledge
+### R7. Pure Whitelist accessibility
 
-The product includes a reviewed catalog of supporting domains so known web complexity need not be exposed as ordinary destinations. It should help authorized interactions function without requiring a complete network-dependency model.
+Pure Whitelist destinations must be usable when reaching them requires intermediate domains. D11 replaces the former catalog requirement with a temporary Journey bound to a root destination, one context, a fixed deadline, and a hop limit. A global supporting-domain database is excluded; Atlas does not maintain internet dependency knowledge.
 
-Supporting access cannot become an automatic way to defeat an explicit Blacklist. Website traffic is evidence, not permission. A request for an unknown host does not prove a legitimate dependency and must not automatically add that host to policy.
+Blacklist still overrides every governed navigation. Unfamiliar intermediate hosts can receive the bounded Journey authorization, without becoming trusted or changing policy. This authorizes a limited attempt, not a claim that a host is necessary or safe. Context Whitelist, learned relationships, trust graphs, and link inheritance remain deferred.
 
 ### R8. Reliable state and explanations
 
@@ -73,9 +73,41 @@ Build a fresh application-independent core using Zenith as a source of lessons. 
 | D3 | Visible intentional access is the boundary; universal network egress control is excluded. | Repeated user clarification. |
 | D4 | Supporting domains are hidden from the normal site list but may appear during controlled login redirects or popups. | User explicitly selected: "Hidden from the site list; permit controlled login steps (recommended)". |
 | D5 | Core must not implement an authentication system. | Explicit new-project exclusion; cooldown and confirmation are the basic friction. |
-| D6 | This handover contains documentation only. | Explicit current task. No language/tooling or implementation has been installed. |
+| D6 | The original handover contained documentation only. | Historical status on 2026-09-24; superseded by D7 for implementation status. |
+| D7 | Implement Milestone 1 as one pure TypeScript package: models, normalization, validation, evaluation, and tests. | Explicit user direction on 2026-09-26. No browser or state-changing workflows authorized in this milestone. |
+| D8 | Use exact normalized hostname matching, without automatic aliases or parent/subdomain permissions. | User selected hostname-based matching and limited initial URL handling on 2026-09-26. The bounded input contract below records implementation choices within that scope. |
+| D9 | Adopt the Greylist workflow for Milestone 2: explicit Start, frozen wait and confirmation window, explicit Confirm, scoped grants with fixed expiry, cancellation, and revision invalidation. Implement pure transitions with explicit time only. | User approved the workflow design and requested implementation on 2026-09-26. One live request or grant per hostname; elapsed supplied time counts across reload. No persistence, browser, Vault, or supporting implementation is authorized in this milestone. |
+| D10 | Adopt the Vault workflow for Milestone 3: one frozen pending proposal, review, explicit confirmation preparation, a complete commit candidate, cancellation, expiry, and staleness on any policy revision change. User-managed Whitelist/Blacklist additions and removals use the same positive configured wait and bounded confirmation window. Editing requires cancellation and a new wait; reload preserves deadlines; a definite failed write requires fresh explicit confirmation. | User requested implementation of the approved design on 2026-09-26. Pure TypeScript domain logic only. Candidate generation does not activate policy or acknowledge persistence; production durations, the coordinator, storage, and adapters remain outside this milestone. |
+| D11 | Add a pure Journey module for Pure Whitelist accessibility. Allow unfamiliar intermediate top-level destinations inside one active, context-bound attempt, subject to Blacklist, a fixed deadline, hop limit, and current policy revision. No policy entries or grants are created. | User requested documentation followed by Core-only implementation on 2026-09-28, including allowed intermediate navigation tests. This adopts the proposed bounded exception without a supporting-domain database. Browser integration, Context Whitelist, learned relationships, and link inheritance are excluded. |
+| D12 | Design the framework-independent integration boundary before any browser adapter: public API, responsibilities, operations/results, state ownership, persistence, and failures. | User requested architecture documentation on 2026-09-28. This is a design task; proposed facade/controller/port contracts are not implemented or automatically adopted as final API. Core must remain independent of platform APIs, browser storage, cookies, and authentication. |
+| D13 | Implement the aggregate Atlas snapshot, complete validation, and pure operation planner combining Policy, Access, Vault, and Journey under the documented precedence. | User authorized this Core-only milestone on 2026-09-29. Explicit time and trusted domain context; no storage, real clock, controller, browser events, or adapters. The bounded public contract is recorded in the architecture before coding. |
+| D14 | Implement a framework-independent controller over D13 with repository/clock interfaces, serialized operations, commit-before-publication, and recovery tests using fake storage. | User authorized this next milestone on 2026-09-29. Browser integration, UI, real storage backends, and browser-event correlation remain excluded. |
 
-D4 settles presentation intent. It does not settle every rule for direct visits, supporting scopes, duration or catalog activation. Those details remain open below. "Trusted supporting endpoint" must never mean trusted page code or native privileges.
+D4 records presentation intent for intermediate domains. D11 supplies their current Journey authorization without a catalog. Permitting an intermediate page never gives its code privileged access to Atlas commands.
+
+### Milestone 1 input contract
+
+Recorded 2026-09-26 to keep the first evaluator small and explicit:
+
+- `SiteTarget` contains one `hostname` string. `Policy` contains only `whitelist` and `blacklist`, both required arrays of bare hostname strings. An explicitly supplied pair of empty lists makes all valid targets Greylist; missing or malformed lists never become empty defaults.
+- Requested targets may be bare ASCII hostnames, absolute HTTP(S) URLs, or `SiteTarget` data objects. A `SiteTarget.hostname` must be a bare hostname. Policy entries cannot be URLs or host-and-port strings.
+- Normalize surrounding whitespace, ASCII letter case, and one terminal DNS root dot. Match the resulting complete hostname, with no substring matching, `www` pairing, wildcards, or implicit subdomains. Requests and policy entries use the same hostname normalization.
+- A hostname permission applies across accepted HTTP(S) schemes, ports, paths, queries, and fragments. Those URL components do not become policy scope or appear in decisions.
+- Reject malformed names, URL userinfo, unsupported schemes, relative URLs, Unicode hostname input, and IP literals/shorthand. Ordinary ASCII DNS labels, including valid ASCII `xn--` representations, are accepted; automatic conversion of Unicode input and additional URL forms are deferred.
+- Validate every policy entry before deciding access. Reject an entire malformed policy and unsupported policy fields; do not keep a permissive subset. Return `DENY` with a stable invalid-input reason. A valid Blacklist match overrides Whitelist membership. Otherwise return `ALLOW` for Whitelist and `GREYLIST` for the remainder.
+- Both public functions consume plain data. The evaluator copies normalized values and does not mutate inputs, read time, or retain state. A `GREYLIST` decision does not authorize access or start a cooldown.
+
+Development uses npm, TypeScript 6.0.3, and Node.js 24's built-in test runner. The package emits ES2022 JavaScript modules and declarations, uses the standard `URL` parser for accepted URL syntax, and has no runtime dependencies. Only Node.js 24.12.0 has been exercised so far; future frontend/runtime compatibility requires its own tests. These are routine tooling choices under D7, not browser integration decisions.
+
+### Milestone 2 contract and limits
+
+- A Greylist grant overlays authorization without changing `Policy` or the result of policy-only `evaluate`. `evaluateAccess` applies current policy and the temporal overlay through the same core rules.
+- Start is the initial deliberate action. No automatic grant occurs at readiness; only Confirm may consume a pending request and create a grant, together in one candidate state. The full [workflow contract](architecture.md#greylist-workflow-milestone-2) owns deadline and transition details.
+- Configuration supplies positive integer wait, confirmation-window, and grant durations. Terms are frozen at Start; production values are not selected by this milestone.
+- The trusted caller supplies current policy, a nondecreasing policy revision, the latest complete access state, and explicit integer time. Every policy edit must advance its revision. Any mismatch invalidates existing pending requests and grants; newer Whitelist rules can still authorize ordinary access.
+- All valid-context results return a fresh `nextState`, including rejected commands. Evaluations and rejections advance only time/revision observation metadata; they never create grants or alter request/grant records. Callers must retain this state to prevent an observed expiry from becoming usable after a backward time input. This is a pure state contract, not a real-clock or persistence implementation.
+- IDs come from a monotonic counter inside the state. Reload must preserve that counter, consumed/cancelled request removal, timestamps, and observation metadata. Invalid state never invokes fresh initialization automatically.
+- Domain transition success means a complete candidate state was computed. A later coordinator must atomically commit it before durable success or newly granted access is exposed. Real crash/retry/concurrency guarantees, physical clock validation/recovery, and detection of whole-snapshot rollback are outside Milestone 2 evidence.
 
 ## Architectural separation
 
@@ -83,10 +115,11 @@ D4 settles presentation intent. It does not settle every rule for direct visits,
 | --- | --- | --- |
 | Browser/interface | Translate platform actions, identify trusted context, present decisions, execute or cancel actions, manage existing displayed content. | Independent Whitelist, grant or Vault decisions. |
 | Atlas Core | Classification, protected transitions, scope/expiry checks, policy decisions and state-validation rules. | Rendering, browser interception, provider login, network filtering or platform storage calls. |
+| Shared Core controller (D14) | One authoritative state owner, serialized planner operations, and commit-before-publication through injected ports. | Platform event mapping, native browser objects, UI, or concrete storage APIs. |
 | Storage implementation | Load, commit and recover data according to an explicit contract; platform-specific durability and concurrency. | Permission decisions or inventing recovery policy. |
 | Browser engine and website | Normal web execution, sessions, transport security, authentication protocols and origin enforcement. | Atlas's Ulysses contract. |
 
-One trusted owner per policy instance should mediate state mutations. This is a proposed implementation arrangement, not a guarantee that a library can defend itself from a malicious caller running with full host privileges.
+The proposed [integration boundary](architecture.md#framework-independent-integration-boundary) specifies one trusted owner per policy instance and distinguishes pure plans, committed authority, and browser effects. The host constructs this owner and supplies persistence, time, and trusted event mapping. A library cannot defend itself from a malicious caller running with full host privileges.
 
 ## Deliberately outside Core
 
@@ -101,33 +134,40 @@ uBlock and similar tools are separate content-filtering components, not substitu
 
 ## Proposed architecture
 
-| ID | Recommendation, not yet adopted | Why |
+P1 (one TypeScript package) and P2 (exact normalized host matching) are adopted through D7/D8. P3's pure evaluation/transitions, P5's fixed-expiry lifetime across reload, and P8's grant invalidation (also applied to pending requests) are adopted through D9. P6's frozen single-proposal Vault workflow is adopted through D10. D13/D14 add aggregate planning and commit coordination; real storage and browser context correlation remain unimplemented.
+
+| ID | Remaining proposal or implementation work | Why |
 | --- | --- | --- |
-| P1 | One portable TypeScript package. | Direct reuse in the two intended JavaScript runtimes. |
-| P2 | Exact normalized host matching initially, with no implicit aliases, wildcards or parent scopes. | A small, explainable first policy surface. |
-| P3 | Pure evaluation plus explicit command transitions, with a small commit coordinator. | Prevent UI timing and side effects from determining access. |
-| P4 | Supporting use is contextual and does not automatically grant direct ordinary access. | Preserve D4 without creating an unrestricted hidden Whitelist. |
-| P5 | Persist active grants until fixed expiry, alongside pending waits. | Frontend/background suspension should not silently redefine a grant. This differs from historical Zenith session-only grants. |
-| P6 | One pending Vault proposal initially; bind it to a policy revision and frozen contents. | Reduce concurrency and confirmation ambiguity. |
-| P7 | Separate schema, storage and policy revisions; atomically commit complete transitions. | Make compatibility and state races explicit. |
-| P8 | Invalidate grants and supporting contexts on any committed policy revision. | A simple conservative starting rule; its UX cost requires review. |
-| P9 | Local curated JSON catalog with review evidence and an explicit activation/update rule. | Keep supporting data inspectable without adding online discovery. |
+| P3 | D13/D14 implement aggregate validation, planning, and shared commit coordination. Runtime event correlation remains future work. | Keep all adapters on the same decisions and publish authority only after required commits. |
+| P4 | Superseded for the current scope by D11's bounded Journey. Broader supporting-context design is deferred. | Solve Pure Whitelist accessibility first. |
+| P5 | Implement persistence of active grants and pending waits under the adopted fixed-deadline contract. | Serialized domain records already preserve timestamps; a real backend still needs durability tests. |
+| P7 | D14 separates schema, storage and policy revisions and tests atomic commit coordination against a fake repository. A real backend must still prove its guarantees. | Make compatibility and state races explicit. |
+| P8 | Invalidate Journeys on any policy revision change under D11. | Keep runtime authorization tied to current commitments. |
+| P9 | Withdrawn by D11. No supporting-domain database is required or authorized. | Avoid maintaining global dependency knowledge. |
 
 Detailed recommendations belong in [architecture.md](architecture.md), not in the requirements above.
+
+The [Milestone 2 Greylist workflow](architecture.md#greylist-workflow-milestone-2) records the adopted domain behavior and the future persistence obligations separately. D9 resolves G01's initial-confirmation wording: explicit Start is that initial action.
+
+The [Milestone 3 Vault workflow](architecture.md#vault-workflow-milestone-3) owns the adopted proposal, review, confirmation-preparation, cancellation, and revision contract. `prepareVaultCommit` returns its candidate while retaining active policy and the pending proposal in ordinary context state. D13 wraps the complete aggregate; D14 coordinates publication after a verified atomic commit. Domain tests model candidate adoption, and controller tests exercise fake repository behavior; neither proves a production backend's durability.
+
+The [Journey contract](architecture.md#journey-workflow) owns the D11 runtime model, navigation boundaries, and implementation choices. Existing policy classification, access grants, and Vault APIs keep their meanings. Pure Whitelist is the existing `Policy.whitelist`, subject to Blacklist precedence.
+
+The [aggregate planner contract](architecture.md#aggregate-planner-d13) owns D13's pure operations and distinction between observations and proposed transitions. The [controller contract](architecture.md#atlas-controller-d14) owns D14's implemented repository/clock ports, serialized handling, and recovery protocol. The broader [integration design](architecture.md#framework-independent-integration-boundary) retains future runtime correlation and adapter obligations. These preserve hostname-wide grants, per-context Journeys, and existing policy semantics. Real durability remains unverified.
 
 ## Open questions
 
 | ID | Question | Resolve before |
 | --- | --- | --- |
-| Q1 | Adopt TypeScript? Which supported runtime targets, package manager and test tooling? | Scaffolding code. |
-| Q2 | What identifies a site: exact host, host plus scope, or origin? How are `www`, IDNs, ports, IPs and explicit subdomains treated? Which input schemes are accepted? | Matching and evaluator implementation. |
-| Q3 | Do grants survive application restart until expiry, end at a true browsing-session boundary, or follow another lifecycle? Background suspension is not automatically a new session. | Grant persistence. |
-| Q4 | For a supporting host, what authorizes a continuation and what happens on a direct visit? Is support global within an authorized interaction or service-specific? How are embedded documents mapped? | Supporting-rule implementation and adapter mapping. |
-| Q5 | How is a bundled supporting catalog activated? Which changes require Vault confirmation? How are user-specific endpoints and corrections handled? | Active catalog permissions. |
-| Q6 | What are production wait durations, minimums, grant duration and confirmation-expiry rules? | Temporal workflows. Do not inherit Zenith's short development values. |
-| Q7 | Can Blacklist entries be removed through protected changes? Do tighter restrictions use the same delay? Are any external mandatory lists wanted at all? | Vault operations. Historical Zenith rules do not answer these questions. |
-| Q8 | What happens to pending waits, grants and proposals when policy changes? Is P8 acceptable, or should unaffected access remain? | Revision/revalidation behavior. |
-| Q9 | What clock anomalies can be detected locally, and what recovery is appropriate? Does elapsed time while the app is closed count? | Clock and persistence semantics. |
+| Q1 | Resolved for Milestone 1 by D7 and the tooling record above. Future runtime compatibility remains unverified. | Revisit when selecting an adapter/runtime. |
+| Q2 | Resolved for the initial evaluator by D8 and the input contract above. Unicode input, IP targets, aliases, and additional URL forms remain deferred. | Resolve before extending supported target forms or scope. |
+| Q3 | Resolved: retain original fixed expiry across reload, with supplied elapsed time counting while closed. Real storage/restart integration remains unimplemented. | Validate with the eventual persistence adapter. |
+| Q4 | D11 authorizes unfamiliar intermediates only in an active Journey bound to one top-level context. Popup, embedded-document, and actual event mappings remain unimplemented. | Browser adapter design; no automatic sharing with child contexts. |
+| Q5 | Catalog activation is superseded by D11. Context Whitelist and other broader models are deferred. | A future explicit request; no catalog work is planned. |
+| Q6 | Greylist/Vault timing and Journey lifetime/hop limits are explicit positive configuration frozen at creation. Expiry is exclusive. Which production values and protective minimums should be used? | Production configuration; fixture values are not defaults. |
+| Q7 | Resolved by D10 for user-managed policy: Whitelist/Blacklist additions and removals, including tighter changes, use the same protected flow. External mandatory lists are outside the current Policy model and remain undecided. | Any future mandatory-list feature. Historical Zenith rules do not supply authority. |
+| Q8 | Any newer policy revision invalidates pending requests, grants, Vault proposals, and Journeys. Proposals are not rebased and Journeys are not restarted. | Validate future integration against this rule. |
+| Q9 | Pure operations reject invalid time and rollback against the latest returned observation checkpoint; supplied closed-app time counts. How should actual clocks, durable checkpoints, and recovery be integrated? | Real clock/persistence integration. Domain checks do not detect restoration of an older whole snapshot. |
 | Q10 | What are initialization, corrupt-state recovery, backup and future schema-migration rules? | A durable storage adapter. |
 | Q11 | Which audit events are useful, how long are they retained, and how can they be removed without resetting policy? | Persisted history. |
 | Q12 | Which frontend is implemented first, and exactly which visible/embedded actions does it govern? | Browser adapter work, not basic Core scaffolding. |

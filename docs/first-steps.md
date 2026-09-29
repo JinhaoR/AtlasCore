@@ -1,6 +1,6 @@
 # Starting the new AtlasCore repository
 
-Status: proposed implementation sequence. This handover has not scaffolded a package or run Atlas tests.
+Status: Pure domain modules, D13 aggregate planning, and D14 commit coordination are implemented. Real storage, runtime event correlation, and browser integration remain future work. Current commands and results are in the root README.
 
 ## Requirements
 
@@ -8,11 +8,13 @@ Start outside the Zenith repository. Copy knowledge, not its application, browse
 
 ## Decisions already made
 
-Atlas Core is a fresh decision engine for intentional access. Firefox and Electron are future consumers. The current task produces documentation only; it does not choose a toolchain or authorize a frontend migration.
+Atlas Core is a fresh decision engine for intentional access. Firefox and Electron are future consumers. The user authorized the pure domain modules, aggregate planner, and framework-independent controller; concrete storage and frontend work remain deferred.
 
 A new Codex context should read the repository files rather than depend on this conversation being available. Keep the files alongside the project as its evolving source of truth.
 
-## Prepare the repository
+## Original repository preparation
+
+The repository is already prepared. These handover steps are retained as historical setup guidance.
 
 1. Create a sibling directory, for example `Projects/AtlasCore`, outside Zenith's Git repository.
 2. Copy the **contents** of `handover/` into it. The resulting root contains `README.md`, `AGENTS.md` and `docs/`. Do not leave the instructions hidden under another `handover/` directory.
@@ -27,11 +29,13 @@ The layout in [architecture.md](architecture.md) is a destination sketch, not an
 
 ### 0. Resolve only the first blocking decisions
 
-Evaluate and adopt a language/toolchain under Q1. TypeScript is the recommendation, not a decision already approved. Decide the first site's identity and matching rules under Q2. Record concise decisions in `foundation.md`, including rationale and what remains deferred.
+Complete for Milestone 1: TypeScript is adopted, and Q1/Q2 have a bounded initial contract in `foundation.md`. Additional target forms and future runtime support remain deferred.
 
 Do not ask the user to resolve all future product questions at once. Routine implementation choices can be made within authorized scope; unresolved product semantics should not be silently invented.
 
 ### 1. A small evaluator
+
+Implemented in `packages/core`. See the root README for verification commands and `acceptance-tests.md` for coverage. The paragraphs below retain the milestone's scope and completion criteria.
 
 Create one package with minimal development tooling and tests. Implement the agreed request/state/decision types, normalization and classification. Demonstrate Whitelist access, Blacklist precedence, default Greylist and invalid-input handling without a browser or persistent backend.
 
@@ -39,33 +43,43 @@ Done means a documented command runs those tests and the public evaluator does n
 
 ### 2. Deliberate temporary access
 
-Resolve the necessary Q3/Q6/Q9 behavior. Add pending Greylist requests, explicit confirmations, cooldowns and scoped expiring grants using a fake clock. Test readiness, expiry, repeated commands and invalid transitions.
+Implemented: explicit Start, pending requests, cooldowns, bounded confirmation windows, explicit Confirm, scoped expiring grants, cancellation, and validation. Tests use explicit fixture times, including serialized state reload. D9 adopts the workflow; Q6's production values and Q9's actual clock/persistence integration remain open.
+
+Start is G01's initial deliberate action. Confirmation consumes the request and creates its grant in one candidate next state. Valid-context results also return time/revision observations, which must be retained even on command rejection. Until commit semantics and a real backend exist, this remains domain evidence; an in-memory workflow does not establish crash durability or concurrent confirmation consumption.
 
 Keep UI timers and navigation attempts outside Core. Do not infer confirmation from elapsed time or successful login. Use fixture durations; choose production defaults deliberately.
 
-### 3. Protected policy changes and commit semantics
+### 3. Protected policy changes and commit preparation
 
-Resolve the relevant Q7/Q8 behavior. Add a minimal Vault proposal flow and the storage contract needed to commit complete state transitions. A fake repository should exercise failed writes, stale revisions and duplicate submissions.
+Implemented under D10: one frozen proposal, repeatable review, configured wait and bounded confirmation window, explicit commit preparation, cancellation, and expiry/staleness validation. Whitelist/Blacklist additions and removals use the same protected flow. Review and preparation leave active policy unchanged.
 
-Test that staging has no immediate permission effect and final confirmation cannot publish an uncommitted change. Do not add service attribution, ownership graphs or migration of Zenith's persistence.
+The complete commit candidate includes replacement policy, one revision increment, proposal consumption, a last-applied marker, and the latest access state advanced to that revision. These pure tests simulate adopting or discarding it. D13/D14 subsequently wrap the latest Journeys and coordinate atomic publication through a tested repository contract. A production backend remains unimplemented.
 
-### 4. Minimal supporting-domain knowledge
+### 4. Pure Whitelist Journeys
 
-Resolve Q4/Q5 before giving catalog entries any permission effect. Begin with a tiny reviewed fixture and one explicit supporting-use scenario. Define direct visits, authorized context, expiry and Blacklist precedence before expanding the catalog.
+Implemented under D11: a minimal pure runtime module for bounded attempts to reach a Whitelisted root through unfamiliar intermediates. The [Journey contract](architecture.md#journey-workflow) was documented before implementation. It specifies fixed expiry, context binding, hop counting, lifecycle, and revision checks. Twenty-three fake-time tests cover normal completion, failure, and isolated contexts.
 
-Keep provider details as data where useful; do not implement OAuth, infer authentication from arbitrary traffic, or build a dependency discovery system. D4 already settles that supporting domains can appear during controlled login steps while remaining hidden from the ordinary site list.
+The supporting-domain database proposal is withdrawn. Do not implement Context Whitelist, learned relationships, trust graphs, link inheritance, provider discovery, browser adapters, or authentication logic. Domain tests must not claim actual login compatibility or browser enforcement.
 
-### 5. One durable backend and one browser proof of concept
+### 5. Framework-independent integration boundary
 
-Choose the first frontend under Q12. Resolve initialization/recovery under Q10 and implement a suitable storage backend with real atomicity/concurrency tests. The earlier fake repository is not evidence of crash durability or restart behavior.
+D12 documented the [integration boundary](architecture.md#framework-independent-integration-boundary). D13 implements complete aggregate validation and pure operation planning with explicit time. D14 implements shared ownership, repository/clock ports, serialized commit coordination, and explicit recovery. The 28 aggregate and 27 controller tests use fake snapshots, time, and repository behavior. Real backend durability and runtime event correlation remain unimplemented.
+
+The next framework-independent increment can implement the remaining context/correlation protocol before any browser adapter. Preserve existing domain semantics and public module contracts. A real backend separately needs explicit initialization/recovery decisions and durability evidence.
+
+Prove that invalid state cannot be bypassed by another module's ALLOW, a Vault commit preserves latest access/Journey state, contexts cannot share Journey authority, and failed or uncertain writes publish no candidate permissions. Navigation checks, adoption, actual arrival, and retained-content rechecks need distinct contract tests. Fake storage establishes the controller protocol only, not real durability or browser interception.
+
+### 6. One durable backend and one browser proof of concept
+
+Choose the first frontend under Q12. Resolve initialization/recovery under Q10 and implement a backend satisfying the reviewed repository contract with real atomicity/concurrency/reconciliation tests. Pure candidate-adoption and fake-repository tests are not evidence of crash durability or restart behavior.
 
 Then connect one narrow browser adapter to the tested Core. Verify its actual interception and lifecycle guarantees, including ordinary allowed browsing. Report any browser limitation honestly instead of moving browser mechanics into Core. Keep the second adapter deferred until the first demonstrates the shared contract is usable.
 
 This is the earliest stage that can validate real persisted workflows and end-to-end browser enforcement. Do not ship an in-memory prototype as if it preserves the user's commitments across exit.
 
-## Suggested first prompt for a new Codex session
+## Historical Milestone 1 starter prompt
 
-After copying this packet, the user can supply the following prompt when ready to begin implementation:
+Milestone 1 has now been implemented. This original prompt is retained for context and is not an instruction to repeat the work:
 
 > Read AGENTS.md, README.md, docs/foundation.md, docs/architecture.md and docs/first-steps.md. We are starting a fresh Atlas Core, not migrating Zenith. First summarize the requirements and distinguish them from proposals. Work on milestones 0 and 1 only: settle the necessary language/tooling and site-matching decisions, then implement the small browser-independent evaluator with tests. Ask concise questions for unresolved product semantics before implementing dependent behavior. Do not create Firefox/Electron adapters, UI, authentication handling, network filtering or a large supporting-domain catalog. Update the documentation to distinguish what is implemented, what is tested and what remains proposed.
 
@@ -79,7 +93,7 @@ This prompt authorizes that later implementation when the user sends it; its pre
 - Link acceptance scenarios to actual tests as they are implemented; distinguish unit, storage and browser evidence.
 - Preserve historical lessons as lessons. New defects and platform findings should state what was reproduced, not inherit conclusions from Zenith.
 
-No implementation commands, dependency versions or license choice are prescribed by this packet. Choose supported tooling when implementation starts, and decide repository licensing before publication.
+Implementation commands and dependency versions are now recorded in the README and package lockfile. Decide repository licensing before publication; the package remains private.
 
 ## Open questions
 

@@ -1,6 +1,6 @@
 # Atlas Core agent instructions
 
-These instructions are intended for the new AtlasCore repository when the contents of this handover are copied to its root.
+These instructions guide work in the independent AtlasCore repository.
 
 ## Read first
 
@@ -28,9 +28,9 @@ Do not assume access to the original conversation or that another session rememb
 
 ## Proposed architecture
 
-TypeScript and the layout in `docs/architecture.md` are recommendations, not already implemented facts. Do not treat the document as a request to build every module at once.
+Milestones 1 through 3 implement TypeScript policy evaluation, pure Greylist access transitions, and frozen Vault proposals with commit preparation. D11 adds bounded Pure Whitelist Journeys, including unfamiliar intermediates in one context, without changing policy or grants. Time is explicit. The contracts and adoption status are recorded in `docs/foundation.md` and `docs/architecture.md`. Domain success is not a persistence acknowledgement; a Vault commit candidate is not active policy. Browser integration and Context Whitelist remain deferred. Do not add a supporting-domain database, learned relationships, trust graphs, or link inheritance.
 
-Use one small package initially if TypeScript is adopted. Prefer pure functions, explicit dependencies and a small public API. Avoid service frameworks, generic workflow engines, plugin systems and package proliferation.
+Keep one small package initially. Prefer pure functions, explicit dependencies and a small public API. Avoid service frameworks, generic workflow engines, plugin systems and package proliferation.
 
 ## Open questions and authority
 
@@ -50,7 +50,7 @@ If documents conflict, identify the conflict before changing behavior. Do not in
 6. Run the project's actual build, type checks and tests as applicable.
 7. Review the diff and report changes, evidence and remaining limitations.
 
-There are no build commands yet. Do not copy Zenith's `dotnet` commands or claim that future npm scripts already exist. Record real verification commands once tooling is selected.
+Use the actual npm build, type-check, and test commands in `README.md`. Do not copy Zenith's `dotnet` commands or present future workflow/browser tests as current evidence.
 
 ## Evidence and maintenance
 

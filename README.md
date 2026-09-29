@@ -1,6 +1,6 @@
-# Atlas Core handover
+# Atlas Core
 
-Prepared on 2026-09-24 for a fresh, independent repository.
+An independent decision library for intentional web access. Core implements pure domain workflows and a framework-independent controller that coordinates commits through injected interfaces.
 
 Atlas Core is a decision engine for intentional access to the web. The user chooses an ordinary set of accessible destinations, requests temporary access to other destinations through deliberate friction, and changes long-term commitments through a protected workflow.
 
@@ -12,7 +12,7 @@ Atlas Core is not a browser, a firewall, an authentication system, or an ad bloc
 - Use Whitelist, Blacklist and default Greylist concepts, scoped temporary Access Grants, cooldowns and explicit confirmation.
 - Protect durable policy changes through the Vault concept.
 - Keep the decision engine independent of Firefox, Electron and all browser mechanics.
-- Support a reviewed catalog of supporting domains, with the visibility clarification recorded in the foundation.
+- Support Pure Whitelist accessibility through bounded Journeys, without a global supporting-domain database.
 - Start fresh. Do not copy Zenith's implementation or accumulated architecture.
 
 The authoritative description of requirements is [foundation.md](docs/foundation.md).
@@ -23,25 +23,160 @@ This is a new project. Zenith supplies lessons, not a dependency or a migration 
 
 Supporting domains are **hidden from the normal site list, but may be displayed during controlled login steps**. They are not required to remain literally invisible during a login redirect or popup.
 
-## Proposed architecture
+## Implementation
 
-A small TypeScript library with pure evaluation, explicit state transitions and replaceable persistence is recommended. TypeScript, exact API shapes, matching scope and lifecycle choices still need adoption; this packet is not evidence that the user approved every earlier design suggestion.
+One TypeScript package in `packages/core`, with no runtime dependencies. Policy evaluation returns `ALLOW`, `DENY`, or `GREYLIST`. The access workflow adds pending requests, waits, confirmation windows, explicit confirmation, cancellation, and expiring grants. Vault adds frozen proposals, review, and commit preparation for policy changes. Journeys authorize bounded intermediate navigation toward a Whitelisted root. The controller serializes these operations and coordinates saves through repository/clock interfaces. There are no concrete clocks, timers, storage backends, or browser adapters. Navigation assessments do not execute actions.
 
-See [architecture.md](docs/architecture.md). Do not scaffold its entire proposed tree just because it is documented.
+The original `SiteTarget`, `Policy`, `Decision`, `normalizeTarget`, and `evaluate` API is unchanged. Invalid input returns `DENY` with `INVALID_TARGET` or `INVALID_POLICY`; invalid normalization returns `null`. `evaluate` examines policy classification only: a temporary grant never makes a Greylist hostname Whitelisted.
+
+```ts
+import { evaluate, type Policy } from "@atlas/core";
+
+const policy: Policy = {
+  whitelist: ["mail.example"],
+  blacklist: ["blocked.example"],
+};
+
+evaluate("https://MAIL.EXAMPLE/messages", policy);
+// { outcome: "ALLOW", reason: "WHITELISTED", target: { hostname: "mail.example" } }
+
+evaluate("unknown.example", policy);
+// { outcome: "GREYLIST", reason: "UNLISTED", target: { hostname: "unknown.example" } }
+```
+
+Targets may be bare ASCII hostnames, HTTP(S) URLs, or `SiteTarget` objects. Policy entries are bare hostnames. Matching is exact after normalization; `www` and subdomains remain distinct. The complete initial input contract and deferred forms are owned by [foundation.md](docs/foundation.md#milestone-1-input-contract).
+
+### Greylist access workflow
+
+Each access operation takes an explicit context: `{ policy, policyRevision, state, now }`. `now` is an injected nonnegative safe integer in milliseconds. No function reads a real clock. Start also takes `{ waitMs, confirmationWindowMs, grantDurationMs }`; each duration must be a positive safe integer. There are no production defaults.
+
+| Function | Result |
+| --- | --- |
+| `createAccessState()` | A fresh empty domain state. Never use it to recover invalid existing state. |
+| `startAccess(target, context, timing)` | Creates a pending request, or returns its existing unexpired request with unchanged terms. |
+| `evaluateAccess(target, context)` | Returns a decision and observation state. Pending requests yield `WAIT` or `REQUIRE_CONFIRMATION`; time never creates a grant. |
+| `confirmAccess(requestId, context)` | Returns one complete candidate state containing the grant and no longer containing the consumed request. |
+| `cancelAccess(requestId, context)` | Removes the live pending request. Its ID cannot confirm later. |
+
+Transitions return `{ ok, ... , nextState }`; evaluations return `{ decision, nextState }`. Use the returned `nextState` in subsequent calls whenever it is non-null, including rejected commands. It preserves the latest accepted time and policy revision; rejected commands change no pending request or grant. Invalid context returns `nextState: null`, never fresh permissive state.
+
+Increment the trusted `policyRevision` whenever policy changes, even if a later edit restores earlier rules. A revision change invalidates existing requests and grants. Returning to an older revision or time than the retained snapshot fails closed. These guards rely on retaining the latest state; they cannot detect restoration of an older complete snapshot.
+
+`ok: true` means the pure domain transition succeeded, not that anything was saved. The controller below commits complete candidates through an injected repository before reporting workflow success. Standalone access functions provide no persistence or concurrency guarantees. Serialization tests simulate retaining the complete state across reload, including IDs and timestamps.
+
+See [access.test.mjs](packages/core/tests/access.test.mjs) for executable examples and [the workflow contract](docs/architecture.md#greylist-workflow-milestone-2) for boundaries and restart semantics.
+
+### Vault policy changes
+
+Vault operations take `{ policy, policyRevision, state, accessState, now }`, where `state` is `VaultState` and `accessState` is the latest Greylist state. Proposal creation also takes `{ waitMs, confirmationWindowMs }`, both positive safe integers. Times and revisions are explicit; there are no production defaults.
+
+| Function | Result |
+| --- | --- |
+| `createVaultState()` | A fresh empty Vault state; never a recovery fallback. |
+| `createPolicyProposal(candidatePolicy, context, timing)` | Normalizes and freezes one complete candidate policy and its deadlines. Active policy stays unchanged. |
+| `reviewPolicyProposal(proposalId, context)` | Reads the frozen proposal and returns list changes, actual classification changes, and its waiting/ready/expired phase. No state transition. |
+| `prepareVaultCommit(proposalId, context)` | Explicit confirmation of a ready current proposal prepares a complete commit candidate. It does not activate policy. |
+| `cancelPolicyProposal(proposalId, context)` | Consumes the pending proposal, including expired or stale proposals. Editing requires cancellation and a new full wait. |
+
+Returned Vault records and candidates are deeply frozen. Creation copies the caller's policy; confirmation accepts an ID and current context, not replacement contents. Any policy revision change makes a pending proposal stale. Both Whitelist and Blacklist additions/removals use the same protected flow.
+
+`COMMIT_PREPARED` returns two distinct values: observation-only `nextState`, which still contains the pending proposal, and `candidate.nextSnapshot`, which contains the proposed replacement policy, revision increment, consumed proposal, last-applied marker, and latest access state with the new revision. Thread non-null observation state through later commands, including rejections; review returns no `nextState`. Invalid context fails closed.
+
+Standalone Vault functions only prepare changes. The aggregate planner includes latest Journeys, and the controller publishes the complete candidate after repository acknowledgement. A definite failed write leaves policy unchanged and requires fresh explicit confirmation within the original window. Identical preparation against unchanged input is deterministic; after adopting a successful candidate, confirming its proposal again cannot commit twice. Real backend guarantees and website-message isolation remain integration work.
+
+See [the Vault contract](docs/architecture.md#vault-workflow-milestone-3) and [vault.test.mjs](packages/core/tests/vault.test.mjs). Tests model adoption or rejection of a candidate; they do not implement persistence.
+
+See [architecture.md](docs/architecture.md) for current modules and the remaining proposals. The package is private while the API and repository license are still being developed.
+
+### Pure Whitelist Journeys
+
+Journeys allow unfamiliar intermediate top-level destinations during a bounded attempt to reach a Whitelisted root, subject to Blacklist. They change neither policy nor access grants. Each Journey belongs to one opaque context ID and has one fixed deadline, a hop limit, and a policy revision.
+
+| Function | Role |
+| --- | --- |
+| `createJourneyState()` | Explicit fresh runtime state. |
+| `startJourney(root, contextId, context, { lifetimeMs, maxHops })` | Starts one attempt for a currently Whitelisted root. Both limits are positive safe integers; no defaults. |
+| `evaluateJourneyNavigation({ journeyId, contextId, target }, context)` | Checks a proposed step without moving or completing the Journey. |
+| `recordJourneyNavigation(navigation, context)` | Rechecks and records an adopted step or actual root arrival. |
+| `observeJourneys(context)` | Observes time/revision and ends expired or invalidated attempts without navigation. |
+| `cancelJourney(id, contextId, context)` / `closeJourneyContext(id, contextId, context)` | Ends a matching attempt. |
+
+Context is `{ policy, policyRevision, state: journeyState, now }`. Navigation calls return `{ decision, nextState }`; other commands return `{ ok, ... , nextState }`. Thread all non-null state onward, including denials. Initial root arrival keeps the attempt open. A recorded return after leaving ends it. Host changes to intermediates consume hops; reloads never extend time; root return requires no extra hop. Repeated Start on an active context rejects without renewal.
+
+An ended Journey permits no intermediate access of its own. Ordinary Whitelist access remains available; an independent Greylist grant is evaluated separately with `evaluateAccess`. Malformed state fails closed. These functions do not combine all authorization state or enforce browser navigation.
+
+The [Journey contract](docs/architecture.md#journey-workflow) defines the bounded exception and owner obligations. The owner must supply trusted context bindings, record accepted navigation steps in order, and enforce expiry on displayed content. Domain tests establish none of those browser guarantees. The Core cannot prove that an intermediate site is necessary or safe, and the deadline bounds one attempt rather than cumulative use across fresh deliberate starts.
+
+## Aggregate planner
+
+`AtlasSnapshot` combines `{ policy, policyRevision, accessState, vaultState, journeyState }`. `validateAtlasSnapshot(input)` validates every component and their revision relationships, then returns copied, frozen data. Invalid components block all planning, including otherwise Whitelisted access.
+
+`planAtlasOperation(operation, { snapshot, now, configuration })` combines the existing workflows without storage or a real clock. Configuration supplies `{ accessTiming, vaultTiming, journeyLimits }`; there are no production defaults. Navigation precedence is full validation and observation, Blacklist, Whitelist, Access Grant, Journey, then GREYLIST/WAIT/REQUIRE_CONFIRMATION.
+
+```ts
+import { planAtlasOperation, type AtlasPlannerContext } from "@atlas/core";
+
+function assessDestination(context: AtlasPlannerContext) {
+  return planAtlasOperation({
+    kind: "CHECK_NAVIGATION",
+    target: { hostname: "mail.example" },
+    context: { contextId: "surface_1", journeyId: null },
+  }, context);
+}
+```
+
+A plan returns:
+
+- `result`: an assessment, prepared transition, review, observation, or rejection. An ALLOW assessment does not authorize browser execution.
+- `observationSnapshot`: complete conservative time/revision/expiry observations to retain, including on rejected commands. Read-only review and invalid planner context return null.
+- `candidateSnapshot`: a complete proposed change after a successful transition, otherwise null. Only a successful atomic commit may publish its permissions.
+
+Vault candidates include the latest access records and invalidated Journeys together with the replacement policy. Navigation records maintain Journey hops/returns even when Whitelist or a grant supplies ALLOW. Ordinary checks never record a hop or complete a return. The full operation contract and trusted-owner obligations are in [architecture.md](docs/architecture.md#aggregate-planner-d13); executable examples are in [atlas.test.mjs](packages/core/tests/atlas.test.mjs).
+
+## Atlas controller
+
+`createAtlasController({ repository, clock, configuration, ownerId })` creates one framework-independent owner. The host supplies an `AtlasRepository`, an `AtlasClock`, explicit timing configuration, and a fresh opaque owner ID for each controller lifetime. Core generates no clock or random ID of its own.
+
+| Method | Behavior |
+| --- | --- |
+| `open()` | Load and validate complete authority, reconcile uncertain writes, and save startup/recovery housekeeping before READY. Missing or corrupt state is never initialized automatically. |
+| `handle(operation)` | Serialize a D13 operation, reload current authority, plan it with injected time, commit its complete candidate or required observation checkpoint, then return the result. |
+| `getView()` | Immutable last verified snapshot and owner status. It does not expose uncommitted candidates or authorize navigation. |
+
+The repository provides `load`, atomic version-checked `commit`, and `resolveCommit`. `clock.now()` supplies nonnegative integer milliseconds. The [controller contract](docs/architecture.md#atlas-controller-d14) specifies envelope validation, receipts, restart fencing, and identity requirements.
+
+Successful workflow changes return `COMMITTED`; other responses include `ASSESSMENT`, `REVIEW`, `OBSERVED`, and domain `REJECTED`. Infrastructure failures return `BLOCKED`. Navigation remains an assessment: browser-event correlation and execution permission are not implemented.
+
+Failed writes require explicit `open()` recovery. Conflicts discard the candidate and reload; unknown outcomes remain blocked until the repository settles them. Recovery never replays confirmation. Initial open and recovery terminate old Journeys for lost bindings while preserving grant, request, and proposal deadlines. Slow saves cannot return an expired grant/Journey ALLOW assessment.
+
+[controller.test.mjs](packages/core/tests/controller.test.mjs) uses a controllable [in-memory repository](packages/core/tests/support/fake-repository.mjs) and fake time. That repository is test support only. No real backend or durability guarantee is supplied by the package.
+
+## Integration boundary design
+
+The [architecture](docs/architecture.md#framework-independent-integration-boundary) now defines a proposed public facade and one trusted state owner, with plain operation/result contracts and injected repository/clock ports. The host owns UI, browser state, event mapping, and concrete persistence. Core owns common authorization and transition semantics. Hostname grants retain their existing scope across contexts; Journeys remain bound to individual contexts.
+
+D13 implements aggregate validation/planning; D14 adds the controller and repository/clock ports. Runtime event correlation, context registration, and executable navigation decisions remain proposed. Fake repository tests validate the controller protocol, not real storage durability or browser behavior.
+
+## Development
+
+Use Node.js 24 and npm. TypeScript 6.0.3 is the only development dependency; tests use Node's built-in runner against compiled JavaScript. From the repository root:
+
+```sh
+npm --prefix packages/core ci
+npm --prefix packages/core run typecheck
+npm --prefix packages/core run build
+npm --prefix packages/core test
+```
+
+`test` also builds first. Build output and declarations go to `packages/core/dist` and are ignored by Git. Tests use explicit fixture times and need no browser, storage backend, real clock, accounts, or network access.
 
 ## Open questions
 
-Language/tooling, hostname scope, grant lifetime across restarts, supporting-domain authorization details, timing defaults and recovery are recorded in [foundation.md](docs/foundation.md). Resolve only the questions needed for the next milestone.
+Language/tooling, initial hostname scope, and the pure Greylist, Vault, and Journey workflows are settled. Production timing/hop values, actual clock/recovery integration, durable commits, and browser context mapping remain recorded in [foundation.md](docs/foundation.md). Context Whitelist and broader models are deferred.
 
-## How to use this packet
+## Working in this repository
 
-1. Create a separate `AtlasCore` directory and Git repository alongside Zenith, not inside it.
-2. Copy the **contents** of this handover directory into the new repository root. In particular, `AGENTS.md` belongs at that root.
-3. Read the foundation and distinguish settled requirements from proposals.
-4. Use the starter prompt and small milestones in [first-steps.md](docs/first-steps.md).
-5. Keep decisions and progress in the new repository as work proceeds.
-
-No file in this packet requires access to Zenith or the original conversation. Do not copy Zenith's Git metadata, user data, browser profiles, credentials, build outputs or old agent instructions.
+Read `AGENTS.md` and the foundation first. Follow the small milestones in [first-steps.md](docs/first-steps.md) and keep decisions in their owning documents. No access to Zenith or the original conversation is required. Do not import Zenith's code, Git metadata, user data, profiles, credentials, or build outputs.
 
 ## Reading guide
 
@@ -49,11 +184,13 @@ No file in this packet requires access to Zenith or the original conversation. D
 | --- | --- |
 | [AGENTS.md](AGENTS.md) | Instructions for future agents working in the new project. |
 | [foundation.md](docs/foundation.md) | Requirements, settled decisions, terminology and open questions. |
-| [architecture.md](docs/architecture.md) | Proposed modules, contracts, data boundaries and repository layout. |
+| [architecture.md](docs/architecture.md) | Implemented modules and contracts, data boundaries, and remaining proposals. |
 | [lessons-from-zenith.md](docs/lessons-from-zenith.md) | Historical evidence distilled into transferable lessons. |
 | [acceptance-tests.md](docs/acceptance-tests.md) | Behavioral scenarios, with required and conditional expectations separated. |
 | [first-steps.md](docs/first-steps.md) | A restrained implementation sequence and prompt for a fresh context. |
 
 ## Status and evidence
 
-This packet contains documentation only. Atlas Core has no implementation, dependencies, test results or release certification yet. Zenith's fixes reduce uncertainty about failure cases; they do not prove that a new implementation is correct. Historical observations are labeled in the lessons document. No previous test totals or browser-specific fixes should be presented as Atlas validation.
+Verification on Node.js 24.12.0 / npm 11.6.4 / TypeScript 6.0.3: build and type checks pass; all 144 Core tests pass (19 policy/normalization, 25 Greylist, 22 Vault, 23 Journey, 28 aggregate planner, and 27 controller tests). [Acceptance scenarios](docs/acceptance-tests.md) map this evidence to implemented behavior and distinguish the remaining integration work.
+
+No browser enforcement, real backend durability, or provider compatibility has been tested. Zenith's historical fixes and test results are not Atlas validation.
