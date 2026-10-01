@@ -15,6 +15,7 @@ import { hasJourneyFields, readJourneyLimits, validContextId } from "./journey-s
 import type { SiteTarget } from "./models.js";
 import { normalizePolicy } from "./policy.js";
 import { normalizeTarget } from "./target.js";
+import { isManagedBlacklist, managedBlacklistContains, type ManagedBlacklist } from "./managed-blacklist.js";
 import {
   cancelPolicyProposal, createPolicyProposal, prepareVaultCommit, reviewPolicyProposal,
 } from "./vault.js";
@@ -148,7 +149,7 @@ function checkBinding(context: AtlasNavigationContext, snapshot: AtlasSnapshot):
 
 function navigationPlan(
   operation: Extract<AtlasOperation, { kind: "CHECK_NAVIGATION" | "RECORD_JOURNEY_NAVIGATION" }>,
-  snapshot: AtlasSnapshot, now: number,
+  snapshot: AtlasSnapshot, now: number, managed: ManagedBlacklist | undefined,
 ): AtlasPlan {
   const bindingError = checkBinding(operation.context, snapshot);
   if (bindingError !== null) return reject(bindingError, snapshot);
@@ -156,6 +157,8 @@ function navigationPlan(
   if (access.nextState === null) return reject("INVALID_ACCESS_STATE");
   let observation = { ...snapshot, accessState: access.nextState };
   const decision = access.decision;
+  const managedDecision = managedDenies(snapshot, operation.target.hostname, managed)
+    ? { outcome: "DENY" as const, reason: "MANAGED_BLACKLISTED" as const, target: operation.target } : null;
   const navigation = { ...operation.context, target: operation.target };
   if (operation.context.journeyId !== null) {
     const journey = evaluateJourneyNavigation(navigation, journeyContext(observation, now));
@@ -165,8 +168,8 @@ function navigationPlan(
     if (journey.decision.outcome === "DENY" && journey.decision.reason !== "BLACKLISTED") {
       return reject(journey.decision.reason, observation);
     }
-    const combined = access.decision.outcome === "DENY" || access.decision.outcome === "ALLOW"
-      ? access.decision : journey.decision.outcome === "ALLOW" ? journey.decision : access.decision;
+    const combined = managedDecision ?? (access.decision.outcome === "DENY" || access.decision.outcome === "ALLOW"
+      ? access.decision : journey.decision.outcome === "ALLOW" ? journey.decision : access.decision);
     if (operation.kind === "RECORD_JOURNEY_NAVIGATION" && combined.outcome === "ALLOW") {
       const recorded = recordJourneyNavigation(navigation, journeyContext(observation, now));
       if (recorded.nextState === null) return reject("INVALID_JOURNEY_STATE");
@@ -181,14 +184,24 @@ function navigationPlan(
   }
   // Recording requires a Journey; ordinary navigation needs only an assessment.
   if (operation.kind === "RECORD_JOURNEY_NAVIGATION") return reject("INVALID_JOURNEY_ID", observation);
-  return makePlan({ type: "ASSESSMENT", decision }, observation);
+  return makePlan({ type: "ASSESSMENT", decision: managedDecision ?? decision }, observation);
+}
+
+function managedDenies(snapshot: AtlasSnapshot, hostname: string, managed: ManagedBlacklist | undefined): boolean {
+  return managed !== undefined && !snapshot.policy.blacklist.includes(hostname)
+    && !snapshot.policy.whitelist.includes(hostname) && managedBlacklistContains(managed, hostname) === true;
 }
 
 /** Pure composition only: no storage, clocks, browser events, or mutable owner state. */
 export function planAtlasOperation(operationInput: unknown, contextInput: unknown): AtlasPlan {
-  if (!hasJourneyFields(contextInput, ["snapshot", "now", "configuration"])) return reject("INVALID_CONTEXT");
+  const fields = ["snapshot", "now", "configuration"];
+  if (contextInput !== null && typeof contextInput === "object" && Object.hasOwn(contextInput, "managedBlacklist")) fields.push("managedBlacklist");
+  if (!hasJourneyFields(contextInput, fields)) return reject("INVALID_CONTEXT");
   const validated = validateAtlasSnapshot(contextInput.snapshot);
   if (!validated.ok) return reject(validated.reason);
+  const managed = Object.hasOwn(contextInput, "managedBlacklist") ? contextInput.managedBlacklist : undefined;
+  if (Object.hasOwn(contextInput, "managedBlacklist") && !isManagedBlacklist(managed)) return reject("INVALID_MANAGED_BLACKLIST");
+  const managedList = managed as ManagedBlacklist | undefined;
   const snapshot = validated.snapshot;
   const now = contextInput.now;
   if (!nonnegativeInteger(now)) return reject("INVALID_TIME");
@@ -208,10 +221,13 @@ export function planAtlasOperation(operationInput: unknown, contextInput: unknow
   };
   if (!parsed.ok) return reject(parsed.reason, observation);
   const operation = parsed.operation;
+  const guardedHostname = operation.kind === "START_ACCESS" ? operation.target.hostname
+    : operation.kind === "CONFIRM_ACCESS" ? observation.accessState.pendingRequests.find((r) => r.id === operation.requestId)?.hostname : undefined;
+  if (guardedHostname !== undefined && managedDenies(observation, guardedHostname, managedList)) return reject("MANAGED_BLACKLISTED", observation);
   switch (operation.kind) {
     case "CHECK_NAVIGATION":
     case "RECORD_JOURNEY_NAVIGATION":
-      return navigationPlan(operation, observation, now);
+      return navigationPlan(operation, observation, now, managedList);
     case "OBSERVE_TIME":
       return makePlan({ type: "OBSERVED" }, observation);
     case "START_ACCESS":

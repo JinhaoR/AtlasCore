@@ -20,10 +20,14 @@
     <p id="feedback" class="feedback" role="alert" hidden></p>
     <section id="setup" class="card" hidden>
       <p class="eyebrow">WELCOME TO ATLAS</p><h2>Choose your first destinations</h2>
-      <p>Enter exact hostnames, one per line. Include the subdomain you visit. Empty lists leave every site Greylist.</p>
+      <p>Start with these curated destinations. You can add exact hostnames before saving your initial policy.</p>
       <form id="setup-form">
-        <div class="columns"><label>Pure Whitelist<textarea id="whitelist" placeholder="student.ladok.se" rows="4" spellcheck="false"></textarea></label>
+        <label class="checkbox-label"><input id="use-defaults" type="checkbox" checked> Include the curated Atlas Whitelist</label>
+        <div id="preset-preview"></div>
+        <details><summary>Additional hostnames and manual Blacklist</summary>
+        <div class="columns"><label>Additional Pure Whitelist hostnames<textarea id="whitelist" placeholder="Your institution's Canvas hostname" rows="4" spellcheck="false"></textarea></label>
           <label>Blacklist<textarea id="blacklist" placeholder="Sites to block" rows="4" spellcheck="false"></textarea></label></div>
+        </details>
         <button id="save-setup" type="submit">Save my initial policy</button>
         <p class="note">This setup is available once. Protected policy editing will come in a later interface.</p>
       </form>
@@ -63,9 +67,15 @@
         <details class="decision-details"><summary>Decision details</summary><p id="decision" class="mono"></p><p id="context-detail" class="mono"></p></details>
       </section>
     </div>
+    <section class="card managed-panel"><div class="section-heading"><h2>Managed Blacklist</h2><span class="pill">StevenBlack</span></div>
+      <p id="managed-status">Loading the bundled blacklist…</p><p id="managed-details" class="note"></p>
+      <details><summary>Source and update details</summary><p id="managed-source" class="mono"></p></details>
+      <p class="note">Temporary access and Journey cannot override this list. Your explicit Whitelist overrides managed entries; your manual Blacklist still wins.</p>
+    </section>
     <details id="diagnostics" class="card secondary-panel">
       <summary>Navigation diagnostics <span class="note">Local · last 200 events · hostnames only</span></summary>
       <p class="note">Inspect requests, redirects, Core results, and Journey state. Restart clears this log. An export contains your visited hostnames; review it before sharing.</p>
+      <p id="managed-conflicts" class="note"></p>
       <div class="actions"><label class="inline-label">Scope<select id="diagnostic-scope"><option value="selected">Selected tab</option><option value="all">All tabs</option></select></label>
         <button id="export-diagnostics" class="secondary compact">Export JSON</button><button id="clear-diagnostics" class="secondary compact">Clear log</button></div>
       <div class="table-scroll"><table><caption class="sr-only">Recent navigation events</caption><thead><tr><th>Sequence</th><th>Event</th><th>Tab / navigation</th><th>Hostname</th><th>Core result</th><th>Journey</th></tr></thead><tbody id="diagnostic-rows"></tbody></table></div>
@@ -73,7 +83,15 @@
     </details>
     <details class="card secondary-panel"><summary>Policy &amp; recovery</summary>
       <pre id="policy">No policy loaded.</pre>
-      <p class="note">Policy changes remain protected by Vault. This prototype shows your policy; it does not yet offer a policy editor.</p>
+      <p class="note">Reload keeps your saved policy. New curated destinations can be added through Vault: review, wait, then confirm. Existing entries and your manual Blacklist are retained.</p>
+      <p id="preset-update-status" class="note"></p>
+      <button id="propose-defaults" class="secondary" hidden>Add curated destinations</button>
+      <div id="vault-panel" hidden>
+        <h3>Review policy proposal</h3><pre id="vault-review"></pre><p id="vault-deadline" class="deadline"></p>
+        <p class="note">Committing advances the policy revision and invalidates current Access requests, grants, and Journeys.</p>
+        <div class="actions"><button id="confirm-policy" hidden>Confirm policy update</button>
+          <button id="cancel-policy" class="secondary">Cancel proposal</button></div>
+      </div>
       <button id="recover" class="secondary">Reload and reconcile state</button>
     </details>
     <footer><p id="timing"></p><p>Atlas governs top-level HTTP(S) navigation. Firefox handles website security and sign-in.</p></footer>

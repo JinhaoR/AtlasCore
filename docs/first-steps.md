@@ -71,7 +71,7 @@ Prove that invalid state cannot be bypassed by another module's ALLOW, a Vault c
 
 ### 6. One durable backend and one browser proof of concept
 
-D15 implements Firefox as the first frontend, with explicit initial setup and an IndexedDB repository. D16 improves the control interface, browsing flow, and diagnostics. Core remains unchanged. See the [extension guide](../extension/README.md) for build/load/test commands and the [evidence](acceptance-tests.md#firefox-prototype-evidence-d16) for tested behavior.
+D15 implements Firefox as the first frontend, with explicit initial setup and an IndexedDB repository. D16 improves the control interface, browsing flow, and diagnostics. D17 adds [curated defaults and a compiled managed Blacklist](managed-policy.md), retaining exact-host Policy matching and existing workflows. See the [extension guide](../extension/README.md) for build/load/test commands and the [evidence](acceptance-tests.md#curated-defaults-and-managed-blacklist-evidence-d17) for tested behavior.
 
 Further work should address observed coverage gaps, receipt retention/write frequency, production timing, and reviewed Vault UI before expanding to another frontend. History/cache checks occur after observation; power-loss durability and authenticated provider returns remain untested. Public sign-in evidence and Ladok's remaining selection gap are in the [real-site report](firefox-real-sites.md). These limits do not justify moving browser mechanics into Core.
 

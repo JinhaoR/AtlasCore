@@ -2,6 +2,8 @@ import type { AdapterView } from '../adapter/firefox-adapter.js';
 import type { DiagnosticEntry } from '../adapter/diagnostics.js';
 import { configuration } from '../background/configuration.js';
 import { accessCopy, countdown, selectedContext } from './presentation.js';
+import { compileCuratedWhitelist, curatedWhitelist, serviceHostnames } from '../presets/curated-whitelist.js';
+import type { PolicyReview } from '@atlas/core';
 
 const element = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const select = element<HTMLSelectElement>('context');
@@ -14,7 +16,16 @@ let epoch = 0;
 let optionsKey = '';
 let destinationsKey = '';
 let diagnosticKey = '';
+let policyReview: PolicyReview | null = null;
+let policyReviewError = '';
+const presetHostnames = compileCuratedWhitelist().whitelist;
 document.body.dataset.mode = params.get('view') === 'access' ? 'access' : 'control';
+element('preset-preview').replaceChildren(...curatedWhitelist.map((group) => {
+  const detail = document.createElement('details'); detail.className = 'preset-group';
+  const summary = document.createElement('summary'); summary.textContent = group.label;
+  const content = document.createElement('p'); content.textContent = group.services.map((service) => service.label).join(' · ');
+  detail.append(summary, content); return detail;
+}));
 if (document.body.dataset.mode === 'access') {
   element('page-title').textContent = 'A moment for your next step.';
   element('page-description').textContent = 'Your destination is waiting. You decide whether to continue.';
@@ -31,6 +42,7 @@ async function send(command: object): Promise<void> {
   try {
     const response = await browser.runtime.sendMessage(command);
     if (response?.view) view = response.view;
+    policyReview = null; policyReviewError = '';
     if (response?.tabId !== undefined && response?.result?.type === 'COMMITTED') selected = String(response.tabId);
     feedback(response?.error ? `Atlas could not complete that action (${response.error}).`
       : response?.initialized === false ? 'Setup was not saved. Check the hostnames; an existing policy cannot be replaced here.'
@@ -106,17 +118,65 @@ function render(): void {
   progress.hidden = !activeJourney;
   if (activeJourney) progress.value = Math.max(0, (journey.expiresAt - now) / (journey.expiresAt - journey.startedAt));
   const policy = controller?.snapshot?.policy;
+  const proposal = controller?.snapshot?.vaultState.pendingProposal;
+  const missingDefaults = presetHostnames.filter((hostname) => !policy?.whitelist.includes(hostname));
+  element('preset-update-status').textContent = policy ? missingDefaults.length > 0
+    ? `${missingDefaults.length} curated hostnames are missing from your saved Whitelist.`
+    : 'Your saved Whitelist includes all current curated hostnames.' : '';
+  element('propose-defaults').hidden = !policy || missingDefaults.length === 0;
+  element<HTMLButtonElement>('propose-defaults').disabled = busy || !ready || proposal != null;
+  element('vault-panel').hidden = proposal == null;
+  const review = policyReview?.proposalId === proposal?.id && policyReview?.basePolicyRevision === controller?.snapshot?.policyRevision
+    ? policyReview : null;
+  element('vault-review').textContent = review
+    ? `Proposal ${review.proposalId} · policy revision ${review.basePolicyRevision}\nWhitelist additions: ${review.whitelist.added.join(', ') || '(none)'}\nWhitelist removals: ${review.whitelist.removed.join(', ') || '(none)'}\nBlacklist additions: ${review.blacklist.added.join(', ') || '(none)'}\nBlacklist removals: ${review.blacklist.removed.join(', ') || '(none)'}\nClassification changes:\n${review.classifications.map((change) => `${change.hostname}: ${change.before} → ${change.after}`).join('\n') || '(none)'}`
+    : policyReviewError ? `Core review unavailable: ${policyReviewError}. Cancel or recover before proceeding.` : 'Loading the frozen Core review…';
+  element('vault-deadline').textContent = review?.phase === 'WAITING' ? `Vault wait ${countdown(review.readyAt, now)}`
+    : review?.phase === 'READY' ? `Confirm within ${countdown(review.confirmBy, now)}`
+      : review?.phase === 'EXPIRED' ? 'This proposal expired. Cancel it before starting a new proposal.' : '';
+  element('confirm-policy').hidden = review?.phase !== 'READY';
+  element<HTMLButtonElement>('confirm-policy').disabled = busy || !ready;
+  element<HTMLButtonElement>('cancel-policy').disabled = busy || !ready;
+  const managed = view?.managed;
+  element('managed-status').textContent = managed?.active ? `Status: active · ${managed.count.toLocaleString()} domains` : 'Managed data is loading or unavailable.';
+  element('managed-details').textContent = managed ? `Categories: ${managed.categories.join(' + ')}. Last updated: ${managed.lastUpdatedAt === null ? 'bundled offline snapshot' : new Date(managed.lastUpdatedAt).toLocaleString()}. Upstream: ${managed.upstreamDate ?? 'unknown'}.` : '';
+  element('managed-source').textContent = managed ? `Origin: ${managed.origin}\nUpdate: ${managed.updateStatus}\nLast attempt: ${managed.lastAttemptAt === null ? 'none' : new Date(managed.lastAttemptAt).toLocaleString()}\nSource: ${managed.sourceUrl}\nVersion: ${managed.upstreamVersion ?? 'unknown'}\nUnsupported names skipped: ${managed.ignoredNames}` : '';
+  element('managed-conflicts').textContent = managed ? `Whitelist exceptions in managed data (${managed.conflicts.length}): ${managed.conflicts.join(', ') || 'none'}.` : '';
   const destinationKey = JSON.stringify(policy?.whitelist ?? []);
   if (destinationsKey !== destinationKey) {
     destinationsKey = destinationKey;
-    element('destination-list').replaceChildren(...(policy?.whitelist ?? []).map((hostname) => {
+    const hostnames = policy?.whitelist ?? [];
+    const represented = new Set<string>();
+    const makeRow = (label: string, available: readonly string[]) => {
       const row = document.createElement('div'); row.className = 'destination-item';
-      const name = document.createElement('span'); name.textContent = hostname;
+      const name = document.createElement('span'); name.textContent = label;
+      const addresses = document.createElement('select'); addresses.className = 'service-addresses';
+      addresses.setAttribute('aria-label', `${label} entry point`);
+      for (const hostname of available) addresses.append(new Option(hostname, hostname));
+      addresses.hidden = available.length < 2;
       const button = document.createElement('button'); button.textContent = 'Open';
-      button.setAttribute('aria-label', `Open ${hostname} with Journey`);
-      button.addEventListener('click', () => { void send({ kind: 'OPEN_JOURNEY', url: `https://${hostname}/` }); });
-      row.append(name, button); return row;
-    }));
+      button.setAttribute('aria-label', `Open ${label} with Journey`);
+      button.title = available[0]!;
+      button.addEventListener('click', () => { void send({ kind: 'OPEN_JOURNEY', url: `https://${addresses.value}/` }); });
+      row.append(name, addresses, button); return row;
+    };
+    const groups: HTMLElement[] = [];
+    for (const group of curatedWhitelist) {
+      const rows: HTMLElement[] = [];
+      for (const service of group.services) {
+        const all = serviceHostnames(service).filter((hostname) => hostnames.includes(hostname));
+        all.forEach((hostname) => represented.add(hostname));
+        if (all.length === 0) continue;
+        const entries = [service.hostname, ...(service.destinations ?? [])].filter((hostname) => hostnames.includes(hostname));
+        rows.push(makeRow(service.label, entries.length > 0 ? entries : [all[0]!]));
+      }
+      if (rows.length === 0) continue;
+      const detail = document.createElement('details'); detail.className = 'service-group'; detail.open = rows.length <= 3;
+      const summary = document.createElement('summary'); summary.textContent = `${group.label} · ${rows.length}`;
+      detail.append(summary, ...rows); groups.push(detail);
+    }
+    for (const hostname of hostnames) if (!represented.has(hostname)) groups.push(makeRow(hostname, [hostname]));
+    element('destination-list').replaceChildren(...groups);
   }
   element('empty-destinations').hidden = (policy?.whitelist.length ?? 0) > 0;
   for (const button of document.querySelectorAll<HTMLButtonElement>('#destination-list button, #open-journey')) button.disabled = busy || !ready;
@@ -152,7 +212,8 @@ select.addEventListener('change', () => { selected = select.value; render(); voi
 element('setup-form').addEventListener('submit', (event) => {
   event.preventDefault();
   const hosts = (id: string) => element<HTMLTextAreaElement>(id).value.split(/\r?\n/).map((value) => value.trim()).filter(Boolean);
-  void send({ kind: 'SETUP', policy: { whitelist: hosts('whitelist'), blacklist: hosts('blacklist') } });
+  const defaults = element<HTMLInputElement>('use-defaults').checked ? compileCuratedWhitelist().whitelist : [];
+  void send({ kind: 'SETUP', policy: { whitelist: [...new Set([...defaults, ...hosts('whitelist')])], blacklist: hosts('blacklist') } });
 });
 element('journey-form').addEventListener('submit', (event) => {
   event.preventDefault(); void send({ kind: 'OPEN_JOURNEY', url: element<HTMLInputElement>('destination').value.trim() });
@@ -168,6 +229,13 @@ for (const [id, kind] of Object.entries({ 'confirm-access': 'CONFIRM_ACCESS_AND_
   });
 }
 element('recover').addEventListener('click', () => { void send({ kind: 'RECOVER' }); });
+element('propose-defaults').addEventListener('click', () => { void send({ kind: 'PROPOSE_CURATED_DEFAULTS' }); });
+for (const [id, kind] of Object.entries({ 'confirm-policy': 'CONFIRM_POLICY', 'cancel-policy': 'CANCEL_POLICY' })) {
+  element(id).addEventListener('click', () => {
+    const proposalId = view?.controller?.snapshot?.vaultState.pendingProposal?.id;
+    if (proposalId !== undefined) void send({ kind, proposalId });
+  });
+}
 element('diagnostics').addEventListener('toggle', () => { void diagnostics(); });
 element('diagnostic-scope').addEventListener('change', () => { void diagnostics(); });
 element('clear-diagnostics').addEventListener('click', () => {
@@ -191,7 +259,19 @@ async function poll(): Promise<void> {
   const ticket = epoch;
   try {
     const response = await browser.runtime.sendMessage({ kind: 'GET_VIEW' });
-    if (ticket === epoch && response?.view) { view = response.view; render(); }
+    if (ticket === epoch && response?.view) {
+      view = response.view;
+      const proposalId = view?.controller?.snapshot?.vaultState.pendingProposal?.id;
+      if (view?.controller?.status === 'READY' && proposalId !== undefined && !busy) {
+        const reviewed = await browser.runtime.sendMessage({ kind: 'REVIEW_POLICY', proposalId });
+        if (ticket === epoch && reviewed?.view) {
+          view = reviewed.view;
+          policyReview = reviewed.result?.type === 'REVIEW' ? reviewed.result.review : null;
+          policyReviewError = reviewed.result?.reason ?? '';
+        }
+      } else if (proposalId === undefined) { policyReview = null; policyReviewError = ''; }
+      if (ticket === epoch) render();
+    }
     await diagnostics();
   } catch { if (ticket === epoch) { view = null; render(); element('status').textContent = 'Atlas is unavailable'; } }
   finally {

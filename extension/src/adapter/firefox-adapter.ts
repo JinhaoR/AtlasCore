@@ -4,10 +4,13 @@ import {
 } from '@atlas/core';
 import type { InitializableRepository } from '../storage/indexeddb-repository.js';
 import { Diagnostics, type DiagnosticEntry } from './diagnostics.js';
+import type { ManagedBlacklistManager, ManagedView } from '../managed/manager.js';
+import { compileCuratedWhitelist } from '../presets/curated-whitelist.js';
 
 export interface AdapterHost {
   readonly controller: AtlasController;
   readonly repository: InitializableRepository;
+  readonly managed?: ManagedBlacklistManager;
 }
 
 type Firefox = Pick<typeof browser, 'tabs' | 'webRequest' | 'webNavigation' | 'runtime' | 'browserAction'>;
@@ -30,6 +33,7 @@ interface Context {
 
 export interface AdapterView {
   readonly controller: AtlasControllerView | null;
+  readonly managed: ManagedView | null;
   readonly contexts: readonly {
     tabId: number; contextId: string; navigationId: number; hostname: string | null; displayedHostname: string | null;
     latest: Response | null; journey: Journey | null; effect: Context['effect'];
@@ -96,6 +100,9 @@ export class FirefoxAdapter {
 
   /** Wait for queued adapter effects; read-only views deliberately do not wait. */
   whenIdle(): Promise<unknown> { return this.queue; }
+
+  /** Only schedules publication; managed membership and precedence remain in Core. */
+  publishManagedUpdate(work: () => Promise<boolean>): Promise<boolean> { return this.run(work); }
 
   private context(tabId: number): Context {
     let context = this.contexts.get(tabId);
@@ -444,7 +451,8 @@ export class FirefoxAdapter {
   }
 
   view(): AdapterView {
-    return { controller: this.host?.controller.getView() ?? null,
+    const controller = this.host?.controller.getView() ?? null;
+    return { controller, managed: this.host?.managed?.getView(controller?.snapshot?.policy.whitelist) ?? null,
       contexts: [...this.contexts.values()].map((context) => ({ tabId: context.tabId,
         contextId: context.id, navigationId: context.navigationId,
         hostname: context.requested?.target.hostname ?? null,
@@ -464,6 +472,7 @@ export class FirefoxAdapter {
       START_JOURNEY: ['tabId'], CANCEL_JOURNEY: ['tabId'], START_ACCESS: ['tabId'],
       CONFIRM_ACCESS: ['requestId'], CANCEL_ACCESS: ['requestId'], OPEN_HOME: ['tabId'],
       CONFIRM_ACCESS_AND_OPEN: ['tabId', 'requestId'], GET_DIAGNOSTICS: ['tabId'], CLEAR_DIAGNOSTICS: [],
+      PROPOSE_CURATED_DEFAULTS: [], REVIEW_POLICY: ['proposalId'], CONFIRM_POLICY: ['proposalId'], CANCEL_POLICY: ['proposalId'],
     };
     const fields = Object.hasOwn(keys, command.kind as string) ? keys[command.kind as string] : undefined;
     if (fields === undefined || Object.keys(command).length !== fields.length + 1
@@ -487,6 +496,22 @@ export class FirefoxAdapter {
       await controller.open();
       await this.recheck();
       return { view: this.view() };
+    }
+    if (command.kind === 'PROPOSE_CURATED_DEFAULTS') {
+      // Refresh verified authority before constructing the explicit proposed batch.
+      const observed = await controller.handle({ kind: 'OBSERVE_TIME' });
+      const policy = controller.getView().snapshot?.policy;
+      if (observed.type !== 'OBSERVED' || policy === undefined) return { result: observed, view: this.view() };
+      const result = await controller.handle({ kind: 'PROPOSE_POLICY', candidatePolicy: {
+        whitelist: [...new Set([...policy.whitelist, ...compileCuratedWhitelist().whitelist])],
+        blacklist: policy.blacklist,
+      } });
+      return { result, view: this.view() };
+    }
+    if (command.kind === 'REVIEW_POLICY' || command.kind === 'CONFIRM_POLICY' || command.kind === 'CANCEL_POLICY') {
+      const result = await controller.handle({ kind: command.kind, proposalId: command.proposalId });
+      if (command.kind === 'CONFIRM_POLICY' && result.type === 'COMMITTED') await this.recheck();
+      return { result, view: this.view() };
     }
     let result: Response;
     if (command.kind === 'OPEN_JOURNEY') {

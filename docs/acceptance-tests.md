@@ -211,6 +211,23 @@ On 2026-09-30, Core still has 144 passing tests and no source/API changes. The e
 
 The latest passing local native run is `.tools/firefox-e2e-ktyjcz_7/`, including the waiting-page screenshot. Synthetic profiles/logs stay local for debugging. Public-site profiles are deleted; their reports contain only sanitized data. Existing D15 coverage and durability limitations still apply.
 
+## Curated defaults and managed Blacklist evidence (D17)
+
+On 2026-10-01, **152 Core tests** and **50 extension tests** pass, together with both packages' type checks and builds. No dependency was added. The [managed policy contract](managed-policy.md) owns source selection, precedence, feed validation, refresh semantics, and the follow-up preset upgrade for existing profiles.
+
+| Evidence | What it establishes |
+| --- | --- |
+| [Core managed tests](../packages/core/tests/managed-blacklist.test.mjs), 8 cases | Manual Blacklist → Whitelist → managed denial → grants/Journey → Greylist; managed denial prevents Access start/confirmation and Journey recording; invalid compiled authority fails closed; input mutation cannot change a compiled set; controller fences authority changes during saves. |
+| Large synthetic dataset in that suite | Compile 200,000 domains once, then run 2,000 complete navigation plans with zero subsequent source-array reads. One local run compiled in 216 ms and planned in 42 ms; these are observations, not portable performance promises. |
+| [Preset tests](../extension/tests/presets.test.mjs), 4 cases | All 50 requested exact hosts allow; each of 31 services occurs once; aliases require explicit declaration; distinct entry points stay distinct; Google Search, unspecified Canvas roots, and login infrastructure are excluded. The real bundled list denies representative managed domains while retaining all curated Whitelist exceptions. |
+| [Managed feed tests](../extension/tests/managed-feed.test.mjs), 7 cases | Defensive parsing; failed/truncated/malformed updates preserve last good data; daily attempts coalesce and retain throttling across restart; activation follows atomic cache success and host publication; notification failure does not undo activation; corrupt cache uses the verified bundle; emulated IndexedDB retains complete metadata. |
+| Additional [adapter case](../extension/tests/adapter.test.mjs) | Real Core/controller decisions cancel a managed Journey intermediate and reject its Access request. Feed publication waits behind a navigation awaiting persistence; subsequent requests use the new set. |
+| [Native Firefox scenario](../extension/scripts/firefox-e2e.py), Firefox 157.0 | Curated setup saves 50 defaults plus one synthetic destination; managed data is active; a native managed navigation is denied and cannot start Access; restart loads the cached list and retains the refresh attempt time. Existing Journey/redirect, explicit confirmation, focus, diagnostics, tab closure, and saved workflow timestamps also pass. |
+
+The offline snapshot has 163,850 supported names; six underscore-bearing upstream names are skipped and visible in status. Source/version/digest and upstream notices accompany the snapshot. A native managed denial is observed at the adapter gate; independent server evidence of withholding remains the synthetic post-Journey request check. These tests do not establish complete authenticated service compatibility, every upstream classification, exhaustive browser coverage, or physical power-loss durability.
+
+The user reported that reload retained an older Whitelist. The extension now offers an explicit preset proposal under Policy & recovery. Four [upgrade tests](../extension/tests/preset-upgrade.test.mjs) verify frozen additions and preservation of custom entries/manual Blacklist, no change on review/readiness, cancellation/expiry, failed commits, duplicate confirmation, website rejection, and restart retaining the proposal. Core logic is unchanged. Native Firefox 157.0 also passes `firefox-e2e.py --existing-policy`: initialize an older policy, reload, observe that it remains active, review/wait/confirm through actual Vault controls, then verify saved additions and the ordinary browsing/restart scenario. The local passing artifact is `.tools/firefox-e2e-wipyitxm/`; no normal user profile was read or changed.
+
 ## Later browser conformance tests
 
 These are integration obligations for the selected adapter, not reasons to add browser types to Core or build both frontends now. First resolve Q12: which actions does that frontend actually promise to govern?

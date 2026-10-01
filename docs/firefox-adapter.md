@@ -2,6 +2,10 @@
 
 Architecture recorded before implementation on 2026-09-30. This is a development WebExtension for ordinary top-level HTTP(S) navigation. AtlasCore remains the decision engine. Electron, Context Whitelist, provider databases, authentication handling, and resource filtering remain excluded.
 
+D17 adds [curated defaults and managed deny data](managed-policy.md). Core receives a compiled immutable managed set separately from the snapshot and applies manual Blacklist, explicit Whitelist, managed Blacklist, then grants/Journey. The adapter owns feed/cache/refresh, service presentation, and ordered publication. It never implements managed denial itself. Publication joins the existing request/effect queue after download and validation.
+
+The D17 follow-up exposes a narrow existing-profile preset proposal/review/confirmation/cancellation interface over Core's Vault operations. Reload retains authority; only an explicit successfully saved Vault commit applies the additions. General policy editing remains deferred. The [preset upgrade contract](managed-policy.md#applying-defaults-to-an-existing-profile) owns this behavior.
+
 ## Architecture and API choices
 
 Use Manifest V2 with a persistent background page for this Firefox-only slice. Firefox continues supporting V2. Persistence avoids event-page suspension losing live tab/Journey bindings during an attempt. A later V3 port must explicitly handle that lifecycle; Firefox V3 uses event pages, not Chrome service workers. [Mozilla support statement](https://blog.mozilla.org/en/firefox/firefox-manifest-v3-adblockers/), [background manifest](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/background).

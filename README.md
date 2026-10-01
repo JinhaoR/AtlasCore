@@ -111,7 +111,9 @@ The [Journey contract](docs/architecture.md#journey-workflow) defines the bounde
 
 `AtlasSnapshot` combines `{ policy, policyRevision, accessState, vaultState, journeyState }`. `validateAtlasSnapshot(input)` validates every component and their revision relationships, then returns copied, frozen data. Invalid components block all planning, including otherwise Whitelisted access.
 
-`planAtlasOperation(operation, { snapshot, now, configuration })` combines the existing workflows without storage or a real clock. Configuration supplies `{ accessTiming, vaultTiming, journeyLimits }`; there are no production defaults. Navigation precedence is full validation and observation, Blacklist, Whitelist, Access Grant, Journey, then GREYLIST/WAIT/REQUIRE_CONFIRMATION.
+`planAtlasOperation(operation, { snapshot, now, configuration })` combines the existing workflows without storage or a real clock. Configuration supplies `{ accessTiming, vaultTiming, journeyLimits }`; there are no production defaults. Navigation precedence is full validation and observation, manual Blacklist, Whitelist, optional managed Blacklist, Access Grant, Journey, then GREYLIST/WAIT/REQUIRE_CONFIRMATION.
+
+`compileManagedBlacklist(hostnames)` validates a managed dataset once and returns an opaque immutable set, or null for invalid input. Supply it as `managedBlacklist` in the planner context, or inject `managedBlacklist: () => compiled` into the controller. Invalid supplied authority fails closed; omitting it preserves existing consumers. Managed data stays outside the small `Policy` arrays and persisted snapshot. See the [managed policy contract](docs/managed-policy.md).
 
 ```ts
 import { planAtlasOperation, type AtlasPlannerContext } from "@atlas/core";
@@ -159,7 +161,7 @@ D13 implements aggregate validation/planning; D14 adds the controller and reposi
 
 ## Firefox prototype
 
-The [extension guide](extension/README.md) covers build/load instructions, UI controls, repository behavior, and tests. Architecture choices were recorded in [Firefox adapter architecture](docs/firefox-adapter.md) before implementation. Core's source and public API are unchanged.
+The [extension guide](extension/README.md) covers build/load instructions, UI controls, repository behavior, and tests. Architecture choices were recorded in [Firefox adapter architecture](docs/firefox-adapter.md) before implementation. D17 adds compiled managed-deny data to Core planning/controller inputs; the two-list Policy and existing workflows remain unchanged.
 
 ```sh
 npm --prefix packages/core ci
@@ -167,7 +169,11 @@ npm --prefix extension ci
 npm --prefix extension run build
 ```
 
-In Firefox, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `extension/dist/manifest.json`. Open Atlas from the toolbar, save an initial policy, and select **Open** beside a trusted destination to start a Journey. Unknown sites offer **Request temporary access**, a wait, and explicit **Confirm and open**. Prototype durations are shown in the UI.
+In Firefox, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `extension/dist/manifest.json`. Open Atlas from the toolbar and save the offered curated preset during first setup. Services appear once with explicitly declared aliases; Core continues matching exact hostnames. Select **Open** beside a trusted destination to start a Journey. Unknown sites offer **Request temporary access**, a wait, and explicit **Confirm and open**. Prototype durations are shown in the UI.
+
+The managed StevenBlack list is bundled for offline first use, cached separately, and refreshed at most once per day. Core applies manual Blacklist → explicit Whitelist → managed Blacklist → grants/Journey → Greylist. Managed conflicts and update status are visible. Existing installations retain their policy; setup never replaces active policy.
+
+For an existing profile, open **Policy & recovery → Add curated destinations**, review the proposal, wait, then select **Confirm policy update**. This uses Core's existing Vault workflow and preserves current entries and the manual Blacklist. Rebuild before Firefox reload; code reload alone never updates saved policy. See the [upgrade instructions](extension/README.md#updating-an-existing-development-installation).
 
 The extension uses a persistent background page, top-level HTTP(S) request interception, a transactional IndexedDB repository, and a private control interface with Journey visibility and bounded hostname diagnostics. Resource requests are outside its gate. Native tests cover synthetic workflows and real UI actions; separate [public-site checks](docs/firefox-real-sites.md) document sign-in entry points and remaining account-dependent gaps.
 
@@ -205,6 +211,6 @@ Read `AGENTS.md` and the foundation first. Follow the small milestones in [first
 
 ## Status and evidence
 
-Verification on Node.js 24.12.0 / npm 11.6.4 / TypeScript 6.0.3: build and type checks pass; all 144 Core tests pass (19 policy/normalization, 25 Greylist, 22 Vault, 23 Journey, 28 aggregate planner, and 27 controller tests). [Acceptance scenarios](docs/acceptance-tests.md) map this evidence to implemented behavior and distinguish the remaining integration work.
+Verification on Node.js 24.12.0 / npm 11.6.4 / TypeScript 6.0.3: build and type checks pass; all 152 Core tests pass (19 policy/normalization, 25 Greylist, 22 Vault, 23 Journey, 28 aggregate planner, 27 controller, and 8 managed-list tests). [Acceptance scenarios](docs/acceptance-tests.md) map this evidence to implemented behavior and distinguish the remaining integration work.
 
-D16 brings the extension suite to 34 passing tests, with an expanded native Firefox 157.0 UI scenario and public sign-in investigations. The [prototype evidence](docs/acceptance-tests.md#firefox-prototype-evidence-d16) distinguishes mocked APIs, emulated storage, native checks, and incomplete authenticated flows. Exhaustive event coverage and physical power-loss durability remain untested. Zenith's historical results are not Atlas validation.
+D17 brings the extension suite to 50 passing tests, including the follow-up protected preset upgrade for existing profiles. Native Firefox 157.0 checks curated setup, managed denial/cache restart, Journey, confirmation, and existing UI/lifecycle behavior; the upgrade scenario also covers reload and the actual Vault controls. The [managed policy evidence](docs/acceptance-tests.md#curated-defaults-and-managed-blacklist-evidence-d17) and [prototype evidence](docs/acceptance-tests.md#firefox-prototype-evidence-d16) distinguish mocked APIs, emulated storage, native checks, and incomplete authenticated flows. Exhaustive event coverage and physical power-loss durability remain untested. Zenith's historical results are not Atlas validation.

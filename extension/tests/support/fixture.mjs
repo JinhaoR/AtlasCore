@@ -20,9 +20,10 @@ export async function fixture(t, initialize = true, options = {}) {
   const factory = new IDBFactory();
   let version = 0;
   const repository = await openRepository(factory, () => `v${++version}`);
-  if (initialize) await repository.initialize(policy);
+  if (initialize) await repository.initialize(options.policy ?? policy);
   const clock = { time: 1000, now() { return this.time; } };
-  const controller = createAtlasController({ repository, clock, configuration, ownerId: 'owner' });
+  const controller = createAtlasController({ repository, clock, configuration, ownerId: 'owner',
+    ...(options.managedBlacklist ? { managedBlacklist: options.managedBlacklist } : {}) });
   const firefox = new FakeFirefox();
   let contextId = 0;
   const adapter = new FirefoxAdapter(firefox, Promise.resolve({ controller, repository }),

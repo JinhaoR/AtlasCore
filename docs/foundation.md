@@ -19,7 +19,7 @@ This is not a general-purpose focus toggle that immediately disables the access 
 ### R2. Three site classes
 
 - **Whitelist:** durable permission for ordinary access under the rule's defined scope.
-- **Blacklist:** exclusion that overrides Whitelist membership, temporary grants, and Journey authorization for actions governed by Atlas.
+- **Blacklist (`Policy.blacklist`):** explicit/manual exclusion that overrides Whitelist membership, temporary grants, and Journey authorization for actions governed by Atlas. D17's separately managed upstream data follows the [managed policy contract](managed-policy.md); it is not inserted into this list.
 - **Greylist:** the remainder, including unknown sites. It need not be a stored list.
 
 The scope of a site rule must be explicit and consistent. Hostname matching must not use arbitrary substring comparisons. Blacklist precedence does not imply that every background connection is submitted to Atlas.
@@ -88,6 +88,8 @@ Build a fresh application-independent core using Zenith as a source of lessons. 
 D4 records presentation intent for intermediate domains. D11 supplies their current Journey authorization without a catalog. Permitting an intermediate page never gives its code privileged access to Atlas commands.
 
 **D16 (2026-09-30):** The user authorized improvement of the Firefox prototype interface, normal browsing interactions, bounded diagnostics, and public real-website checks. The [adapter document](firefox-adapter.md#prototype-interface-and-diagnostics-d16) owns these extension-only refinements. Core rules remain unchanged; Context Whitelist and authentication/provider databases remain excluded.
+
+**D17 (2026-10-01):** The user authorized curated service defaults with explicit aliases and a separately managed, efficient StevenBlack deny list. Manual Blacklist still overrides Whitelist; explicit Whitelist overrides only managed deny data. The [managed policy contract](managed-policy.md) owns precedence, compilation, cache/refresh, offline bootstrap, and tests. No global apex/`www` equivalence or wildcard matching is introduced.
 
 ### Milestone 1 input contract
 
@@ -169,7 +171,7 @@ The [aggregate planner contract](architecture.md#aggregate-planner-d13) owns D13
 | Q4 | D11 authorizes unfamiliar intermediates only in an active Journey bound to one top-level context. D15 uses one fresh context per Firefox tab, without popup inheritance; embedded documents are outside the gate. | Broader mapping requires explicit future scope. |
 | Q5 | Catalog activation is superseded by D11. Context Whitelist and other broader models are deferred. | A future explicit request; no catalog work is planned. |
 | Q6 | Greylist/Vault timing and Journey lifetime/hop limits are explicit positive configuration frozen at creation. Expiry is exclusive. Which production values and protective minimums should be used? | Production configuration; fixture values are not defaults. |
-| Q7 | Resolved by D10 for user-managed policy: Whitelist/Blacklist additions and removals, including tighter changes, use the same protected flow. External mandatory lists are outside the current Policy model and remain undecided. | Any future mandatory-list feature. Historical Zenith rules do not supply authority. |
+| Q7 | Resolved by D10 for user-managed policy: Whitelist/Blacklist additions and removals, including tighter changes, use the same protected flow. D17 separately resolves managed StevenBlack data with explicit Whitelist exceptions; other external mandatory-list semantics remain undecided. | Other future mandatory-list features. Historical Zenith rules do not supply authority. |
 | Q8 | Any newer policy revision invalidates pending requests, grants, Vault proposals, and Journeys. Proposals are not rebased and Journeys are not restarted. | Validate future integration against this rule. |
 | Q9 | D15 injects the host wall clock and persists Core checkpoints. Clock rollback fails closed. Trusted-time recovery and detection of whole-state rollback remain open; there is no time server. | Stronger production clock/recovery requirements. |
 | Q10 | D15 adopts explicit one-time setup in an empty repository and blocks corrupt/missing initialized records. Backup, recovery, and schema migration remain open; no destructive reset UI is provided. | Recovery or schema evolution. |

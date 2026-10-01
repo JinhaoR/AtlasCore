@@ -2,6 +2,7 @@ import type { AccessDecision, AccessError, AccessState, AccessTiming } from "./a
 import type { JourneyDecision, JourneyError, JourneyLimits, JourneyState } from "./journey-models.js";
 import type { Policy, SiteTarget } from "./models.js";
 import type { PolicyReview, VaultError, VaultState, VaultTiming } from "./vault-models.js";
+import type { ManagedBlacklist } from "./managed-blacklist.js";
 
 /** Complete domain data; neither a storage envelope nor an acknowledgement of authority. */
 export interface AtlasSnapshot {
@@ -38,6 +39,7 @@ export interface AtlasPlannerContext {
   readonly snapshot: AtlasSnapshot;
   readonly now: number;
   readonly configuration: AtlasConfiguration;
+  readonly managedBlacklist?: ManagedBlacklist;
 }
 
 export type AtlasOperation =
@@ -53,8 +55,10 @@ export type AtlasOperation =
   | { readonly kind: "OBSERVE_TIME" };
 
 export type AtlasError = AtlasSnapshotError | AccessError | VaultError | JourneyError
-  | "INVALID_CONTEXT" | "INVALID_CONFIGURATION" | "INVALID_OPERATION";
-export type AtlasNavigationDecision = AccessDecision | JourneyDecision;
+  | "INVALID_CONTEXT" | "INVALID_CONFIGURATION" | "INVALID_OPERATION"
+  | "INVALID_MANAGED_BLACKLIST" | "MANAGED_BLACKLISTED";
+export type AtlasNavigationDecision = AccessDecision | JourneyDecision
+  | { readonly outcome: "DENY"; readonly reason: "MANAGED_BLACKLISTED"; readonly target: SiteTarget };
 
 export type AtlasPlanResult =
   | { readonly type: "REJECTED"; readonly reason: AtlasError }

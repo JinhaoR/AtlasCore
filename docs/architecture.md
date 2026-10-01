@@ -336,6 +336,8 @@ The fake repository belongs in test support, not package exports. Tests cover at
 
 ## First Firefox adapter (D15)
 
+D17 adds [curated defaults and managed deny data](managed-policy.md) through an optional compiled Core authority input and a separate Firefox feed cache. The existing `Policy` and aggregate snapshot remain small; provider data never enters their per-operation array validation.
+
 D16 adds the [prototype interface and diagnostics](firefox-adapter.md#prototype-interface-and-diagnostics-d16) within the same adapter. Its explicit Confirm and open effect follows a successful Core commit and remains bound to the selected tab. Core's public API and authorization rules are unchanged.
 
 The user authorized the first Firefox vertical slice on 2026-09-30. [Firefox adapter architecture](firefox-adapter.md) owns the platform choices, explicit Journey starts, transactional repository, request execution protocol, setup, and coverage limits. Core's public modules and domain rules remain unchanged. D15 permits a fresh, committed controller assessment to govern one correlated held request after required Journey bookkeeping. It supersedes D12's proposed requirement to implement a generic DECISION/ADOPT facade before any browser integration; pure or cached assessments still cannot execute actions.

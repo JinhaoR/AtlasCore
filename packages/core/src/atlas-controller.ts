@@ -9,6 +9,7 @@ import type { AtlasCommitResult, AtlasEnvelope } from "./atlas-ports.js";
 import { validateAtlasSnapshot } from "./atlas-state.js";
 import { hasJourneyFields, validContextId } from "./journey-state.js";
 import { freezeVaultData } from "./vault-state.js";
+import { isManagedBlacklist, type ManagedBlacklist } from "./managed-blacklist.js";
 
 function token(value: unknown): value is string {
   return typeof value === "string" && /^[A-Za-z0-9_.:-]{1,256}$/.test(value);
@@ -61,7 +62,8 @@ export function createAtlasController(options: AtlasControllerOptions): AtlasCon
   const configuration = readConfiguration(options.configuration);
   if (configuration === null || !validContextId(options.ownerId)
     || typeof options.repository?.load !== "function" || typeof options.repository?.commit !== "function"
-    || typeof options.repository?.resolveCommit !== "function" || typeof options.clock?.now !== "function") {
+    || typeof options.repository?.resolveCommit !== "function" || typeof options.clock?.now !== "function"
+    || (options.managedBlacklist !== undefined && typeof options.managedBlacklist !== "function")) {
     throw new TypeError("Invalid Atlas controller dependencies");
   }
   const { repository, clock, ownerId } = options;
@@ -92,6 +94,20 @@ export function createAtlasController(options: AtlasControllerOptions): AtlasCon
 
   function fault(): void {
     setStatus(pending ? "RECONCILING" : "UNAVAILABLE", pending ? "COMMIT_UNKNOWN" : "INTERNAL_ERROR");
+  }
+
+  function sampleManaged(): ManagedBlacklist | undefined | null {
+    if (options.managedBlacklist === undefined) return undefined;
+    try {
+      const value = options.managedBlacklist();
+      if (isManagedBlacklist(value)) return value;
+    } catch { /* Unavailable managed authority fails closed. */ }
+    setStatus("UNAVAILABLE", "MANAGED_BLACKLIST_UNAVAILABLE");
+    return null;
+  }
+
+  function context(snapshot: AtlasSnapshot, now: number, managed: ManagedBlacklist | undefined) {
+    return { snapshot, now, configuration, ...(managed === undefined ? {} : { managedBlacklist: managed }) };
   }
 
   function enqueue<T>(work: () => Promise<T>, failed: () => T): Promise<T> {
@@ -212,13 +228,15 @@ export function createAtlasController(options: AtlasControllerOptions): AtlasCon
     if (!await loadAuthority() || authority === null) return getView();
     const now = sampleTime();
     if (now === null) return getView();
-    const observed = planAtlasOperation({ kind: "OBSERVE_TIME" }, { snapshot: authority.snapshot, now, configuration });
+    const managed = sampleManaged();
+    if (managed === null) return getView();
+    const observed = planAtlasOperation({ kind: "OBSERVE_TIME" }, context(authority.snapshot, now, managed));
     let recovery = observed.observationSnapshot;
     if (recovery === null) { setStatus("UNAVAILABLE", "CORRUPT_STATE"); return getView(); }
     for (const journey of recovery.journeyState.journeys) {
       if (journey.phase === "ENDED") continue;
       const closed = planAtlasOperation({ kind: "CLOSE_JOURNEY_CONTEXT", journeyId: journey.id,
-        contextId: journey.contextId }, { snapshot: recovery, now, configuration });
+        contextId: journey.contextId }, context(recovery, now, managed));
       if (closed.candidateSnapshot === null) { setStatus("UNAVAILABLE", "CORRUPT_STATE"); return getView(); }
       recovery = closed.candidateSnapshot;
     }
@@ -248,7 +266,9 @@ export function createAtlasController(options: AtlasControllerOptions): AtlasCon
     if (!await loadAuthority() || authority === null) return blocked();
     const now = sampleTime();
     if (now === null) return blocked();
-    const plan = planAtlasOperation(operation, { snapshot: authority.snapshot, now, configuration });
+    const managed = sampleManaged();
+    if (managed === null) return blocked();
+    const plan = planAtlasOperation(operation, context(authority.snapshot, now, managed));
     const next = plan.candidateSnapshot ?? plan.observationSnapshot;
     if (next !== null && (plan.candidateSnapshot !== null || !same(next, authority.snapshot))) {
       if (!await save(next)) return blocked();
@@ -256,6 +276,9 @@ export function createAtlasController(options: AtlasControllerOptions): AtlasCon
     const finalTime = sampleTime();
     if (finalTime === null) return blocked();
     setStatus("READY");
+    const currentManaged = sampleManaged();
+    if (currentManaged === null) return blocked();
+    if (currentManaged !== managed) return blocked("REEVALUATION_REQUIRED");
     if (plan.result.type === "ASSESSMENT" && plan.result.decision.outcome === "ALLOW"
       && "expiresAt" in plan.result.decision && finalTime >= plan.result.decision.expiresAt) {
       return blocked("REEVALUATION_REQUIRED");

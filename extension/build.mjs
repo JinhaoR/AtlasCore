@@ -10,3 +10,4 @@ await build({
 });
 await copyFile('manifest.json', 'dist/manifest.json');
 await cp('src/ui/assets', 'dist/ui', { recursive: true });
+await cp('data', 'dist/data', { recursive: true });

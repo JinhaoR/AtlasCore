@@ -1,6 +1,7 @@
 import type { AtlasConfiguration, AtlasError, AtlasNavigationDecision, AtlasOperation, AtlasSnapshot } from "./atlas-models.js";
 import type { AtlasClock, AtlasRepository } from "./atlas-ports.js";
 import type { PolicyReview } from "./vault-models.js";
+import type { ManagedBlacklist } from "./managed-blacklist.js";
 
 export type AtlasControllerStatus =
   | "UNINITIALIZED" | "LOADING" | "READY" | "COMMITTING" | "RECONCILING" | "UNAVAILABLE";
@@ -9,7 +10,7 @@ export type AtlasControllerError =
   | "NOT_OPEN" | "NOT_READY" | "UNINITIALIZED" | "STORAGE_UNAVAILABLE" | "CORRUPT_STATE"
   | "STORAGE_ROLLBACK" | "WRITE_FAILED" | "STORAGE_CONFLICT" | "COMMIT_UNKNOWN"
   | "AUTHORITY_CHANGED" | "CLOCK_UNAVAILABLE" | "INVALID_TIME" | "CLOCK_ROLLBACK"
-  | "REEVALUATION_REQUIRED" | "ID_EXHAUSTED" | "INTERNAL_ERROR";
+  | "REEVALUATION_REQUIRED" | "ID_EXHAUSTED" | "INTERNAL_ERROR" | "MANAGED_BLACKLIST_UNAVAILABLE";
 
 export interface AtlasControllerView {
   readonly status: AtlasControllerStatus;
@@ -43,6 +44,8 @@ export interface AtlasControllerOptions {
   readonly configuration: AtlasConfiguration;
   /** Fresh for each controller lifetime; supplied by the trusted host, never a website. */
   readonly ownerId: string;
+  /** Trusted immutable compiled data; never a browser/website callback. */
+  readonly managedBlacklist?: () => ManagedBlacklist | null;
 }
 
 export interface AtlasController {

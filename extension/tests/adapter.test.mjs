@@ -1,7 +1,41 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createAtlasController } from '@atlas/core';
+import { createAtlasController, compileManagedBlacklist } from '@atlas/core';
 import { fixture, policy, configuration, deferred } from './support/fixture.mjs';
+
+test('Core managed denial applies to Firefox Journey and Greylist; publication uses the navigation queue', async (t) => {
+  let managed = compileManagedBlacklist(['root.example', 'blocked.example', 'login.example']);
+  const { firefox, controller, adapter } = await fixture(t, true, { managedBlacklist: () => managed });
+  const opened = await firefox.send({ kind: 'OPEN_JOURNEY', url: 'https://root.example/' });
+  assert.deepEqual(await firefox.visit(opened.tabId, 'https://root.example/'), {});
+  assert.equal((await firefox.visit(opened.tabId, 'https://login.example/')).cancel, true);
+  assert.equal(adapter.view().contexts[0].latest.decision.reason, 'MANAGED_BLACKLISTED');
+  assert.equal((await firefox.send({ kind: 'START_ACCESS', tabId: opened.tabId })).result.reason, 'MANAGED_BLACKLISTED');
+  assert.equal(controller.getView().snapshot.journeyState.journeys[0].hopCount, 0);
+  assert.deepEqual(controller.getView().snapshot.policy, policy);
+
+  // Publication must wait for a navigation awaiting persistence, then subsequent gates use new data.
+  const held = deferred(); const started = deferred();
+  const commit = controller.getView().snapshot;
+  const repository = (await fixture(t, true, { managedBlacklist: () => managed }));
+  const original = repository.repository.commit.bind(repository.repository);
+  repository.repository.commit = async (...args) => { started.resolve(); await held.promise; return original(...args); };
+  repository.clock.time += 1;
+  const tab = await repository.firefox.tabs.create({});
+  const navigation = repository.firefox.request(tab.id, 'https://root.example/');
+  await started.promise;
+  let published = false;
+  const activation = repository.adapter.publishManagedUpdate(async () => {
+    published = true; managed = compileManagedBlacklist(['fresh.example']); return true;
+  });
+  await Promise.resolve();
+  assert.equal(published, false);
+  held.resolve();
+  assert.deepEqual(await navigation, {});
+  assert.equal(await activation, true);
+  assert.equal((await repository.firefox.request(tab.id, 'https://fresh.example/')).cancel, true);
+  assert.deepEqual(controller.getView().snapshot.policy, commit.policy);
+});
 
 test('only top-level HTTP(S) requests enter the gate; Whitelist loads', async (t) => {
   const { firefox, controller } = await fixture(t);

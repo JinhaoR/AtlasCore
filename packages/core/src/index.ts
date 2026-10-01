@@ -1,4 +1,6 @@
 export type { SiteTarget, Policy, Decision } from "./models.js";
+export { compileManagedBlacklist, isManagedBlacklist, managedBlacklistContains } from "./managed-blacklist.js";
+export type { ManagedBlacklist } from "./managed-blacklist.js";
 export { normalizeTarget } from "./target.js";
 export { evaluate } from "./evaluate.js";
 export type {

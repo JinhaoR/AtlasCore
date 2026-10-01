@@ -82,6 +82,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--firefox", default=os.environ.get("FIREFOX_BINARY") or shutil.which("firefox")
                         or r"C:\Program Files\Mozilla Firefox\firefox.exe")
+    parser.add_argument("--existing-policy", action="store_true", help="Exercise reload and explicit Vault upgrade from an older saved policy")
     arguments = parser.parse_args()
     if not Path(arguments.firefox).is_file():
         raise SystemExit("Firefox not found. Set FIREFOX_BINARY or pass --firefox.")
@@ -175,7 +176,10 @@ def main():
         wait_for(lambda: client.script("return location.href === arguments[0] && document.readyState === 'complete';", UI_URL), "extension UI")
         ui_handle = client.call("WebDriver:GetWindowHandle")
         wait_for(lambda: client.message({"kind": "GET_VIEW"}).get("view", {}).get("controller"), "Core startup")
-        policy = {"whitelist": ["root.localhost"], "blacklist": ["black.localhost"]}
+        assert client.script("return document.getElementById('use-defaults').checked;"), "preset offered by default"
+        assert client.script("return document.querySelectorAll('#preset-preview details').length;") == 7
+        if arguments.existing_policy:
+            client.script("document.getElementById('use-defaults').checked = false;")
         client.script("""
             document.getElementById('whitelist').value = arguments[0];
             document.getElementById('blacklist').value = arguments[1];
@@ -184,7 +188,72 @@ def main():
         wait_for(lambda: client.message({"kind": "GET_VIEW"})["view"]["controller"]["status"] == "READY", "setup form save")
         initial = client.message({"kind": "GET_VIEW"})["view"]["controller"]
         assert initial["status"] == "READY", initial
-        print(f"Firefox {version}: explicit setup and real IndexedDB ready", flush=True)
+        policy = initial["snapshot"]["policy"]
+        # Settle the one startup refresh before testing ordered navigation effects.
+        wait_for(lambda: client.message({"kind": "GET_VIEW"})["view"].get("managed", {}).get("updateStatus") != "UPDATING",
+                 "startup managed refresh", 40)
+        managed = client.message({"kind": "GET_VIEW"})["view"]["managed"]
+        assert managed["active"] and managed["count"] >= 100000, managed
+        assert managed["categories"] == ["base", "fakenews", "gambling", "porn", "social"]
+        if arguments.existing_policy:
+            assert policy == {"whitelist": ["root.localhost"], "blacklist": ["black.localhost"]}
+            spare_id = client.script("""
+                const done = arguments[arguments.length - 1];
+                browser.tabs.create({url: 'about:blank', active: false}).then(tab => done(tab.id));
+            """, asynchronous=True)
+            client.script("setTimeout(() => browser.runtime.reload(), 0); return true;")
+            wait_for(lambda: ui_handle not in client.call("WebDriver:GetWindowHandles"), "old UI closes for preset upgrade reload")
+            client.call("WebDriver:SwitchToWindow", handle=client.call("WebDriver:GetWindowHandles")[0])
+            client.call("Marionette:SetContext", value="chrome")
+            client.script("gBrowser.selectedTab = gBrowser.addTrustedTab(arguments[0]);", UI_URL)
+            client.call("Marionette:SetContext", value="content")
+            ui_handle = client.call("WebDriver:GetWindowHandles")[-1]
+            client.call("WebDriver:SwitchToWindow", handle=ui_handle)
+            wait_for(lambda: client.script("return location.href === arguments[0] && document.readyState === 'complete';", UI_URL), "upgrade UI after reload")
+            wait_for(lambda: client.message({"kind": "GET_VIEW"}).get("view", {}).get("controller", {}).get("status") == "READY", "existing policy recovered")
+            client.script("""
+                const done = arguments[arguments.length - 1]; browser.tabs.remove(arguments[0]).then(() => done(true));
+            """, spare_id, asynchronous=True)
+            assert client.message({"kind": "GET_VIEW"})["view"]["controller"]["snapshot"]["policy"] == policy
+            wait_for(lambda: client.script("return document.getElementById('propose-defaults')?.hidden === false && !document.getElementById('propose-defaults').disabled;"), "preset upgrade button")
+            client.script("document.getElementById('propose-defaults').closest('details').open = true; document.getElementById('propose-defaults').click();")
+            def proposal():
+                return client.message({"kind": "GET_VIEW"})["view"]["controller"]["snapshot"]["vaultState"]["pendingProposal"]
+            frozen = wait_for(proposal, "frozen preset proposal")
+            assert frozen["candidatePolicy"]["blacklist"] == policy["blacklist"]
+            assert client.message({"kind": "CONFIRM_POLICY", "proposalId": frozen["id"]})["result"]["reason"] == "NOT_READY"
+            wait_for(lambda: client.script("return document.getElementById('vault-review').textContent.includes('chatgpt.com') && document.getElementById('vault-deadline').textContent.startsWith('Vault wait ');"), "visible frozen review and Vault wait")
+            print("PASS reload retained old policy; preset proposal/review did not change permission", flush=True)
+            wait_for(lambda: client.script("return document.getElementById('confirm-policy').hidden === false && !document.getElementById('confirm-policy').disabled;"), "Vault readiness", 40)
+            assert client.message({"kind": "GET_VIEW"})["view"]["controller"]["snapshot"]["policy"] == policy
+            client.script("document.getElementById('confirm-policy').click();")
+            wait_for(lambda: proposal() is None, "preset confirmation persisted")
+            updated = client.message({"kind": "GET_VIEW"})["view"]["controller"]["snapshot"]
+            assert updated["policyRevision"] == 1
+            policy = updated["policy"]
+            assert client.message({"kind": "CONFIRM_POLICY", "proposalId": frozen["id"]})["result"]["type"] == "REJECTED"
+            print("PASS explicit native Vault confirmation saved curated defaults and retained manual Blacklist", flush=True)
+        assert len(policy["whitelist"]) == 51
+        assert {"root.localhost", "chatgpt.com", "www.youtube.com", "canvas.kth.se"} <= set(policy["whitelist"])
+        assert "google.com" not in policy["whitelist"] and "www.google.com" not in policy["whitelist"]
+        assert policy["blacklist"] == ["black.localhost"]
+        print(f"Firefox {version}: curated setup, real IndexedDB, managed list active ({managed['count']} domains)", flush=True)
+
+        denied_id = client.script("""
+            const done = arguments[arguments.length - 1];
+            browser.tabs.create({url: 'http://doubleclick.net/atlas-synthetic-denial', active: false}).then(tab => done(tab.id));
+        """, asynchronous=True)
+        def managed_denied():
+            current = client.message({"kind": "GET_VIEW"})["view"]
+            return next((context for context in current["contexts"] if context["tabId"] == denied_id
+                         and context["effect"] == "REMOVED"), None)
+        denied = wait_for(managed_denied, "native managed denial")
+        assert denied["latest"]["decision"]["reason"] == "MANAGED_BLACKLISTED", denied
+        assert client.message({"kind": "START_ACCESS", "tabId": denied_id})["result"]["reason"] == "MANAGED_BLACKLISTED"
+        client.script("""
+            const done = arguments[arguments.length - 1]; browser.tabs.remove(arguments[0]).then(() => done(true));
+        """, denied_id, asynchronous=True)
+        print("PASS native managed denial and blocked Greylist request", flush=True)
 
         opened = client.message({"kind": "OPEN_JOURNEY", "url": f"http://root.localhost:{port}/"})
         assert opened["result"]["type"] == "COMMITTED", opened
@@ -209,6 +278,10 @@ def main():
             client.script("document.getElementById(arguments[0]).click();", identity)
 
         wait_for(lambda: displayed("root.localhost"), "root page arrival")
+        client.script("""
+            const select = document.getElementById('context'); select.value = String(arguments[0]);
+            select.dispatchEvent(new Event('change'));
+        """, tab_id)
         first = journey()
         assert first["phase"] == "STARTED", first
         click("login")
@@ -318,12 +391,19 @@ def main():
         assert restored["accessState"]["grants"] == saved["accessState"]["grants"]
         assert restored["accessState"]["pendingRequests"] == saved["accessState"]["pendingRequests"]
         assert restored["policy"] == policy
+        assert view()["managed"]["active"] and view()["managed"]["origin"] == "CACHE"
+        assert view()["managed"]["lastAttemptAt"] == managed["lastAttemptAt"]
         print("PASS real background reload: pending/grant deadlines preserved; old Journey binding ended", flush=True)
         client.call("WebDriver:SwitchToWindow", handle=ui_handle)
+        wait_for(lambda: client.script("return document.querySelectorAll('#destination-list .service-group').length === 7 && document.getElementById('managed-status').textContent.startsWith('Status: active');"),
+                 "restored curated groups and managed status in UI")
         shot = client.call("WebDriver:TakeScreenshot", id=None, highlights=[], full=True)
         (run / "ui.png").write_bytes(base64.b64decode(shot))
-        report = {"firefox": version, "journey": journey(), "requests": hits,
-                  "checks": ["initialization UI", "journey", "redirect", "greylist", "confirmation UI", "focus retention", "diagnostics UI", "closed-tab selection", "request withholding", "background restart"]}
+        report = {"firefox": version, "journey": journey(), "requests": hits, "managed": view()["managed"],
+                  "checks": ["curated initialization UI", "managed denial", "managed cache restart", "journey", "redirect", "greylist", "confirmation UI", "focus retention", "diagnostics UI", "closed-tab selection", "request withholding", "background restart"]}
+        if arguments.existing_policy:
+            report["checks"].remove("curated initialization UI")
+            report["checks"].extend(["existing policy reload", "preset Vault review", "preset Vault confirmation"])
         (run / "result.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
         print(f"Artifacts: {run}", flush=True)
     except Exception:
