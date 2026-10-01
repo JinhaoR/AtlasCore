@@ -1,6 +1,6 @@
 import { cancelAccess, confirmAccess, evaluateAccess, startAccess } from "./access.js";
 import type { AccessTransition } from "./access-models.js";
-import { nonnegativeInteger, positiveInteger, readTiming } from "./access-state.js";
+import { accessScope, nonnegativeInteger, positiveInteger, readAccessScope } from "./access-state.js";
 import type {
   AtlasConfiguration, AtlasError, AtlasNavigationContext, AtlasOperation, AtlasPlan,
   AtlasPlanResult, AtlasSnapshot,
@@ -11,15 +11,18 @@ import {
   observeJourneys, recordJourneyNavigation, startJourney,
 } from "./journey.js";
 import type { JourneyTransition } from "./journey-models.js";
-import { hasJourneyFields, readJourneyLimits, validContextId } from "./journey-state.js";
+import { continuesJourney, finishJourney, hasJourneyFields, readJourneyContinuation, replaceJourney, validContextId } from "./journey-state.js";
 import type { SiteTarget } from "./models.js";
 import { normalizePolicy } from "./policy.js";
 import { normalizeTarget } from "./target.js";
 import { isManagedBlacklist, managedBlacklistContains, type ManagedBlacklist } from "./managed-blacklist.js";
 import {
-  cancelPolicyProposal, createPolicyProposal, prepareVaultCommit, reviewPolicyProposal,
+  cancelPolicyProposal, createPolicyProposal, createSettingsProposal, prepareVaultCommit, reviewPolicyProposal,
 } from "./vault.js";
-import { freezeVaultData, readVaultTiming } from "./vault-state.js";
+import { freezeVaultData } from "./vault-state.js";
+
+import { readConfiguration } from "./configuration.js";
+export { readConfiguration } from "./configuration.js";
 
 function makePlan(
   result: AtlasPlanResult, observationSnapshot: AtlasSnapshot | null = null,
@@ -31,14 +34,6 @@ function makePlan(
 
 function reject(reason: AtlasError, observation: AtlasSnapshot | null = null): AtlasPlan {
   return makePlan({ type: "REJECTED", reason }, observation);
-}
-
-export function readConfiguration(input: unknown): AtlasConfiguration | null {
-  if (!hasJourneyFields(input, ["accessTiming", "vaultTiming", "journeyLimits"])) return null;
-  const accessTiming = readTiming(input.accessTiming);
-  const vaultTiming = readVaultTiming(input.vaultTiming);
-  const journeyLimits = readJourneyLimits(input.journeyLimits);
-  return accessTiming && vaultTiming && journeyLimits ? { accessTiming, vaultTiming, journeyLimits } : null;
 }
 
 function readTarget(input: unknown): SiteTarget | null {
@@ -57,21 +52,30 @@ function readOperation(value: unknown): ParsedOperation {
   const input = value as Record<string, unknown>;
   const kind = input.kind;
   switch (kind) {
+    case "BEGIN_NAVIGATION":
     case "CHECK_NAVIGATION":
     case "RECORD_JOURNEY_NAVIGATION": {
+      const fields = ["contextId", "journeyId"];
+      if (input.context !== null && typeof input.context === "object" && Object.hasOwn(input.context, "continuation")) fields.push("continuation");
       if (!hasJourneyFields(input, ["kind", "target", "context"])
-        || !hasJourneyFields(input.context, ["contextId", "journeyId"])) return invalid();
+        || !hasJourneyFields(input.context, fields)) return invalid();
       const target = readTarget(input.target);
       if (target === null) return invalid("INVALID_TARGET");
       const { contextId, journeyId } = input.context;
       if (!validContextId(contextId)) return invalid("INVALID_CONTEXT_ID");
       if (journeyId !== null && !positiveInteger(journeyId)) return invalid("INVALID_JOURNEY_ID");
-      return valid({ kind, target, context: { contextId, journeyId } });
+      const continuation = Object.hasOwn(input.context, "continuation") ? readJourneyContinuation(input.context.continuation) : undefined;
+      if (continuation === null) return invalid("INVALID_NAVIGATION");
+      return valid({ kind, target, context: { contextId, journeyId, ...(continuation === undefined ? {} : { continuation }) } });
     }
     case "START_ACCESS": {
-      if (!hasJourneyFields(input, ["kind", "target"])) return invalid();
+      const scoped = Object.hasOwn(input, "scopeHostnames");
+      if (!hasJourneyFields(input, ["kind", "target", ...(scoped ? ["scopeHostnames"] : [])])) return invalid();
       const target = readTarget(input.target);
-      return target === null ? invalid("INVALID_TARGET") : valid({ kind, target });
+      if (target === null) return invalid("INVALID_TARGET");
+      const scopeHostnames = scoped ? readAccessScope(input.scopeHostnames, target.hostname) : undefined;
+      return scopeHostnames === null ? invalid("INVALID_SCOPE") : valid({ kind, target,
+        ...(scopeHostnames === undefined ? {} : { scopeHostnames }) });
     }
     case "CONFIRM_ACCESS":
     case "CANCEL_ACCESS":
@@ -82,6 +86,11 @@ function readOperation(value: unknown): ParsedOperation {
       if (!hasJourneyFields(input, ["kind", "candidatePolicy"])) return invalid();
       const candidatePolicy = normalizePolicy(input.candidatePolicy);
       return candidatePolicy === null ? invalid("INVALID_CANDIDATE_POLICY") : valid({ kind, candidatePolicy });
+    }
+    case "PROPOSE_SETTINGS": {
+      if (!hasJourneyFields(input, ['kind', 'candidateConfiguration'])) return invalid();
+      const candidateConfiguration = readConfiguration(input.candidateConfiguration);
+      return candidateConfiguration === null ? invalid('INVALID_CONFIGURATION') : valid({ kind, candidateConfiguration });
     }
     case "REVIEW_POLICY":
     case "CONFIRM_POLICY":
@@ -119,7 +128,8 @@ function journeyContext(snapshot: AtlasSnapshot, now: number) {
 
 function vaultContext(snapshot: AtlasSnapshot, now: number) {
   return { policy: snapshot.policy, policyRevision: snapshot.policyRevision,
-    state: snapshot.vaultState, accessState: snapshot.accessState, now };
+    state: snapshot.vaultState, accessState: snapshot.accessState, now,
+    configuration: snapshot.configuration, configurationRevision: snapshot.configurationRevision };
 }
 
 function accessPlan(operation: AtlasOperation["kind"], transition: AccessTransition, snapshot: AtlasSnapshot): AtlasPlan {
@@ -148,7 +158,7 @@ function checkBinding(context: AtlasNavigationContext, snapshot: AtlasSnapshot):
 }
 
 function navigationPlan(
-  operation: Extract<AtlasOperation, { kind: "CHECK_NAVIGATION" | "RECORD_JOURNEY_NAVIGATION" }>,
+  operation: Extract<AtlasOperation, { kind: "BEGIN_NAVIGATION" | "CHECK_NAVIGATION" | "RECORD_JOURNEY_NAVIGATION" }>,
   snapshot: AtlasSnapshot, now: number, managed: ManagedBlacklist | undefined,
 ): AtlasPlan {
   const bindingError = checkBinding(operation.context, snapshot);
@@ -187,6 +197,31 @@ function navigationPlan(
   return makePlan({ type: "ASSESSMENT", decision: managedDecision ?? decision }, observation);
 }
 
+function beginNavigation(
+  operation: Extract<AtlasOperation, { kind: "BEGIN_NAVIGATION" | "CHECK_NAVIGATION" | "RECORD_JOURNEY_NAVIGATION" }>,
+  snapshot: AtlasSnapshot, now: number, managed: ManagedBlacklist | undefined, configuration: AtlasConfiguration,
+): AtlasPlan {
+  const bindingError = checkBinding(operation.context, snapshot);
+  if (bindingError !== null) return reject(bindingError, snapshot);
+  const current = snapshot.journeyState.journeys.find((j) => j.id === operation.context.journeyId);
+  const access = evaluateAccess(operation.target, accessContext(snapshot, now));
+  if (access.decision.outcome !== "ALLOW" || access.decision.reason !== "WHITELISTED") {
+    return navigationPlan(operation, snapshot, now, managed);
+  }
+  if (current !== undefined && current.phase !== "ENDED") {
+    if (continuesJourney(current, operation.target.hostname, operation.context.continuation)
+      || current.phase === "STARTED" && current.rootHostname === operation.target.hostname) {
+      return navigationPlan(operation, snapshot, now, managed);
+    }
+    snapshot = { ...snapshot, journeyState: replaceJourney(snapshot.journeyState, finishJourney(current, "UNRELATED_NAVIGATION", now)) };
+  }
+  const started = startJourney(operation.target, operation.context.contextId, journeyContext(snapshot, now), configuration.journeyLimits);
+  if (!started.ok || started.type !== "STARTED") return reject(started.ok ? "INVALID_JOURNEY_STATE" : started.reason, snapshot);
+  const candidate = { ...snapshot, journeyState: started.nextState };
+  const plan = navigationPlan({ ...operation, context: { contextId: operation.context.contextId, journeyId: started.journey.id } }, candidate, now, managed);
+  return makePlan(plan.result, snapshot, plan.observationSnapshot ?? candidate);
+}
+
 function managedDenies(snapshot: AtlasSnapshot, hostname: string, managed: ManagedBlacklist | undefined): boolean {
   return managed !== undefined && !snapshot.policy.blacklist.includes(hostname)
     && !snapshot.policy.whitelist.includes(hostname) && managedBlacklistContains(managed, hostname) === true;
@@ -208,8 +243,8 @@ export function planAtlasOperation(operationInput: unknown, contextInput: unknow
   if ([snapshot.accessState, snapshot.vaultState, snapshot.journeyState].some((s) => now < s.lastObservedAt)) {
     return reject("CLOCK_ROLLBACK");
   }
-  const configuration = readConfiguration(contextInput.configuration);
-  if (configuration === null) return reject("INVALID_CONFIGURATION");
+  const configuration = snapshot.configuration;
+  if (readConfiguration(contextInput.configuration) === null) return reject("INVALID_CONFIGURATION");
   const parsed = readOperation(operationInput);
   const journeys = observeJourneys(journeyContext(snapshot, now));
   if (!journeys.ok) return reject(journeys.reason);
@@ -221,10 +256,13 @@ export function planAtlasOperation(operationInput: unknown, contextInput: unknow
   };
   if (!parsed.ok) return reject(parsed.reason, observation);
   const operation = parsed.operation;
-  const guardedHostname = operation.kind === "START_ACCESS" ? operation.target.hostname
-    : operation.kind === "CONFIRM_ACCESS" ? observation.accessState.pendingRequests.find((r) => r.id === operation.requestId)?.hostname : undefined;
-  if (guardedHostname !== undefined && managedDenies(observation, guardedHostname, managedList)) return reject("MANAGED_BLACKLISTED", observation);
+  const pending = operation.kind === "CONFIRM_ACCESS" ? observation.accessState.pendingRequests.find((r) => r.id === operation.requestId) : undefined;
+  const guardedHosts = operation.kind === "START_ACCESS" ? operation.scopeHostnames ?? [operation.target.hostname]
+    : pending === undefined ? [] : accessScope(pending);
+  if (guardedHosts.some((host) => managedDenies(observation, host, managedList))) return reject("MANAGED_BLACKLISTED", observation);
   switch (operation.kind) {
+    case "BEGIN_NAVIGATION":
+      return beginNavigation(operation, observation, now, managedList, configuration);
     case "CHECK_NAVIGATION":
     case "RECORD_JOURNEY_NAVIGATION":
       return navigationPlan(operation, observation, now, managedList);
@@ -232,7 +270,7 @@ export function planAtlasOperation(operationInput: unknown, contextInput: unknow
       return makePlan({ type: "OBSERVED" }, observation);
     case "START_ACCESS":
       return accessPlan(operation.kind,
-        startAccess(operation.target, accessContext(observation, now), configuration.accessTiming), observation);
+        startAccess(operation.target, accessContext(observation, now), configuration.accessTiming, operation.scopeHostnames), observation);
     case "CONFIRM_ACCESS":
       return accessPlan(operation.kind, confirmAccess(operation.requestId, accessContext(observation, now)), observation);
     case "CANCEL_ACCESS":
@@ -246,8 +284,11 @@ export function planAtlasOperation(operationInput: unknown, contextInput: unknow
       return journeyPlan(operation.kind,
         end(operation.journeyId, operation.contextId, journeyContext(observation, now)), observation);
     }
+    case "PROPOSE_SETTINGS":
     case "PROPOSE_POLICY": {
-      const proposed = createPolicyProposal(operation.candidatePolicy, vaultContext(observation, now), configuration.vaultTiming);
+      const proposed = operation.kind === 'PROPOSE_SETTINGS'
+        ? createSettingsProposal(operation.candidateConfiguration, vaultContext(observation, now))
+        : createPolicyProposal(operation.candidatePolicy, vaultContext(observation, now), configuration.vaultTiming);
       return proposed.ok ? makePlan({ type: "TRANSITION_PREPARED", operation: operation.kind, id: proposed.proposal.id },
         observation, { ...observation, vaultState: proposed.nextState }) : reject(proposed.reason, observation);
     }
@@ -259,7 +300,9 @@ export function planAtlasOperation(operationInput: unknown, contextInput: unknow
     case "CONFIRM_POLICY": {
       const prepared = prepareVaultCommit(operation.proposalId, vaultContext(observation, now));
       if (!prepared.ok) return reject(prepared.reason, observation);
-      const next = { ...observation, ...prepared.candidate.nextSnapshot };
+      const next = { ...observation, ...prepared.candidate.nextSnapshot,
+        policy: prepared.candidate.nextSnapshot.policyRevision === observation.policyRevision
+          ? observation.policy : prepared.candidate.nextSnapshot.policy };
       const invalidated = observeJourneys(journeyContext(next, now));
       if (!invalidated.ok) return reject(invalidated.reason, observation);
       return makePlan({ type: "POLICY_COMMIT_PREPARED", proposalId: operation.proposalId,

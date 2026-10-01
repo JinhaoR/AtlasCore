@@ -1,5 +1,5 @@
 import type { AccessDecision, AccessError, AccessState, AccessTiming } from "./access-models.js";
-import type { JourneyDecision, JourneyError, JourneyLimits, JourneyState } from "./journey-models.js";
+import type { JourneyContinuation, JourneyDecision, JourneyError, JourneyLimits, JourneyState } from "./journey-models.js";
 import type { Policy, SiteTarget } from "./models.js";
 import type { PolicyReview, VaultError, VaultState, VaultTiming } from "./vault-models.js";
 import type { ManagedBlacklist } from "./managed-blacklist.js";
@@ -8,6 +8,8 @@ import type { ManagedBlacklist } from "./managed-blacklist.js";
 export interface AtlasSnapshot {
   readonly policy: Policy;
   readonly policyRevision: number;
+  readonly configuration: AtlasConfiguration;
+  readonly configurationRevision: number;
   readonly accessState: AccessState;
   readonly vaultState: VaultState;
   readonly journeyState: JourneyState;
@@ -17,7 +19,7 @@ export type AtlasSnapshotComponent = "snapshot" | keyof AtlasSnapshot;
 export type AtlasSnapshotError =
   | "INVALID_SNAPSHOT" | "INVALID_POLICY" | "INVALID_POLICY_REVISION"
   | "INVALID_ACCESS_STATE" | "INVALID_VAULT_STATE" | "INVALID_JOURNEY_STATE"
-  | "POLICY_ROLLBACK";
+  | "POLICY_ROLLBACK" | "INVALID_CONFIGURATION" | "CONFIGURATION_ROLLBACK";
 
 export type AtlasSnapshotValidation =
   | { readonly ok: true; readonly snapshot: AtlasSnapshot }
@@ -33,21 +35,24 @@ export interface AtlasConfiguration {
 export interface AtlasNavigationContext {
   readonly contextId: string;
   readonly journeyId: number | null;
+  readonly continuation?: JourneyContinuation;
 }
 
 export interface AtlasPlannerContext {
   readonly snapshot: AtlasSnapshot;
   readonly now: number;
+  /** Legacy dependency validation only; committed snapshot.configuration governs operations. */
   readonly configuration: AtlasConfiguration;
   readonly managedBlacklist?: ManagedBlacklist;
 }
 
 export type AtlasOperation =
-  | { readonly kind: "CHECK_NAVIGATION" | "RECORD_JOURNEY_NAVIGATION";
+  | { readonly kind: "BEGIN_NAVIGATION" | "CHECK_NAVIGATION" | "RECORD_JOURNEY_NAVIGATION";
     readonly target: SiteTarget; readonly context: AtlasNavigationContext }
-  | { readonly kind: "START_ACCESS"; readonly target: SiteTarget }
+  | { readonly kind: "START_ACCESS"; readonly target: SiteTarget; readonly scopeHostnames?: readonly string[] }
   | { readonly kind: "CONFIRM_ACCESS" | "CANCEL_ACCESS"; readonly requestId: number }
   | { readonly kind: "PROPOSE_POLICY"; readonly candidatePolicy: Policy }
+  | { readonly kind: "PROPOSE_SETTINGS"; readonly candidateConfiguration: AtlasConfiguration }
   | { readonly kind: "REVIEW_POLICY" | "CONFIRM_POLICY" | "CANCEL_POLICY"; readonly proposalId: number }
   | { readonly kind: "START_JOURNEY"; readonly root: SiteTarget; readonly contextId: string }
   | { readonly kind: "CANCEL_JOURNEY" | "CLOSE_JOURNEY_CONTEXT";

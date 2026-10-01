@@ -10,6 +10,7 @@ export class FakeFirefox {
   eventTime = 1;
   nextRequest = 1;
   nextTimer = 1;
+  requests = new Map();
   documents = new Map();
   updates = [];
   timers = new Map();
@@ -20,9 +21,11 @@ export class FakeFirefox {
   webRequest = { onBeforeRequest: new Event(), onErrorOccurred: new Event(), onBeforeRedirect: new Event() };
   webNavigation = { onCommitted: new Event(), onHistoryStateUpdated: new Event(), onReferenceFragmentUpdated: new Event() };
   badges = new Map();
+  titles = new Map();
+  badgeUpdates = [];
   browserAction = { onClicked: new Event(),
-    setBadgeText: async ({ tabId, text }) => { this.badges.set(tabId, text); },
-    setTitle: async () => {}, setBadgeBackgroundColor: async () => {} };
+    setBadgeText: async ({ tabId, text }) => { this.badges.set(tabId, text); this.badgeUpdates.push({ tabId, text }); },
+    setTitle: async ({ tabId, title }) => { this.titles.set(tabId, title); }, setBadgeBackgroundColor: async () => {} };
   settle = async () => {};
   tabs = {
     onRemoved: new Event(), onUpdated: new Event(),
@@ -69,10 +72,21 @@ export class FakeFirefox {
     await this.settle();
   }
   async request(id, url, options = {}) {
-    return await this.webRequest.onBeforeRequest.emit({ type: 'main_frame', frameId: 0,
-      tabId: id, url, requestId: String(this.nextRequest++), timeStamp: this.eventTime++, method: 'GET', ...options })[0];
+    const details = { type: 'main_frame', frameId: 0,
+      tabId: id, url, requestId: String(this.nextRequest++), timeStamp: this.eventTime++, method: 'GET', ...options };
+    this.requests.set(id, details);
+    return await this.webRequest.onBeforeRequest.emit(details)[0];
+  }
+  async redirect(id, url, arrive = true) {
+    const previous = this.requests.get(id);
+    this.webRequest.onBeforeRedirect.emit({ ...previous, timeStamp: this.eventTime++, redirectUrl: url });
+    const result = await this.request(id, url, { requestId: previous.requestId });
+    if (arrive && !result.cancel) this.arrive(id, url);
+    await this.flush();
+    return result;
   }
   arrive(id, url, options = {}) {
+    this.badges.delete(id); this.titles.delete(id); // Firefox resets tab-scoped toolbar properties.
     this.documents.set(id, { id, url, incognito: false });
     this.webNavigation.onCommitted.emit({ tabId: id, frameId: 0, url, timeStamp: this.eventTime++, ...options });
   }

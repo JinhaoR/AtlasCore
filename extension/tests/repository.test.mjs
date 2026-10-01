@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { IDBFactory, IDBObjectStore } from 'fake-indexeddb';
 import { openRepository } from '../dist/lib/storage/indexeddb-repository.js';
-import { policy } from './support/fixture.mjs';
+import { policy, configuration } from './support/fixture.mjs';
+import { planAtlasOperation } from '@atlas/core';
 
 async function setup(t) {
   const factory = new IDBFactory();
@@ -15,7 +16,7 @@ async function setup(t) {
   return { factory, repository, envelope, newVersion: () => `v${++version}` };
 }
 const request = (envelope, commitId, next = envelope.snapshot) => ({ commitId,
-  expectedStorageVersion: envelope.storageVersion, next: { schemaVersion: 1, snapshot: next } });
+  expectedStorageVersion: envelope.storageVersion, next: { schemaVersion: 2, snapshot: next } });
 function raw(factory, action) {
   return new Promise((resolve, reject) => {
     const open = factory.open('test', 1);
@@ -98,4 +99,64 @@ test('closed storage is unavailable and cannot claim an unresolved attempt faile
   repository.close();
   assert.deepEqual(await repository.load(), { type: 'UNAVAILABLE' });
   assert.deepEqual(await repository.resolveCommit('maybe'), { type: 'UNKNOWN', commitId: 'maybe' });
+});
+
+function legacy(envelope) {
+  const result = structuredClone(envelope); result.schemaVersion = 1;
+  delete result.snapshot.configuration; delete result.snapshot.configurationRevision;
+  if (result.snapshot.vaultState.pendingProposal) {
+    delete result.snapshot.vaultState.pendingProposal.candidateConfiguration;
+    delete result.snapshot.vaultState.pendingProposal.baseConfigurationRevision;
+  }
+  if (result.snapshot.vaultState.lastApplied) delete result.snapshot.vaultState.lastApplied.configurationRevision;
+  return result;
+}
+
+test('schema-1 migration is atomic, preserves runtime terms and pending policy wait, and retains receipts', async (t) => {
+  const { factory, repository, envelope, newVersion } = await setup(t);
+  const proposed = planAtlasOperation({ kind: 'PROPOSE_POLICY', candidatePolicy: { whitelist: [...policy.whitelist, 'new.example'], blacklist: policy.blacklist } },
+    { snapshot: envelope.snapshot, now: 1000, configuration });
+  const receipt = await repository.commit(request(envelope, 'policy-pending', proposed.candidateSnapshot));
+  const old = legacy((await repository.load()).envelope);
+  await raw(factory, (tx) => tx.objectStore('authority').put(old, 'envelope'));
+  const other = await openRepository(factory, newVersion, 'test'); t.after(() => other.close());
+  const [first, second] = await Promise.all([repository.load(), other.load()]);
+  assert.equal(first.envelope.schemaVersion, 2);
+  assert.deepEqual(first, second);
+  assert.notEqual(first.envelope.storageVersion, old.storageVersion);
+  assert.equal(first.envelope.lastCommitId, old.lastCommitId);
+  assert.deepEqual(first.envelope.snapshot.policy, old.snapshot.policy);
+  assert.deepEqual(first.envelope.snapshot.accessState, old.snapshot.accessState);
+  assert.equal(first.envelope.snapshot.vaultState.pendingProposal.readyAt, old.snapshot.vaultState.pendingProposal.readyAt);
+  assert.equal(first.envelope.snapshot.vaultState.pendingProposal.confirmBy, old.snapshot.vaultState.pendingProposal.confirmBy);
+  assert.deepEqual(await repository.resolveCommit('policy-pending'), receipt);
+  assert.equal((await repository.commit(request(old, 'stale-before-migration', first.envelope.snapshot))).type, 'CONFLICT');
+});
+
+test('aborted migration leaves old bytes intact and never reports READY before durable save', async (t) => {
+  const { factory, repository, envelope } = await setup(t); const old = legacy(envelope);
+  await raw(factory, (tx) => tx.objectStore('authority').put(old, 'envelope'));
+  const original = IDBObjectStore.prototype.put;
+  IDBObjectStore.prototype.put = function (value, key) {
+    if (this.name === 'authority' && key === 'envelope' && value.schemaVersion === 2) throw new DOMException('Synthetic migration failure', 'QuotaExceededError');
+    return original.call(this, value, key);
+  };
+  try { assert.deepEqual(await repository.load(), { type: 'UNAVAILABLE' }); }
+  finally { IDBObjectStore.prototype.put = original; }
+  let stored; await raw(factory, (tx) => { const r = tx.objectStore('authority').get('envelope'); r.onsuccess = () => { stored = r.result; }; });
+  assert.deepEqual(stored, old);
+  assert.equal((await repository.load()).envelope.schemaVersion, 2);
+});
+
+test('corrupt legacy and incomplete schema-2 cannot be initialized or silently migrated', async (t) => {
+  const { factory, repository, envelope } = await setup(t);
+  const corrupt = legacy(envelope); corrupt.snapshot.accessState = {};
+  await raw(factory, (tx) => tx.objectStore('authority').put(corrupt, 'envelope'));
+  assert.deepEqual(await repository.load(), { type: 'UNAVAILABLE' });
+  assert.equal(await repository.initialize(policy), false);
+  const missing = structuredClone(envelope); delete missing.snapshot.configuration;
+  await raw(factory, (tx) => tx.objectStore('authority').put(missing, 'envelope'));
+  const loaded = await repository.load();
+  assert.deepEqual(loaded.envelope, missing, 'schema-2 is passed to strict Core validation without bootstrap repair');
+  assert.equal(await repository.initialize(policy), false);
 });

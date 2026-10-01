@@ -23,6 +23,20 @@ function normalizedHostname(value: unknown): value is string {
   return typeof value === "string" && normalizeHostname(value) === value;
 }
 
+export function readAccessScope(value: unknown, hostname: string): readonly string[] | null {
+  if (!Array.isArray(value) || value.length === 0 || ![...value].every(normalizedHostname)
+    || !value.includes(hostname) || new Set(value).size !== value.length) return null;
+  return Object.freeze([...value].sort());
+}
+
+export function accessScope(record: { hostname: string; scopeHostnames?: readonly string[] }): readonly string[] {
+  return record.scopeHostnames ?? [record.hostname];
+}
+
+function scopeFields(value: unknown): string[] {
+  return value !== null && typeof value === 'object' && Object.hasOwn(value, 'scopeHostnames') ? ['scopeHostnames'] : [];
+}
+
 /** Explicit initialization only. Validation never falls back to an empty state. */
 export function createAccessState(): AccessState {
   return {
@@ -44,29 +58,35 @@ export function readTiming(value: unknown): AccessTiming | null {
 
 function readPending(value: unknown): PendingAccessRequest | null {
   if (!hasFields(value, [
-    "id", "hostname", "startedAt", "readyAt", "confirmBy", "grantDurationMs", "policyRevision",
+    "id", "hostname", "startedAt", "readyAt", "confirmBy", "grantDurationMs", "policyRevision", ...scopeFields(value),
   ])) return null;
   if (!positiveInteger(value.id) || !normalizedHostname(value.hostname)
     || !nonnegativeInteger(value.startedAt) || !nonnegativeInteger(value.readyAt)
     || !nonnegativeInteger(value.confirmBy) || !positiveInteger(value.grantDurationMs)
     || !nonnegativeInteger(value.policyRevision)
     || value.readyAt <= value.startedAt || value.confirmBy <= value.readyAt) return null;
+  const scope = Object.hasOwn(value, 'scopeHostnames') ? readAccessScope(value.scopeHostnames, value.hostname) : undefined;
+  if (scope === null) return null;
   return {
     id: value.id, hostname: value.hostname, startedAt: value.startedAt,
+    ...(scope === undefined ? {} : { scopeHostnames: scope }),
     readyAt: value.readyAt, confirmBy: value.confirmBy,
     grantDurationMs: value.grantDurationMs, policyRevision: value.policyRevision,
   };
 }
 
 function readGrant(value: unknown): AccessGrant | null {
-  if (!hasFields(value, ["requestId", "hostname", "issuedAt", "expiresAt", "policyRevision"])) {
+  if (!hasFields(value, ["requestId", "hostname", "issuedAt", "expiresAt", "policyRevision", ...scopeFields(value)])) {
     return null;
   }
   if (!positiveInteger(value.requestId) || !normalizedHostname(value.hostname)
     || !nonnegativeInteger(value.issuedAt) || !nonnegativeInteger(value.expiresAt)
     || !nonnegativeInteger(value.policyRevision) || value.expiresAt <= value.issuedAt) return null;
+  const scope = Object.hasOwn(value, 'scopeHostnames') ? readAccessScope(value.scopeHostnames, value.hostname) : undefined;
+  if (scope === null) return null;
   return {
     requestId: value.requestId, hostname: value.hostname,
+    ...(scope === undefined ? {} : { scopeHostnames: scope }),
     issuedAt: value.issuedAt, expiresAt: value.expiresAt, policyRevision: value.policyRevision,
   };
 }
@@ -87,18 +107,18 @@ export function readAccessState(value: unknown): AccessState | null {
     const request = readPending(entry);
     if (request === null || request.id >= value.nextRequestId
       || request.startedAt > value.lastObservedAt || request.policyRevision > value.policyRevision
-      || ids.has(request.id) || hosts.has(request.hostname)) return null;
+      || ids.has(request.id) || accessScope(request).some((host) => hosts.has(host))) return null;
     ids.add(request.id);
-    hosts.add(request.hostname);
+    accessScope(request).forEach((host) => hosts.add(host));
     pendingRequests.push(request);
   }
   for (const entry of value.grants) {
     const grant = readGrant(entry);
     if (grant === null || grant.requestId >= value.nextRequestId
       || grant.issuedAt > value.lastObservedAt || grant.policyRevision > value.policyRevision
-      || ids.has(grant.requestId) || hosts.has(grant.hostname)) return null;
+      || ids.has(grant.requestId) || accessScope(grant).some((host) => hosts.has(host))) return null;
     ids.add(grant.requestId);
-    hosts.add(grant.hostname);
+    accessScope(grant).forEach((host) => hosts.add(host));
     grants.push(grant);
   }
   return {

@@ -111,7 +111,7 @@ def main():
         client.call("Marionette:SetContext", value="content")
         smoke.wait_for(lambda: client.script("return location.protocol === 'moz-extension:' && document.readyState === 'complete';"), "private UI")
         ui_handle = client.call("WebDriver:GetWindowHandle")
-        smoke.wait_for(lambda: client.message({"kind": "GET_VIEW"}).get("view", {}).get("controller", {}).get("status") == "UNINITIALIZED", "initialization")
+        smoke.wait_for(lambda: (client.message({"kind": "GET_VIEW"}).get("view", {}).get("controller") or {}).get("status") == "UNINITIALIZED", "initialization")
         policy = {"whitelist": [case[1] for case in CASES], "blacklist": []}
         assert client.message({"kind": "SETUP", "policy": policy})["initialized"]
 
@@ -174,7 +174,11 @@ def main():
             latest = context["latest"] if context else None
             journey = context["journey"] if context else None
             assert journey is not None
-            assert all(entry["journey"] is None or entry["journey"]["expiresAt"] == journey["expiresAt"] for entry in entries)
+            deadlines = {}
+            for entry in entries:
+                observed = entry["journey"]
+                if observed is not None:
+                    assert deadlines.setdefault(observed["id"], observed["expiresAt"]) == observed["expiresAt"]
             cancelled_outcome = None
             if latest and latest.get("decision", {}).get("reason") == "ACTIVE_JOURNEY":
                 cancelled = client.message({"kind": "CANCEL_JOURNEY", "tabId": tab_id})
@@ -217,5 +221,9 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception:
-        raise SystemExit("Public-site investigation failed; raw errors suppressed to avoid logging live URLs.") from None
+    except Exception as failure:
+        import traceback
+        frames = traceback.extract_tb(failure.__traceback__)
+        local = [frame for frame in frames if Path(frame.filename).name == Path(__file__).name]
+        line = local[-1].lineno if local else 0
+        raise SystemExit(f"Public-site investigation failed at script line {line} ({type(failure).__name__}); raw errors suppressed.") from None

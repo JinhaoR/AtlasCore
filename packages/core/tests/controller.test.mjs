@@ -13,11 +13,13 @@ const configuration = {
 };
 const initial = () => ({
   policy: { whitelist: ["root.example"], blacklist: ["blocked.example"] }, policyRevision: 0,
-  accessState: createAccessState(), vaultState: createVaultState(), journeyState: createJourneyState(),
+  configuration, configurationRevision: 0, accessState: createAccessState(), vaultState: createVaultState(), journeyState: createJourneyState(),
 });
 const start = (hostname = "other.example") => ({ kind: "START_ACCESS", target: { hostname } });
 const check = (hostname = "other.example", journeyId = null) => ({ kind: "CHECK_NAVIGATION",
-  target: { hostname }, context: { contextId: "surface_a", journeyId } });
+  target: { hostname }, context: { contextId: "surface_a", journeyId, ...(journeyId === null ? {} : {
+    continuation: { kind: "HTTP_REDIRECT", sourceHostname: "root.example" },
+  }) } });
 const confirm = { kind: "CONFIRM_ACCESS", requestId: 1 };
 const propose = { kind: "PROPOSE_POLICY", candidatePolicy: { whitelist: ["new.example"], blacklist: ["other.example"] } };
 let nextOwner = 0;
@@ -50,7 +52,7 @@ test("controller requires open and never initializes missing or corrupt reposito
   assert.equal((await missing.controller.open()).status, "UNINITIALIZED");
   assert.equal(missing.repository.commits.length, 0);
   for (const mutate of [
-    (e) => { e.schemaVersion = 2; },
+    (e) => { e.schemaVersion = 3; },
     (e) => { e.snapshot.vaultState = {}; },
     (e) => { delete e.snapshot.journeyState; },
   ]) {

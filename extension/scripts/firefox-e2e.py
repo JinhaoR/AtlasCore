@@ -83,6 +83,8 @@ def main():
     parser.add_argument("--firefox", default=os.environ.get("FIREFOX_BINARY") or shutil.which("firefox")
                         or r"C:\Program Files\Mozilla Firefox\firefox.exe")
     parser.add_argument("--existing-policy", action="store_true", help="Exercise reload and explicit Vault upgrade from an older saved policy")
+    parser.add_argument("--productization", action="store_true", help="Add native badge/search/protected settings and schema migration checks")
+    parser.add_argument("--productization-only", action="store_true", help="Run the isolated D19 checks after fresh setup")
     arguments = parser.parse_args()
     if not Path(arguments.firefox).is_file():
         raise SystemExit("Firefox not found. Set FIREFOX_BINARY or pass --firefox.")
@@ -100,15 +102,21 @@ def main():
             host = self.headers.get("Host", "").split(":")[0]
             hits.append((host, self.path))
             port = self.server.server_port
-            if host == "root.localhost" and self.path == "/bounce":
+            redirects = {
+                ("root.localhost", "/begin-login"): f"http://login.localhost:{port}/",
+                ("login.localhost", "/choose"): f"http://root.localhost:{port}/bounce",
+                ("root.localhost", "/bounce"): f"http://identity.localhost:{port}/",
+                ("identity.localhost", "/finish"): f"http://root.localhost:{port}/complete",
+            }
+            if (host, self.path) in redirects:
                 self.send_response(302)
-                self.send_header("Location", f"http://identity.localhost:{port}/")
+                self.send_header("Location", redirects[(host, self.path)])
                 self.end_headers()
                 return
             links = {
-                "root.localhost": ("login", f"http://login.localhost:{port}/", "Choose login"),
-                "login.localhost": ("identity", f"http://root.localhost:{port}/bounce", "Choose identity"),
-                "identity.localhost": ("finish", f"http://root.localhost:{port}/complete", "Finish"),
+                "root.localhost": ("login", f"http://root.localhost:{port}/begin-login", "Choose login"),
+                "login.localhost": ("identity", f"http://login.localhost:{port}/choose", "Choose identity"),
+                "identity.localhost": ("finish", f"http://identity.localhost:{port}/finish", "Finish"),
             }
             link = links.get(host)
             body = f"<!doctype html><title>{host}</title><h1>{host}</h1>"
@@ -216,7 +224,7 @@ def main():
             """, spare_id, asynchronous=True)
             assert client.message({"kind": "GET_VIEW"})["view"]["controller"]["snapshot"]["policy"] == policy
             wait_for(lambda: client.script("return document.getElementById('propose-defaults')?.hidden === false && !document.getElementById('propose-defaults').disabled;"), "preset upgrade button")
-            client.script("document.getElementById('propose-defaults').closest('details').open = true; document.getElementById('propose-defaults').click();")
+            client.script("document.getElementById('show-settings').click(); document.getElementById('propose-defaults').closest('details').open = true; document.getElementById('propose-defaults').click();")
             def proposal():
                 return client.message({"kind": "GET_VIEW"})["view"]["controller"]["snapshot"]["vaultState"]["pendingProposal"]
             frozen = wait_for(proposal, "frozen preset proposal")
@@ -233,11 +241,21 @@ def main():
             policy = updated["policy"]
             assert client.message({"kind": "CONFIRM_POLICY", "proposalId": frozen["id"]})["result"]["type"] == "REJECTED"
             print("PASS explicit native Vault confirmation saved curated defaults and retained manual Blacklist", flush=True)
-        assert len(policy["whitelist"]) == 51
+        assert len(policy["whitelist"]) == 52
         assert {"root.localhost", "chatgpt.com", "www.youtube.com", "canvas.kth.se"} <= set(policy["whitelist"])
         assert "google.com" not in policy["whitelist"] and "www.google.com" not in policy["whitelist"]
         assert policy["blacklist"] == ["black.localhost"]
         print(f"Firefox {version}: curated setup, real IndexedDB, managed list active ({managed['count']} domains)", flush=True)
+        if arguments.productization_only:
+            from firefox_productization import run_productization
+            ui_handle, product = run_productization(client, ui_handle, UI_URL, port, wait_for)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, 'productization': product}, indent=2), encoding='utf-8')
+            for surface in ['home', 'settings']:
+                client.script(f"document.getElementById('show-{surface}').click();")
+                shot = client.call('WebDriver:TakeScreenshot', id=None, highlights=[], full=True)
+                (run / f'{surface}.png').write_bytes(base64.b64decode(shot))
+            print(f'Artifacts: {run}', flush=True)
+            return
 
         denied_id = client.script("""
             const done = arguments[arguments.length - 1];
@@ -255,9 +273,49 @@ def main():
         """, denied_id, asynchronous=True)
         print("PASS native managed denial and blocked Greylist request", flush=True)
 
+        def client_view():
+            client.call("WebDriver:SwitchToWindow", handle=ui_handle)
+            return client.message({"kind": "GET_VIEW"})["view"]
+
+        # Real chrome-driven ordinary/new-tab and address-bar navigation use the same gate.
+        for origin in ["ordinary", "typed"]:
+            client.call("Marionette:SetContext", value="chrome")
+            client.script("gBrowser.selectedTab = gBrowser.addTrustedTab('about:blank');")
+            client.call("Marionette:SetContext", value="content")
+            ordinary_handle = client.call("WebDriver:GetWindowHandles")[-1]
+            if origin == "typed":
+                client.call("Marionette:SetContext", value="chrome")
+                client.script("gURLBar.value = arguments[0]; gURLBar.handleCommand();", f"http://root.localhost:{port}/begin-login")
+                client.call("Marionette:SetContext", value="content")
+            else:
+                client.call("WebDriver:SwitchToWindow", handle=ordinary_handle)
+                client.call("WebDriver:Navigate", url=f"http://root.localhost:{port}/begin-login")
+            context = wait_for(lambda: next((c for c in client_view()["contexts"] if c["displayedHostname"] == "login.localhost"), None),
+                               f"{origin} Whitelist authentication redirect")
+            assert context["journey"]["rootHostname"] == "root.localhost"
+            assert context["journey"]["phase"] == "IN_TRANSIT"
+            assert context["latest"]["decision"]["reason"] == "ACTIVE_JOURNEY"
+            assert client_view()["controller"]["snapshot"]["accessState"]["grants"] == []
+            # Actual address-bar unrelated navigation must not contact the destination.
+            before_hits = len(hits)
+            client.call("WebDriver:SwitchToWindow", handle=ordinary_handle)
+            client.call("Marionette:SetContext", value="chrome")
+            client.script("gURLBar.value = arguments[0]; gURLBar.handleCommand();", f"http://unrelated.localhost:{port}/typed")
+            client.call("Marionette:SetContext", value="content")
+            stopped = wait_for(lambda: next((c for c in client_view()["contexts"] if c["tabId"] == context["tabId"]
+                                            and c["hostname"] == "unrelated.localhost" and c["effect"] == "REMOVED"), None),
+                               "typed unrelated destination denied")
+            assert stopped["latest"]["decision"]["outcome"] == "GREYLIST"
+            assert stopped["journey"]["endReason"] == "UNRELATED_NAVIGATION"
+            assert ("unrelated.localhost", "/typed") not in hits[before_hits:]
+            client.script("const done = arguments[arguments.length - 1]; browser.tabs.remove(arguments[0]).then(() => done(true));",
+                          context["tabId"], asynchronous=True)
+        print("PASS ordinary/new-tab and actual address-bar Whitelist redirects; typed unrelated target denied without server contact", flush=True)
+
         opened = client.message({"kind": "OPEN_JOURNEY", "url": f"http://root.localhost:{port}/"})
         assert opened["result"]["type"] == "COMMITTED", opened
         tab_id = opened["tabId"]
+        journey_context = next(c["contextId"] for c in opened["view"]["contexts"] if c["tabId"] == tab_id)
         journey_handle = wait_for(lambda: next((handle for handle in client.call("WebDriver:GetWindowHandles")
                                                 if handle != ui_handle), None), "Journey tab")
 
@@ -267,7 +325,7 @@ def main():
 
         def journey():
             return next(item for item in view()["controller"]["snapshot"]["journeyState"]["journeys"]
-                        if item["id"] == opened["result"]["referenceId"])
+                        if item["contextId"] == journey_context)
 
         def displayed(host):
             return any(context["tabId"] == tab_id and context["displayedHostname"] == host
@@ -282,11 +340,12 @@ def main():
             const select = document.getElementById('context'); select.value = String(arguments[0]);
             select.dispatchEvent(new Event('change'));
         """, tab_id)
-        first = journey()
-        assert first["phase"] == "STARTED", first
+        assert journey()["endReason"] == "REACHED", journey()
         click("login")
         wait_for(lambda: displayed("login.localhost"), "provider page arrival")
-        assert journey()["hopCount"] == 1
+        first = journey()
+        assert first["phase"] == "IN_TRANSIT", first
+        assert first["hopCount"] == 1
         click("identity")
         wait_for(lambda: displayed("identity.localhost"), "identity page after HTTP redirect")
         intermediate = journey()
@@ -294,7 +353,7 @@ def main():
         assert intermediate["hopCount"] == 2
         assert intermediate["expiresAt"] == first["expiresAt"]
         click("finish")
-        wait_for(lambda: journey()["endReason"] == "RETURNED", "return completes Journey")
+        wait_for(lambda: journey()["endReason"] == "RETURNED" and displayed("root.localhost"), "return completes Journey and root document arrives")
         snapshot = view()["controller"]["snapshot"]
         assert snapshot["policy"] == policy
         assert snapshot["accessState"]["grants"] == []
@@ -304,7 +363,9 @@ def main():
         counts = len(hits)
         client.call("WebDriver:SwitchToWindow", handle=journey_handle)
         client.script("location.href = arguments[0];", f"http://identity.localhost:{port}/after")
-        wait_for(lambda: any(context["tabId"] == tab_id and context["effect"] == "REMOVED"
+        wait_for(lambda: any(context["tabId"] == tab_id and context["hostname"] == "identity.localhost"
+                            and context["effect"] == "REMOVED" and context["latest"]["type"] == "ASSESSMENT"
+                            and context["latest"]["decision"]["outcome"] == "GREYLIST"
                             for context in view()["contexts"]), "post-Journey Greylist UI")
         assert ("identity.localhost", "/after") not in hits[counts:]
         selected = next(context for context in view()["contexts"] if context["tabId"] == tab_id)
@@ -323,8 +384,28 @@ def main():
         client.call("WebDriver:SwitchToWindow", handle=journey_handle)
         wait_for(lambda: client.script("return document.getElementById('deadline').textContent.startsWith('Wait ');"), "visible countdown")
         client.script("document.getElementById('context').focus();")
-        time.sleep(1.2)
+        wait_for(lambda: client.script("return document.getElementById('status').textContent.includes('Atlas is ready');"), "verified waiting view")
+        mutations = client.script("""
+            const done = arguments[arguments.length - 1];
+            const count = {major: 0, controls: 0, countdown: 0};
+            const observers = [];
+            for (const id of ['status', 'access-title', 'access-description', 'destination-list']) {
+                const observer = new MutationObserver(records => { count.major += records.length; });
+                observer.observe(document.getElementById(id), {childList: true, characterData: true, subtree: id !== 'destination-list'});
+                observers.push(observer);
+            }
+            const buttons = new MutationObserver(records => { count.controls += records.length; });
+            buttons.observe(document.getElementById('access-panel'), {subtree: true, attributes: true, attributeFilter: ['disabled']});
+            observers.push(buttons);
+            const clock = new MutationObserver(records => { count.countdown += records.length; });
+            clock.observe(document.getElementById('deadline'), {childList: true, subtree: true, characterData: true});
+            observers.push(clock);
+            setTimeout(() => { observers.forEach(observer => observer.disconnect()); done(count); }, 2500);
+        """, asynchronous=True)
+        assert mutations["major"] == 0 and mutations["controls"] == 0, mutations
+        assert mutations["countdown"] > 0, mutations
         assert client.script("return document.activeElement.id === 'context';"), "polling must preserve focus"
+        print("PASS countdown updates without replacing destination rows or blinking headings/buttons", flush=True)
         shot = client.call("WebDriver:TakeScreenshot", id=None, highlights=[], full=True)
         (run / "waiting.png").write_bytes(base64.b64decode(shot))
         wait_for(lambda: next(context for context in view()["contexts"] if context["tabId"] == tab_id)
@@ -363,8 +444,10 @@ def main():
         wait_for(lambda: any(context["tabId"] == tab_id and context["hostname"] == "unknown.localhost"
                             and context["effect"] == "REMOVED" for context in view()["contexts"]), "second Greylist page")
         assert client.message({"kind": "START_ACCESS", "tabId": tab_id})["result"]["type"] == "COMMITTED"
-        active = client.message({"kind": "OPEN_JOURNEY", "url": f"http://root.localhost:{port}/"})
+        active = client.message({"kind": "OPEN_JOURNEY", "url": f"http://root.localhost:{port}/begin-login"})
         assert active["result"]["type"] == "COMMITTED"
+        wait_for(lambda: any(c["tabId"] == active["tabId"] and c["displayedHostname"] == "login.localhost"
+                             for c in view()["contexts"]), "active Journey before reload")
         saved = view()["controller"]["snapshot"]
         client.script("setTimeout(() => browser.runtime.reload(), 0); return true;")
         # Firefox closes extension UI tabs on reload. Reopen the private UI through chrome;
@@ -404,6 +487,15 @@ def main():
         if arguments.existing_policy:
             report["checks"].remove("curated initialization UI")
             report["checks"].extend(["existing policy reload", "preset Vault review", "preset Vault confirmation"])
+        if arguments.productization:
+            from firefox_productization import run_productization
+            ui_handle, report["productization"] = run_productization(client, ui_handle, UI_URL, port, wait_for)
+            client.call("WebDriver:SwitchToWindow", handle=ui_handle)
+            shot = client.call("WebDriver:TakeScreenshot", id=None, highlights=[], full=True)
+            (run / "home.png").write_bytes(base64.b64decode(shot))
+            client.script("document.getElementById('show-settings').click();")
+            shot = client.call("WebDriver:TakeScreenshot", id=None, highlights=[], full=True)
+            (run / "settings.png").write_bytes(base64.b64decode(shot))
         (run / "result.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
         print(f"Artifacts: {run}", flush=True)
     except Exception:

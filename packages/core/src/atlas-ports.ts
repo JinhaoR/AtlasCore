@@ -5,7 +5,7 @@ export interface AtlasClock {
 }
 
 export interface AtlasEnvelope {
-  readonly schemaVersion: 1;
+  readonly schemaVersion: 2;
   readonly storageVersion: string;
   readonly lastCommitId: string | null;
   readonly snapshot: AtlasSnapshot;
@@ -19,7 +19,7 @@ export type AtlasLoadResult =
 export interface AtlasCommitRequest {
   readonly expectedStorageVersion: string;
   readonly commitId: string;
-  readonly next: { readonly schemaVersion: 1; readonly snapshot: AtlasSnapshot };
+  readonly next: { readonly schemaVersion: 2; readonly snapshot: AtlasSnapshot };
 }
 
 export type AtlasCommitResolution =

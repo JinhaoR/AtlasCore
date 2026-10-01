@@ -1,10 +1,12 @@
 # Atlas Core architecture
 
+D19's [productization contract](productization.md) adds protected configuration to the authoritative snapshot and existing Vault flow. Journey authorization remains D18, with its HTTP redirect risk explicitly accepted for the Ulysses-contract threat model. Require a reproducible real-use failure or practical bypass before increasing authorization complexity.
+
 Status: Milestones 1 through 3, D11 Journeys, and D13 aggregate validation/planning implement pure domain logic. D14 adds commit coordination with repository/clock interfaces. D15 adds the first Firefox development adapter and extension-origin repository without changing Core's public API. Requirements and settled decisions live in [foundation.md](foundation.md).
 
 ## Current package
 
-`packages/core` is the only package. Its public exports include policy evaluation, target normalization, Greylist access transitions, Vault proposal/review/commit preparation, and Journey transitions, with readonly domain models.
+`packages/core` is the single Core package; `extension/` is the separate Firefox adapter package. Its public exports include policy evaluation, target normalization, Greylist access transitions, Vault proposal/review/commit preparation, and Journey transitions, with readonly domain models.
 
 | Module | Responsibility |
 | --- | --- |
@@ -22,7 +24,8 @@ Status: Milestones 1 through 3, D11 Journeys, and D13 aggregate validation/plann
 | `journey-state.ts` | Initialize, validate/copy/freeze state, and observe expiry or policy invalidation. |
 | `journey.ts` | Start attempts, evaluate/record navigation, cancel, and close contexts. |
 | `atlas-models.ts` | Aggregate snapshot, configuration, closed operations, assessments, and candidate plans. |
-| `atlas-state.ts` | Reuse component validators to validate/copy/freeze complete snapshots. |
+| `atlas-state.ts` | Validate/copy/freeze complete snapshots and explicitly convert known valid legacy snapshots. |
+| `configuration.ts` | Closed validation of the seven protected configuration values. |
 | `atlas-planner.ts` | Combine authorization, observations, and complete candidate transitions using explicit time. |
 | `atlas-ports.ts` | Repository, clock, versioned envelope, and commit outcome contracts. |
 | `atlas-controller-models.ts` | Owner lifecycle, committed responses, failures, and readonly views. |
@@ -124,7 +127,9 @@ Status: adopted through foundation D9 and implemented as pure domain logic. The 
 
 Greylist is a policy classification. A grant may temporarily authorize that hostname without changing its classification. Only explicit final confirmation can create a grant through the domain transitions; a future owner must persist that transition before exposing access. Evaluation, starting a request, elapsed time, and restart cannot create a grant.
 
-Use the existing exact normalized hostname scope. Commands are explicit Start(target), Confirm(requestId), and Cancel(requestId); untrusted command data cannot select authoritative timestamps or widen an existing request. The trusted owner supplies context and timing separately. Start itself satisfies G01's initial confirmation, and each hostname has at most one pending request or grant record. Different hostnames have independent workflows. Starting again during an unexpired, current request returns that request unchanged; starting while its grant is active is rejected. Every Start, including a retry, requires valid timing configuration; changed timing values never rewrite an existing request.
+Use the existing exact normalized hostname scope. Commands are explicit Start(target), Confirm(requestId), and Cancel(requestId); untrusted command data cannot select authoritative timestamps or widen an existing request. The trusted owner supplies context and timing separately. Start itself satisfies G01's initial confirmation, and each hostname has at most one pending request or grant record. Unrelated hostnames have independent workflows; D18 explicitly declared aliases may share one frozen request below. Starting again during an unexpired, current request returns that request unchanged; starting while its grant is active is rejected. Every Start, including a retry, requires valid timing configuration; changed timing values never rewrite an existing request.
+
+D18 permits trusted Start to supply optional `scopeHostnames`: a canonical, unique list containing the requested host. The Firefox adapter supplies only a curated service's primary host and explicitly equivalent aliases, excluding already Whitelisted hosts; separate service destinations are excluded. Core freezes this scope on the pending request and copies it to one grant on confirmation. No scope parameter is accepted at Confirm. Absent scope preserves legacy single-host behavior. Repeated Start from any covered host returns the existing frozen request without widening or renewing it. Every covered host must remain Greylist at Start/Confirm; manual or managed denial prevents confirmation. Navigation still applies current Blacklist first. Invalid scopes, overlaps with other live requests/grants, and malformed snapshots fail closed. Expired/stale overlapping records may be replaced by a new full wait. Legacy records never gain aliases automatically.
 
 Timing uses three positive safe integer millisecond durations supplied by trusted Core configuration: wait W, confirmation window C, and grant duration G. Production values remain undecided; the domain provides no defaults. Freeze these terms when Start is accepted: readyAt = startedAt + W, confirmBy = readyAt + C. This bounded confirmation window prevents old completed waits from remaining usable indefinitely. Grant expiry is issuedAt + G; it is never extended by evaluation or retries. Timestamp arithmetic must remain within safe integer bounds.
 
@@ -136,7 +141,7 @@ Timing uses three positive safe integer millisecond durations supplied by truste
 | Access request started | An explicit Start has been accepted and its pending record committed. This is a transition event, not another persistent phase. Derive Waiting, readiness, or request expiry from the original deadlines and current accepted time; a slow commit must not reset those deadlines. |
 | Waiting | A pending record exists and now < readyAt. Return WAIT; no permission. |
 | Confirmation available | readyAt <= now < confirmBy. Return REQUIRE_CONFIRMATION; no permission. |
-| Grant active | A grant is committed, issuedAt <= now < expiresAt, and current policy/time/state checks succeed. Return ALLOW for its exact hostname. |
+| Grant active | A grant is committed, issuedAt <= now < expiresAt, and current policy/time/state checks succeed. Return ALLOW for a host in its frozen exact-host scope. |
 | Grant expired | now >= expiresAt. Return GREYLIST with an expiry reason; no automatic renewal. |
 | Cancelled request | An explicit Cancel has durably removed the pending request. Return GREYLIST; that request ID can never confirm. |
 
@@ -162,9 +167,9 @@ Every evaluation and confirmation checks current policy, with Blacklist preceden
 
 Keep only live records and the metadata needed to validate them:
 
-- Pending request: unique non-reused request ID, normalized hostname, startedAt, readyAt, confirmBy, frozen grant duration, and policy revision.
-- Grant: originating request ID, normalized hostname, issuedAt, expiresAt, and policy revision. No separate grant ID is needed initially.
-- Domain state: pending/grant arrays, `nextRequestId`, `lastObservedAt`, and latest observed `policyRevision`. IDs are safe positive integers allocated only on a new Start; exhaustion fails closed. Original event times cannot exceed the observation checkpoint. Duplicate IDs/hostnames, malformed deadlines, noncanonical hostnames, and record revisions newer than the snapshot are rejected as invalid state.
+- Pending request: unique non-reused request ID, normalized hostname, optional frozen exact-host scope, startedAt, readyAt, confirmBy, frozen grant duration, and policy revision.
+- Grant: originating request ID, normalized hostname, optional frozen exact-host scope, issuedAt, expiresAt, and policy revision. No separate grant ID is needed initially.
+- Domain state: pending/grant arrays, `nextRequestId`, `lastObservedAt`, and latest observed `policyRevision`. IDs are safe positive integers allocated only on a new Start; exhaustion fails closed. Original event times cannot exceed the observation checkpoint. Duplicate IDs/overlapping scopes, malformed deadlines, noncanonical hostnames, and record revisions newer than the snapshot are rejected as invalid state.
 - Future storage additionally owns an envelope with authoritative policy, schema/commit versions, and a durability contract. None of that storage machinery is implemented here.
 
 The pure Confirm transition already returns request removal and grant creation together in one candidate snapshot. A future owner must commit it atomically against the current version; Cancel likewise must durably remove the pending request. An absent ID cannot be confirmed, and the retained ID counter avoids an unbounded consumed/cancelled-ID ledger. A new Start replaces same-host expired/stale records; their presence never makes them usable. Persist neither raw URLs nor a presentation countdown/ready flag.
@@ -195,19 +200,19 @@ Status: adopted through foundation D10 and implemented as pure domain logic. Pro
 
 ### Scope and invariants
 
-Vault protects changes to the existing two-list `Policy`. Proposing, reviewing, waiting, and confirming do not publish a replacement active policy. A successful atomic commit is the only point at which the replacement becomes authoritative. No temporary "Vault unlocked" permission is introduced; each confirmation concerns one exact proposal.
+Vault protects changes to the two-list `Policy` and, under D19, the existing timing configuration. Proposing, reviewing, waiting, and confirming do not publish a replacement active policy. A successful atomic commit is the only point at which the replacement becomes authoritative. No temporary "Vault unlocked" permission is introduced; each confirmation concerns one exact proposal.
 
-There is one pending proposal per policy instance, frozen immediately at creation. User-managed Whitelist and Blacklist additions/removals use the same protected flow, including tighter changes. No editable draft or stored "reviewed" flag is needed in Core. A proposed change to timing configuration is outside this initial Policy shape and is rejected as unsupported. If timing edits are introduced later, the old governing delay must protect any proposed reduction.
+There is one pending proposal per policy instance, frozen immediately at creation. User-managed Whitelist and Blacklist additions/removals use the same protected flow, including tighter changes. No editable draft or stored "reviewed" flag is needed in Core. D19 extends this same slot to protected settings: a proposal freezes both policy and configuration with both base revisions. Its deadlines use the old active Vault protection. The [productization contract](productization.md#existing-configuration-and-protected-state) owns the settings and migration semantics; the policy-only standalone API remains compatible.
 
 ### Domain model
 
 | Model | Contents and role |
 | --- | --- |
-| Active policy snapshot | Current validated `Policy` and its `policyRevision`. Evaluation continues to use this authoritative snapshot until successful commit. |
-| `PolicyProposal` | Non-reused ID, `basePolicyRevision`, complete normalized candidate `Policy`, `createdAt`, `readyAt`, and `confirmBy`. The trusted current Vault timing determines the frozen deadlines. |
-| `VaultState` | At most one pending proposal, a monotonic next-proposal-ID counter, the latest accepted time/revision observations, and `lastApplied: { proposalId, policyRevision }` identifying the most recently committed proposal. The marker is a commit correlation record, not an audit ledger. |
+| Active policy snapshot | Current validated `Policy` and its `policyRevision`, with authoritative configuration and its separate revision in the aggregate. Evaluation continues to use this authoritative snapshot until successful commit. |
+| `PolicyProposal` | Non-reused ID, `basePolicyRevision`, complete normalized candidate `Policy`, `createdAt`, `readyAt`, and `confirmBy`. Protected proposals also freeze `candidateConfiguration` and `baseConfigurationRevision`. Current active Vault timing determines the frozen deadlines. |
+| `VaultState` | At most one pending proposal, a monotonic next-proposal-ID counter, the latest accepted time/revision observations, and `lastApplied: { proposalId, policyRevision }` identifying the most recently committed proposal, plus `configurationRevision` in protected mode. The marker is a commit correlation record, not an audit ledger. |
 | Review result | Proposal ID, base revision, frozen candidate, and a derived change summary: list additions/removals, resulting classification changes, and the consequence that committing a new revision invalidates all existing Greylist requests/grants. It grants no authority. |
-| Commit candidate | Proposal ID, expected base policy revision, replacement active policy with revision increased by one, proposal consumption/last-applied marker, and the latest access state with the new revision. This is a proposed complete transition, not a save acknowledgement. |
+| Commit candidate | Proposal ID, expected base policy revision, frozen candidate values with each changed revision increased by one, proposal consumption/last-applied marker, and the latest access state with the new revision. This is a proposed complete transition, not a save acknowledgement. |
 
 Creation validates the whole candidate, normalizes hostname scope using Milestone 1 rules, and copies all contents. Compare normalized set membership for no-op detection; list ordering or duplicate entries are not policy changes. An invalid batch is rejected in full. Review is computed from the actual frozen candidate and matching active base revision. It must not claim that adding a Whitelist entry overrides a remaining Blacklist entry.
 
@@ -215,16 +220,17 @@ Confirm accepts the proposal ID and trusted current context, never replacement p
 
 ### Public operations
 
-All contextual operations take `{ policy, policyRevision, state, accessState, now }`, with `state: VaultState` and the latest `accessState: AccessState`. `createVaultState()` initializes a new state explicitly. Invalid existing state is never replaced with a new state automatically.
+The standalone policy API takes `{ policy, policyRevision, state, accessState, now }`; the protected aggregate also supplies paired `configuration` and `configurationRevision`, with `state: VaultState` and the latest `accessState: AccessState`. `createVaultState()` initializes a new state explicitly. Invalid existing state is never replaced with a new state automatically.
 
 | Operation | Pure result |
 | --- | --- |
 | `createPolicyProposal(candidatePolicy, context, timing)` | `PROPOSED`, the frozen proposal, and `nextState`. Timing is `{ waitMs, confirmationWindowMs }`, with positive safe integer durations and safe deadline arithmetic. |
-| `reviewPolicyProposal(id, context)` | Read-only review with phase `WAITING`, `READY`, or `EXPIRED`, list additions/removals, actual classification changes, and `invalidatesAccess: true`. A stale revision is rejected. Review returns no observation state and changes nothing. |
+| `reviewPolicyProposal(id, context)` | Read-only review with phase `WAITING`, `READY`, or `EXPIRED`, list additions/removals, actual classification changes, and `invalidatesAccess`, true for policy changes and false for settings-only changes. Either stale base revision is rejected. Review returns no observation state and changes nothing. |
+| `createSettingsProposal(candidateConfiguration, context)` | Freeze settings alongside unchanged current policy; use current active Vault wait/window, never proposed timing. |
 | `prepareVaultCommit(id, context)` | `COMMIT_PREPARED`, an observation-only `nextState`, and a complete candidate. The observation state retains the proposal; only the candidate consumes it. |
 | `cancelPolicyProposal(id, context)` | Consumes that pending ID in `nextState`, including expired or stale proposals. Active policy remains unchanged. |
 
-A commit candidate contains `{ proposalId, expectedPolicyRevision, preparedAt, nextSnapshot }`. Its `nextSnapshot` contains `{ policy, policyRevision, vaultState, accessState }`. A successful preparation does not grant permission or report the proposal as committed. Retain non-null `nextState` from transitions, including failures, to preserve time/revision observations. Invalid context returns `nextState: null`. Review deliberately returns no checkpoint; callers must retain the latest accepted time through the trusted owner's state handling.
+A commit candidate contains `{ proposalId, expectedPolicyRevision, preparedAt, nextSnapshot }`. Its `nextSnapshot` contains `{ policy, policyRevision, vaultState, accessState }`, plus configuration and its revision in protected mode. A successful preparation does not grant permission or report the proposal as committed. Retain non-null `nextState` from transitions, including failures, to preserve time/revision observations. Invalid context returns `nextState: null`. Review deliberately returns no checkpoint; callers must retain the latest accepted time through the trusted owner's state handling.
 
 Pure preparation is deterministic: repeating it against identical unchanged input returns the same candidate. After the successful candidate is adopted as authoritative, the most recent committed ID returns `ALREADY_COMMITTED`; older absent IDs return `PROPOSAL_NOT_FOUND`. Neither can increase the policy revision again. Concurrent preparation and storage replay protection require the future atomic commit boundary.
 
@@ -276,18 +282,19 @@ The [Milestone 3 evidence](acceptance-tests.md#milestone-3-evidence) maps these 
 
 ## Aggregate planner (D13)
 
-Implemented under the scope authorized on 2026-09-29: `AtlasSnapshot`, complete validation, and a synchronous pure operation planner. D14 subsequently adds the controller and repository/clock ports below. The runtime correlation ledger and browser events in D12 remain future work. Existing standalone module APIs keep their contracts.
+Implemented under the scope authorized on 2026-09-29: `AtlasSnapshot`, complete validation, and a synchronous pure operation planner. D14 subsequently adds the controller and repository/clock ports below. The runtime correlation ledger and browser events in D12 remain future work. Standalone policy-only module calls remain compatible; D19 aggregate Vault calls require the protected configuration fields.
 
-`AtlasSnapshot` contains exactly `{ policy, policyRevision, accessState, vaultState, journeyState }`. `validateAtlasSnapshot(input)` returns a copied, frozen snapshot or a structured reason/component. It reuses each module's record validation, rejects observations ahead of the aggregate revision and contradictory current Vault proposals, and never repairs missing state. Module observation revisions may lag the aggregate revision: the next operation observes that change and invalidates overlays. Stored record timestamps must satisfy their module's observation constraints; planning additionally rejects time earlier than **any** module checkpoint.
+`AtlasSnapshot` contains exactly `{ policy, policyRevision, configuration, configurationRevision, accessState, vaultState, journeyState }`. Missing protected configuration is invalid, including in otherwise valid policy state. `validateAtlasSnapshot(input)` returns a copied, frozen snapshot or a structured reason/component. It reuses each module's record validation, rejects observations ahead of the aggregate revision and contradictory current Vault proposals, and never repairs missing state. Module observation revisions may lag the aggregate revision: the next operation observes that change and invalidates overlays. Stored record timestamps must satisfy their module's observation constraints; planning additionally rejects time earlier than **any** module checkpoint.
 
-`planAtlasOperation(operation, { snapshot, now, configuration })` validates all state before composing any decision. Configuration contains explicit `accessTiming`, `vaultTiming`, and `journeyLimits`, without defaults. Navigation targets are `SiteTarget` data, produced by shared normalization before crossing this boundary. Commands have exact, closed shapes; confirmation carries an existing ID, never replacement contents or timing.
+`planAtlasOperation(operation, { snapshot, now, configuration })` validates all state before composing any decision. Committed `snapshot.configuration` supplies `accessTiming`, `vaultTiming`, and `journeyLimits`, without runtime fallbacks. The legacy planner `configuration` argument remains validated for compatibility and cannot override snapshot terms. Navigation targets are `SiteTarget` data, produced by shared normalization before crossing this boundary. Commands have exact, closed shapes; confirmation carries an existing ID, never replacement contents or timing.
 
 | Operation | Domain responsibility |
 | --- | --- |
-| `CHECK_NAVIGATION` | Assess a target in `{ contextId, journeyId }`, where `journeyId: null` means no bound Journey. No hop is recorded and no root return is completed. |
+| `BEGIN_NAVIGATION` | Assess a held navigation and create a committed Journey for a Whitelisted root when no active continuation applies. All navigation origins use this operation; never call it for timer housekeeping. |
+| `CHECK_NAVIGATION` | Assess a target in `{ contextId, journeyId, continuation? }`, where `journeyId: null` means no bound Journey. No hop is recorded and no root return is completed. |
 | `RECORD_JOURNEY_NAVIGATION` | Compose the existing trusted Journey-record operation with common authorization. An intermediate records adoption; a root records actual arrival. This primitive is not the future ADOPT/event protocol. The owner must establish which fact occurred. |
 | `START_ACCESS`, `CONFIRM_ACCESS`, `CANCEL_ACCESS` | Existing explicit Greylist transitions. |
-| `PROPOSE_POLICY`, `REVIEW_POLICY`, `CONFIRM_POLICY`, `CANCEL_POLICY` | Existing frozen Vault workflow; confirmation prepares a complete aggregate candidate. |
+| `PROPOSE_POLICY`, `PROPOSE_SETTINGS`, `REVIEW_POLICY`, `CONFIRM_POLICY`, `CANCEL_POLICY` | Shared frozen Vault workflow; confirmation prepares a complete aggregate candidate. |
 | `START_JOURNEY`, `CANCEL_JOURNEY`, `CLOSE_JOURNEY_CONTEXT` | Existing context-bound Journey transitions. |
 | `OBSERVE_TIME` | Observe explicit time/revision and Journey endings without navigation or new permissions. |
 
@@ -307,10 +314,10 @@ The trusted host supplies a fresh opaque `ownerId` for each controller lifetime.
 
 ### Repository port
 
-The stored envelope is `{ schemaVersion: 1, storageVersion, lastCommitId, snapshot }`. The repository allocates an opaque, non-reused storage version for each atomic replacement. Version/commit tokens accept 1-256 ASCII letters, digits, underscores, dots, colons, or hyphens. `lastCommitId` may be null in explicitly initialized data. The owner ID uses the existing 1-128 character context-ID format. Initial data is supplied by explicit host setup, outside this controller. No corrupt or missing record is automatically initialized.
+The stored envelope is `{ schemaVersion: 2, storageVersion, lastCommitId, snapshot }`. The repository allocates an opaque, non-reused storage version for each atomic replacement. Version/commit tokens accept 1-256 ASCII letters, digits, underscores, dots, colons, or hyphens. `lastCommitId` may be null in explicitly initialized data. The owner ID uses the existing 1-128 character context-ID format. Initial data is supplied by explicit host setup, outside this controller. No corrupt or missing record is automatically initialized.
 
 - `load()` returns `READY` with an unknown envelope for Core validation, `UNINITIALIZED`, `UNAVAILABLE`, or `UNRESOLVED` with the identity of an unsettled write.
-- `commit({ expectedStorageVersion, commitId, next: { schemaVersion: 1, snapshot } })` atomically compares the version and replaces the complete envelope, including `lastCommitId`. It returns a correlated `COMMITTED` receipt with the new version, `CONFLICT` (this attempt did not write), `NOT_WRITTEN` (proven final failure), or `UNKNOWN`.
+- `commit({ expectedStorageVersion, commitId, next: { schemaVersion: 2, snapshot } })` atomically compares the version and replaces the complete envelope, including `lastCommitId`. It returns a correlated `COMMITTED` receipt with the new version, `CONFLICT` (this attempt did not write), `NOT_WRITTEN` (proven final failure), or `UNKNOWN`.
 - `resolveCommit(commitId)` returns a correlated `COMMITTED` receipt, proven final `NOT_WRITTEN`, or `UNKNOWN`. It never retries the write. An absent latest marker is not proof of failure.
 
 `load()` must be authoritative and fence prior unsettled writes: it cannot return old READY data while a previous attempt may still apply later. It returns UNRESOLVED until that attempt is settled. This contract is necessary for a new controller to recover without its predecessor's memory. Production implementations must prove these guarantees independently; a fake repository only exercises the protocol. Reusing an attempt ID for different writes is prohibited. A thrown/malformed commit response is treated as UNKNOWN because the write may have happened.
@@ -340,7 +347,7 @@ D17 adds [curated defaults and managed deny data](managed-policy.md) through an 
 
 D16 adds the [prototype interface and diagnostics](firefox-adapter.md#prototype-interface-and-diagnostics-d16) within the same adapter. Its explicit Confirm and open effect follows a successful Core commit and remains bound to the selected tab. Core's public API and authorization rules are unchanged.
 
-The user authorized the first Firefox vertical slice on 2026-09-30. [Firefox adapter architecture](firefox-adapter.md) owns the platform choices, explicit Journey starts, transactional repository, request execution protocol, setup, and coverage limits. Core's public modules and domain rules remain unchanged. D15 permits a fresh, committed controller assessment to govern one correlated held request after required Journey bookkeeping. It supersedes D12's proposed requirement to implement a generic DECISION/ADOPT facade before any browser integration; pure or cached assessments still cannot execute actions.
+The user authorized the first Firefox vertical slice on 2026-09-30. [Firefox adapter architecture](firefox-adapter.md) owns the platform choices, D18 automatic Whitelist Journey starts, transactional repository, request execution protocol, setup, and coverage limits. Core's public modules and domain rules remain unchanged. D15 permits a fresh, committed controller assessment to govern one correlated held request after required Journey bookkeeping. It supersedes D12's proposed requirement to implement a generic DECISION/ADOPT facade before any browser integration; pure or cached assessments still cannot execute actions.
 
 ## Framework-independent integration boundary
 
@@ -389,11 +396,11 @@ Domain operations, snapshots, and results use plain data; controller constructio
 
 ### State ownership and persistence
 
-The D13 `AtlasSnapshot` contains `{ policy, policyRevision, accessState, vaultState, journeyState }`. Validate every component and its revision/time relationships before deriving any permission, including ordinary Whitelist ALLOW. The planner rejects time earlier than any retained observation. Missing or invalid components cannot be skipped by selecting a more permissive module.
+The D13 aggregate, extended by D19, contains `{ policy, policyRevision, configuration, configurationRevision, accessState, vaultState, journeyState }`. Validate every component and its revision/time relationships before deriving any permission, including ordinary Whitelist ALLOW. The planner rejects time earlier than any retained observation. Missing or invalid components cannot be skipped by selecting a more permissive module.
 
 The persistence envelope contains `{ schemaVersion, storageVersion, lastCommitId, snapshot }`:
 
-- `schemaVersion` identifies the supported record shape; Core validates it. Migration and corrupt-state recovery remain explicit future work.
+- `schemaVersion` identifies the supported record shape; Core accepts schema 2. The Firefox repository explicitly migrates known valid schema-1 data in an atomic transaction before READY; damaged state is never initialized or repaired by bootstrap defaults. Other hosts must implement this explicit migration boundary themselves.
 - `storageVersion` is an opaque repository concurrency token and changes on every successful write, including observation checkpoints.
 - `policyRevision` belongs to domain policy and advances only when a policy change commits.
 - `lastCommitId` correlates the latest complete write with a controller attempt. It is not a credential or an audit history.
@@ -420,13 +427,13 @@ The trusted adapter supplies facts needed to identify and authorize an action:
 
 Full URLs, redirects containing authentication parameters, request bodies, cookies, headers, browser profiles, and platform handles remain outside Core state and messages. The adapter may retain the original navigation briefly to execute it. It must ensure its normalized target still matches the checked request, and submit redirects/new destinations for new decisions. The adapter must not reconstruct or automatically replay a sensitive submission from a Core result.
 
-The owner obtains `now` from the injected clock, and policy/revisions/state from its authoritative snapshot. It obtains timing/hop configuration from trusted application configuration, never webpage or confirmation-message fields. Changes to frozen terms do not affect existing records; editing protective timing remains outside the current Vault policy model.
+The owner obtains `now` from the injected clock, and policy/revisions/state from its authoritative snapshot. It obtains timing/hop configuration from the authoritative snapshot, never webpage or confirmation-message fields. D19 protects configuration through Vault; changes to frozen terms do not affect existing records.
 
 Identity and trusted intent are established by the host's call boundary. A payload field such as `trusted: true` is never proof. Browser content cannot invoke privileged Access, Vault, Journey-start, or persistence-result operations directly.
 
 ### Request and event contracts
 
-The following operation names are proposed. Each uses a validated envelope with an opaque `operationId` and a discriminated `kind`; unsupported fields/kinds fail closed. Native browser events are mapped outside Core. Logical observations can enter the same serialized handler as commands, but they cannot masquerade as explicit user confirmation.
+The following operation names are the broader D12 proposal. Current D13/D18 implemented operations above, including BEGIN_NAVIGATION, govern the Firefox adapter. Each uses a validated envelope with an opaque `operationId` and a discriminated `kind`; unsupported fields/kinds fail closed. Native browser events are mapped outside Core. Logical observations can enter the same serialized handler as commands, but they cannot masquerade as explicit user confirmation.
 
 | Operation family | Required domain data | Meaning |
 | --- | --- | --- |
@@ -436,8 +443,8 @@ The following operation names are proposed. Each uses a validated envelope with 
 | `NAVIGATION_RESULT` | Context ID, navigation ID, outcome `ARRIVED`, `FAILED`, or `CANCELLED`; observed target on arrival. | Correlate the actual effect. Matching actual root arrival may complete a Journey. Failure never reports successful arrival or resets time. |
 | `RECHECK_CONTEXT` | Context ID and currently observed target. | Evaluate retained content without moving a Journey or counting a new hop. |
 | `START_JOURNEY`, `CANCEL_JOURNEY` | Context ID plus root target or Journey ID. | Explicit user intention. A continuation, reload, or return cannot create a fresh deadline. Repeated active Start retains current behavior and rejects renewal. |
-| `START_ACCESS`, `CONFIRM_ACCESS`, `CANCEL_ACCESS` | Target for Start; existing request ID for confirmation/cancellation. | Existing Greylist workflow. Terms come from owner configuration. Confirmation creates no navigation effect by itself. |
-| `PROPOSE_POLICY`, `REVIEW_POLICY`, `CONFIRM_POLICY`, `CANCEL_POLICY` | Complete candidate policy only at proposal creation; frozen proposal ID for later operations. | Existing Vault rules. Confirmation cannot replace reviewed contents and success waits for commit. |
+| `START_ACCESS`, `CONFIRM_ACCESS`, `CANCEL_ACCESS` | Target for Start; existing request ID for confirmation/cancellation. | Existing Greylist workflow. Terms come from committed snapshot configuration. Confirmation creates no navigation effect by itself. |
+| `PROPOSE_POLICY`, `PROPOSE_SETTINGS`, `REVIEW_POLICY`, `CONFIRM_POLICY`, `CANCEL_POLICY` | Complete candidate policy or settings only at proposal creation; frozen proposal ID for later operations. | Existing Vault rules. Confirmation cannot replace reviewed contents and success waits for commit. |
 | `OBSERVE_TIME` | No page-provided timestamp. | Sample the injected clock, observe expiry, and request rechecks without generating confirmation or new attempts. |
 
 An explicit change of intended destination ends the previous Journey before processing the new action. The facade can compose those authorized transitions into one candidate; ordinary navigation checks never infer that command from a page redirect. Host event mappings and any inability to establish reliable provenance remain adapter validation work.
@@ -474,7 +481,7 @@ This composition belongs in the shared pure planner, not separately in each adap
 
 The proposed order for choosing an ALLOW explanation is Whitelist, Access Grant, then Journey. It does not expand existing scopes. Greylist requests/grants remain hostname-scoped across the policy instance, so a grant may apply in multiple contexts. Journeys remain isolated per context. Vault retains one pending proposal per policy instance. The facade must not silently change a hostname grant into a tab-specific grant.
 
-The existing `VaultCommitCandidate` contains policy, access, and Vault state only. Its public shape is unchanged. The D13 planner wraps it into a complete `AtlasSnapshot` with the latest invalidated Journeys. A future controller must commit this complete candidate; persisting the standalone partial candidate as whole state would be an integration defect.
+The standalone policy `VaultCommitCandidate` contains policy, access, and Vault state; protected aggregate candidates also contain configuration and its revision. The D13 planner wraps it into a complete `AtlasSnapshot` with the latest invalidated Journeys. A future controller must commit this complete candidate; persisting the standalone partial candidate as whole state would be an integration defect.
 
 ### Repository contract and publication sequence
 
@@ -518,13 +525,21 @@ D13/D14 implement aggregate planning and controller commit coordination with fak
 
 ## Journey workflow
 
-Status: contract documented before implementation under D11; now implemented and covered by 23 domain tests. It replaces the former supporting-domain catalog proposal for the current scope. No Context Whitelist, learned relationships, trust graph, or link inheritance is included.
+The [Firefox authentication investigation](firefox-auth-investigation.md) records measured navigation evidence and continuation proposals for review. It changes no authorization semantics. Document arrival is distinct from authentication completion; current D18 termination and HTTP evidence rules remain in effect.
+
+Status: D11 implementation narrowed by user-approved D18 stabilization; pure tests cover both standalone workflows and aggregate navigation. It replaces the former supporting-domain catalog proposal for the current scope. No Context Whitelist, learned relationships, trust graph, or link inheritance is included.
 
 ### Authorization and tradeoff
 
 A Journey represents one deliberate attempt to reach a Pure Whitelist hostname. Pure Whitelist uses the existing `Policy.whitelist`; Blacklist wins even when a root is also Whitelisted. During a valid Journey, unfamiliar intermediate top-level destinations receive temporary authorization only in its bound context. There is no provider lookup, automatic enrollment, or Access Grant creation.
 
-This is a deliberate bounded exception to ordinary Greylist access. Core checks the attempt's state and boundaries; it cannot prove that a destination is necessary or safe. Unrelated navigation can fit inside the same allowance. The fixed deadline bounds one attempt, not cumulative use across deliberate new attempts. Browser and website authentication, TLS, cookies, credentials, and OAuth correctness remain outside Core.
+This is a deliberate bounded exception to ordinary Greylist access. Core checks the attempt's state and boundaries; it cannot prove that a destination is necessary or safe. Unrelated typed navigation and cross-host page actions do not inherit the allowance. An attested redirect can still be page-controlled: correlation is not proof of necessity or safety. The fixed deadline bounds one attempt, not cumulative use across deliberate new attempts. Browser and website authentication, TLS, cookies, credentials, and OAuth correctness remain outside Core.
+
+**Invariant:** An active Journey is permission to reach one intended destination through necessary transitional infrastructure. It is not general temporary browsing permission. The first practical model approximates continuation through trusted HTTP redirect correlation; it does not claim to recognize authentication.
+
+The trusted adapter supplies `JourneyContinuation { kind, sourceHostname }`. `HTTP_REDIRECT` attests a correlated chain from the current authorization cursor; `SAME_HOST` attests a document action staying at the current host; `RETAINED` reevaluates that same host; `ARRIVAL` records actual current/root arrival. The source must match `currentHostname`. Missing or mismatched evidence for an unfamiliar host ends the attempt with `UNRELATED_NAVIGATION` and uses ordinary policy/grants/Greylist. Malformed evidence rejects the operation. No browser request IDs or URLs enter Core.
+
+All held Whitelist requests use `BEGIN_NAVIGATION` regardless of UI, bookmark, address bar, link or new tab. A correlated active continuation preserves its ID and fixed terms, including a redirect traversing the root without arrival. A new independent Whitelisted destination ends the previous attempt and starts its own. An actual final document on a different already Whitelisted host ends with `DESTINATION_CHANGED`, without global alias equivalence. `CHECK_NAVIGATION` remains a check and never starts an attempt. Initial root arrival closes `REACHED`; later login can begin through a fresh request to that Whitelisted root whose HTTP response redirects to a provider.
 
 ### Minimal records
 
@@ -538,19 +553,19 @@ All numeric state is validated as nonnegative safe integers; IDs and configured 
 
 | Phase | Meaning and transitions |
 | --- | --- |
-| `STARTED` | A trusted explicit Start to a currently Whitelisted root creates the attempt. Initial root arrival/reloads keep this phase. Recording the first intermediate hostname enters `IN_TRANSIT`. |
+| `STARTED` | A trusted explicit Start to a currently Whitelisted root creates the attempt. Recording actual initial root document arrival ends with `REACHED`; a held root request alone does not. Recording the first intermediate hostname enters `IN_TRANSIT`. |
 | `IN_TRANSIT` | Record approved intermediate steps without changing the root or deadline. Recording actual arrival back at the root ends with `RETURNED`. |
-| `ENDED` | No Journey authorization remains. Causes: return, expiry, cancellation, context closure, policy change, invalid policy, root no longer Whitelisted, or an attempted step beyond the hop limit. Only a new deliberate Start can create a new attempt. |
+| `ENDED` | No Journey authorization remains. Causes: initial destination arrival, return, unrelated navigation, final arrival at a different explicitly Whitelisted destination, expiry, cancellation, context closure, policy change, invalid policy, root no longer Whitelisted, or an attempted step beyond the hop limit. Only a new deliberate Start can create a new attempt. |
 
 The deadline is end-exclusive: `now >= expiresAt` ends the attempt. Every operation observes expiry and revision invalidation across the supplied Journey state. A malformed policy ends otherwise valid active records with `INVALID_POLICY` and returns a denial; malformed state/time/revisions return no usable replacement state. Root removal or Blacklisting also invalidates an active Journey even if a caller incorrectly leaves the policy revision unchanged.
 
 Count accepted changes to a non-root hostname as hops. Same-host paths, clicks, and reloads consume no extra hop and never renew time. Repeated crossings count again. Return to the root consumes no hop, so the hop cap cannot block independently Whitelisted access. At the limit the current intermediate may remain authorized until expiry; an attempted additional host change ends the exception with `HOP_LIMIT`. A denied Blacklist target does not become the current location or consume a hop.
 
-Navigation evaluation and navigation recording are separate. Evaluation never moves the current location, increments hops, or completes a return. It may return housekeeping state that ends expired/stale/exhausted authorization. Recording reevaluates the same request against latest state/time and advances only an allowed active Journey. The trusted owner records an intermediate step when adopted and a root return only on actual arrival, not a speculative request or an intermediate redirect through the root. Browser event ordering and deduplication belong to that future owner. No event handling is implemented here.
+Navigation evaluation and navigation recording are separate. Evaluation never moves the current location, increments hops, or completes a return. It may return housekeeping state that ends expired/stale/exhausted authorization. Recording reevaluates the same request against latest state/time and advances only an allowed active Journey. The trusted owner records an intermediate step when adopted and a root return only on actual arrival, not a speculative request or an intermediate redirect through the root. Browser event ordering and deduplication belong to the trusted adapter. The Firefox adapter owns those events; the domain owns permission and lifecycle.
 
 ### Public domain operations
 
-Operations use `{ policy, policyRevision, state, now }`. Navigation data is `{ journeyId, contextId, target }`; context identity must match the selected record. The ID prevents an old command from selecting a newly started attempt in the same context.
+Operations use `{ policy, policyRevision, state, now }`. Navigation data is `{ journeyId, contextId, target, continuation? }`; context identity must match the selected record. The ID prevents an old command from selecting a newly started attempt in the same context.
 
 | Operation | Result |
 | --- | --- |
@@ -564,13 +579,13 @@ Operations use `{ policy, policyRevision, state, now }`. Navigation data is `{ j
 
 Navigation functions return `{ decision, nextState }`; other commands return `{ ok, ... , nextState }`. Retain every non-null `nextState`, including rejections, to prevent rollback against retained observations. Invalid context fails closed. With a valid matching ended record, ordinary policy still returns ALLOW for Whitelist and DENY for Blacklist; an otherwise unknown target returns GREYLIST with the end reason. Context/ID mismatches deny use of this API. Ordinary policy-only navigation can still be evaluated separately.
 
-The Journey API does not inspect or change `AccessState`, and it cannot create or renew access grants. Its GREYLIST result is not a replacement for `evaluateAccess`: an independent valid grant may still authorize ordinary access. A future coordinator must validate the complete authoritative state before composing these results; an invalid-state denial must never be converted to allow by a fallback. Vault policy revisions invalidate Journeys on their next observation without changing the existing Vault candidate format.
+The Journey API does not inspect or change `AccessState`, and it cannot create or renew access grants. Its GREYLIST result is not a replacement for `evaluateAccess`: an independent valid grant may still authorize ordinary access. A future coordinator must validate the complete authoritative state before composing these results; an invalid-state denial must never be converted to allow by a fallback. Vault policy revisions invalidate Journeys on their next observation. D19 settings-only revisions preserve their original terms.
 
 ### Owner obligations and limits
 
-Only trusted commands may start an attempt or select its context. Redirects, page messages, initial arrivals, reloads, returns, and history restoration must not automatically start new attempts. Explicitly choosing a different destination cancels the old attempt. Contexts do not share or fork authority; popups and embedded flows have no automatic allowance.
+Only the trusted owner may start an attempt or select its context. D18 `BEGIN_NAVIGATION` starts Whitelisted requests through the common path; correlated active continuations never renew a deadline. Page messages, timer observations and history restoration cannot start attempts. Explicitly choosing a different destination cancels the old attempt. Contexts do not share or fork authority; popups and embedded flows have no automatic allowance.
 
-Expiry/cancellation removes authorization for already displayed intermediate content as well as future navigation. The future adapter must reevaluate and remove or block content that has no other valid permission; returning to the Whitelisted root remains available. Ending on first actual root return may interrupt flows that depart again, and waiting at the root consumes the fixed budget. These are intentional first-version limits.
+Expiry/cancellation removes authorization for already displayed intermediate content as well as future navigation. The adapter must reevaluate and remove or block content that has no other valid permission; returning to the Whitelisted root remains available. Ending on actual root document arrival may interrupt page-driven authentication that departs afterward; such cross-host actions need ordinary policy authorization. A later held request to the Whitelisted root can establish a new independent attempt. These are intentional D18 limits.
 
 The standalone Journey module has no timer, real clock, browser API, persistence, or concurrency control. D14 serializes and commits its transitions; D15 supplies Firefox facts and effects. Restart cannot create a fresh allowance automatically: loss of a binding ends the attempt; any future restoration must preserve its ID, consumed state, limits, deadlines, and valid binding. Serialization tests alone prove no browser or crash-durability guarantees. No credentials, authentication URLs, dependency history, or provider metadata are stored.
 

@@ -4,8 +4,8 @@ import type {
   Journey, JourneyError, JourneyEvaluation, JourneyState, JourneyTransition,
 } from "./journey-models.js";
 import {
-  finishJourney, freezeJourneyState, hasJourneyFields, prepareJourneyContext,
-  readJourneyLimits, replaceJourney, validContextId,
+  continuesJourney, finishJourney, freezeJourneyState, hasJourneyFields, prepareJourneyContext,
+  readJourneyContinuation, readJourneyLimits, replaceJourney, validContextId,
 } from "./journey-state.js";
 import { normalizeTarget } from "./target.js";
 
@@ -61,9 +61,13 @@ function navigate(navigation: unknown, input: unknown, record: boolean): Journey
   if (!prepared.ok) return deny(prepared.reason, prepared.nextState);
   const { policy, now } = prepared.value;
   let state = prepared.value.state;
-  if (!hasJourneyFields(navigation, ["journeyId", "contextId", "target"])) {
+  const fields = ["journeyId", "contextId", "target"];
+  if (navigation !== null && typeof navigation === "object" && Object.hasOwn(navigation, "continuation")) fields.push("continuation");
+  if (!hasJourneyFields(navigation, fields)) {
     return deny("INVALID_NAVIGATION", state);
   }
+  const continuation = Object.hasOwn(navigation, "continuation") ? readJourneyContinuation(navigation.continuation) : undefined;
+  if (continuation === null) return deny("INVALID_NAVIGATION", state);
   let journey = findJourney(navigation.journeyId, navigation.contextId, state);
   if (typeof journey === "string") return deny(journey, state);
   const target = normalizeTarget(navigation.target);
@@ -71,6 +75,10 @@ function navigate(navigation: unknown, input: unknown, record: boolean): Journey
   const base = evaluate(target, policy);
   if (base.outcome === "DENY") return { decision: base, nextState: state };
   const returning = target.hostname === journey.rootHostname;
+  if (journey.phase !== "ENDED" && !returning && !continuesJourney(journey, target.hostname, continuation)) {
+    journey = finishJourney(journey, "UNRELATED_NAVIGATION", now);
+    state = replaceJourney(state, journey);
+  }
   const hop = !returning && target.hostname !== journey.currentHostname;
   if (journey.phase !== "ENDED" && hop && journey.hopCount >= journey.maxHops) {
     journey = finishJourney(journey, "HOP_LIMIT", now);
@@ -90,11 +98,14 @@ function navigate(navigation: unknown, input: unknown, record: boolean): Journey
     target, journeyId: journey.id, expiresAt: journey.expiresAt,
   };
   if (record) {
-    if (returning && journey.phase === "IN_TRANSIT") {
-      journey = finishJourney({ ...journey, currentHostname: target.hostname }, "RETURNED", now);
+    if (returning) {
+      journey = finishJourney({ ...journey, currentHostname: target.hostname }, journey.phase === "STARTED" ? "REACHED" : "RETURNED", now);
     } else if (hop) {
       journey = { ...journey, currentHostname: target.hostname,
         phase: "IN_TRANSIT", hopCount: journey.hopCount + 1 };
+    }
+    if (journey.phase !== "ENDED" && continuation?.kind === "ARRIVAL" && base.outcome === "ALLOW") {
+      journey = finishJourney(journey, "DESTINATION_CHANGED", now);
     }
     state = replaceJourney(state, journey);
   }

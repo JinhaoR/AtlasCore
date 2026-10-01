@@ -17,11 +17,11 @@ export type {
 } from "./vault-models.js";
 export { createVaultState } from "./vault-state.js";
 export {
-  createPolicyProposal, reviewPolicyProposal, prepareVaultCommit, cancelPolicyProposal,
+  createPolicyProposal, createSettingsProposal, reviewPolicyProposal, prepareVaultCommit, cancelPolicyProposal,
 } from "./vault.js";
 export type {
   JourneyLimits, JourneyEndReason, Journey, JourneyState, JourneyContext,
-  JourneyNavigation, JourneyError, JourneyDecision, JourneyEvaluation, JourneyTransition,
+  JourneyNavigation, JourneyContinuation, JourneyError, JourneyDecision, JourneyEvaluation, JourneyTransition,
 } from "./journey-models.js";
 export { createJourneyState } from "./journey-state.js";
 export {
@@ -33,7 +33,7 @@ export type {
   AtlasConfiguration, AtlasNavigationContext, AtlasPlannerContext, AtlasOperation,
   AtlasError, AtlasNavigationDecision, AtlasPlanResult, AtlasPlan,
 } from "./atlas-models.js";
-export { validateAtlasSnapshot } from "./atlas-state.js";
+export { validateAtlasSnapshot, migrateAtlasSnapshotV1 } from "./atlas-state.js";
 export { planAtlasOperation } from "./atlas-planner.js";
 export type {
   AtlasClock, AtlasEnvelope, AtlasLoadResult, AtlasCommitRequest, AtlasCommitResolution,
@@ -44,3 +44,5 @@ export type {
   AtlasControllerOptions, AtlasController,
 } from "./atlas-controller-models.js";
 export { createAtlasController } from "./atlas-controller.js";
+
+export { readConfiguration } from "./configuration.js";

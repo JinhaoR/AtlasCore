@@ -17,10 +17,10 @@ function token(value: unknown): value is string {
 
 function readEnvelope(value: unknown): AtlasEnvelope | null {
   if (!hasJourneyFields(value, ["schemaVersion", "storageVersion", "lastCommitId", "snapshot"])
-    || value.schemaVersion !== 1 || !token(value.storageVersion)
+    || value.schemaVersion !== 2 || !token(value.storageVersion)
     || (value.lastCommitId !== null && !token(value.lastCommitId))) return null;
   const validated = validateAtlasSnapshot(value.snapshot);
-  return validated.ok ? freezeVaultData({ schemaVersion: 1, storageVersion: value.storageVersion,
+  return validated.ok ? freezeVaultData({ schemaVersion: 2, storageVersion: value.storageVersion,
     lastCommitId: value.lastCommitId, snapshot: validated.snapshot }) : null;
 }
 
@@ -49,7 +49,8 @@ function sameEnvelope(left: AtlasEnvelope, right: AtlasEnvelope): boolean {
 }
 
 function rolledBack(next: AtlasSnapshot, prior: AtlasSnapshot): boolean {
-  return next.policyRevision < prior.policyRevision
+  return next.configurationRevision < prior.configurationRevision
+    || next.policyRevision < prior.policyRevision
     || next.accessState.nextRequestId < prior.accessState.nextRequestId
     || next.vaultState.nextProposalId < prior.vaultState.nextProposalId
     || next.journeyState.nextJourneyId < prior.journeyState.nextJourneyId
@@ -107,7 +108,7 @@ export function createAtlasController(options: AtlasControllerOptions): AtlasCon
   }
 
   function context(snapshot: AtlasSnapshot, now: number, managed: ManagedBlacklist | undefined) {
-    return { snapshot, now, configuration, ...(managed === undefined ? {} : { managedBlacklist: managed }) };
+    return { snapshot, now, configuration: snapshot.configuration, ...(managed === undefined ? {} : { managedBlacklist: managed }) };
   }
 
   function enqueue<T>(work: () => Promise<T>, failed: () => T): Promise<T> {
@@ -199,7 +200,7 @@ export function createAtlasController(options: AtlasControllerOptions): AtlasCon
     if (!validated.ok) { setStatus("UNAVAILABLE", "CORRUPT_STATE"); return false; }
     const expectedStorageVersion = authority.storageVersion;
     const commitId = `${ownerId}:${++sequence}`;
-    const next = freezeVaultData({ schemaVersion: 1 as const, snapshot: validated.snapshot });
+    const next = freezeVaultData({ schemaVersion: 2 as const, snapshot: validated.snapshot });
     pending = { commitId, expectedStorageVersion, snapshot: validated.snapshot };
     setStatus("COMMITTING");
     let receipt: AtlasCommitResult | null;

@@ -18,13 +18,13 @@ Open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, 
 
 1. Save the curated Whitelist offered during first setup. It includes AI, Mail, Video, Scholar / Research, Writing, University, and Development groups. Additional exact hostnames can be entered under **Additional hostnames and manual Blacklist**; the preset checkbox can be cleared. Setup is available only in an empty repository and cannot replace active policy.
 2. Open an ordinary Whitelist URL to exercise the request gate.
-3. Select **Open** next to a trusted destination, or use **Open a specific address**. This creates a new tab and an explicit fixed Journey. For an already loaded Whitelist tab, select it and use **Start Journey in this tab**. Typing an ordinary address does not automatically start a Journey.
-4. An unknown destination opens the access panel for that tab. Choose **Request temporary access**, wait, then explicitly **Confirm and open**. The saved confirmation is followed by a fresh GET of the homepage. Blocked forms and login URLs are not replayed. Readiness alone never opens a page.
-5. Use **End Journey** to stop an attempt. The Journey panel shows its original deadline and consumed hops. After the attempt ends, intermediate domains return to their ordinary Core assessment.
+3. Select **Open** next to a trusted destination, or use **Open a specific address**. This creates a new tab and a fixed Journey. Ordinary Whitelist navigation, including bookmarks, typed addresses, links and new tabs, starts the same Core Journey automatically. Actual root arrival ends it; later login starts through a new request to the Whitelisted root.
+4. An unknown destination opens the access panel for that tab. Choose **Request temporary access**, wait, then explicitly **Confirm and open**. The saved confirmation is followed by a fresh GET of the homepage. Blocked forms and login URLs are not replayed. Readiness alone never opens a page. The exact request scope is listed before confirmation: primary host plus declared equivalent aliases, with no global www/subdomain rule. Existing requests/grants keep their old scope until consumed, cancelled or expired.
+5. Use **End Journey** to stop an attempt. The Journey panel shows its intended service and original deadline; diagnostics retain hop details. After the attempt ends, intermediate domains return to their ordinary Core assessment.
 
-Journey intermediate destinations have one deadline and one context. Ordinary redirects and clicks do not create or renew an attempt. Manual Blacklist still wins; managed denial cannot be bypassed by a Journey or grant. Opening a popup or duplicating a tab does not copy a Journey. Pure Whitelist matching remains exact. The curated preset represents each service once with explicit equivalent aliases and distinct entry points; it never infers `www` equivalence.
+Journey intermediate destinations have one deadline and one context. Correlated HTTP redirects preserve its fixed terms. Unrelated typed targets and cross-host links/forms use normal policy; same-host document actions may continue to an HTTP redirect. Manual Blacklist still wins; managed denial cannot be bypassed by a Journey or grant. Opening a popup or duplicating a tab does not copy a Journey. Pure Whitelist matching remains exact. The curated preset represents each service once with explicit equivalent aliases and distinct entry points; it never infers `www` equivalence.
 
-The UI shows the Core decision/reason, a countdown, Journey phase/hops/deadline, and policy. Toolbar badges show `J`, `WAIT`, `GO` (confirmation available), or `!`. A closed selected tab stays selected as unavailable; actions never switch silently to another tab. General Vault editing is deferred; adding the current curated preset to an existing policy uses the narrow protected action below.
+Home shows local search and service categories, with focused temporary access and active Journey information when relevant. Settings holds policy, timing, Vault, managed lists, diagnostics and recovery. Toolbar badges show `J`, `WAIT`, `GO` (confirmation available), or `!`. A closed selected tab stays selected as unavailable; actions never switch silently to another tab. Policy and timing edits use protected forms in Settings. Adding the current curated preset to an existing policy uses the protected action below.
 
 **Navigation diagnostics** shows the latest 200 events, for one tab or all tabs: sequence, context/navigation identity, hostname, Core reason, and Journey summary. Export JSON or clear explicitly. The buffer is memory-only and clears on restart. No paths, queries, fragments, headers, cookies, bodies, or page content enter the log. Exported hostnames still reveal browsing interests; review an export before sharing.
 
@@ -60,8 +60,8 @@ Core decides manual Blacklist → explicit Whitelist → managed Blacklist → A
 ### Updating an existing development installation
 
 1. Rebuild with `npm --prefix extension run build` from the repository root, then **Reload** Atlas in `about:debugging#/runtime/this-firefox`. Load `extension/dist/manifest.json` if you originally chose another folder. Firefox's [reload workflow](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/) rereads extension files; it is not a policy reset.
-2. Open Atlas → **Policy & recovery** → **Add curated destinations**. This button appears when the saved Whitelist is missing current preset entries. It proposes additions and keeps existing destinations and the manual Blacklist.
-3. Review the frozen changes, wait the configured Vault period (30 seconds in this prototype), then select **Confirm policy update** within the confirmation window. Only the saved commit updates the active policy. It invalidates existing requests, grants, and Journeys. Cancel instead to keep your policy.
+2. Open Atlas → **Settings** / **Policy & recovery** → **Add curated destinations**. This button appears when the saved Whitelist is missing current preset entries. It proposes additions and keeps existing destinations and the manual Blacklist.
+3. Review the frozen changes, wait the configured Vault period (30 seconds in this prototype), then select **Confirm change** within the confirmation window. Only the saved commit updates the active policy. It invalidates existing requests, grants, and Journeys. Cancel instead to keep your policy.
 
 Reload retains pending proposal contents and deadlines; it never automatically applies defaults. The displayed policy revision and proposal review show authoritative Core data. Atlas policy lives in extension-origin **IndexedDB**, not `browser.storage.local`; an empty `storage.local` is not evidence that policy was lost. Managed list data lives in a separate IndexedDB cache and follows its daily refresh schedule.
 
@@ -73,7 +73,7 @@ The repository uses **IndexedDB in the extension origin**. `storage.local` get/s
 
 Background reload retains pending requests, grants, and frozen timestamps. Core ends old Journeys because their native bindings are lost. Corrupt or unavailable authority blocks access. **Reload and reconcile state** retries recovery, never a confirmation. Deliberate removal, whole-profile deletion, physical power loss, and temporary add-on removal are not covered by the restart test.
 
-Development settings are in `src/background/configuration.ts`: 10-second Access wait, 60-second confirmation window and grant; 30-second Vault wait and 60-second confirmation window; five-minute Journey with 12 hops. These are development values. The real clock is injected only by the host; Core reads no browser clock.
+Bootstrap development settings are in `src/background/configuration.ts`: 10-second Access wait, 60-second confirmation window and grant; 30-second Vault wait and 60-second confirmation window; five-minute Journey with 12 hops. These are initial development values, now protected authoritative state. Edit them in Settings, review the frozen Vault candidate, wait under the old active Vault timing and explicitly confirm. Atomic persistence activates the new settings. Existing requests, grants and Journeys retain frozen terms. Changing the source file cannot override saved configuration. Schema-1 snapshots migrate atomically with those original defaults, preserving policy/runtime terms and pending policy wait; damaged state fails closed. The real clock is injected only by the host; Core reads no browser clock.
 
 ## Validation
 
@@ -87,7 +87,7 @@ The native command needs Python 3 and an installed Firefox. Set `FIREFOX_BINARY`
 
 After building, `python extension/scripts/firefox-e2e.py --existing-policy` also exercises an older saved policy across real reload, then the preset's Vault review/wait/confirmation UI before running the ordinary browsing/restart scenario.
 
-The native scenario exercises curated setup, native managed denial and blocked Access request, managed cache restart, root → login → redirect through root → identity → root, the fixed deadline, unchanged policy, absence of grants, later intermediate denial, actual Greylist buttons/countdowns, focus retention, diagnostics, closed-tab selection, and background reload. A local HTTP server checks that the denied post-Journey request never arrived and that confirmation opens only the homepage. Reports, UI screenshots, and the isolated synthetic profile stay under ignored `.tools/firefox-e2e-*` for inspection.
+The native scenario exercises curated setup, native managed denial and blocked Access request, managed cache restart, root → login → redirect through root → identity → root, ordinary/new-tab and actual address-bar Whitelist redirects, unrelated typed navigation denial, the fixed deadline, unchanged policy, absence of grants, later intermediate denial, actual Greylist buttons/countdowns, focus retention, diagnostics, closed-tab selection, and background reload. A local HTTP server checks that the denied post-Journey request never arrived and that confirmation opens only the homepage. Reports, UI screenshots, and the isolated synthetic profile stay under ignored `.tools/firefox-e2e-*` for inspection.
 
 Optional live checks make external requests:
 
@@ -101,9 +101,21 @@ Mocked adapter tests and emulated repository tests run independently of Firefox.
 
 ## Coverage limits
 
+For event-level navigation/authentication evidence, see the [focused investigation](../docs/firefox-auth-investigation.md). After building, run `python extension/scripts/firefox-auth-investigation.py --mode enforcing` or `--mode passive`. Passive mode is an observer-only disposable addon copy; it does not test Atlas enforcement. Add `--public` for credential-free public entry probes. The test observer never enters normal bundles, and disposable browser profiles are removed.
+
 - Pre-request gating covers exposed top-level HTTP(S) requests. Iframes and page resources are left to the browser.
 - History/cache restoration and already displayed pages are checked after observation; there may be a visible interval before removal. Initial `about:blank` events cannot discard a newer held root request.
 - Firefox internal/protected pages, private browsing, downloads, non-HTTP schemes, and other extensions are outside this slice. Disabling the extension removes its enforcement.
 - Public sign-in checks are separate from authenticated compatibility. No complete real-account login or authenticated return has been tested.
 
 Native test success establishes the tested events and backend operations. It does not establish exhaustive browser coverage or power-loss durability.
+
+D18 verification and remaining strict-flow limitations are in [Firefox stabilization](../docs/firefox-stabilization.md). Rebuild and reload the temporary add-on to use the new adapter code; saved policy is retained. Older single-host requests/grants never widen automatically.
+
+## Productization (D19)
+
+Home leads with entirely local destination search and existing service categories. Search includes effective White entries, service labels and active explicit aliases; manual Blacklist removes an entry. Arrows select results and Enter opens a unique/highlighted result through ordinary held-request navigation. There is no external search or precreated homepage Journey. Settings retains policy management, timing controls, Vault, managed lists, recovery and diagnostics. KTH Mail uses the observed `webmail.kth.se`; saved policy gains it only through explicit Vault review/commit.
+
+The toolbar displays **J** per owning tab with a service/root label and approximate remaining time in its tooltip. Firefox resets tab-specific badge text on document navigation, so the adapter reapplies it once after arrival and deduplicates unchanged timer displays. Expiry, completion, cancellation and uncertain authority clear Journey presentation. The badge creates no authority. See [Mozilla's badge API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/browserAction/setBadgeText).
+
+After building, `python extension/scripts/firefox-e2e.py --productization` runs the normal native regression and additional real badge, keyboard search, protected settings, migration and reload checks in an isolated profile. Search uses a local HTTPS attempt without a TLS server to verify the actual held request; HTTP fixtures verify successful navigation/redirect rendering separately. This does not establish authenticated provider compatibility.

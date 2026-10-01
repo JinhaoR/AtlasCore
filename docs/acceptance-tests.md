@@ -61,7 +61,7 @@ All supported timestamps, durations, IDs, and revisions are validated as safe in
 | V01 | Proposal creation freezes copied policy and deadlines; repeated review leaves all state unchanged. Creation, review, waiting, and confirmation preparation do not change active policy. |
 | V02 | Frozen returned records cannot be edited; another candidate cannot replace a pending proposal; malformed batches and stale revisions fail closed. Cancel consumes the ID; a new proposal requires a new ID and full wait. |
 | V03 | Explicit ready confirmation prepares one complete replacement snapshot. Discarding it leaves policy unchanged; adopting it increases the revision once and consumes the proposal. Duplicate confirmation against that resulting state cannot commit again. |
-| V04 (current scope) | All user-managed Whitelist/Blacklist additions and removals use the same configured wait. Early and expired confirmation fail; unsupported timing-policy edits are rejected. Actual protective-delay changes remain outside the Policy model. |
+| V04 (current scope) | All user-managed Whitelist/Blacklist additions and removals use the same configured wait. Early and expired confirmation fail; timing remains separate from hostname lists. D19 protects timing configuration through the same Vault slot and old active wait/window. |
 | V05 | The candidate preserves the latest access records, counters, and deadlines while advancing the observed policy revision. Existing requests/grants become stale only when the candidate is adopted. Classification summaries respect Blacklist precedence. |
 | V06 / C04 / C05 | No password/authentication dependency; deterministic results, no input mutation, copied/frozen outputs, and validation of supplied state/time/revisions. |
 
@@ -107,8 +107,8 @@ The former catalog scenarios S01-S05 are superseded for the current scope. [jour
 
 | ID | Scenario | Implemented evidence |
 | --- | --- | --- |
-| J01 | Start from Pure Whitelist; initial root arrival does not complete. | Root validation, frozen terms, initial arrival/reload, repeat-Start rejection without renewal. |
-| J02 | Navigate through unfamiliar intermediates under one deadline. | Intermediate ALLOW, host/path/reload behavior, fixed expiry, repeated crossings, no policy or grant changes. |
+| J01 | Start from Pure Whitelist; initial root document arrival completes under D18. | Root validation, frozen terms, initial arrival/reload, repeat-Start rejection without renewal. |
+| J02 | Navigate through unfamiliar intermediates under one deadline. | Attested intermediate ALLOW, host/path/reload behavior, fixed expiry, repeated crossings, no policy or grant changes. |
 | J03 | Return to the root. | Speculative evaluation does not complete; recording exact root arrival after departure ends authorization. Subdomains are distinct. |
 | J04 | Expire or exceed the hop limit. | Exclusive deadline, current intermediate loses permission, observation without navigation, allowed root return at the cap, attempted extra hop ends the Journey. |
 | J05 | Cancel or close a context. | Terminal state survives serialization; explicit fresh Start allocates a new ID; old commands cannot select it. |
@@ -246,3 +246,32 @@ Browser permission prompts, chooser behavior, storage isolation and safe runtime
 ## Open questions and evidence
 
 For each adopted conditional scenario, record the resolved foundation question and test name. Report Core unit tests, real-storage tests and native/browser tests separately. List untested adapter behaviors explicitly rather than implying that passing Core tests proves email-account safety.
+
+## First-run stabilization evidence (D18)
+
+On 2026-10-01, 158 Core and 56 extension tests pass with builds and type checks. No dependencies were added. New [Core regressions](../packages/core/tests/stabilization.test.mjs) cover BEGIN vs CHECK, evidence-scoped continuation, typed unrelated targets, destination arrival, frozen exact alias scope, replay/expiry, invalid/overlapping scopes and managed denial. Existing Journey tests retain their failure/security scenarios and now supply explicit redirect facts where continuation is intended; the former initial-arrival expectation is changed under the approved D18 lifecycle.
+
+[Adapter regressions](../extension/tests/stabilization.test.mjs) exercise all navigation origins, mismatched redirect targets, reused request IDs, cross-host links, one Overleaf alias request/grant and failed persistence. Presentation tests retain timer-zero and unavailable-authority cases and cover transient verified housekeeping.
+
+Native Firefox 157.0 passed ordinary/new-tab and actual URL-bar navigation, correlated provider chains including a root redirect without arrival, unrelated typed-target cancellation, root completion, real UI wait/confirm/replay, countdown DOM MutationObserver checks, focus/row retention, managed denial, context closure and IndexedDB restart. Both normal (`.tools/firefox-e2e-0_ak0mv5`) and existing-policy (`.tools/firefox-e2e-1ap60efi`) runs passed; the latter includes the actual Vault upgrade controls across reload. The local server independently received no denied fixture destination request. Bookmark/link event shapes are covered in adapter tests; native checks presently use ordinary new-tab and real URL-bar entry rather than clicking a Firefox bookmark widget.
+
+A public credential-free HEAD check observed Overleaf's 308 apex-to-www redirect and a final 200. This verifies the reported canonical-host mismatch; it is not an authenticated service test. D16 public-provider results above are historical broad-Journey evidence and do not certify D18 strict compatibility. Current live checks are recorded separately in the real-site report.
+
+## Authentication/navigation investigation evidence (2026-10-01)
+
+The [focused report](firefox-auth-investigation.md) records all 21 requested mechanism profiles, A-J fixtures, eight public entry services, continuation alternatives and threat cases. Authorization semantics remain unchanged. Core still passes 158 tests; extension tests now pass 60 with four added observer tests for sanitization, correlation, private-channel rejection and bounded/reset logging. Both builds and type checks pass.
+
+Native Firefox 157.0 passes 34 enforcing fixture characterizations and 34 observer-only comparisons, including real saved-bookmark navigation, clicked/timed JavaScript, forms, popups, iframe promotion, history and explicit canonical hosts. Enforcing assertions include withheld server requests, fixed deadlines, terminal reasons, unchanged policy and no grants. Observer-only completion does not establish Atlas authorization. Safe event/decision sequences are in [the retained evidence](evidence/firefox-auth-157.json).
+
+Public probes use no accounts and stop at credential controls or public discovery. Microsoft/Outlook document-driven provider GETs are Greylisted after root commit; Canvas's intermediate same-host POST plus correlated redirects reaches KTH's form. A malicious whitelisted server's unrelated genuine HTTP redirect is currently allowed: the report explicitly identifies this residual risk for human review. Authenticated returns, long native loops, per-mechanism restart and simultaneous authentication chains remain outside this pass's evidence.
+
+## Productization evidence (D19)
+
+The [D19 contract](productization.md) owns protected configuration, explicit migration and the accepted Journey trust decision.
+
+- `packages/core/tests/settings.test.mjs`: old Vault wait/window, frozen proposal, read-only review, early/expired/stale confirmation, cancellation, duplicate prevention, protected configuration validation, existing/new runtime terms, atomic controller success, failed/conflicted/unknown saves, restart and revision/clock rollback.
+- `extension/tests/productization.test.mjs`: effective White search, labels/aliases, Blacklist exclusion, ordinary navigation opening, owning-tab label/countdown, stable publication, arrival reset, cancellation/expiry/unavailable authority and unsupported restart bindings; private settings command boundary.
+- `extension/tests/repository.test.mjs`: schema-1 migration in the fenced atomic transaction, preserved proposal terms and receipts, multi-connection serialization, stale pre-migration CAS, aborted migration and corrupt/missing configuration.
+- `python extension/scripts/firefox-e2e.py --productization`: native per-tab toolbar state, keyboard search through the real gate, actual redirect completion, cancellation/expiry/restart, Home/Settings reachability, real IndexedDB migration and settings wait/explicit commit/restart. Existing normal and `--existing-policy` scenarios are retained.
+
+Record final counts/native results in [productization.md](productization.md#evidence). Public/authenticated provider availability and physical crash/power-loss durability remain separate gaps.

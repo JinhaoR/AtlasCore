@@ -1,7 +1,7 @@
 import { nonnegativeInteger, positiveInteger } from "./access-state.js";
 import { evaluate } from "./evaluate.js";
 import type {
-  Journey, JourneyContext, JourneyEndReason, JourneyError, JourneyLimits, JourneyState,
+  Journey, JourneyContext, JourneyContinuation, JourneyEndReason, JourneyError, JourneyLimits, JourneyState,
 } from "./journey-models.js";
 import { normalizePolicy } from "./policy.js";
 import { normalizeHostname } from "./target.js";
@@ -41,7 +41,20 @@ function canonicalHostname(value: unknown): value is string {
 function isEndReason(value: unknown): value is JourneyEndReason {
   return value === "RETURNED" || value === "EXPIRED" || value === "CANCELLED"
     || value === "CONTEXT_CLOSED" || value === "POLICY_CHANGED" || value === "INVALID_POLICY"
-    || value === "ROOT_NOT_WHITELISTED" || value === "HOP_LIMIT";
+    || value === "ROOT_NOT_WHITELISTED" || value === "HOP_LIMIT" || value === "REACHED"
+    || value === "UNRELATED_NAVIGATION" || value === "DESTINATION_CHANGED";
+}
+
+export function readJourneyContinuation(value: unknown): JourneyContinuation | null {
+  if (!hasJourneyFields(value, ["kind", "sourceHostname"]) || !canonicalHostname(value.sourceHostname)
+    || !["HTTP_REDIRECT", "SAME_HOST", "RETAINED", "ARRIVAL"].includes(value.kind as string)) return null;
+  return { kind: value.kind as JourneyContinuation["kind"], sourceHostname: value.sourceHostname };
+}
+
+export function continuesJourney(journey: Journey, target: string, evidence?: JourneyContinuation): boolean {
+  return journey.phase !== "ENDED" && evidence !== undefined && evidence.sourceHostname === journey.currentHostname
+    && (evidence.kind === "HTTP_REDIRECT" || target === journey.currentHostname
+      || evidence.kind === "ARRIVAL" && target === journey.rootHostname);
 }
 
 function readJourney(value: unknown): Journey | null {
@@ -73,7 +86,11 @@ function readJourney(value: unknown): Journey | null {
     || value.endedAt < value.startedAt || !isEndReason(value.endReason)) return null;
   if (value.endReason === "RETURNED") {
     if (!atRoot || value.hopCount === 0 || value.endedAt >= value.expiresAt) return null;
+  } else if (value.endReason === "REACHED") {
+    if (!atRoot || value.hopCount !== 0 || value.endedAt >= value.expiresAt) return null;
   } else if (atRoot ? value.hopCount !== 0 : value.hopCount === 0) return null;
+  if (value.endReason === "DESTINATION_CHANGED"
+    && (atRoot || value.endedAt >= value.expiresAt)) return null;
   if (value.endReason === "EXPIRED" && value.endedAt < value.expiresAt) return null;
   if (value.endReason === "HOP_LIMIT" && value.hopCount !== value.maxHops) return null;
   return { ...details, phase: "ENDED", endedAt: value.endedAt, endReason: value.endReason };

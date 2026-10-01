@@ -1,11 +1,12 @@
 import {
   normalizeTarget, type AtlasController, type AtlasControllerResponse, type AtlasControllerView,
-  type AtlasNavigationContext, type Journey, type SiteTarget,
+  type AtlasNavigationContext, type Journey, type JourneyContinuation, type SiteTarget,
 } from '@atlas/core';
 import type { InitializableRepository } from '../storage/indexeddb-repository.js';
 import { Diagnostics, type DiagnosticEntry } from './diagnostics.js';
 import type { ManagedBlacklistManager, ManagedView } from '../managed/manager.js';
-import { compileCuratedWhitelist } from '../presets/curated-whitelist.js';
+import { compileCuratedWhitelist, equivalentServiceHostnames } from '../presets/curated-whitelist.js';
+import { journeyIndicator } from './journey-indicator.js';
 
 export interface AdapterHost {
   readonly controller: AtlasController;
@@ -22,6 +23,7 @@ interface Flight {
   requestId: string; url: string; timeStamp: number; destination: Destination | null;
   released: boolean; journeyId: number | null;
   authority: Extract<AtlasControllerResponse, { type: 'ASSESSMENT' }> | null;
+  redirectUrl: string | null;
 }
 interface Context {
   tabId: number; id: string; generation: number; flight: Flight | null; launching: boolean;
@@ -93,7 +95,16 @@ export class FirefoxAdapter {
   }
 
   private run<T>(work: () => Promise<T> | T): Promise<T> {
-    const next = this.queue.then(async () => { await this.ready; return work(); });
+    const next = this.queue.then(async () => {
+      await this.ready;
+      try { return await work(); }
+      finally {
+        const status = this.host?.controller.getView().status;
+        if (status === 'UNAVAILABLE' || status === 'RECONCILING') {
+          for (const context of this.contexts.values()) if (context.latest !== null) this.publish(context, context.latest);
+        }
+      }
+    });
     this.queue = next.catch(() => undefined);
     return next;
   }
@@ -124,8 +135,9 @@ export class FirefoxAdapter {
       .find((journey) => journey.contextId === context.id) ?? null;
   }
 
-  private binding(context: Context): AtlasNavigationContext {
-    return { contextId: context.id, journeyId: this.journey(context)?.id ?? null };
+  private binding(context: Context, continuation?: JourneyContinuation): AtlasNavigationContext {
+    return { contextId: context.id, journeyId: this.journey(context)?.id ?? null,
+      ...(continuation === undefined ? {} : { continuation }) };
   }
 
   private trace(event: DiagnosticEntry['event'], context: Context,
@@ -150,11 +162,15 @@ export class FirefoxAdapter {
       ? JSON.stringify(response.decision) : JSON.stringify(response);
     if (signature(context.latest) !== signature(result)) this.trace('DECISION', context, result);
     context.latest = result;
+    const authority = this.host?.controller.getView() ?? null;
+    const unavailable = authority?.status === 'UNAVAILABLE' || authority?.status === 'RECONCILING';
     const decision = result.type === 'ASSESSMENT' ? result.decision : null;
     const journey = this.journey(context);
-    const text = decision?.outcome === 'ALLOW' ? journey !== null && journey.phase !== 'ENDED' ? 'J' : ''
+    const indicator = decision?.outcome === 'ALLOW'
+      ? journeyIndicator(authority, journey, this.now()) : null;
+    const text = unavailable ? '!' : decision?.outcome === 'ALLOW' ? indicator !== null ? 'J' : ''
       : decision?.outcome === 'WAIT' ? 'WAIT' : decision?.outcome === 'REQUIRE_CONFIRMATION' ? 'GO' : '!';
-    const title = `Atlas · ${decision?.outcome ?? result.type} · ${decision?.reason ?? ('reason' in result ? result.reason : '')}`;
+    const title = unavailable ? 'Atlas · Access unavailable' : indicator ?? `Atlas · ${decision?.outcome ?? result.type} · ${decision?.reason ?? ('reason' in result ? result.reason : '')}`;
     const badge = `${text}:${title}`;
     if (context.badge === badge) return;
     context.badge = badge;
@@ -166,9 +182,10 @@ export class FirefoxAdapter {
     ]);
   }
 
-  private async check(context: Context, target: SiteTarget, record = false): Promise<Response> {
-    return this.host?.controller.handle({ kind: record ? 'RECORD_JOURNEY_NAVIGATION' : 'CHECK_NAVIGATION',
-      target, context: this.binding(context) }) ?? error('STORAGE_UNAVAILABLE');
+  private async check(context: Context, target: SiteTarget, record = false,
+    continuation?: JourneyContinuation, begin = false): Promise<Response> {
+    return this.host?.controller.handle({ kind: record ? 'RECORD_JOURNEY_NAVIGATION' : begin ? 'BEGIN_NAVIGATION' : 'CHECK_NAVIGATION',
+      target, context: this.binding(context, continuation) }) ?? error('STORAGE_UNAVAILABLE');
   }
 
   private async loseJourney(context: Context): Promise<void> {
@@ -197,6 +214,10 @@ export class FirefoxAdapter {
     }
     if (details.tabId < 0 || this.stopped) return Promise.resolve({ cancel: true });
     const context = this.context(details.tabId);
+    const previous = context.flight;
+    const correlated = previous !== null && previous.released && previous.requestId === details.requestId
+      && previous.redirectUrl === withoutFragment(details.url) && previous.timeStamp <= details.timeStamp;
+    const initiator = details.originUrl === undefined ? null : destination(details.originUrl);
     if (context.flight !== null && (!context.flight.released || context.flight.requestId !== details.requestId))
       this.trace('SUPERSEDED', context);
     const generation = ++context.generation;
@@ -205,21 +226,32 @@ export class FirefoxAdapter {
     this.clearRemoval(context);
     context.effect = 'NONE';
     const flight: Flight = { requestId: details.requestId, url: withoutFragment(details.url),
-      timeStamp: details.timeStamp, destination: destination(details.url), released: false, journeyId: null, authority: null };
+      timeStamp: details.timeStamp, destination: destination(details.url), released: false, journeyId: null, authority: null, redirectUrl: null };
     context.flight = flight;
     context.requested = flight.destination;
     this.trace('REQUEST', context, null);
     // Invalidate earlier work before joining the queue, including a result waiting on a save.
     return this.run(async () => {
       if (!this.live(context, generation)) return { cancel: true };
+      const active = this.journey(context);
+      // Attest the authorization cursor, including a root traversed without document arrival.
+      // Request ID alone never proves a redirect: the expected target must also match.
+      const continuation: JourneyContinuation | undefined = active !== null && active.phase !== 'ENDED'
+        ? correlated && previous.journeyId === active.id
+          ? { kind: 'HTTP_REDIRECT', sourceHostname: active.currentHostname }
+          : initiator?.target.hostname === context.displayed?.target.hostname
+            && initiator?.target.hostname === active.currentHostname
+            && flight.destination?.target.hostname === active.currentHostname
+            ? { kind: 'SAME_HOST', sourceHostname: active.currentHostname } : undefined
+        : undefined;
       let result: Response = flight.destination === null ? error('INVALID_TARGET')
-        : await this.check(context, flight.destination.target);
+        : await this.check(context, flight.destination.target, false, continuation, true);
       if (!this.live(context, generation)) return { cancel: true };
       const journey = this.journey(context);
       flight.journeyId = journey?.id ?? null;
       if (allowed(result) && journey !== null && journey.phase !== 'ENDED'
         && flight.destination!.target.hostname !== journey.rootHostname) {
-        result = await this.check(context, flight.destination!.target, true);
+        result = await this.check(context, flight.destination!.target, true, continuation);
       }
       if (!this.live(context, generation)) return { cancel: true };
       // A browser effect can only use the lifetime returned by Core; this guard only vetoes.
@@ -287,10 +319,14 @@ export class FirefoxAdapter {
       const tab = await this.api.tabs.get(details.tabId);
       if (!this.live(context, generation) || tab.url === undefined
         || withoutFragment(tab.url) !== withoutFragment(details.url)) return;
+      // Firefox resets per-tab browserAction properties on document navigation.
+      // Reapply once after arrival; timer-only publication still deduplicates.
+      context.badge = '';
       if (withoutFragment(details.url).split('?', 1)[0] === this.uiUrl) {
         if (context.flight !== null || context.launching) return;
         context.lastArrival = details.timeStamp;
         this.acknowledgeRemoval(context);
+        if (context.latest !== null) this.publish(context, context.latest);
         return;
       }
       const observed = destination(details.url);
@@ -312,9 +348,10 @@ export class FirefoxAdapter {
       context.flight = null;
       if (!matched) await this.loseJourney(context);
       const journey = this.journey(context);
-      const recordReturn = matched && journey !== null && journey.phase !== 'ENDED'
-        && journey.id === flight.journeyId && observed.target.hostname === journey.rootHostname;
-      const result = await this.check(context, observed.target, recordReturn);
+      const active = matched && journey !== null && journey.phase !== 'ENDED' && journey.id === flight.journeyId;
+      const continuation: JourneyContinuation | undefined = active
+        ? { kind: 'ARRIVAL', sourceHostname: journey.currentHostname } : undefined;
+      const result = await this.check(context, observed.target, active, continuation);
       if (!this.live(context, generation)) return;
       this.publish(context, result);
       context.displayed = observed;
@@ -349,9 +386,11 @@ export class FirefoxAdapter {
     const context = this.contexts.get(details.tabId);
     if (details.type !== 'main_frame' || details.frameId !== 0 || context?.flight === null
       || context?.flight === undefined || context.flight.requestId !== details.requestId
+      || !context.flight.released || context.flight.timeStamp > details.timeStamp
       || context.flight.url !== withoutFragment(details.url)) return;
+    context.flight.redirectUrl = withoutFragment(details.redirectUrl);
     this.trace('REDIRECT', context, null, destination(details.redirectUrl)?.target.hostname ?? null);
-    // Observation only: the next onBeforeRequest must independently pass Core's gate.
+    // Correlation is evidence for the next held request; Core still decides permission.
   };
 
   private closed = (tabId: number): void => {
@@ -393,6 +432,9 @@ export class FirefoxAdapter {
 
   private async recheck(): Promise<void> {
     const observation = await this.host?.controller.handle({ kind: 'OBSERVE_TIME' });
+    for (const context of this.contexts.values()) {
+      if (context.latest !== null) this.publish(context, context.latest);
+    }
     const tabs = await this.api.tabs.query({});
     for (const tab of tabs) {
       if (tab.id === undefined || tab.url === undefined || tab.incognito) continue;
@@ -440,7 +482,10 @@ export class FirefoxAdapter {
         || (journey !== null && journey.phase !== 'ENDED' && journey.currentHostname !== observed.target.hostname)) {
         await this.loseJourney(context);
       }
-      const result = await this.check(context, observed.target);
+      const retained = this.journey(context);
+      const result = await this.check(context, observed.target, false,
+        retained !== null && retained.phase !== 'ENDED'
+          ? { kind: 'RETAINED', sourceHostname: retained.currentHostname } : undefined);
       if (!this.live(context, generation)) continue;
       context.displayed = observed;
       context.displayedDecision = result.type === 'ADAPTER_ERROR' ? null : result;
@@ -468,11 +513,12 @@ export class FirefoxAdapter {
       || !Object.hasOwn(input, 'kind') || !('kind' in input) || typeof input.kind !== 'string') return Promise.resolve({ error: 'INVALID_COMMAND' });
     const command = input as Record<string, unknown>;
     const keys: Record<string, readonly string[]> = {
-      GET_VIEW: [], RECOVER: [], SETUP: ['policy'], OPEN_JOURNEY: ['url'],
+      GET_VIEW: [], RECOVER: [], SETUP: ['policy'], OPEN_JOURNEY: ['url'], OPEN_DESTINATION: ['url'],
       START_JOURNEY: ['tabId'], CANCEL_JOURNEY: ['tabId'], START_ACCESS: ['tabId'],
       CONFIRM_ACCESS: ['requestId'], CANCEL_ACCESS: ['requestId'], OPEN_HOME: ['tabId'],
       CONFIRM_ACCESS_AND_OPEN: ['tabId', 'requestId'], GET_DIAGNOSTICS: ['tabId'], CLEAR_DIAGNOSTICS: [],
       PROPOSE_CURATED_DEFAULTS: [], REVIEW_POLICY: ['proposalId'], CONFIRM_POLICY: ['proposalId'], CANCEL_POLICY: ['proposalId'],
+      PROPOSE_SETTINGS: ['candidateConfiguration'], PROPOSE_POLICY: ['candidatePolicy'],
     };
     const fields = Object.hasOwn(keys, command.kind as string) ? keys[command.kind as string] : undefined;
     if (fields === undefined || Object.keys(command).length !== fields.length + 1
@@ -513,7 +559,24 @@ export class FirefoxAdapter {
       if (command.kind === 'CONFIRM_POLICY' && result.type === 'COMMITTED') await this.recheck();
       return { result, view: this.view() };
     }
+    if (command.kind === 'PROPOSE_SETTINGS' || command.kind === 'PROPOSE_POLICY') {
+      const result = await controller.handle(command);
+      return { result, view: this.view() };
+    }
     let result: Response;
+    if (command.kind === 'OPEN_DESTINATION') {
+      if (typeof command.url !== 'string' || command.url.length > 4096) return { error: 'INVALID_TARGET' };
+      const url = /^https?:\/\//i.test(command.url) ? command.url : `https://${command.url}`;
+      const selected = destination(url);
+      if (selected === null) return { error: 'INVALID_TARGET' };
+      const tab = await this.api.tabs.create({ url: 'about:blank', active: false });
+      if (tab.id === undefined) return { error: 'CONTEXT_UNAVAILABLE' };
+      const context = this.context(tab.id);
+      context.requested = selected;
+      this.navigate(context, url);
+      void this.api.tabs.update(tab.id, { active: true }).catch(() => undefined);
+      return { opened: true, tabId: tab.id, view: this.view() };
+    }
     if (command.kind === 'OPEN_JOURNEY') {
       if (typeof command.url !== 'string' || command.url.length > 4096) return { error: 'INVALID_TARGET' };
       const url = /^https?:\/\//i.test(command.url) ? command.url : `https://${command.url}`;
@@ -542,7 +605,7 @@ export class FirefoxAdapter {
     if (command.kind === 'CONFIRM_ACCESS_AND_OPEN') {
       const pending = controller.getView().snapshot?.accessState.pendingRequests
         .find((request) => request.id === command.requestId);
-      if (pending?.hostname !== context.requested.target.hostname) return { error: 'REQUEST_CONTEXT_CHANGED', view: this.view() };
+      if (pending === undefined || !(pending.scopeHostnames ?? [pending.hostname]).includes(context.requested.target.hostname)) return { error: 'REQUEST_CONTEXT_CHANGED', view: this.view() };
       const generation = context.generation;
       const selected = context.requested;
       result = await controller.handle({ kind: 'CONFIRM_ACCESS', requestId: command.requestId });
@@ -556,7 +619,10 @@ export class FirefoxAdapter {
       return { view: this.view() };
     }
     if (command.kind === 'START_ACCESS') {
-      result = await controller.handle({ kind: 'START_ACCESS', target: context.requested.target });
+      const policy = controller.getView().snapshot?.policy;
+      const scopeHostnames = equivalentServiceHostnames(context.requested.target.hostname)
+        .filter((host) => !policy?.whitelist.includes(host) || policy.blacklist.includes(host));
+      result = await controller.handle({ kind: 'START_ACCESS', target: context.requested.target, scopeHostnames });
     } else if (command.kind === 'START_JOURNEY') {
       if (context.flight !== null) return { error: 'NAVIGATION_IN_PROGRESS' };
       result = await controller.handle({ kind: 'START_JOURNEY', root: context.requested.target, contextId: context.id });

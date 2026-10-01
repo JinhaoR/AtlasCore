@@ -13,7 +13,7 @@ const configuration = {
 const target = (hostname) => ({ hostname });
 const initial = () => ({
   policy: { whitelist: ["root.example"], blacklist: ["blocked.example"] },
-  policyRevision: 0, accessState: createAccessState(),
+  policyRevision: 0, configuration, configurationRevision: 0, accessState: createAccessState(),
   vaultState: createVaultState(), journeyState: createJourneyState(),
 });
 const plan = (snapshot, now, operation, config = configuration) =>
@@ -27,7 +27,9 @@ const command = (snapshot, now, operation) => {
 const navigate = (snapshot, now, hostname, contextId = "tab_a", journeyId = null, record = false) =>
   plan(snapshot, now, {
     kind: record ? "RECORD_JOURNEY_NAVIGATION" : "CHECK_NAVIGATION",
-    target: target(hostname), context: { contextId, journeyId },
+    target: target(hostname), context: { contextId, journeyId, ...(journeyId === null ? {} : {
+      continuation: { kind: 'HTTP_REDIRECT', sourceHostname: snapshot.journeyState.journeys.find((j) => j.id === journeyId)?.currentHostname ?? 'root.example' },
+    }) },
   });
 const withGrant = (snapshot = initial(), hostname = "other.example", now = 0) => {
   snapshot = command(snapshot, now, { kind: "START_ACCESS", target: target(hostname) });

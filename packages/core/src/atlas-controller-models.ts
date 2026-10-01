@@ -41,6 +41,7 @@ export type AtlasControllerResponse =
 export interface AtlasControllerOptions {
   readonly repository: AtlasRepository;
   readonly clock: AtlasClock;
+  /** Validated legacy host dependency. Active terms always come from the loaded snapshot. */
   readonly configuration: AtlasConfiguration;
   /** Fresh for each controller lifetime; supplied by the trusted host, never a website. */
   readonly ownerId: string;

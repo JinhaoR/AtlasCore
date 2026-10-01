@@ -11,7 +11,7 @@
 <body>
   <header class="topbar">
     <a class="brand" href="?view=control" aria-label="Atlas home"><img src="atlas.svg" width="32" height="32" alt="">Atlas</a>
-    <span class="prototype">Firefox prototype</span>
+    <nav aria-label="Atlas"><button id="show-home" class="secondary compact" aria-pressed="true">Home</button> <button id="show-settings" class="secondary compact" aria-pressed="false">Settings</button></nav>
     <span id="status" class="status" role="status">Connecting…</span>
   </header>
   <main>
@@ -29,18 +29,21 @@
           <label>Blacklist<textarea id="blacklist" placeholder="Sites to block" rows="4" spellcheck="false"></textarea></label></div>
         </details>
         <button id="save-setup" type="submit">Save my initial policy</button>
-        <p class="note">This setup is available once. Protected policy editing will come in a later interface.</p>
+        <p class="note">This setup is available once. Later changes go through Vault in Settings.</p>
       </form>
     </section>
     <div id="workspace" class="workspace">
       <section id="destinations" class="card destinations">
+        <form id="search-form" role="search"><label for="destination-search" class="sr-only">Search your destinations</label>
+          <input id="destination-search" type="search" placeholder="Search your destinations…" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="search-results" aria-expanded="false">
+          <div id="search-results" role="listbox" aria-label="Matching destinations" hidden></div><p id="search-empty" class="note" hidden>No matching allowed destinations.</p>
+        </form>
         <div class="section-heading"><h2>Your destinations</h2><span class="pill">Pure Whitelist</span></div>
-        <p class="note">Open starts a five-minute Journey in a new tab, including intermediate login pages.</p>
         <div id="destination-list" class="destination-list"></div>
         <p id="empty-destinations" class="note">No destinations in your Pure Whitelist yet.</p>
         <details class="open-address"><summary>Open a specific address</summary>
-          <form id="journey-form"><label>Address on your Pure Whitelist<input id="destination" placeholder="https://student.ladok.se" required spellcheck="false" autocomplete="off"></label>
-            <button id="open-journey" type="submit" class="secondary">Open with Journey</button></form>
+          <form id="journey-form"><label>Website address<input id="destination" placeholder="https://student.ladok.se" required spellcheck="false" autocomplete="off"></label>
+            <button id="open-journey" type="submit" class="secondary">Open</button></form>
         </details>
       </section>
       <section id="access-panel" class="card access" data-tone="neutral">
@@ -48,6 +51,7 @@
         <label class="tab-label">Browsing tab<select id="context"><option value="">No websites yet</option></select></label>
         <p id="hostname" class="hostname">Your next destination</p>
         <h3 id="access-title">Choose a tab</h3><p id="access-description"></p>
+        <p id="access-scope" class="note"></p>
         <p id="deadline" class="deadline"></p>
         <p id="effect-warning" class="feedback" hidden></p>
         <div class="actions">
@@ -58,7 +62,7 @@
           <button id="start-journey" class="secondary" hidden>Start Journey in this tab</button>
         </div>
         <p id="home-note" class="note" hidden>Opening starts at the site home. Return to your task from there.</p>
-        <div class="journey-panel">
+        <div id="journey-panel" class="journey-panel">
           <div class="section-heading"><h3>Journey</h3><span id="journey-phase" class="pill">None</span></div>
           <p id="journey">No Journey in this tab.</p><p id="journey-time" class="note"></p>
           <progress id="journey-progress" max="1" value="0" aria-label="Journey time remaining" hidden></progress>
@@ -67,6 +71,21 @@
         <details class="decision-details"><summary>Decision details</summary><p id="decision" class="mono"></p><p id="context-detail" class="mono"></p></details>
       </section>
     </div>
+    <section id="settings" hidden aria-label="Atlas settings">
+    <section class="card"><h2>Timing and friction</h2><p class="note">Changes use your current Vault wait and require confirmation. Existing waits, grants and Journeys keep their original terms.</p>
+      <p id="timing"></p><form id="settings-form"><div class="columns">
+        <label>Greylist wait (seconds)<input id="access-wait" type="number" min="0.001" step="0.001" required></label>
+        <label>Greylist confirmation window (seconds)<input id="access-window" type="number" min="0.001" step="0.001" required></label>
+        <label>Temporary access duration (seconds)<input id="grant-duration" type="number" min="0.001" step="0.001" required></label>
+        <label>Vault wait (seconds)<input id="vault-wait" type="number" min="0.001" step="0.001" required></label>
+        <label>Vault confirmation window (seconds)<input id="vault-window" type="number" min="0.001" step="0.001" required></label>
+        <label>Journey lifetime (seconds)<input id="journey-lifetime" type="number" min="0.001" step="0.001" required></label>
+        <label>Journey hop limit<input id="journey-hops" type="number" min="1" step="1" required></label>
+      </div><button id="propose-settings" type="submit">Propose timing change</button></form>
+    </section>
+    <section class="card"><h2>Manage destinations</h2><p class="note">Exact hostnames, one per line. Review all changes in Vault before committing.</p>
+      <form id="policy-form"><div class="columns"><label>Pure Whitelist<textarea id="policy-whitelist" rows="6" spellcheck="false"></textarea></label><label>Manual Blacklist<textarea id="policy-blacklist" rows="6" spellcheck="false"></textarea></label></div><button id="propose-policy" type="submit">Propose policy change</button></form>
+    </section>
     <section class="card managed-panel"><div class="section-heading"><h2>Managed Blacklist</h2><span class="pill">StevenBlack</span></div>
       <p id="managed-status">Loading the bundled blacklist…</p><p id="managed-details" class="note"></p>
       <details><summary>Source and update details</summary><p id="managed-source" class="mono"></p></details>
@@ -87,14 +106,15 @@
       <p id="preset-update-status" class="note"></p>
       <button id="propose-defaults" class="secondary" hidden>Add curated destinations</button>
       <div id="vault-panel" hidden>
-        <h3>Review policy proposal</h3><pre id="vault-review"></pre><p id="vault-deadline" class="deadline"></p>
-        <p class="note">Committing advances the policy revision and invalidates current Access requests, grants, and Journeys.</p>
-        <div class="actions"><button id="confirm-policy" hidden>Confirm policy update</button>
+        <h3>Review frozen proposal</h3><pre id="vault-review"></pre><p id="vault-deadline" class="deadline"></p>
+        <p id="vault-impact" class="note"></p>
+        <div class="actions"><button id="confirm-policy" hidden>Confirm change</button>
           <button id="cancel-policy" class="secondary">Cancel proposal</button></div>
       </div>
       <button id="recover" class="secondary">Reload and reconcile state</button>
     </details>
-    <footer><p id="timing"></p><p>Atlas governs top-level HTTP(S) navigation. Firefox handles website security and sign-in.</p></footer>
+    </section>
+    <footer><p>Firefox handles website security and sign-in.</p></footer>
   </main>
 </body>
 </html>

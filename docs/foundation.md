@@ -26,7 +26,7 @@ The scope of a site rule must be explicit and consistent. Hostname matching must
 
 ### R3. Temporary access is not durable permission
 
-Ordinary intentional Greylist access requires an explicit start, a cooldown and a later explicit confirmation. Time passing alone must not grant access. An Access Grant has a defined scope and expiry, does not reclassify the site, and cannot override the Blacklist. D11 separately authorizes bounded Journey access to intermediate destinations while attempting to reach a Pure Whitelist root; it creates no Access Grant.
+Ordinary intentional Greylist access requires an explicit start, a cooldown and a later explicit confirmation. Time passing alone must not grant access. An Access Grant has a defined scope and expiry, does not reclassify the site, and cannot override the Blacklist. D11, narrowed by D18, separately authorizes bounded Journey access to intermediate destinations while attempting to reach a Pure Whitelist root; it creates no Access Grant.
 
 Closing a prompt or restarting a frontend must not let the user skip the required wait or replay an already consumed confirmation. D9 adopts fixed grant expiry across reload; actual durable restart protection still requires storage integration.
 
@@ -52,7 +52,7 @@ The browser engine and websites handle JavaScript, cookies, origin isolation, TL
 
 Pure Whitelist destinations must be usable when reaching them requires intermediate domains. D11 replaces the former catalog requirement with a temporary Journey bound to a root destination, one context, a fixed deadline, and a hop limit. A global supporting-domain database is excluded; Atlas does not maintain internet dependency knowledge.
 
-Blacklist still overrides every governed navigation. Unfamiliar intermediate hosts can receive the bounded Journey authorization, without becoming trusted or changing policy. This authorizes a limited attempt, not a claim that a host is necessary or safe. Context Whitelist, learned relationships, trust graphs, and link inheritance remain deferred.
+Blacklist still overrides every governed navigation. Under D18, unfamiliar intermediate hosts can receive bounded Journey authorization only with trusted continuation evidence, without becoming trusted or changing policy. This authorizes a limited attempt, not a claim that a host is necessary or safe. Context Whitelist, learned relationships, trust graphs, and link inheritance remain deferred.
 
 ### R8. Reliable state and explanations
 
@@ -85,13 +85,17 @@ Build a fresh application-independent core using Zenith as a source of lessons. 
 
 **D15 (2026-09-30):** The user authorized a minimal Firefox WebExtension consuming the existing Core package, including extension storage, top-level navigation, Journey paths, development UI, and adapter/native testing. The [Firefox adapter contract](firefox-adapter.md) records the architecture before coding. It narrows Q10 to explicit one-time setup, selects the first Q12 frontend/entry points, and documents the request execution protocol adopted over D14. Production timing, comprehensive browser coverage, and general recovery remain open. Earlier milestones' browser exclusions remain historical scope limits.
 
-D4 records presentation intent for intermediate domains. D11 supplies their current Journey authorization without a catalog. Permitting an intermediate page never gives its code privileged access to Atlas commands.
+D4 records presentation intent for intermediate domains. D11/D18 supply their current Journey authorization without a catalog. Permitting an intermediate page never gives its code privileged access to Atlas commands.
 
 **D16 (2026-09-30):** The user authorized improvement of the Firefox prototype interface, normal browsing interactions, bounded diagnostics, and public real-website checks. The [adapter document](firefox-adapter.md#prototype-interface-and-diagnostics-d16) owns these extension-only refinements. Core rules remain unchanged; Context Whitelist and authentication/provider databases remain excluded.
 
 **D17 (2026-10-01):** The user authorized curated service defaults with explicit aliases and a separately managed, efficient StevenBlack deny list. Manual Blacklist still overrides Whitelist; explicit Whitelist overrides only managed deny data. The [managed policy contract](managed-policy.md) owns precedence, compilation, cache/refresh, offline bootstrap, and tests. No global apex/`www` equivalence or wildcard matching is introduced.
 
-### Milestone 1 input contract
+#**D18 (2026-10-01):** For first-run stabilization the user approved automatic Whitelist Journey initiation regardless of navigation origin, unfamiliar-host continuation restricted to correlated HTTP redirect chains, and completion on destination document arrival. This narrows D11's broad bounded exception and supersedes D15's explicit-UI-only initiation. Cross-host links/forms without redirect evidence use normal policy. The user also approved one frozen Greylist request/grant for a service's explicitly declared equivalent aliases, listed before confirmation. Core retains exact-host matching, one wait/confirmation/commit and fixed expiry; there is no global `www` pairing. The [Journey/access architecture](architecture.md) owns these semantics; [stabilization findings](firefox-stabilization.md) record causes, evidence and deferred requirements.
+
+**D19 (2026-10-01):** The user accepts D18's genuine correlated HTTP redirect exception and its documented residual risk from a deliberately Whitelisted server. Atlas prevents easy impulsive escape; it does not promise an adversarial boundary against a determined owner or malicious Whitelisted website. Journey remains stable unless actual use produces a reproducible failure or demonstrated practical bypass. Productization adds per-tab Journey presentation, local active-destination search, protected timing configuration through Vault, and a homepage/settings structure. The [productization contract](productization.md) owns the implementation plan and settings/migration semantics. No authentication inference, transit graphs, learned infrastructure or AUTH_CONTINUATION is authorized.
+
+## Milestone 1 input contract
 
 Recorded 2026-09-26 to keep the first evaluator small and explicit:
 
@@ -166,19 +170,20 @@ The [aggregate planner contract](architecture.md#aggregate-planner-d13) owns D13
 | ID | Question | Resolve before |
 | --- | --- | --- |
 | Q1 | Resolved for Milestone 1 by D7. D15 exercises Firefox 157.0; other frontend/runtime versions need their own validation. | Revisit when selecting another adapter/runtime. |
-| Q2 | Resolved for the initial evaluator by D8 and the input contract above. Unicode input, IP targets, aliases, and additional URL forms remain deferred. | Resolve before extending supported target forms or scope. |
+| Q2 | Resolved for the initial evaluator by D8 and the input contract above. D17/D18 add explicitly declared service aliases while retaining exact-host evaluation. Unicode input, IP targets, inferred aliases, and additional URL forms remain deferred. | Resolve before extending supported target forms or scope. |
 | Q3 | Resolved: retain original fixed expiry across reload, with supplied elapsed time counting while closed. D15 tests real background reload; physical crash durability remains untested. | Further backend lifecycle testing. |
-| Q4 | D11 authorizes unfamiliar intermediates only in an active Journey bound to one top-level context. D15 uses one fresh context per Firefox tab, without popup inheritance; embedded documents are outside the gate. | Broader mapping requires explicit future scope. |
+| Q4 | D11/D18 authorize unfamiliar intermediates only with trusted continuation evidence in an active Journey bound to one top-level context. D15 uses one fresh context per Firefox tab, without popup inheritance; embedded documents are outside the gate. | Broader mapping requires explicit future scope. |
 | Q5 | Catalog activation is superseded by D11. Context Whitelist and other broader models are deferred. | A future explicit request; no catalog work is planned. |
 | Q6 | Greylist/Vault timing and Journey lifetime/hop limits are explicit positive configuration frozen at creation. Expiry is exclusive. Which production values and protective minimums should be used? | Production configuration; fixture values are not defaults. |
 | Q7 | Resolved by D10 for user-managed policy: Whitelist/Blacklist additions and removals, including tighter changes, use the same protected flow. D17 separately resolves managed StevenBlack data with explicit Whitelist exceptions; other external mandatory-list semantics remain undecided. | Other future mandatory-list features. Historical Zenith rules do not supply authority. |
 | Q8 | Any newer policy revision invalidates pending requests, grants, Vault proposals, and Journeys. Proposals are not rebased and Journeys are not restarted. | Validate future integration against this rule. |
 | Q9 | D15 injects the host wall clock and persists Core checkpoints. Clock rollback fails closed. Trusted-time recovery and detection of whole-state rollback remain open; there is no time server. | Stronger production clock/recovery requirements. |
-| Q10 | D15 adopts explicit one-time setup in an empty repository and blocks corrupt/missing initialized records. Backup, recovery, and schema migration remain open; no destructive reset UI is provided. | Recovery or schema evolution. |
+| Q10 | D15 adopts explicit one-time setup in an empty repository and blocks corrupt/missing initialized records. D19 explicitly migrates known valid schema-1 snapshots atomically. Broader backup/recovery and future migrations remain open; no destructive reset UI is provided. | Recovery or schema evolution. |
 | Q11 | Which audit events are useful, how long are they retained, and how can they be removed without resetting policy? | Persisted history. |
 | Q12 | D15 selects Firefox and exposed top-level HTTP(S) navigation, with later observation of retained/restored content. Protected/internal pages, private browsing, downloads, non-HTTP schemes, and embedded content are outside the slice. | Broader browser coverage or another frontend. |
+| Q13 | Resolved by D19: retain D18, accept the documented bounded HTTP redirect risk and preserve destination-arrival completion. No broader continuation is authorized. | Revisit only for a reproducible failure or practical bypass during actual use. |
 
-Do not answer all twelve questions before doing anything. Resolve the questions that block the current small milestone, document the answer and test it. Optional future features remain deferred.
+Resolve the questions that block the current small milestone, document the answer and test it. Optional future features remain deferred.
 
 ## Terminology and limits
 

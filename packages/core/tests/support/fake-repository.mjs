@@ -3,7 +3,7 @@ export class FakeRepository {
   constructor(snapshot) {
     this.version = 0;
     this.envelope = snapshot === null ? null : {
-      schemaVersion: 1, storageVersion: "v0", lastCommitId: null, snapshot: structuredClone(snapshot),
+      schemaVersion: 2, storageVersion: "v0", lastCommitId: null, snapshot: structuredClone(snapshot),
     };
     this.commits = [];
     this.loads = 0;
@@ -75,7 +75,7 @@ export class FakeRepository {
 
   /** Simulate a different writer, outside this owner's queue. */
   replace(snapshot) {
-    this.envelope = { schemaVersion: 1, storageVersion: `v${++this.version}`,
+    this.envelope = { schemaVersion: 2, storageVersion: `v${++this.version}`,
       lastCommitId: `external:${this.version}`, snapshot: structuredClone(snapshot) };
   }
 }

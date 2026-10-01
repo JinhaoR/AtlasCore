@@ -1,8 +1,11 @@
 import {
-  createAccessState, createJourneyState, createVaultState, validateAtlasSnapshot,
+  createAccessState, createJourneyState, createVaultState, validateAtlasSnapshot, migrateAtlasSnapshotV1, readConfiguration,
+  type AtlasConfiguration,
   type AtlasCommitRequest, type AtlasCommitResolution, type AtlasCommitResult,
   type AtlasEnvelope, type AtlasLoadResult, type AtlasRepository,
 } from '@atlas/core';
+
+import { configuration as defaultConfiguration } from "../background/configuration.js";
 
 export interface InitializableRepository extends AtlasRepository {
   initialize(policy: unknown): Promise<boolean>;
@@ -14,8 +17,10 @@ type Receipt = Extract<AtlasCommitResolution, { type: 'COMMITTED' }>;
 
 /** Opening completes before this port is exposed, so each operation enqueues its transaction immediately. */
 export function openRepository(
-  factory: IDBFactory, newVersion: () => string, name = 'atlas-authority-v1',
+  factory: IDBFactory, newVersion: () => string, name = 'atlas-authority-v1', bootstrapInput: AtlasConfiguration = defaultConfiguration,
 ): Promise<InitializableRepository> {
+  const bootstrap = readConfiguration(bootstrapInput);
+  if (bootstrap === null) return Promise.reject(new TypeError('INVALID_CONFIGURATION'));
   return new Promise((resolve, reject) => {
     const request = factory.open(name, 1);
     request.onupgradeneeded = () => {
@@ -28,13 +33,13 @@ export function openRepository(
     request.onsuccess = () => {
       const database = request.result;
       database.onversionchange = () => database.close();
-      resolve(new IndexedDBRepository(database, newVersion));
+      resolve(new IndexedDBRepository(database, newVersion, bootstrap));
     };
   });
 }
 
 class IndexedDBRepository implements InitializableRepository {
-  constructor(private readonly database: IDBDatabase, private readonly newVersion: () => string) {}
+  constructor(private readonly database: IDBDatabase, private readonly newVersion: () => string, private readonly bootstrap: AtlasConfiguration) {}
 
   close(): void { this.database.close(); }
 
@@ -50,16 +55,35 @@ class IndexedDBRepository implements InitializableRepository {
   load(): Promise<AtlasLoadResult> {
     return new Promise((resolve) => {
       try {
-        const transaction = this.transaction('readonly');
+        const transaction = this.transaction('readwrite');
         const authority = transaction.objectStore('authority');
         const initialized = authority.get('initialized');
         const envelope = authority.get('envelope');
+        let loaded: unknown;
+        envelope.onsuccess = () => {
+          loaded = envelope.result;
+          if (initialized.result !== true || loaded === null || typeof loaded !== 'object'
+            || !('schemaVersion' in loaded) || loaded.schemaVersion !== 1) return;
+          // One fenced atomic migration; damaged legacy authority is never replaced by defaults.
+          try {
+            const old = loaded as Record<string, unknown>;
+            if (Object.keys(old).length !== 4 || !Object.hasOwn(old, 'snapshot')
+              || typeof old.storageVersion !== 'string' || !/^[a-z0-9_.:-]{1,256}$/i.test(old.storageVersion)
+              || (old.lastCommitId !== null && (typeof old.lastCommitId !== 'string' || !/^[a-z0-9_.:-]{1,256}$/i.test(old.lastCommitId)))) { transaction.abort(); return; }
+            const migrated = migrateAtlasSnapshotV1(old.snapshot, this.bootstrap);
+            if (!migrated.ok) { transaction.abort(); return; }
+            const storageVersion = this.version();
+            if (storageVersion === old.storageVersion) { transaction.abort(); return; }
+            loaded = { schemaVersion: 2, storageVersion, lastCommitId: old.lastCommitId, snapshot: migrated.snapshot };
+            authority.put(loaded, 'envelope');
+          } catch { transaction.abort(); }
+        };
         transaction.oncomplete = () => {
           if (initialized.result === false && envelope.result === undefined) {
             resolve({ type: 'UNINITIALIZED' });
           } else if (initialized.result === true && envelope.result !== undefined) {
             // Core validates every byte of the envelope/snapshot before publishing authority.
-            resolve({ type: 'READY', envelope: envelope.result });
+            resolve({ type: 'READY', envelope: loaded });
           } else resolve({ type: 'UNAVAILABLE' });
         };
         transaction.onabort = () => resolve({ type: 'UNAVAILABLE' });
@@ -69,7 +93,7 @@ class IndexedDBRepository implements InitializableRepository {
 
   initialize(policy: unknown): Promise<boolean> {
     const validated = validateAtlasSnapshot({
-      policy, policyRevision: 0, accessState: createAccessState(),
+      policy, policyRevision: 0, configuration: this.bootstrap, configurationRevision: 0, accessState: createAccessState(),
       vaultState: createVaultState(), journeyState: createJourneyState(),
     });
     if (!validated.ok) return Promise.resolve(false);
@@ -84,7 +108,7 @@ class IndexedDBRepository implements InitializableRepository {
           if (initialized.result !== false || envelope.result !== undefined) return;
           try {
             const storageVersion = this.version();
-            authority.put({ schemaVersion: 1, storageVersion, lastCommitId: null,
+            authority.put({ schemaVersion: 2, storageVersion, lastCommitId: null,
               snapshot: validated.snapshot } satisfies AtlasEnvelope, 'envelope');
             authority.put(true, 'initialized');
             applied = true;
@@ -98,7 +122,7 @@ class IndexedDBRepository implements InitializableRepository {
 
   private version(): string {
     const version = this.newVersion();
-    if (!/^[a-z0-9_.:-]{1,256}$/i.test(version)) throw new Error('INVALID_VERSION');
+    if (typeof version !== 'string' || !/^[a-z0-9_.:-]{1,256}$/i.test(version)) throw new Error('INVALID_VERSION');
     return version;
   }
 
@@ -129,11 +153,11 @@ class IndexedDBRepository implements InitializableRepository {
             return;
           }
           const validated = validateAtlasSnapshot(request.next.snapshot);
-          if (request.next.schemaVersion !== 1 || !validated.ok) return;
+          if (request.next.schemaVersion !== 2 || !validated.ok) return;
           const storageVersion = this.version();
           if (storageVersion === envelope.storageVersion) { transaction.abort(); return; }
           const receipt: Receipt = { type: 'COMMITTED', commitId: request.commitId, storageVersion };
-          authority.put({ schemaVersion: 1, storageVersion, lastCommitId: request.commitId,
+          authority.put({ schemaVersion: 2, storageVersion, lastCommitId: request.commitId,
             snapshot: validated.snapshot } satisfies AtlasEnvelope, 'envelope');
           receipts.add(receipt, request.commitId);
           result = receipt;

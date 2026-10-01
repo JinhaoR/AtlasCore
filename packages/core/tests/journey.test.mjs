@@ -20,12 +20,13 @@ function start(input = context(), contextId = 'main', options = limits) {
   return result;
 }
 
-function navigation(target, journeyId = 1, contextId = 'main') {
-  return { target, journeyId, contextId };
+function navigation(target, journeyId = 1, contextId = 'main', sourceHostname = 'student.example') {
+  return { target, journeyId, contextId, continuation: { kind: 'HTTP_REDIRECT', sourceHostname } };
 }
 
 function record(state, target, now = 2_000, id = 1, contextId = 'main') {
-  return recordJourneyNavigation(navigation(target, id, contextId), context(state, now));
+  return recordJourneyNavigation(navigation(target, id, contextId,
+    state.journeys.find((entry) => entry.id === id)?.currentHostname ?? 'student.example'), context(state, now));
 }
 
 function frozen(value) {
@@ -52,13 +53,14 @@ test('Start creates a bounded Journey only for Pure Whitelist with frozen limits
   }
 });
 
-test('Initial root arrival and reloads keep the Journey open for a later login', () => {
+test('Initial root arrival completes the Journey; reload observations do not reopen it', () => {
   let state = start().nextState;
   for (const now of [1_000, 2_000, 3_000]) {
     const result = record(state, 'student.example', now);
     assert.equal(result.decision.reason, 'WHITELISTED');
     state = result.nextState;
-    assert.equal(state.journeys[0].phase, 'STARTED');
+    assert.equal(state.journeys[0].phase, 'ENDED');
+    assert.equal(state.journeys[0].endReason, 'REACHED');
     assert.equal(state.journeys[0].hopCount, 0);
     assert.equal(state.journeys[0].expiresAt, 6_000);
   }
@@ -170,7 +172,7 @@ test('Hop limit allows residence and root return but ends an attempted extra hos
   const state = record(started.nextState, 'login.example').nextState;
   assert.equal(record(state, 'https://login.example/choose').decision.outcome, 'ALLOW');
   assert.equal(record(state, 'student.example').nextState.journeys[0].endReason, 'RETURNED');
-  const limited = evaluateJourneyNavigation(navigation('identity.example'), context(state, 2_000));
+  const limited = evaluateJourneyNavigation(navigation('identity.example', 1, 'main', 'login.example'), context(state, 2_000));
   assert.equal(limited.decision.outcome, 'GREYLIST');
   assert.equal(limited.decision.endReason, 'HOP_LIMIT');
   assert.equal(limited.nextState.journeys[0].hopCount, 1);

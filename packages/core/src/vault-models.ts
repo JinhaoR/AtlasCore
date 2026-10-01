@@ -1,5 +1,6 @@
 import type { AccessState } from "./access-models.js";
 import type { Policy } from "./models.js";
+import type { AtlasConfiguration } from './atlas-models.js';
 
 export interface VaultTiming {
   readonly waitMs: number;
@@ -7,6 +8,8 @@ export interface VaultTiming {
 }
 
 export interface PolicyProposal {
+  readonly candidateConfiguration?: AtlasConfiguration;
+  readonly baseConfigurationRevision?: number;
   readonly id: number;
   readonly basePolicyRevision: number;
   readonly candidatePolicy: Policy;
@@ -16,6 +19,7 @@ export interface PolicyProposal {
 }
 
 export interface AppliedPolicyProposal {
+  readonly configurationRevision?: number;
   readonly proposalId: number;
   readonly policyRevision: number;
 }
@@ -31,6 +35,8 @@ export interface VaultState {
 
 /** Supplied by the trusted owner; website data is not an authoritative context. */
 export interface VaultContext {
+  readonly configuration?: AtlasConfiguration;
+  readonly configurationRevision?: number;
   readonly policy: Policy;
   readonly policyRevision: number;
   readonly state: VaultState;
@@ -44,7 +50,8 @@ export type VaultError =
   | "INVALID_CANDIDATE_POLICY" | "INVALID_TIMING" | "INVALID_PROPOSAL_ID"
   | "PROPOSAL_NOT_FOUND" | "ALREADY_COMMITTED" | "PROPOSAL_PENDING" | "NO_POLICY_CHANGE"
   | "NOT_READY" | "PROPOSAL_EXPIRED" | "POLICY_CHANGED"
-  | "TIME_OVERFLOW" | "ID_EXHAUSTED" | "REVISION_EXHAUSTED";
+  | "TIME_OVERFLOW" | "ID_EXHAUSTED" | "REVISION_EXHAUSTED"
+  | "INVALID_CONFIGURATION" | "CONFIGURATION_CHANGED" | "CONFIGURATION_ROLLBACK";
 
 export interface PolicyListChanges {
   readonly added: readonly string[];
@@ -60,6 +67,9 @@ export interface PolicyClassificationChange {
 }
 
 export interface PolicyReview {
+  readonly candidateConfiguration?: AtlasConfiguration;
+  readonly currentConfiguration?: AtlasConfiguration;
+  readonly baseConfigurationRevision?: number;
   readonly proposalId: number;
   readonly basePolicyRevision: number;
   readonly candidatePolicy: Policy;
@@ -70,7 +80,7 @@ export interface PolicyReview {
   readonly whitelist: PolicyListChanges;
   readonly blacklist: PolicyListChanges;
   readonly classifications: readonly PolicyClassificationChange[];
-  readonly invalidatesAccess: true;
+  readonly invalidatesAccess: boolean;
 }
 
 export type PolicyReviewResult =
@@ -78,6 +88,8 @@ export type PolicyReviewResult =
   | { readonly ok: false; readonly reason: VaultError };
 
 export interface VaultSnapshot {
+  readonly configuration?: AtlasConfiguration;
+  readonly configurationRevision?: number;
   readonly policy: Policy;
   readonly policyRevision: number;
   readonly vaultState: VaultState;

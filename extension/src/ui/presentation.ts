@@ -1,4 +1,10 @@
-import type { AtlasNavigationDecision } from '@atlas/core';
+import type { AtlasControllerView, AtlasNavigationDecision } from '@atlas/core';
+
+/** UI can queue an intent during housekeeping; only a fresh controller result authorizes effects. */
+export function canQueueOperation(view: AtlasControllerView | null | undefined): boolean {
+  return view?.status === 'READY' || view?.snapshot != null
+    && (view.status === 'LOADING' || view.status === 'COMMITTING');
+}
 
 /** Presentation of a Core result, never a substitute for obtaining a fresh result. */
 export function accessCopy(decision: AtlasNavigationDecision | null): { title: string; description: string; tone: string } {

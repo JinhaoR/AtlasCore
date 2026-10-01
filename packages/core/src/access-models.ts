@@ -9,6 +9,8 @@ export interface AccessTiming {
 export interface PendingAccessRequest {
   readonly id: number;
   readonly hostname: string;
+  /** Frozen exact-host scope; absent in legacy records means hostname only. */
+  readonly scopeHostnames?: readonly string[];
   readonly startedAt: number;
   readonly readyAt: number;
   readonly confirmBy: number;
@@ -19,6 +21,7 @@ export interface PendingAccessRequest {
 export interface AccessGrant {
   readonly requestId: number;
   readonly hostname: string;
+  readonly scopeHostnames?: readonly string[];
   readonly issuedAt: number;
   readonly expiresAt: number;
   readonly policyRevision: number;
@@ -51,6 +54,8 @@ export type AccessContextError =
 
 export type AccessError = AccessContextError
   | "INVALID_TARGET"
+  | "INVALID_SCOPE"
+  | "SCOPE_CONFLICT"
   | "INVALID_TIMING"
   | "INVALID_REQUEST_ID"
   | "REQUEST_NOT_FOUND"

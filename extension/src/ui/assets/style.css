@@ -15,6 +15,14 @@ h3 { font-size: 17px; line-height: 1.4; margin: 0 0 8px; font-weight: 650; }
 p { margin: 8px 0 16px; }
 .intro > p:last-child { color: #62726d; }
 .workspace { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 22px; align-items: start; }
+.workspace:has(.access[hidden]), body[data-mode="access"] .workspace { grid-template-columns: 1fr; }
+#search-form { margin-bottom: 30px; }
+#destination-search { padding: 16px; font-size: 18px; }
+#search-results { border: 1px solid #bbcbbd; border-radius: 7px; margin-top: 8px; overflow: hidden; }
+#search-results button { display: block; width: 100%; text-align: left; border: 0; border-radius: 0; background: #fdfefa; color: #203c43; }
+#search-results button[aria-selected="true"], #search-results button:hover:enabled { background: #e8f0e8; }
+.topbar nav { margin-left: auto; white-space: nowrap; }
+#settings { max-width: 900px; margin: 0 auto; }
 .card { background: #fdfefa; border: 1px solid #dce3d9; border-radius: 14px; padding: 24px; margin-bottom: 22px; }
 .section-heading { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .section-heading h3 { margin: 0; }

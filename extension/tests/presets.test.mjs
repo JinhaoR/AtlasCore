@@ -7,7 +7,7 @@ import { validateFeed } from '../dist/lib/managed/hosts-feed.js';
 import { configuration } from './support/fixture.mjs';
 
 const policy = compileCuratedWhitelist();
-const approved = ['chatgpt.com', 'claude.ai', 'mail.google.com', 'outlook.com', 'www.outlook.com', 'outlook.live.com',
+const approved = ['chatgpt.com', 'claude.ai', 'mail.google.com', 'webmail.kth.se', 'outlook.com', 'www.outlook.com', 'outlook.live.com',
   'outlook.office.com', 'outlook.office365.com', 'microsoft365.com', 'www.microsoft365.com', 'youtube.com', 'www.youtube.com',
   'scholar.google.com', 'arxiv.org', 'inspirehep.net', 'doi.org', 'crossref.org', 'orcid.org', 'semanticscholar.org', 'www.semanticscholar.org',
   'journals.aps.org', 'link.aps.org', 'pubs.aip.org', 'iopscience.iop.org', 'nature.com', 'www.nature.com', 'science.org', 'www.science.org',
@@ -44,7 +44,7 @@ test('bundled official managed data validates, denies representative entries, an
   const text = readFileSync(new URL('../data/stevenblack/hosts', import.meta.url), 'utf8');
   const feed = validateFeed(text);
   assert.ok(feed); assert.ok(feed.compiled.size > 100_000); assert.equal(feed.parsed.ignoredNames, 6);
-  const snapshot = { policy, policyRevision: 0, accessState: createAccessState(), vaultState: createVaultState(), journeyState: createJourneyState() };
+  const snapshot = { policy, policyRevision: 0, configuration, configurationRevision: 0, accessState: createAccessState(), vaultState: createVaultState(), journeyState: createJourneyState() };
   const check = (hostname) => planAtlasOperation({ kind: 'CHECK_NAVIGATION', target: { hostname },
     context: { contextId: 'fixture', journeyId: null } }, { snapshot, now: 0, configuration, managedBlacklist: feed.compiled }).result.decision;
   for (const hostname of ['doubleclick.net', 'facebook.com', 'pornhub.com', 'bet365.com', 'infowars.com'])

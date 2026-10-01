@@ -7,7 +7,8 @@ export interface JourneyLimits {
 
 export type JourneyEndReason =
   | "RETURNED" | "EXPIRED" | "CANCELLED" | "CONTEXT_CLOSED"
-  | "POLICY_CHANGED" | "INVALID_POLICY" | "ROOT_NOT_WHITELISTED" | "HOP_LIMIT";
+  | "POLICY_CHANGED" | "INVALID_POLICY" | "ROOT_NOT_WHITELISTED" | "HOP_LIMIT"
+  | "REACHED" | "UNRELATED_NAVIGATION" | "DESTINATION_CHANGED";
 
 interface JourneyDetails {
   readonly id: number;
@@ -46,6 +47,13 @@ export interface JourneyNavigation {
   readonly journeyId: number;
   readonly contextId: string;
   readonly target: string | SiteTarget;
+  readonly continuation?: JourneyContinuation;
+}
+
+/** Trusted host facts, never claims supplied by a website. */
+export interface JourneyContinuation {
+  readonly kind: "HTTP_REDIRECT" | "SAME_HOST" | "RETAINED" | "ARRIVAL";
+  readonly sourceHostname: string;
 }
 
 export type JourneyError =

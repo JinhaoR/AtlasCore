@@ -1,10 +1,12 @@
 # Firefox public-site checks
 
+The [2026-10-01 navigation/authentication investigation](firefox-auth-investigation.md#3-real-public-flows) adds event-level enforcing/passive comparisons for Canvas, KTH webmail, Gmail, Microsoft/Outlook, Overleaf, GitHub and Ladok. It includes sanitized traces and explains the post-arrival compatibility gap without changing Core rules.
+
 Checked on 2026-09-30 with Firefox 157.0 on Windows, using the Atlas prototype and a fresh disposable profile. These checks exercise public entry pages and navigation authorization. **No account identifiers, passwords, consent grants, MFA, or authenticated return were submitted or tested.**
 
 The [investigation script](../extension/scripts/firefox-public-sites.py) starts an explicit Journey for each configured root. It uses the real extension, controller, and IndexedDB repository. Public selectors in this script are test aids; the adapter contains no provider rules.
 
-## Observed results
+## Historical D16 results (2026-09-30)
 
 | Service | Observed top-level path | Evidence and limit |
 | --- | --- | --- |
@@ -40,3 +42,19 @@ The separate [local native scenario](../extension/scripts/firefox-e2e.py) tests 
 ## Follow-up validation
 
 Use dedicated test accounts for authenticated returns, MFA, popups, cancelled sign-in, and account-specific redirect branches. First complete Ladok institution selection manually to distinguish probe limitations from a provider or adapter issue. Record only sanitized navigation facts; keep credentials, cookies, and full authentication URLs out of reports. Core remains unchanged unless a separately reviewed domain contradiction is found.
+
+## D18 strict Journey checks (2026-10-01)
+
+The current build was checked again in a fresh Firefox 157.0 profile. Sanitized evidence is in `.tools/firefox-public-owwu23pl/result.json`; raw logs were suppressed and the disposable profile was removed. Policy remained unchanged and no Access grants were created. Per-Journey IDs retained one fixed deadline; a new deliberate root request can create a separate attempt after the previous root document arrived.
+
+| Service | Current strict result |
+| --- | --- |
+| Ladok | Reached `service.seamlessaccess.org` through permitted continuation. Institution selection was not completed; public discovery may include embedded UI outside the governed top-level boundary. |
+| Gmail | Reached `accounts.google.com` and observed an identifier form with ACTIVE_JOURNEY. |
+| Microsoft work/school | `myaccount.microsoft.com` committed a root document and ended REACHED. A subsequent request to `login.microsoftonline.com` had no accepted active HTTP-chain authority and returned GREYLIST. This is an observed compatibility limit of the approved strict model; no provider exception was added. |
+| ORCID | Destination credential form was visible under WHITELISTED; root arrival ended the Journey. |
+| KTH Canvas | HTTP continuation reached `saml-5.sys.kth.se` then `login.ug.kth.se`; credential form visible under ACTIVE_JOURNEY. |
+
+Permitted intermediates were also cancelled and removed. These public entry checks establish neither real-account authentication nor post-login compatibility. Microsoft page-driven navigation and Ladok institution selection need a future explicit product decision if broader continuation is desired. Existing native fixtures and adapter tests establish consistent common gating across navigation origins; these public probes use Atlas Open.
+
+A separate credential-free HEAD request to Overleaf's public homepage observed `308 overleaf.com -> www.overleaf.com`, then `200 www.overleaf.com`. D18's explicitly declared alias scope fixes that exact-host Greylist transition for a new request. No global www rule or authentication/provider database is introduced.

@@ -18,6 +18,7 @@ export const curatedWhitelist: readonly CuratedGroup[] = [
   ] },
   { label: 'Mail', services: [
     { label: 'Gmail', hostname: 'mail.google.com' },
+    { label: 'KTH Mail', hostname: 'webmail.kth.se' },
     { label: 'Outlook', hostname: 'outlook.com', aliases: ['www.outlook.com'],
       destinations: ['outlook.live.com', 'outlook.office.com', 'outlook.office365.com'] },
     { label: 'Microsoft 365', hostname: 'microsoft365.com', aliases: ['www.microsoft365.com'] },
@@ -62,6 +63,23 @@ export const curatedWhitelist: readonly CuratedGroup[] = [
 
 export function serviceHostnames(service: CuratedService): readonly string[] {
   return [service.hostname, ...(service.aliases ?? []), ...(service.destinations ?? [])];
+}
+
+/** Display metadata only; never makes a hostname available or equivalent. */
+export function serviceLabel(hostname: string): string {
+  for (const group of curatedWhitelist) for (const service of group.services) {
+    if (serviceHostnames(service).includes(hostname)) return service.label;
+  }
+  return hostname;
+}
+
+/** Only declared equivalent aliases; other service destinations have independent scope. */
+export function equivalentServiceHostnames(hostname: string): readonly string[] {
+  for (const group of curatedWhitelist) for (const service of group.services) {
+    const aliases = [service.hostname, ...(service.aliases ?? [])];
+    if (aliases.includes(hostname)) return aliases;
+  }
+  return [hostname];
 }
 
 export function compileCuratedWhitelist(groups: readonly CuratedGroup[] = curatedWhitelist): Policy {

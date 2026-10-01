@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { accessCopy, countdown, selectedContext } from '../dist/lib/ui/presentation.js';
+import { accessCopy, canQueueOperation, countdown, selectedContext } from '../dist/lib/ui/presentation.js';
+
+test('housekeeping keeps verified UI intents available; startup, failure and uncertainty stay unavailable', () => {
+  for (const status of ['READY', 'LOADING', 'COMMITTING']) assert.equal(canQueueOperation({ status, snapshot: {} }), true);
+  for (const status of ['LOADING', 'COMMITTING', 'UNINITIALIZED']) assert.equal(canQueueOperation({ status, snapshot: null }), false);
+  for (const status of ['UNAVAILABLE', 'RECONCILING', 'UNINITIALIZED']) assert.equal(canQueueOperation({ status, snapshot: {} }), false);
+  assert.equal(canQueueOperation(null), false);
+});
 
 test('a countdown reaching zero does not turn a WAIT view into confirmation or permission', () => {
   const decision = { outcome: 'WAIT', reason: 'COOLDOWN', hostname: 'unknown.example', requestId: 1, readyAt: 1000, confirmBy: 2000 };

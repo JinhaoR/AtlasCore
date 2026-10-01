@@ -10,7 +10,7 @@ import { FakeRepository, deferred } from './support/fake-repository.mjs';
 const configuration = { accessTiming: { waitMs: 10, confirmationWindowMs: 20, grantDurationMs: 100 },
   vaultTiming: { waitMs: 10, confirmationWindowMs: 20 }, journeyLimits: { lifetimeMs: 200, maxHops: 3 } };
 const initial = () => ({ policy: { whitelist: ['root.example', 'exception.example', 'blocked.example'], blacklist: ['blocked.example'] },
-  policyRevision: 0, accessState: createAccessState(), vaultState: createVaultState(), journeyState: createJourneyState() });
+  policyRevision: 0, configuration, configurationRevision: 0, accessState: createAccessState(), vaultState: createVaultState(), journeyState: createJourneyState() });
 const list = compileManagedBlacklist(['managed.example', 'exception.example', 'blocked.example', 'root.example']);
 const check = (hostname, journeyId = null) => ({ kind: 'CHECK_NAVIGATION', target: { hostname }, context: { contextId: 'tab_a', journeyId } });
 const plan = (snapshot, operation, now = 0, managedBlacklist = list) => planAtlasOperation(operation, { snapshot, now, configuration, managedBlacklist });

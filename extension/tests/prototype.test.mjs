@@ -88,7 +88,7 @@ test('diagnostics correlate redirects without authorizing them and export only b
   const url = 'https://root.example/private-path?search=not-recorded#section';
   await firefox.request(tabId, url, { requestId: 'raw-browser-id' });
   firefox.webRequest.onBeforeRedirect.emit({ tabId, frameId: 0, type: 'main_frame', requestId: 'raw-browser-id',
-    url, redirectUrl: 'https://login.example/another-path?search=not-recorded' });
+    url, timeStamp: firefox.eventTime++, redirectUrl: 'https://login.example/another-path?search=not-recorded' });
   assert.equal(controller.getView().snapshot.journeyState.journeys[0].hopCount, 0);
   await firefox.visit(tabId, 'https://login.example/another-path?search=not-recorded', { requestId: 'raw-browser-id' });
   assert.equal(controller.getView().snapshot.journeyState.journeys[0].hopCount, 1);

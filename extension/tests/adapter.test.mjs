@@ -3,6 +3,14 @@ import assert from 'node:assert/strict';
 import { createAtlasController, compileManagedBlacklist } from '@atlas/core';
 import { fixture, policy, configuration, deferred } from './support/fixture.mjs';
 
+// A fixture redirect is backed by a held root request or a same-host document action.
+async function transit(firefox, tabId, url, arrive = true) {
+  const current = firefox.documents.get(tabId).url;
+  await firefox.request(tabId, current.startsWith('https:') ? `${new URL(current).origin}/step` : 'https://root.example/',
+    current.startsWith('https:') ? { originUrl: current } : {});
+  return firefox.redirect(tabId, url, arrive);
+}
+
 test('Core managed denial applies to Firefox Journey and Greylist; publication uses the navigation queue', async (t) => {
   let managed = compileManagedBlacklist(['root.example', 'blocked.example', 'login.example']);
   const { firefox, controller, adapter } = await fixture(t, true, { managedBlacklist: () => managed });
@@ -89,26 +97,27 @@ test('unknown sites wait for explicit confirmation; saved grant expires without 
   assert.deepEqual(controller.getView().snapshot.policy, policy);
 });
 
-test('Journey path shares one deadline; initial root and a redirect through root do not finish it', async (t) => {
+test('Journey path shares one deadline; actual root arrival completes but a redirect through root does not', async (t) => {
   const { firefox, controller, clock } = await fixture(t);
   const opened = await firefox.send({ kind: 'OPEN_JOURNEY', url: 'https://root.example/' });
   const id = opened.tabId;
   assert.equal(opened.result.type, 'COMMITTED');
   const initial = controller.getView().snapshot.journeyState.journeys[0];
-  await firefox.visit(id, 'https://root.example/');
+  await firefox.request(id, 'https://root.example/');
   assert.equal(controller.getView().snapshot.journeyState.journeys[0].phase, 'STARTED');
   clock.time += 50;
-  assert.deepEqual(await firefox.visit(id, 'https://login.example/'), {});
+  assert.deepEqual(await firefox.redirect(id, 'https://login.example/'), {});
   assert.equal(controller.getView().snapshot.journeyState.journeys[0].hopCount, 1);
   // A server redirect through root has a held request, but never commits a document there.
-  assert.deepEqual(await firefox.request(id, 'https://root.example/redirect', { requestId: 'chain' }), {});
+  assert.deepEqual(await firefox.request(id, 'https://login.example/choose', { originUrl: 'https://login.example/' }), {});
+  assert.deepEqual(await firefox.redirect(id, 'https://root.example/redirect', false), {});
   clock.time += 50;
-  assert.deepEqual(await firefox.visit(id, 'https://identity.example/', { requestId: 'chain' }), {});
-  const transit = controller.getView().snapshot.journeyState.journeys[0];
-  assert.equal(transit.phase, 'IN_TRANSIT');
-  assert.equal(transit.hopCount, 2);
-  assert.equal(transit.expiresAt, initial.expiresAt);
-  assert.deepEqual(await firefox.visit(id, 'https://root.example/complete'), {});
+  assert.deepEqual(await firefox.redirect(id, 'https://identity.example/'), {});
+  const inTransit = controller.getView().snapshot.journeyState.journeys[0];
+  assert.equal(inTransit.phase, 'IN_TRANSIT');
+  assert.equal(inTransit.hopCount, 2);
+  assert.equal(inTransit.expiresAt, initial.expiresAt);
+  assert.deepEqual(await transit(firefox, id, 'https://root.example/complete'), {});
   const snapshot = controller.getView().snapshot;
   assert.equal(snapshot.journeyState.journeys[0].endReason, 'RETURNED');
   assert.equal(snapshot.journeyState.journeys[0].expiresAt, initial.expiresAt);
@@ -120,7 +129,7 @@ test('Journey path shares one deadline; initial root and a redirect through root
 test('separate tabs and reused native tab IDs do not inherit a Journey; Blacklist still wins', async (t) => {
   const { firefox, controller } = await fixture(t);
   const { tabId } = await firefox.send({ kind: 'OPEN_JOURNEY', url: 'https://root.example/' });
-  await firefox.visit(tabId, 'https://root.example/');
+  await firefox.request(tabId, 'https://root.example/');
   const popup = await firefox.tabs.create({});
   assert.equal((await firefox.visit(popup.id, 'https://login.example/')).cancel, true);
   assert.equal((await firefox.visit(tabId, 'https://blocked.example/')).cancel, true);
@@ -135,16 +144,17 @@ test('separate tabs and reused native tab IDs do not inherit a Journey; Blacklis
 test('Journey cancellation removes its intermediate; expiry and hop exhaustion deny subsequent navigation', async (t) => {
   const { firefox, clock, controller } = await fixture(t);
   const first = await firefox.send({ kind: 'OPEN_JOURNEY', url: 'https://root.example/' });
-  await firefox.visit(first.tabId, 'https://login.example/');
+  await transit(firefox, first.tabId, 'https://login.example/');
   await firefox.send({ kind: 'CANCEL_JOURNEY', tabId: first.tabId });
   await firefox.flush();
   assert.equal(controller.getView().snapshot.journeyState.journeys[0].endReason, 'CANCELLED');
   assert.ok(firefox.documents.get(first.tabId).url.startsWith('moz-extension:'));
   const second = await firefox.send({ kind: 'OPEN_JOURNEY', url: 'https://root.example/' });
-  for (const host of ['one', 'two', 'three']) assert.deepEqual(await firefox.visit(second.tabId, `https://${host}.example/`), {});
-  assert.equal((await firefox.visit(second.tabId, 'https://four.example/')).cancel, true);
+  for (const host of ['one', 'two', 'three']) assert.deepEqual(await transit(firefox, second.tabId, `https://${host}.example/`), {});
+  assert.equal((await transit(firefox, second.tabId, 'https://four.example/')).cancel, true);
   assert.equal(controller.getView().snapshot.journeyState.journeys[1].endReason, 'HOP_LIMIT');
   const third = await firefox.send({ kind: 'OPEN_JOURNEY', url: 'https://root.example/' });
+  await firefox.request(third.tabId, 'https://root.example/');
   clock.time += 300;
   assert.equal((await firefox.visit(third.tabId, 'https://login.example/')).cancel, true);
   assert.equal(controller.getView().snapshot.journeyState.journeys[2].endReason, 'EXPIRED');
@@ -191,14 +201,14 @@ test('untrusted senders and malformed command envelopes cannot request state cha
     { id: firefox.runtime.id, url: firefox.runtime.getURL('ui/index.html'), frameId: 1 },
   ]) assert.equal(await firefox.send({ kind: 'SETUP', policy }, sender), false);
   assert.equal((await firefox.send({ kind: 'START_JOURNEY', tabId: 1, contextId: 'forged' })).error, 'INVALID_COMMAND');
-  assert.equal((await firefox.send({ kind: 'PROPOSE_POLICY', candidatePolicy: policy })).error, 'INVALID_COMMAND');
+  assert.equal((await firefox.send({ kind: 'PROPOSE_POLICY', candidatePolicy: policy, now: 0 })).error, 'INVALID_COMMAND');
   assert.deepEqual(controller.getView(), before);
 });
 
 test('unmatched cache/history arrival loses the Journey before reevaluation', async (t) => {
   const { firefox, controller } = await fixture(t);
   const { tabId } = await firefox.send({ kind: 'OPEN_JOURNEY', url: 'https://root.example/' });
-  await firefox.visit(tabId, 'https://root.example/');
+  await firefox.request(tabId, 'https://root.example/');
   firefox.arrive(tabId, 'https://unobserved.example/');
   await firefox.flush();
   assert.equal(controller.getView().snapshot.journeyState.journeys[0].endReason, 'CONTEXT_CLOSED');
@@ -239,7 +249,7 @@ test('unknown commit outcomes hold navigation until explicit reconciliation', as
 test('new owner ends old Journey bindings while preserving pending Access timestamps', async (t) => {
   const { firefox, adapter, repository, clock, controller } = await fixture(t);
   const { tabId } = await firefox.send({ kind: 'OPEN_JOURNEY', url: 'https://root.example/' });
-  await firefox.visit(tabId, 'https://login.example/');
+  await transit(firefox, tabId, 'https://login.example/');
   const grey = await firefox.tabs.create({});
   await firefox.visit(grey.id, 'https://unknown.example/');
   await firefox.send({ kind: 'START_ACCESS', tabId: grey.id });
@@ -273,9 +283,9 @@ test('late initial about:blank arrival cannot end a newly launched Journey', asy
   assert.equal(controller.getView().snapshot.journeyState.journeys[0].phase, 'STARTED');
   firefox.arrive(tabId, 'https://root.example/');
   await firefox.flush();
-  assert.equal(controller.getView().snapshot.journeyState.journeys[0].phase, 'STARTED');
+  assert.equal(controller.getView().snapshot.journeyState.journeys[0].endReason, 'REACHED');
   await firefox.visit(tabId, 'https://root.example/');
-  assert.equal(controller.getView().snapshot.journeyState.journeys[0].phase, 'STARTED');
+  assert.equal(controller.getView().snapshot.journeyState.journeys[0].endReason, 'REACHED');
 });
 
 test('failed or hung document removal remains conservative and reports failure truthfully', async (t) => {
@@ -293,8 +303,8 @@ test('failed or hung document removal remains conservative and reports failure t
 test('retained-content expiry during a pending navigation does not invent a return hop', async (t) => {
   const { firefox, controller, clock, adapter } = await fixture(t);
   const { tabId } = await firefox.send({ kind: 'OPEN_JOURNEY', url: 'https://root.example/' });
-  await firefox.visit(tabId, 'https://login.example/');
-  assert.deepEqual(await firefox.request(tabId, 'https://identity.example/'), {});
+  await transit(firefox, tabId, 'https://login.example/');
+  assert.deepEqual(await transit(firefox, tabId, 'https://identity.example/', false), {});
   assert.equal(controller.getView().snapshot.journeyState.journeys[0].hopCount, 2);
   clock.time += 300;
   await adapter.refresh();
@@ -335,8 +345,8 @@ test('unexpected adapter exceptions resolve to cancellation, never a rejected bl
 test('a missing arrival callback cannot retain a released intermediate past its Core deadline', async (t) => {
   const { firefox, clock, adapter, controller } = await fixture(t);
   const { tabId } = await firefox.send({ kind: 'OPEN_JOURNEY', url: 'https://root.example/' });
-  await firefox.visit(tabId, 'https://root.example/');
-  assert.deepEqual(await firefox.request(tabId, 'https://login.example/'), {});
+  await firefox.request(tabId, 'https://root.example/');
+  assert.deepEqual(await firefox.redirect(tabId, 'https://login.example/', false), {});
   firefox.documents.get(tabId).url = 'https://login.example/'; // Deliberately omit onCommitted.
   clock.time += 300;
   await adapter.refresh();

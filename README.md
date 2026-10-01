@@ -53,7 +53,7 @@ Each access operation takes an explicit context: `{ policy, policyRevision, stat
 | Function | Result |
 | --- | --- |
 | `createAccessState()` | A fresh empty domain state. Never use it to recover invalid existing state. |
-| `startAccess(target, context, timing)` | Creates a pending request, or returns its existing unexpired request with unchanged terms. |
+| `startAccess(target, context, timing, scopeHostnames?)` | Creates a pending request, or returns its existing unexpired request with unchanged terms. |
 | `evaluateAccess(target, context)` | Returns a decision and observation state. Pending requests yield `WAIT` or `REQUIRE_CONFIRMATION`; time never creates a grant. |
 | `confirmAccess(requestId, context)` | Returns one complete candidate state containing the grant and no longer containing the consumed request. |
 | `cancelAccess(requestId, context)` | Removes the live pending request. Its ID cannot confirm later. |
@@ -63,6 +63,8 @@ Transitions return `{ ok, ... , nextState }`; evaluations return `{ decision, ne
 Increment the trusted `policyRevision` whenever policy changes, even if a later edit restores earlier rules. A revision change invalidates existing requests and grants. Returning to an older revision or time than the retained snapshot fails closed. These guards rely on retaining the latest state; they cannot detect restoration of an older complete snapshot.
 
 `ok: true` means the pure domain transition succeeded, not that anything was saved. The controller below commits complete candidates through an injected repository before reporting workflow success. Standalone access functions provide no persistence or concurrency guarantees. Serialization tests simulate retaining the complete state across reload, including IDs and timestamps.
+
+D18 adds optional frozen `scopeHostnames` to pending requests and their single grants. Omitted scope means the original exact hostname. Trusted hosts may declare explicit equivalent aliases before waiting; confirmation cannot add hosts. No global `www`, subdomain, provider, or redirect equivalence is inferred. See [stabilization decisions](docs/firefox-stabilization.md).
 
 See [access.test.mjs](packages/core/tests/access.test.mjs) for executable examples and [the workflow contract](docs/architecture.md#greylist-workflow-milestone-2) for boundaries and restart semantics.
 
@@ -90,6 +92,8 @@ See [architecture.md](docs/architecture.md) for current modules and the remainin
 
 ### Pure Whitelist Journeys
 
+The [Firefox authentication investigation](docs/firefox-auth-investigation.md) records event evidence, security limits and proposed next decisions. It does not broaden the implemented Journey rules.
+
 Journeys allow unfamiliar intermediate top-level destinations during a bounded attempt to reach a Whitelisted root, subject to Blacklist. They change neither policy nor access grants. Each Journey belongs to one opaque context ID and has one fixed deadline, a hop limit, and a policy revision.
 
 | Function | Role |
@@ -101,7 +105,7 @@ Journeys allow unfamiliar intermediate top-level destinations during a bounded a
 | `observeJourneys(context)` | Observes time/revision and ends expired or invalidated attempts without navigation. |
 | `cancelJourney(id, contextId, context)` / `closeJourneyContext(id, contextId, context)` | Ends a matching attempt. |
 
-Context is `{ policy, policyRevision, state: journeyState, now }`. Navigation calls return `{ decision, nextState }`; other commands return `{ ok, ... , nextState }`. Thread all non-null state onward, including denials. Initial root arrival keeps the attempt open. A recorded return after leaving ends it. Host changes to intermediates consume hops; reloads never extend time; root return requires no extra hop. Repeated Start on an active context rejects without renewal.
+Context is `{ policy, policyRevision, state: journeyState, now }`. Navigation calls accept optional portable continuation evidence and return `{ decision, nextState }`; other commands return `{ ok, ... , nextState }`. Thread all non-null state onward, including denials. D18 requires trusted continuation evidence for unfamiliar hosts. Actual initial root arrival ends REACHED; a recorded return after leaving ends RETURNED. BEGIN_NAVIGATION starts Whitelist attempts regardless of origin; CHECK_NAVIGATION never starts them. Host changes to intermediates consume hops; reloads never extend time; root return requires no extra hop. Repeated Start on an active context rejects without renewal.
 
 An ended Journey permits no intermediate access of its own. Ordinary Whitelist access remains available; an independent Greylist grant is evaluated separately with `evaluateAccess`. Malformed state fails closed. These functions do not combine all authorization state or enforce browser navigation.
 
@@ -109,9 +113,9 @@ The [Journey contract](docs/architecture.md#journey-workflow) defines the bounde
 
 ## Aggregate planner
 
-`AtlasSnapshot` combines `{ policy, policyRevision, accessState, vaultState, journeyState }`. `validateAtlasSnapshot(input)` validates every component and their revision relationships, then returns copied, frozen data. Invalid components block all planning, including otherwise Whitelisted access.
+`AtlasSnapshot` combines `{ policy, policyRevision, configuration, configurationRevision, accessState, vaultState, journeyState }`. `validateAtlasSnapshot(input)` validates every component and their revision relationships, then returns copied, frozen data. Invalid components block all planning, including otherwise Whitelisted access.
 
-`planAtlasOperation(operation, { snapshot, now, configuration })` combines the existing workflows without storage or a real clock. Configuration supplies `{ accessTiming, vaultTiming, journeyLimits }`; there are no production defaults. Navigation precedence is full validation and observation, manual Blacklist, Whitelist, optional managed Blacklist, Access Grant, Journey, then GREYLIST/WAIT/REQUIRE_CONFIRMATION.
+`planAtlasOperation(operation, { snapshot, now, configuration })` combines the existing workflows without storage or a real clock. Committed snapshot configuration supplies `{ accessTiming, vaultTiming, journeyLimits }`; the legacy external argument is validated but cannot override it. There are no runtime defaults. Navigation precedence is full validation and observation, manual Blacklist, Whitelist, optional managed Blacklist, Access Grant, Journey, then GREYLIST/WAIT/REQUIRE_CONFIRMATION.
 
 `compileManagedBlacklist(hostnames)` validates a managed dataset once and returns an opaque immutable set, or null for invalid input. Supply it as `managedBlacklist` in the planner context, or inject `managedBlacklist: () => compiled` into the controller. Invalid supplied authority fails closed; omitting it preserves existing consumers. Managed data stays outside the small `Policy` arrays and persisted snapshot. See the [managed policy contract](docs/managed-policy.md).
 
@@ -135,9 +139,15 @@ A plan returns:
 
 Vault candidates include the latest access records and invalidated Journeys together with the replacement policy. Navigation records maintain Journey hops/returns even when Whitelist or a grant supplies ALLOW. Ordinary checks never record a hop or complete a return. The full operation contract and trusted-owner obligations are in [architecture.md](docs/architecture.md#aggregate-planner-d13); executable examples are in [atlas.test.mjs](packages/core/tests/atlas.test.mjs).
 
+### Protected settings (D19)
+
+`PROPOSE_SETTINGS` freezes the candidate configuration alongside current policy in the existing single Vault slot. `REVIEW_POLICY`, `CONFIRM_POLICY`, and `CANCEL_POLICY` handle either kind of proposal. Current **old** Vault wait/window govern the change; confirmation accepts an ID only and success follows atomic persistence. Settings-only commits advance `configurationRevision` without changing `policyRevision`. Existing request/grant/Journey terms stay frozen; new operations use committed values. `createSettingsProposal` also exposes this pure transition directly.
+
+The supported envelope is schema 2. `migrateAtlasSnapshotV1(legacy, bootstrapConfiguration)` validates and converts known valid schema-1 data; hosts must persist conversion atomically before publishing it. Firefox implements that boundary in IndexedDB. See [D19](docs/productization.md) for the accepted Journey trust tradeoff, migration, and evidence.
+
 ## Atlas controller
 
-`createAtlasController({ repository, clock, configuration, ownerId })` creates one framework-independent owner. The host supplies an `AtlasRepository`, an `AtlasClock`, explicit timing configuration, and a fresh opaque owner ID for each controller lifetime. Core generates no clock or random ID of its own.
+`createAtlasController({ repository, clock, configuration, ownerId })` creates one framework-independent owner. The host supplies an `AtlasRepository`, an `AtlasClock`, a validated legacy configuration dependency, and a fresh opaque owner ID for each controller lifetime. Active timing always comes from the loaded snapshot. Core generates no clock or random ID of its own.
 
 | Method | Behavior |
 | --- | --- |
@@ -169,7 +179,7 @@ npm --prefix extension ci
 npm --prefix extension run build
 ```
 
-In Firefox, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `extension/dist/manifest.json`. Open Atlas from the toolbar and save the offered curated preset during first setup. Services appear once with explicitly declared aliases; Core continues matching exact hostnames. Select **Open** beside a trusted destination to start a Journey. Unknown sites offer **Request temporary access**, a wait, and explicit **Confirm and open**. Prototype durations are shown in the UI.
+In Firefox, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `extension/dist/manifest.json`. Open Atlas from the toolbar and save the offered curated preset during first setup. Services appear once with explicitly declared aliases; Core continues matching exact hostnames. Every Whitelist request starts the same bounded redirect Journey, whether opened through Atlas, a bookmark, link, or typed URL. Unknown sites offer **Request temporary access**, a wait, and explicit **Confirm and open**. Declared equivalent aliases are listed before confirmation and share one frozen grant; unrelated hosts do not. Prototype durations are shown in the UI.
 
 The managed StevenBlack list is bundled for offline first use, cached separately, and refreshed at most once per day. Core applies manual Blacklist → explicit Whitelist → managed Blacklist → grants/Journey → Greylist. Managed conflicts and update status are visible. Existing installations retain their policy; setup never replaces active policy.
 
@@ -211,6 +221,6 @@ Read `AGENTS.md` and the foundation first. Follow the small milestones in [first
 
 ## Status and evidence
 
-Verification on Node.js 24.12.0 / npm 11.6.4 / TypeScript 6.0.3: build and type checks pass; all 152 Core tests pass (19 policy/normalization, 25 Greylist, 22 Vault, 23 Journey, 28 aggregate planner, 27 controller, and 8 managed-list tests). [Acceptance scenarios](docs/acceptance-tests.md) map this evidence to implemented behavior and distinguish the remaining integration work.
+Verification on Node.js 24.12.0 / npm 11.6.4 / TypeScript 6.0.3: build and type checks pass; all 158 Core tests pass (the previous 152 plus six stabilization regressions). [Acceptance scenarios](docs/acceptance-tests.md) map this evidence to implemented behavior and distinguish the remaining integration work.
 
-D17 brings the extension suite to 50 passing tests, including the follow-up protected preset upgrade for existing profiles. Native Firefox 157.0 checks curated setup, managed denial/cache restart, Journey, confirmation, and existing UI/lifecycle behavior; the upgrade scenario also covers reload and the actual Vault controls. The [managed policy evidence](docs/acceptance-tests.md#curated-defaults-and-managed-blacklist-evidence-d17) and [prototype evidence](docs/acceptance-tests.md#firefox-prototype-evidence-d16) distinguish mocked APIs, emulated storage, native checks, and incomplete authenticated flows. Exhaustive event coverage and physical power-loss durability remain untested. Zenith's historical results are not Atlas validation.
+D18 brings the extension suite to 56 passing tests, including the follow-up protected preset upgrade for existing profiles. Native Firefox 157.0 checks curated setup, managed denial/cache restart, Journey, confirmation, and existing UI/lifecycle behavior; the upgrade scenario also covers reload and the actual Vault controls. The [managed policy evidence](docs/acceptance-tests.md#curated-defaults-and-managed-blacklist-evidence-d17) and [prototype evidence](docs/acceptance-tests.md#firefox-prototype-evidence-d16) distinguish mocked APIs, emulated storage, native checks, and incomplete authenticated flows. Exhaustive event coverage and physical power-loss durability remain untested. Zenith's historical results are not Atlas validation.

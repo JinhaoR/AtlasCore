@@ -1,6 +1,6 @@
 # Starting the new AtlasCore repository
 
-Status: Pure domain modules, D13 aggregate planning, and D14 commit coordination are implemented. Real storage, runtime event correlation, and browser integration remain future work. Current commands and results are in the root README.
+Status: Pure domain modules, D13/D14 planning and commit coordination, D15-D17 Firefox adapter and D18 stabilization are implemented. Electron, broader browser coverage, and Context Whitelist remain deferred. Current commands and results are in the root README.
 
 ## Requirements
 
@@ -8,7 +8,7 @@ Start outside the Zenith repository. Copy knowledge, not its application, browse
 
 ## Decisions already made
 
-Atlas Core is a fresh decision engine for intentional access. Firefox and Electron are future consumers. The user authorized the pure domain modules, aggregate planner, and framework-independent controller; concrete storage and frontend work remain deferred.
+Atlas Core is a fresh decision engine for intentional access. Firefox now consumes Core through a separate adapter and transactional repository; Electron remains a future consumer. The original milestone descriptions below retain their historical scope. Current contracts and evidence are in the architecture and README.
 
 A new Codex context should read the repository files rather than depend on this conversation being available. Keep the files alongside the project as its evolving source of truth.
 
@@ -73,7 +73,7 @@ Prove that invalid state cannot be bypassed by another module's ALLOW, a Vault c
 
 D15 implements Firefox as the first frontend, with explicit initial setup and an IndexedDB repository. D16 improves the control interface, browsing flow, and diagnostics. D17 adds [curated defaults and a compiled managed Blacklist](managed-policy.md), retaining exact-host Policy matching and existing workflows. See the [extension guide](../extension/README.md) for build/load/test commands and the [evidence](acceptance-tests.md#curated-defaults-and-managed-blacklist-evidence-d17) for tested behavior.
 
-Further work should address observed coverage gaps, receipt retention/write frequency, production timing, and reviewed Vault UI before expanding to another frontend. History/cache checks occur after observation; power-loss durability and authenticated provider returns remain untested. Public sign-in evidence and Ladok's remaining selection gap are in the [real-site report](firefox-real-sites.md). These limits do not justify moving browser mechanics into Core.
+D19 begins productization/dogfooding with local Home search, a per-tab Journey indicator, and protected timing/policy controls in Settings. The [D19 contract](productization.md) keeps Journey stable unless real use reveals a reproducible failure or practical bypass. Further work should address observed UI/coverage gaps, receipt retention/write frequency and production timing before expanding to another frontend. History/cache checks occur after observation; power-loss durability and authenticated provider returns remain untested. Public sign-in evidence and Ladok's remaining selection gap are in the [real-site report](firefox-real-sites.md). These limits do not justify moving browser mechanics into Core.
 
 This is the earliest stage that can validate real persisted workflows and end-to-end browser enforcement. Do not ship an in-memory prototype as if it preserves the user's commitments across exit.
 

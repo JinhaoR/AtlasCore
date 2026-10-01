@@ -10,22 +10,29 @@ import {
   canonicalPolicy, freezeVaultData, prepareVaultContext, readVaultTiming, samePolicy,
 } from "./vault-state.js";
 
+import { readConfiguration, sameConfiguration } from "./configuration.js";
+
 function reject(reason: VaultError, nextState: VaultState | null): VaultRejection {
   return freezeVaultData({ ok: false, reason, nextState });
 }
 
 /** Freeze one complete proposed policy without changing active policy or access. */
-export function createPolicyProposal(
-  candidateInput: unknown, input: unknown, timingInput: unknown,
+function createProposal(
+  candidateInput: unknown, configurationInput: unknown, input: unknown, timingInput: unknown,
 ): PolicyProposalResult {
   const prepared = prepareVaultContext(input);
   if (!prepared.ok) return reject(prepared.reason, null);
-  const { policy, policyRevision, state, now } = prepared.value;
+  const { policy, policyRevision, state, now, configuration, configurationRevision } = prepared.value;
   if (state.pendingProposal !== null) return reject("PROPOSAL_PENDING", state);
   const candidatePolicy = canonicalPolicy(candidateInput);
   if (candidatePolicy === null) return reject("INVALID_CANDIDATE_POLICY", state);
-  if (samePolicy(candidatePolicy, policy)) return reject("NO_POLICY_CHANGE", state);
-  const timing = readVaultTiming(timingInput);
+  const candidateConfiguration = configuration === undefined ? undefined
+    : readConfiguration(configurationInput === undefined ? configuration : configurationInput);
+  if (candidateConfiguration === null || (configuration === undefined && configurationInput !== undefined)) return reject('INVALID_CONFIGURATION', state);
+  if (samePolicy(candidatePolicy, policy) && (configuration === undefined
+    || sameConfiguration(candidateConfiguration!, configuration))) return reject("NO_POLICY_CHANGE", state);
+  // Active protection governs its own replacement. Candidate terms never control this delay.
+  const timing = readVaultTiming(configuration?.vaultTiming ?? timingInput);
   if (timing === null) return reject("INVALID_TIMING", state);
   if (!positiveInteger(state.nextProposalId + 1)) return reject("ID_EXHAUSTED", state);
   const readyAt = now + timing.waitMs;
@@ -34,11 +41,24 @@ export function createPolicyProposal(
   const proposal: PolicyProposal = {
     id: state.nextProposalId, basePolicyRevision: policyRevision, candidatePolicy,
     createdAt: now, readyAt, confirmBy,
+    ...(candidateConfiguration === undefined ? {} : { candidateConfiguration, baseConfigurationRevision: configurationRevision! }),
   };
   return freezeVaultData({
     ok: true, type: "PROPOSED", proposal,
     nextState: { ...state, pendingProposal: proposal, nextProposalId: state.nextProposalId + 1 },
   });
+}
+
+export function createPolicyProposal(candidateInput: unknown, input: unknown, timingInput: unknown): PolicyProposalResult {
+  return createProposal(candidateInput, undefined, input, timingInput);
+}
+
+/** Settings share the same pending slot, freeze, review, confirmation and consumption. */
+export function createSettingsProposal(candidateInput: unknown, input: unknown): PolicyProposalResult {
+  const prepared = prepareVaultContext(input);
+  if (!prepared.ok) return reject(prepared.reason, null);
+  if (prepared.value.configuration === undefined) return reject('INVALID_CONFIGURATION', prepared.value.state);
+  return createProposal(prepared.value.policy, candidateInput, input, undefined);
 }
 
 function findProposal(proposalId: unknown, context: VaultContext): PolicyProposal | VaultError {
@@ -68,10 +88,11 @@ function classification(hostname: string, policy: Policy): PolicyClassification 
 export function reviewPolicyProposal(proposalId: unknown, input: unknown): PolicyReviewResult {
   const prepared = prepareVaultContext(input);
   if (!prepared.ok) return { ok: false, reason: prepared.reason };
-  const { policy, policyRevision, now } = prepared.value;
+  const { policy, policyRevision, now, configuration, configurationRevision } = prepared.value;
   const proposal = findProposal(proposalId, prepared.value);
   if (typeof proposal === "string") return { ok: false, reason: proposal };
   if (proposal.basePolicyRevision !== policyRevision) return { ok: false, reason: "POLICY_CHANGED" };
+  if (configuration !== undefined && proposal.baseConfigurationRevision !== configurationRevision) return { ok: false, reason: 'CONFIGURATION_CHANGED' };
   const candidate = proposal.candidatePolicy;
   const hosts = [...new Set([
     ...policy.whitelist, ...policy.blacklist, ...candidate.whitelist, ...candidate.blacklist,
@@ -91,7 +112,9 @@ export function reviewPolicyProposal(proposalId: unknown, input: unknown): Polic
       phase: now >= proposal.confirmBy ? "EXPIRED" : now < proposal.readyAt ? "WAITING" : "READY",
       whitelist: listChanges(policy.whitelist, candidate.whitelist),
       blacklist: listChanges(policy.blacklist, candidate.blacklist),
-      classifications, invalidatesAccess: true,
+      classifications, invalidatesAccess: !samePolicy(candidate, policy),
+      ...(configuration === undefined ? {} : { currentConfiguration: configuration,
+        candidateConfiguration: proposal.candidateConfiguration!, baseConfigurationRevision: proposal.baseConfigurationRevision! }),
     },
   });
 }
@@ -100,24 +123,29 @@ export function reviewPolicyProposal(proposalId: unknown, input: unknown): Polic
 export function prepareVaultCommit(proposalId: unknown, input: unknown): VaultCommitPreparation {
   const prepared = prepareVaultContext(input);
   if (!prepared.ok) return reject(prepared.reason, null);
-  const { policyRevision, state, accessState, now } = prepared.value;
+  const { policy, policyRevision, state, accessState, now, configuration, configurationRevision } = prepared.value;
   const proposal = findProposal(proposalId, prepared.value);
   if (typeof proposal === "string") return reject(proposal, state);
   if (proposal.basePolicyRevision !== policyRevision) return reject("POLICY_CHANGED", state);
+  if (configuration !== undefined && proposal.baseConfigurationRevision !== configurationRevision) return reject('CONFIGURATION_CHANGED', state);
   if (now >= proposal.confirmBy) return reject("PROPOSAL_EXPIRED", state);
   if (now < proposal.readyAt) return reject("NOT_READY", state);
-  const nextRevision = policyRevision + 1;
-  if (!nonnegativeInteger(nextRevision)) return reject("REVISION_EXHAUSTED", state);
+  const nextRevision = policyRevision + (samePolicy(policy, proposal.candidatePolicy) ? 0 : 1);
+  const nextConfigurationRevision = configuration === undefined ? undefined : configurationRevision!
+    + (sameConfiguration(configuration, proposal.candidateConfiguration!) ? 0 : 1);
+  if (!nonnegativeInteger(nextRevision) || (nextConfigurationRevision !== undefined && !nonnegativeInteger(nextConfigurationRevision))) return reject("REVISION_EXHAUSTED", state);
   return freezeVaultData({
     ok: true, type: "COMMIT_PREPARED", nextState: state,
     candidate: {
       proposalId: proposal.id, expectedPolicyRevision: policyRevision, preparedAt: now,
       nextSnapshot: {
+        ...(configuration === undefined ? {} : { configuration: proposal.candidateConfiguration!, configurationRevision: nextConfigurationRevision! }),
         policy: proposal.candidatePolicy,
         policyRevision: nextRevision,
         vaultState: {
           ...state, pendingProposal: null, policyRevision: nextRevision,
-          lastApplied: { proposalId: proposal.id, policyRevision: nextRevision },
+          lastApplied: { proposalId: proposal.id, policyRevision: nextRevision,
+            ...(configuration === undefined ? {} : { configurationRevision: nextConfigurationRevision! }) },
         },
         accessState: { ...accessState, policyRevision: nextRevision },
       },
