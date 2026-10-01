@@ -1,6 +1,6 @@
 # Atlas Core foundation
 
-Status: Milestones 1 through 3, D11 Journeys, and D13 aggregate planning implement pure domain logic. D14 adds a controller with repository/clock ports and fake-repository tests. Real storage backends and adapters remain unimplemented. Context Whitelist and broader models are deferred.
+Status: Milestones 1 through 3, D11 Journeys, and D13 aggregate planning implement pure domain logic. D14 adds a controller with repository/clock ports. D15 authorizes the first Firefox adapter and transactional repository; its scope and evidence are tracked in the adapter document. Context Whitelist and broader models remain deferred.
 
 ## How to read status labels
 
@@ -83,7 +83,11 @@ Build a fresh application-independent core using Zenith as a source of lessons. 
 | D13 | Implement the aggregate Atlas snapshot, complete validation, and pure operation planner combining Policy, Access, Vault, and Journey under the documented precedence. | User authorized this Core-only milestone on 2026-09-29. Explicit time and trusted domain context; no storage, real clock, controller, browser events, or adapters. The bounded public contract is recorded in the architecture before coding. |
 | D14 | Implement a framework-independent controller over D13 with repository/clock interfaces, serialized operations, commit-before-publication, and recovery tests using fake storage. | User authorized this next milestone on 2026-09-29. Browser integration, UI, real storage backends, and browser-event correlation remain excluded. |
 
+**D15 (2026-09-30):** The user authorized a minimal Firefox WebExtension consuming the existing Core package, including extension storage, top-level navigation, Journey paths, development UI, and adapter/native testing. The [Firefox adapter contract](firefox-adapter.md) records the architecture before coding. It narrows Q10 to explicit one-time setup, selects the first Q12 frontend/entry points, and documents the request execution protocol adopted over D14. Production timing, comprehensive browser coverage, and general recovery remain open. Earlier milestones' browser exclusions remain historical scope limits.
+
 D4 records presentation intent for intermediate domains. D11 supplies their current Journey authorization without a catalog. Permitting an intermediate page never gives its code privileged access to Atlas commands.
+
+**D16 (2026-09-30):** The user authorized improvement of the Firefox prototype interface, normal browsing interactions, bounded diagnostics, and public real-website checks. The [adapter document](firefox-adapter.md#prototype-interface-and-diagnostics-d16) owns these extension-only refinements. Core rules remain unchanged; Context Whitelist and authentication/provider databases remain excluded.
 
 ### Milestone 1 input contract
 
@@ -134,14 +138,14 @@ uBlock and similar tools are separate content-filtering components, not substitu
 
 ## Proposed architecture
 
-P1 (one TypeScript package) and P2 (exact normalized host matching) are adopted through D7/D8. P3's pure evaluation/transitions, P5's fixed-expiry lifetime across reload, and P8's grant invalidation (also applied to pending requests) are adopted through D9. P6's frozen single-proposal Vault workflow is adopted through D10. D13/D14 add aggregate planning and commit coordination; real storage and browser context correlation remain unimplemented.
+P1 (one TypeScript Core package) and P2 (exact normalized host matching) are adopted through D7/D8. P3's pure evaluation/transitions, P5's fixed-expiry lifetime across reload, and P8's grant invalidation are adopted through D9. P6's Vault workflow is adopted through D10. D13/D14 add aggregate planning and commit coordination; D15 adds a narrow Firefox adapter and backend. Broader orchestration proposals remain separate from that implemented scope.
 
 | ID | Remaining proposal or implementation work | Why |
 | --- | --- | --- |
-| P3 | D13/D14 implement aggregate validation, planning, and shared commit coordination. Runtime event correlation remains future work. | Keep all adapters on the same decisions and publish authority only after required commits. |
+| P3 | D13/D14 implement aggregate validation, planning, and shared commit coordination. D15 implements Firefox request correlation; the generic runtime ledger remains proposed. | Keep all adapters on the same decisions and publish authority only after required commits. |
 | P4 | Superseded for the current scope by D11's bounded Journey. Broader supporting-context design is deferred. | Solve Pure Whitelist accessibility first. |
-| P5 | Implement persistence of active grants and pending waits under the adopted fixed-deadline contract. | Serialized domain records already preserve timestamps; a real backend still needs durability tests. |
-| P7 | D14 separates schema, storage and policy revisions and tests atomic commit coordination against a fake repository. A real backend must still prove its guarantees. | Make compatibility and state races explicit. |
+| P5 | D15 persists active grants and waits and tests a real background reload without renewing their deadlines. Physical crash/power-loss durability remains untested. | Preserve fixed deadlines and distinguish tested restart behavior from stronger durability claims. |
+| P7 | D14 separates schema, storage and policy revisions. D15 supplies transactional IndexedDB and reconciliation receipts with separate backend evidence. | Make compatibility and state races explicit. |
 | P8 | Invalidate Journeys on any policy revision change under D11. | Keep runtime authorization tied to current commitments. |
 | P9 | Withdrawn by D11. No supporting-domain database is required or authorized. | Avoid maintaining global dependency knowledge. |
 
@@ -159,18 +163,18 @@ The [aggregate planner contract](architecture.md#aggregate-planner-d13) owns D13
 
 | ID | Question | Resolve before |
 | --- | --- | --- |
-| Q1 | Resolved for Milestone 1 by D7 and the tooling record above. Future runtime compatibility remains unverified. | Revisit when selecting an adapter/runtime. |
+| Q1 | Resolved for Milestone 1 by D7. D15 exercises Firefox 157.0; other frontend/runtime versions need their own validation. | Revisit when selecting another adapter/runtime. |
 | Q2 | Resolved for the initial evaluator by D8 and the input contract above. Unicode input, IP targets, aliases, and additional URL forms remain deferred. | Resolve before extending supported target forms or scope. |
-| Q3 | Resolved: retain original fixed expiry across reload, with supplied elapsed time counting while closed. Real storage/restart integration remains unimplemented. | Validate with the eventual persistence adapter. |
-| Q4 | D11 authorizes unfamiliar intermediates only in an active Journey bound to one top-level context. Popup, embedded-document, and actual event mappings remain unimplemented. | Browser adapter design; no automatic sharing with child contexts. |
+| Q3 | Resolved: retain original fixed expiry across reload, with supplied elapsed time counting while closed. D15 tests real background reload; physical crash durability remains untested. | Further backend lifecycle testing. |
+| Q4 | D11 authorizes unfamiliar intermediates only in an active Journey bound to one top-level context. D15 uses one fresh context per Firefox tab, without popup inheritance; embedded documents are outside the gate. | Broader mapping requires explicit future scope. |
 | Q5 | Catalog activation is superseded by D11. Context Whitelist and other broader models are deferred. | A future explicit request; no catalog work is planned. |
 | Q6 | Greylist/Vault timing and Journey lifetime/hop limits are explicit positive configuration frozen at creation. Expiry is exclusive. Which production values and protective minimums should be used? | Production configuration; fixture values are not defaults. |
 | Q7 | Resolved by D10 for user-managed policy: Whitelist/Blacklist additions and removals, including tighter changes, use the same protected flow. External mandatory lists are outside the current Policy model and remain undecided. | Any future mandatory-list feature. Historical Zenith rules do not supply authority. |
 | Q8 | Any newer policy revision invalidates pending requests, grants, Vault proposals, and Journeys. Proposals are not rebased and Journeys are not restarted. | Validate future integration against this rule. |
-| Q9 | Pure operations reject invalid time and rollback against the latest returned observation checkpoint; supplied closed-app time counts. How should actual clocks, durable checkpoints, and recovery be integrated? | Real clock/persistence integration. Domain checks do not detect restoration of an older whole snapshot. |
-| Q10 | What are initialization, corrupt-state recovery, backup and future schema-migration rules? | A durable storage adapter. |
+| Q9 | D15 injects the host wall clock and persists Core checkpoints. Clock rollback fails closed. Trusted-time recovery and detection of whole-state rollback remain open; there is no time server. | Stronger production clock/recovery requirements. |
+| Q10 | D15 adopts explicit one-time setup in an empty repository and blocks corrupt/missing initialized records. Backup, recovery, and schema migration remain open; no destructive reset UI is provided. | Recovery or schema evolution. |
 | Q11 | Which audit events are useful, how long are they retained, and how can they be removed without resetting policy? | Persisted history. |
-| Q12 | Which frontend is implemented first, and exactly which visible/embedded actions does it govern? | Browser adapter work, not basic Core scaffolding. |
+| Q12 | D15 selects Firefox and exposed top-level HTTP(S) navigation, with later observation of retained/restored content. Protected/internal pages, private browsing, downloads, non-HTTP schemes, and embedded content are outside the slice. | Broader browser coverage or another frontend. |
 
 Do not answer all twelve questions before doing anything. Resolve the questions that block the current small milestone, document the answer and test it. Optional future features remain deferred.
 

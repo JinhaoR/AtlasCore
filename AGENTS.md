@@ -28,9 +28,9 @@ Do not assume access to the original conversation or that another session rememb
 
 ## Proposed architecture
 
-Milestones 1 through 3 implement TypeScript policy evaluation, pure Greylist access transitions, and frozen Vault proposals with commit preparation. D11 adds bounded Pure Whitelist Journeys, including unfamiliar intermediates in one context, without changing policy or grants. Time is explicit. The contracts and adoption status are recorded in `docs/foundation.md` and `docs/architecture.md`. Domain success is not a persistence acknowledgement; a Vault commit candidate is not active policy. Browser integration and Context Whitelist remain deferred. Do not add a supporting-domain database, learned relationships, trust graphs, or link inheritance.
+Milestones 1 through 3 implement TypeScript policy evaluation, pure Greylist access transitions, and frozen Vault proposals with commit preparation. D11 adds bounded Pure Whitelist Journeys; D13/D14 add planning and commit coordination. D15 implements the Firefox adapter in `extension/`; D16 adds its prototype interface and diagnostics. Boundaries are in `docs/firefox-adapter.md`; public-site evidence and gaps are in `docs/firefox-real-sites.md`. Core remains platform-independent and time is explicit. Domain success is not a persistence acknowledgement; a Vault candidate is not active policy. Electron and Context Whitelist remain deferred. Do not add a supporting-domain database, learned relationships, trust graphs, or link inheritance.
 
-Keep one small package initially. Prefer pure functions, explicit dependencies and a small public API. Avoid service frameworks, generic workflow engines, plugin systems and package proliferation.
+Keep one small Core package and the separate authorized Firefox adapter package. Prefer pure functions, explicit dependencies and a small public API. Avoid service frameworks, generic workflow engines, plugin systems and unrelated package proliferation.
 
 ## Open questions and authority
 

@@ -19,13 +19,13 @@ The authoritative description of requirements is [foundation.md](docs/foundation
 
 ## Decisions already made
 
-This is a new project. Zenith supplies lessons, not a dependency or a migration source. The intended future consumers include a Firefox extension, an Electron application, and potentially other interfaces. Neither adapter is implemented or required for the first Core milestone.
+This is a new project. Zenith supplies lessons, not a dependency or a migration source. A first Firefox development adapter now consumes Core; Electron and other interfaces remain future consumers.
 
 Supporting domains are **hidden from the normal site list, but may be displayed during controlled login steps**. They are not required to remain literally invisible during a login redirect or popup.
 
 ## Implementation
 
-One TypeScript package in `packages/core`, with no runtime dependencies. Policy evaluation returns `ALLOW`, `DENY`, or `GREYLIST`. The access workflow adds pending requests, waits, confirmation windows, explicit confirmation, cancellation, and expiring grants. Vault adds frozen proposals, review, and commit preparation for policy changes. Journeys authorize bounded intermediate navigation toward a Whitelisted root. The controller serializes these operations and coordinates saves through repository/clock interfaces. There are no concrete clocks, timers, storage backends, or browser adapters. Navigation assessments do not execute actions.
+One TypeScript Core package in `packages/core`, with no runtime dependencies. Policy evaluation returns `ALLOW`, `DENY`, or `GREYLIST`. The access workflow adds pending requests, waits, confirmation windows, explicit confirmation, cancellation, and expiring grants. Vault adds frozen proposals, review, and commit preparation for policy changes. Journeys authorize bounded intermediate navigation toward a Whitelisted root. The controller serializes these operations and coordinates saves through repository/clock interfaces. Core contains no concrete clocks, timers, storage backends, or browser APIs. The separate `extension/` package supplies those Firefox adapters under D15.
 
 The original `SiteTarget`, `Policy`, `Decision`, `normalizeTarget`, and `evaluate` API is unchanged. Invalid input returns `DENY` with `INVALID_TARGET` or `INVALID_POLICY`; invalid normalization returns `null`. `evaluate` examines policy classification only: a temporary grant never makes a Greylist hostname Whitelisted.
 
@@ -145,7 +145,7 @@ Vault candidates include the latest access records and invalidated Journeys toge
 
 The repository provides `load`, atomic version-checked `commit`, and `resolveCommit`. `clock.now()` supplies nonnegative integer milliseconds. The [controller contract](docs/architecture.md#atlas-controller-d14) specifies envelope validation, receipts, restart fencing, and identity requirements.
 
-Successful workflow changes return `COMMITTED`; other responses include `ASSESSMENT`, `REVIEW`, `OBSERVED`, and domain `REJECTED`. Infrastructure failures return `BLOCKED`. Navigation remains an assessment: browser-event correlation and execution permission are not implemented.
+Successful workflow changes return `COMMITTED`; other responses include `ASSESSMENT`, `REVIEW`, `OBSERVED`, and domain `REJECTED`. Infrastructure failures return `BLOCKED`. Navigation responses remain assessments. D15's Firefox adapter binds a fresh saved assessment to one held request, with required Journey recording before release; pure or cached assessments cannot execute actions.
 
 Failed writes require explicit `open()` recovery. Conflicts discard the candidate and reload; unknown outcomes remain blocked until the repository settles them. Recovery never replays confirmation. Initial open and recovery terminate old Journeys for lost bindings while preserving grant, request, and proposal deadlines. Slow saves cannot return an expired grant/Journey ALLOW assessment.
 
@@ -155,11 +155,25 @@ Failed writes require explicit `open()` recovery. Conflicts discard the candidat
 
 The [architecture](docs/architecture.md#framework-independent-integration-boundary) now defines a proposed public facade and one trusted state owner, with plain operation/result contracts and injected repository/clock ports. The host owns UI, browser state, event mapping, and concrete persistence. Core owns common authorization and transition semantics. Hostname grants retain their existing scope across contexts; Journeys remain bound to individual contexts.
 
-D13 implements aggregate validation/planning; D14 adds the controller and repository/clock ports. Runtime event correlation, context registration, and executable navigation decisions remain proposed. Fake repository tests validate the controller protocol, not real storage durability or browser behavior.
+D13 implements aggregate validation/planning; D14 adds the controller and repository/clock ports. D15 supplies a narrow Firefox request/context protocol; the broader generic runtime ledger remains proposed. Fake repository tests validate the controller protocol; adapter and native evidence is recorded separately.
+
+## Firefox prototype
+
+The [extension guide](extension/README.md) covers build/load instructions, UI controls, repository behavior, and tests. Architecture choices were recorded in [Firefox adapter architecture](docs/firefox-adapter.md) before implementation. Core's source and public API are unchanged.
+
+```sh
+npm --prefix packages/core ci
+npm --prefix extension ci
+npm --prefix extension run build
+```
+
+In Firefox, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `extension/dist/manifest.json`. Open Atlas from the toolbar, save an initial policy, and select **Open** beside a trusted destination to start a Journey. Unknown sites offer **Request temporary access**, a wait, and explicit **Confirm and open**. Prototype durations are shown in the UI.
+
+The extension uses a persistent background page, top-level HTTP(S) request interception, a transactional IndexedDB repository, and a private control interface with Journey visibility and bounded hostname diagnostics. Resource requests are outside its gate. Native tests cover synthetic workflows and real UI actions; separate [public-site checks](docs/firefox-real-sites.md) document sign-in entry points and remaining account-dependent gaps.
 
 ## Development
 
-Use Node.js 24 and npm. TypeScript 6.0.3 is the only development dependency; tests use Node's built-in runner against compiled JavaScript. From the repository root:
+Use Node.js 24 and npm. TypeScript 6.0.3 is Core's only development dependency; tests use Node's built-in runner against compiled JavaScript. From the repository root:
 
 ```sh
 npm --prefix packages/core ci
@@ -172,7 +186,7 @@ npm --prefix packages/core test
 
 ## Open questions
 
-Language/tooling, initial hostname scope, and the pure Greylist, Vault, and Journey workflows are settled. Production timing/hop values, actual clock/recovery integration, durable commits, and browser context mapping remain recorded in [foundation.md](docs/foundation.md). Context Whitelist and broader models are deferred.
+Language/tooling, initial hostname scope, and the pure Greylist, Vault, and Journey workflows are settled. D15 implements the first Firefox mapping and backend. Production timing, broader event coverage, storage compaction, and recovery/migration questions remain recorded in [foundation.md](docs/foundation.md). Context Whitelist and broader models are deferred.
 
 ## Working in this repository
 
@@ -193,4 +207,4 @@ Read `AGENTS.md` and the foundation first. Follow the small milestones in [first
 
 Verification on Node.js 24.12.0 / npm 11.6.4 / TypeScript 6.0.3: build and type checks pass; all 144 Core tests pass (19 policy/normalization, 25 Greylist, 22 Vault, 23 Journey, 28 aggregate planner, and 27 controller tests). [Acceptance scenarios](docs/acceptance-tests.md) map this evidence to implemented behavior and distinguish the remaining integration work.
 
-No browser enforcement, real backend durability, or provider compatibility has been tested. Zenith's historical fixes and test results are not Atlas validation.
+D16 brings the extension suite to 34 passing tests, with an expanded native Firefox 157.0 UI scenario and public sign-in investigations. The [prototype evidence](docs/acceptance-tests.md#firefox-prototype-evidence-d16) distinguishes mocked APIs, emulated storage, native checks, and incomplete authenticated flows. Exhaustive event coverage and physical power-loss durability remain untested. Zenith's historical results are not Atlas validation.

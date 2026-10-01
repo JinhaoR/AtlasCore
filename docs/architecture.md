@@ -1,6 +1,6 @@
 # Atlas Core architecture
 
-Status: Milestones 1 through 3, D11 Journeys, and D13 aggregate validation/planning implement pure domain logic. D14 adds commit coordination with repository/clock interfaces. Real storage backends, browser-event correlation, and adapters remain unimplemented. Requirements and settled decisions live in [foundation.md](foundation.md).
+Status: Milestones 1 through 3, D11 Journeys, and D13 aggregate validation/planning implement pure domain logic. D14 adds commit coordination with repository/clock interfaces. D15 adds the first Firefox development adapter and extension-origin repository without changing Core's public API. Requirements and settled decisions live in [foundation.md](foundation.md).
 
 ## Current package
 
@@ -191,7 +191,7 @@ Restart is simulated by serializing an adopted domain snapshot and reloading it 
 
 ## Vault workflow (Milestone 3)
 
-Status: adopted through foundation D10 and implemented as pure domain logic. Proposal creation, review, cancellation, and commit preparation are implemented. Commit pending/unknown/successful publication describe a future owner/coordinator contract; there is no commit/apply function, persistence backend, UI, or browser adapter.
+Status: adopted through foundation D10 and implemented as pure domain logic. Proposal creation, review, cancellation, and commit preparation are implemented. The standalone Vault module has no persistence or UI. D14 now supplies commit coordination; D15 supplies a repository. Vault editing in the Firefox development UI remains deferred.
 
 ### Scope and invariants
 
@@ -301,7 +301,7 @@ No plan acknowledges storage, owns authoritative mutable state, registers tabs, 
 
 ## Atlas controller (D14)
 
-Implemented following the scope recorded before coding: `createAtlasController({ repository, clock, configuration, ownerId })`, with `open()`, `handle(operation)`, and synchronous `getView()`. D14 coordinates the existing D13 domain operations; navigation outputs remain assessments. Browser context registration, CHECK/ADOPT/ARRIVED correlation, effect execution, and controller DECISION responses remain future work.
+Implemented following the scope recorded before coding: `createAtlasController({ repository, clock, configuration, ownerId })`, with `open()`, `handle(operation)`, and synchronous `getView()`. D14 coordinates the existing D13 domain operations; navigation outputs remain assessments. The generic Core runtime ledger and DECISION API remain proposed. D15 supplies browser-specific request correlation and effects under the narrower contract below.
 
 The trusted host supplies a fresh opaque `ownerId` for each controller lifetime. Core combines it with a local monotonically increasing counter to identify commit attempts without clocks or randomness. It is a correlation ID, not proof of caller authority. Configuration and submitted operations are copied before queued work can observe caller mutation. Core uses only the injected synchronous `clock.now()` and asynchronous repository methods; it imports no storage or platform APIs.
 
@@ -334,9 +334,15 @@ After asynchronous work, sample time again. An ALLOW assessment whose selected g
 
 The fake repository belongs in test support, not package exports. Tests cover atomic candidate adoption, delayed/failed/conflicted/unknown outcomes, concurrent ordering, duplicates, restart fencing, immutable inputs/views, and post-save time guards. No controller test claims actual backend durability or browser enforcement.
 
+## First Firefox adapter (D15)
+
+D16 adds the [prototype interface and diagnostics](firefox-adapter.md#prototype-interface-and-diagnostics-d16) within the same adapter. Its explicit Confirm and open effect follows a successful Core commit and remains bound to the selected tab. Core's public API and authorization rules are unchanged.
+
+The user authorized the first Firefox vertical slice on 2026-09-30. [Firefox adapter architecture](firefox-adapter.md) owns the platform choices, explicit Journey starts, transactional repository, request execution protocol, setup, and coverage limits. Core's public modules and domain rules remain unchanged. D15 permits a fresh, committed controller assessment to govern one correlated held request after required Journey bookkeeping. It supersedes D12's proposed requirement to implement a generic DECISION/ADOPT facade before any browser integration; pure or cached assessments still cannot execute actions.
+
 ## Framework-independent integration boundary
 
-Status: D12 broader integration design. D13 implements pure aggregate planning; D14 implements the commit controller and repository/clock ports above. The runtime ledger, executable navigation decisions, and event envelopes below remain proposals. D14 owns the implemented API; this section retains future adapter/correlation obligations.
+Status: D12 broader integration design. D13 implements pure aggregate planning; D14 implements the commit controller and repository/clock ports above. The generic runtime ledger, executable decision API, and event envelopes below remain proposals. D15 adopts a narrow Firefox execution protocol as described above. D14 owns the implemented Core API; this section retains broader adapter/correlation obligations.
 
 ### Responsibilities
 
@@ -394,7 +400,7 @@ The controller owns the current authoritative snapshot and a queue for one polic
 
 Proposed `AtlasRuntimeState` is a separate, transient ledger of registered opaque contexts and current navigation/operation correlations. Future orchestration should pass copied runtime data to pure correlation logic around the D13 planner so binding and replay checks remain testable without browser objects or hidden mutable globals. The controller adopts resulting runtime state in the same serialized operation after any required durable commit; a failed commit cannot publish its associated runtime permission. Native handle mappings and original URLs stay exclusively in the host. D13 does not yet implement this ledger.
 
-Persist policy, all pending requests, grants, proposals, their counters/deadlines, Journey records, and observation checkpoints together in the conservative first contract. The schema still needs implementation. This avoids independent writes of a grant and its consumed request, or policy and its consumed proposal. A later optimization may change write frequency only with evidence that rollback, consumption, and publication guarantees are preserved.
+Persist policy, all pending requests, grants, proposals, their counters/deadlines, Journey records, and observation checkpoints together in the conservative first contract. D14 defines the envelope and D15 stores it transactionally. This avoids independent writes of a grant and its consumed request, or policy and its consumed proposal. A later optimization may change write frequency only with evidence that rollback, consumption, and publication guarantees are preserved.
 
 Context mappings and in-flight browser actions remain host/runtime data, separate from authorization snapshots. A new owner lifetime starts with no proven browser bindings. Its old Journeys must end for lost contexts before authority is published; loading a saved Journey alone cannot reconstruct a binding. Existing Greylist grants and pending waits retain their original expiry and deadlines under D9. Missing/corrupt initialized storage never calls fresh state constructors automatically. Initial setup is a separate explicit procedure under Q10.
 
@@ -564,7 +570,7 @@ Only trusted commands may start an attempt or select its context. Redirects, pag
 
 Expiry/cancellation removes authorization for already displayed intermediate content as well as future navigation. The future adapter must reevaluate and remove or block content that has no other valid permission; returning to the Whitelisted root remains available. Ending on first actual root return may interrupt flows that depart again, and waiting at the root consumes the fixed budget. These are intentional first-version limits.
 
-No timer, real clock, browser adapter, persistence, or concurrency control is implemented. The trusted owner must serialize state transitions and apply their whole candidate states before using resulting permissions. Restart cannot create a fresh allowance automatically: loss of a binding ends the attempt; any future restoration must preserve its ID, consumed state, limits, deadlines, and valid binding. Serialization tests alone prove no browser or crash-durability guarantees. No credentials, authentication URLs, dependency history, or provider metadata are stored.
+The standalone Journey module has no timer, real clock, browser API, persistence, or concurrency control. D14 serializes and commits its transitions; D15 supplies Firefox facts and effects. Restart cannot create a fresh allowance automatically: loss of a binding ends the attempt; any future restoration must preserve its ID, consumed state, limits, deadlines, and valid binding. Serialization tests alone prove no browser or crash-durability guarantees. No credentials, authentication URLs, dependency history, or provider metadata are stored.
 
 ## Time, background lifetimes and audit
 
@@ -578,7 +584,7 @@ Audit should explain user commitments and state changes rather than record brows
 
 ## Direct reuse and remaining boundaries
 
-The TypeScript package is intended for direct use in Firefox's trusted background owner and Electron's main process. Those integrations have not been implemented or tested. No Core HTTP server, Python process or C# IPC service is necessary for that design.
+The TypeScript package is consumed directly by D15's trusted Firefox background owner. Electron's main process remains a future consumer. No Core HTTP server, Python process or C# IPC service is needed; the optional Python native test script only drives an isolated test browser.
 
 UI-to-background messages and Electron renderer-to-main IPC still exist. They carry validated commands; importing the same package into multiple UI contexts does not give those contexts independent authority to commit. There should be one authoritative owner per state instance.
 

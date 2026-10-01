@@ -59,21 +59,21 @@ The complete commit candidate includes replacement policy, one revision incremen
 
 Implemented under D11: a minimal pure runtime module for bounded attempts to reach a Whitelisted root through unfamiliar intermediates. The [Journey contract](architecture.md#journey-workflow) was documented before implementation. It specifies fixed expiry, context binding, hop counting, lifecycle, and revision checks. Twenty-three fake-time tests cover normal completion, failure, and isolated contexts.
 
-The supporting-domain database proposal is withdrawn. Do not implement Context Whitelist, learned relationships, trust graphs, link inheritance, provider discovery, browser adapters, or authentication logic. Domain tests must not claim actual login compatibility or browser enforcement.
+The supporting-domain database proposal is withdrawn. Context Whitelist, learned relationships, trust graphs, link inheritance, provider discovery, and authentication logic remain excluded. D11 itself was Core-only; D15 later authorizes Firefox. Domain tests must not claim actual login compatibility or browser enforcement.
 
 ### 5. Framework-independent integration boundary
 
-D12 documented the [integration boundary](architecture.md#framework-independent-integration-boundary). D13 implements complete aggregate validation and pure operation planning with explicit time. D14 implements shared ownership, repository/clock ports, serialized commit coordination, and explicit recovery. The 28 aggregate and 27 controller tests use fake snapshots, time, and repository behavior. Real backend durability and runtime event correlation remain unimplemented.
+D12 documented the [integration boundary](architecture.md#framework-independent-integration-boundary). D13 implements complete aggregate validation and pure operation planning with explicit time. D14 implements shared ownership, repository/clock ports, serialized commit coordination, and explicit recovery. The 28 aggregate and 27 controller tests use fake snapshots, time, and repository behavior. D15's separate adapter/backend evidence extends these library tests.
 
-The next framework-independent increment can implement the remaining context/correlation protocol before any browser adapter. Preserve existing domain semantics and public module contracts. A real backend separately needs explicit initialization/recovery decisions and durability evidence.
+D15 adopts a narrower Firefox request execution protocol over the existing controller, documented before coding in the [adapter architecture](firefox-adapter.md). The generic runtime ledger remains proposed. Existing Core domain semantics and public contracts are preserved.
 
 Prove that invalid state cannot be bypassed by another module's ALLOW, a Vault commit preserves latest access/Journey state, contexts cannot share Journey authority, and failed or uncertain writes publish no candidate permissions. Navigation checks, adoption, actual arrival, and retained-content rechecks need distinct contract tests. Fake storage establishes the controller protocol only, not real durability or browser interception.
 
 ### 6. One durable backend and one browser proof of concept
 
-Choose the first frontend under Q12. Resolve initialization/recovery under Q10 and implement a backend satisfying the reviewed repository contract with real atomicity/concurrency/reconciliation tests. Pure candidate-adoption and fake-repository tests are not evidence of crash durability or restart behavior.
+D15 implements Firefox as the first frontend, with explicit initial setup and an IndexedDB repository. D16 improves the control interface, browsing flow, and diagnostics. Core remains unchanged. See the [extension guide](../extension/README.md) for build/load/test commands and the [evidence](acceptance-tests.md#firefox-prototype-evidence-d16) for tested behavior.
 
-Then connect one narrow browser adapter to the tested Core. Verify its actual interception and lifecycle guarantees, including ordinary allowed browsing. Report any browser limitation honestly instead of moving browser mechanics into Core. Keep the second adapter deferred until the first demonstrates the shared contract is usable.
+Further work should address observed coverage gaps, receipt retention/write frequency, production timing, and reviewed Vault UI before expanding to another frontend. History/cache checks occur after observation; power-loss durability and authenticated provider returns remain untested. Public sign-in evidence and Ladok's remaining selection gap are in the [real-site report](firefox-real-sites.md). These limits do not justify moving browser mechanics into Core.
 
 This is the earliest stage that can validate real persisted workflows and end-to-end browser enforcement. Do not ship an in-memory prototype as if it preserves the user's commitments across exit.
 

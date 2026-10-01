@@ -1,6 +1,6 @@
 # Atlas Core acceptance scenarios
 
-Status: Milestones 1 through 3 and D11 Journeys are implemented and verified as pure domain logic; the root README records the verification result. Persistence, coordinator, and adapter scenarios remain test design. The evidence tables distinguish domain behavior from deferred integration cases.
+Status: Milestones 1 through 3 and D11 Journeys have pure domain evidence; D13/D14 add planner/controller evidence. D15 adds mocked Firefox, emulated IndexedDB, and an isolated native browser scenario. The tables distinguish these levels from remaining coverage and durability questions.
 
 ## Requirements
 
@@ -22,7 +22,7 @@ Use fictional destinations such as `mail.example`, `identity.example` and `block
 
 ## Milestone 1 evidence
 
-Tests run against the compiled public API with Node's built-in test runner. Build/type-check commands and the current result count are recorded in the root README. Storage and adapter tests remain deferred.
+Tests run against the compiled public API with Node's built-in test runner. Build/type-check commands and the current result count are recorded in the root README. These Milestone 1 tests do not exercise storage or adapters.
 
 | Scenario | Implemented evidence |
 | --- | --- |
@@ -116,7 +116,7 @@ The former catalog scenarios S01-S05 are superseded for the current scope. [jour
 | J07 | Blacklist and context boundaries. | Blacklist overrides Whitelist/Journey authorization; two contexts retain separate terms and cannot use each other's IDs. |
 | J08 | Malformed data, replayed observations, or speculative permission. | Invalid state fails closed even for Whitelisted targets; unsafe numbers/identifiers reject; recording rechecks time and policy; deterministic nonmutation and copied/frozen state. |
 
-Serialization tests demonstrate retained timestamps and terminal state, not actual process restoration. Browser context provenance, event ordering, displayed-content removal on expiry, popup/frame handling, real persistence, and login compatibility remain untested. A future complete-state coordinator must compose Journey and grant decisions without overriding invalid-state denials.
+These serialization tests demonstrate retained timestamps and terminal state, not actual process restoration. Browser context provenance, event ordering, displayed-content removal, popup/frame handling, real persistence, and login compatibility require separate adapter evidence. D13/D14 now compose Journey and grant decisions with complete-state validation; D15/D16's browser evidence is recorded below.
 
 ### Time, persistence and privacy
 
@@ -131,7 +131,7 @@ Serialization tests demonstrate retained timestamps and terminal state, not actu
 
 ## Integration boundary test plan
 
-Status: D13 implements domain composition; D14 implements commit coordination against a fake repository. Their evidence is separated below. Real storage and browser-effect correlation remain unimplemented. The [integration design](architecture.md#framework-independent-integration-boundary) owns future protocol details.
+Status: D13 implements domain composition; D14 implements commit coordination against a fake repository. D15 adds the narrow Firefox protocol. Evidence is separated below; the broader [integration design](architecture.md#framework-independent-integration-boundary) still contains proposed APIs.
 
 | ID | Scenario | Required evidence |
 | --- | --- | --- |
@@ -180,7 +180,36 @@ These D13 tests alone do not establish I06-I07, I09-I11, or I13-I14. D14 adds th
 | I11 (library restart) | A new controller discovers in-flight/unsettled attempts through load fencing. Settled restart preserves wait/grant/proposal deadlines and consumes lost Journey bindings before READY. Failure to save startup housekeeping blocks readiness. No browser binding restoration is implemented. |
 | I12 | Review saves nothing. Configuration, queued operations, views, and responses cannot mutate owner state. Load/clock/resolve failures preserve the queue for explicit recovery. |
 
-I08-I10's browser/event correlation, I13 retained-content rechecks, and I14 queued executable permission remain future work. Controller ASSESSMENT results cannot execute navigation. Real storage crash/recovery and browser enforcement need separate evidence.
+D14 alone does not establish I08-I10, I13, or I14's browser obligations. D15 binds fresh controller assessments to held requests after required recording; its evidence follows. Generic DECISION/ADOPT APIs remain proposed. Physical storage crash/power-loss guarantees still require separate evidence.
+
+## Firefox adapter evidence (D15)
+
+Verified on 2026-09-30 with Node.js 24.12.0, TypeScript 6.0.3, and Firefox 157.0 on Windows. Core remains unchanged with 144 passing tests. The extension adds 27 passing tests: 20 adapter scenarios using the real Core with fake Firefox/time, and seven repository scenarios using IndexedDB emulation. Build and type checks pass. [Architecture and limitations](firefox-adapter.md), [commands and loading](../extension/README.md).
+
+| Evidence | What it establishes |
+| --- | --- |
+| [Adapter tests](../extension/tests/adapter.test.mjs) | Top-level-only gating, Whitelist/Blacklist behavior, Greylist Start/wait/explicit confirmation/expiry, immutable policy, fixed Journey paths and return bookkeeping, isolated/reused tab contexts, cancellation/expiry/hop limits, failed/unknown saves, superseded requests, and rejected website-shaped messages. |
+| Adapter lifecycle tests | Unmatched history/arrival loses Journey binding; failed or hung content replacement never reports success; late initial blank-page events cannot end a new Journey; missing arrival callbacks cannot retain expired authorization; pending navigation checks do not invent hops; browser-state and unexpected listener failures fail conservatively. |
+| [Repository tests](../extension/tests/repository.test.mjs) | Version-checked writes across connections, read barriers, rollback after a partial transaction attempt, receipts surviving later commits, duplicate attempt rejection, reopening, invalid candidate rejection, unavailable storage, and no setup over missing initialized authority. These use `fake-indexeddb`, not disk-failure simulation. |
+| [Native scenario](../extension/scripts/firefox-e2e.py) | Loads the built manifest in an isolated Firefox profile, submits the real setup form, opens synthetic root/provider/identity documents, follows an HTTP redirect through the root without completing early, and completes on actual root arrival. The fixed deadline, unchanged policy, and absence of grants are asserted before testing the separate Access flow. |
+| Native denial and Access | After Journey return, an intermediate is Greylist and the UI replaces the denied page. The independent local server sees no denied `/after` request. A real development cooldown, early-confirmation rejection, explicit confirmation, duplicate rejection, and fresh permitted navigation work through the extension bridge. No real authentication or sensitive POST body is used. |
+| Native backend/reload | Real extension-origin IndexedDB serves the controller. `runtime.reload()` closes UI pages; a fresh UI observes recovered state. Pending/grant timestamps remain identical, policy remains unchanged, and the old active Journey ends for lost binding. This is a background/add-on reload test, not a physical power-loss or full temporary-add-on uninstall test. |
+
+Native runs exposed an ordering difference absent from the initial mocks: initial `about:blank` arrival can be delivered after the HTTP request is already held. The adapter now preserves the newer request; a regression test covers both pre-request and post-request blank-page arrival. Native tests also exercise the bound timer wrappers used to replace denied content.
+
+No fixture establishes real Ladok/provider compatibility, complete history/BFCache enforcement before display, every popup/download/scheme, private browsing, protected Firefox pages, interactions with other extensions, or crash/power-loss durability. Cookie/cache clearing and receipt compaction remain untested. Development timing values are not production settings. Reports and screenshots stay in ignored `.tools/` and contain only synthetic fixture state.
+
+## Firefox prototype evidence (D16)
+
+On 2026-09-30, Core still has 144 passing tests and no source/API changes. The extension has **34 passing tests**: 25 adapter scenarios, two presentation boundary checks, and seven repository scenarios. Build and type checks pass. No dependencies were added for this iteration.
+
+- [Prototype tests](../extension/tests/prototype.test.mjs) cover read-only inspection during a pending commit without exposing a grant candidate; explicit Confirm and open; failed saves, closed/changed tabs, and duplicate confirmations preventing navigation; rejected Journey cleanup; toolbar reuse; bounded and detached diagnostics; hostname-only redirect observations; and rejection of inherited command keys.
+- [Presentation tests](../extension/tests/presentation.test.mjs) verify that a zero countdown cannot turn WAIT into permission and that a closed tab selection never falls back to another context.
+- The [native Firefox scenario](../extension/scripts/firefox-e2e.py) passes on Firefox 157.0 with real IndexedDB and actual UI request/confirmation buttons. It checks visible countdowns, focus retention, diagnostic rows, closed-tab selection, the existing Journey path/HTTP redirect, independent server evidence of withholding, and saved timestamps after background reload.
+- A native rerun initially found confirmation still disabled while Core had already returned REQUIRE_CONFIRMATION. The UI now revisits COMMITTING/LOADING views after 100 ms, avoiding a fixed polling interval that can coincide with background saves. The updated native scenario passes; pending saves still disable actions. Read-only UI inspection does not request Core transitions or cause writes.
+- [Public-site evidence](firefox-real-sites.md) records Google, Microsoft, ORCID, KTH Canvas, and partial Ladok checks. Active intermediates returned to Greylist on cancellation. No policy edits or grants occurred. Full authenticated flows and Ladok institution selection remain unverified.
+
+The latest passing local native run is `.tools/firefox-e2e-ktyjcz_7/`, including the waiting-page screenshot. Synthetic profiles/logs stay local for debugging. Public-site profiles are deleted; their reports contain only sanitized data. Existing D15 coverage and durability limitations still apply.
 
 ## Later browser conformance tests
 

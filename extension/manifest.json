@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+  "name": "Atlas",
+  "version": "0.1.0",
+  "description": "Intentional top-level web access, decided by AtlasCore.",
+  "browser_specific_settings": {
+    "gecko": { "id": "atlas-development@atlas.invalid", "strict_min_version": "140.0" }
+  },
+  "permissions": ["tabs", "webNavigation", "webRequest", "webRequestBlocking", "http://*/*", "https://*/*"],
+  "background": { "scripts": ["background.js"], "persistent": true },
+  "icons": { "48": "ui/atlas.svg", "96": "ui/atlas.svg" },
+  "browser_action": { "default_title": "Open Atlas", "default_icon": "ui/atlas.svg" },
+  "options_ui": { "page": "ui/index.html", "open_in_tab": true },
+  "incognito": "not_allowed",
+  "content_security_policy": "script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+}

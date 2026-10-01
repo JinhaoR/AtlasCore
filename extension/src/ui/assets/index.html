@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atlas — Your destinations</title>
+  <link rel="icon" href="atlas.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script src="main.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="?view=control" aria-label="Atlas home"><img src="atlas.svg" width="32" height="32" alt="">Atlas</a>
+    <span class="prototype">Firefox prototype</span>
+    <span id="status" class="status" role="status">Connecting…</span>
+  </header>
+  <main>
+    <div class="intro"><p class="eyebrow">A LITTLE SPACE FOR INTENTION</p><h1 id="page-title">Where do you want to go?</h1>
+      <p id="page-description">Open a trusted destination. Give unfamiliar ones a moment of thought.</p></div>
+    <p id="feedback" class="feedback" role="alert" hidden></p>
+    <section id="setup" class="card" hidden>
+      <p class="eyebrow">WELCOME TO ATLAS</p><h2>Choose your first destinations</h2>
+      <p>Enter exact hostnames, one per line. Include the subdomain you visit. Empty lists leave every site Greylist.</p>
+      <form id="setup-form">
+        <div class="columns"><label>Pure Whitelist<textarea id="whitelist" placeholder="student.ladok.se" rows="4" spellcheck="false"></textarea></label>
+          <label>Blacklist<textarea id="blacklist" placeholder="Sites to block" rows="4" spellcheck="false"></textarea></label></div>
+        <button id="save-setup" type="submit">Save my initial policy</button>
+        <p class="note">This setup is available once. Protected policy editing will come in a later interface.</p>
+      </form>
+    </section>
+    <div id="workspace" class="workspace">
+      <section id="destinations" class="card destinations">
+        <div class="section-heading"><h2>Your destinations</h2><span class="pill">Pure Whitelist</span></div>
+        <p class="note">Open starts a five-minute Journey in a new tab, including intermediate login pages.</p>
+        <div id="destination-list" class="destination-list"></div>
+        <p id="empty-destinations" class="note">No destinations in your Pure Whitelist yet.</p>
+        <details class="open-address"><summary>Open a specific address</summary>
+          <form id="journey-form"><label>Address on your Pure Whitelist<input id="destination" placeholder="https://student.ladok.se" required spellcheck="false" autocomplete="off"></label>
+            <button id="open-journey" type="submit" class="secondary">Open with Journey</button></form>
+        </details>
+      </section>
+      <section id="access-panel" class="card access" data-tone="neutral">
+        <div class="section-heading"><h2>Current access</h2><span id="outcome" class="pill">No tab selected</span></div>
+        <label class="tab-label">Browsing tab<select id="context"><option value="">No websites yet</option></select></label>
+        <p id="hostname" class="hostname">Your next destination</p>
+        <h3 id="access-title">Choose a tab</h3><p id="access-description"></p>
+        <p id="deadline" class="deadline"></p>
+        <p id="effect-warning" class="feedback" hidden></p>
+        <div class="actions">
+          <button id="start-access" hidden>Request temporary access</button>
+          <button id="confirm-access" hidden>Confirm and open</button>
+          <button id="open-home" hidden>Open site home</button>
+          <button id="cancel-access" class="secondary" hidden>Cancel request</button>
+          <button id="start-journey" class="secondary" hidden>Start Journey in this tab</button>
+        </div>
+        <p id="home-note" class="note" hidden>Opening starts at the site home. Return to your task from there.</p>
+        <div class="journey-panel">
+          <div class="section-heading"><h3>Journey</h3><span id="journey-phase" class="pill">None</span></div>
+          <p id="journey">No Journey in this tab.</p><p id="journey-time" class="note"></p>
+          <progress id="journey-progress" max="1" value="0" aria-label="Journey time remaining" hidden></progress>
+          <button id="cancel-journey" class="secondary compact" hidden>End Journey</button>
+        </div>
+        <details class="decision-details"><summary>Decision details</summary><p id="decision" class="mono"></p><p id="context-detail" class="mono"></p></details>
+      </section>
+    </div>
+    <details id="diagnostics" class="card secondary-panel">
+      <summary>Navigation diagnostics <span class="note">Local · last 200 events · hostnames only</span></summary>
+      <p class="note">Inspect requests, redirects, Core results, and Journey state. Restart clears this log. An export contains your visited hostnames; review it before sharing.</p>
+      <div class="actions"><label class="inline-label">Scope<select id="diagnostic-scope"><option value="selected">Selected tab</option><option value="all">All tabs</option></select></label>
+        <button id="export-diagnostics" class="secondary compact">Export JSON</button><button id="clear-diagnostics" class="secondary compact">Clear log</button></div>
+      <div class="table-scroll"><table><caption class="sr-only">Recent navigation events</caption><thead><tr><th>Sequence</th><th>Event</th><th>Tab / navigation</th><th>Hostname</th><th>Core result</th><th>Journey</th></tr></thead><tbody id="diagnostic-rows"></tbody></table></div>
+      <p id="diagnostic-empty" class="note">No events in this view.</p>
+    </details>
+    <details class="card secondary-panel"><summary>Policy &amp; recovery</summary>
+      <pre id="policy">No policy loaded.</pre>
+      <p class="note">Policy changes remain protected by Vault. This prototype shows your policy; it does not yet offer a policy editor.</p>
+      <button id="recover" class="secondary">Reload and reconcile state</button>
+    </details>
+    <footer><p id="timing"></p><p>Atlas governs top-level HTTP(S) navigation. Firefox handles website security and sign-in.</p></footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "@atlas/firefox",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Firefox prototype adapter for AtlasCore",
+  "scripts": {
+    "build": "npm --prefix ../packages/core run build && tsc -p tsconfig.json && node build.mjs",
+    "typecheck": "npm --prefix ../packages/core run build && tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "test:firefox": "npm run build && python scripts/firefox-e2e.py",
+    "test:public-sites": "npm run build && python scripts/firefox-public-sites.py"
+  },
+  "dependencies": {
+    "@atlas/core": "file:../packages/core"
+  },
+  "devDependencies": {
+    "@types/firefox-webext-browser": "143.0.1",
+    "esbuild": "0.25.12",
+    "fake-indexeddb": "6.2.5",
+    "typescript": "6.0.3"
+  },
+  "engines": { "node": ">=24" }
+}
