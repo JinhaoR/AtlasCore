@@ -1,8 +1,10 @@
 import type { AdapterView } from '../adapter/firefox-adapter.js';
 import type { DiagnosticEntry } from '../adapter/diagnostics.js';
 import { destinationIndex, searchDestinations, type DestinationEntry } from './destinations.js';
+import { destinationEntryPoints, destinationId, pinnedDestinations, readPins } from './home-model.js';
+import { loadWebsiteIcon } from './website-icons.js';
 import { accessCopy, canQueueOperation, countdown, selectedContext } from './presentation.js';
-import { compileCuratedWhitelist, curatedWhitelist, equivalentServiceHostnames, serviceHostnames, serviceLabel } from '../presets/curated-whitelist.js';
+import { compileCuratedWhitelist, curatedWhitelist, equivalentServiceHostnames, serviceLabel } from '../presets/curated-whitelist.js';
 import { readConfiguration, type PolicyReview, type AtlasConfiguration } from '@atlas/core';
 
 const element = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -20,6 +22,7 @@ let diagnosticKey = '';
 let policyReview: PolicyReview | null = null;
 let policyReviewError = '';
 let section: 'home' | 'settings' = 'home';
+let navigation: 'home' | 'settings' | 'vault' | 'managed' | 'diagnostics' = 'home';
 let accessFocused = params.get('view') === 'access';
 let settingsKey = '';
 let policyFormKey = '';
@@ -27,7 +30,27 @@ let entries: readonly DestinationEntry[] = [];
 let matches: readonly DestinationEntry[] = [];
 let searchKey = '';
 let highlighted = -1;
+const pinsStorageKey = 'atlas-home-pins-v1';
+let pins: readonly string[] = [];
+let pinsLoaded = false;
+let savingPins = false;
+let pinnedKey = '';
+let reviewKey = '';
 const searchInput = element<HTMLInputElement>('destination-search');
+const websiteIcons = new Map<string, Promise<string | null>>();
+const observedIcons = new Map<string, string>();
+const iconSnapshot = browser.tabs.query({}).then((tabs) => {
+  for (const tab of tabs) if (tab.url && tab.favIconUrl) {
+    try { const hostname = new URL(tab.url).hostname; if (!observedIcons.has(hostname)) observedIcons.set(hostname, tab.favIconUrl); } catch { /* No website metadata. */ }
+  }
+}).catch(() => { /* Public site lookup remains available without tab metadata. */ });
+const iconObserver = new IntersectionObserver((changes) => {
+  for (const change of changes) if (change.isIntersecting) {
+    iconObserver.unobserve(change.target);
+    const image = change.target as HTMLImageElement;
+    void displayWebsiteIcon(image, image.dataset.hostname!);
+  }
+}, { rootMargin: '160px' });
 const timingFields = ['access-wait', 'access-window', 'grant-duration', 'vault-wait', 'vault-window', 'journey-lifetime', 'journey-hops'] as const;
 const timingLabels = ['Greylist wait', 'Greylist confirmation', 'Temporary access', 'Vault wait', 'Vault confirmation', 'Journey lifetime', 'Journey limit'];
 const configurationValues = (config: AtlasConfiguration) => [config.accessTiming.waitMs / 1000, config.accessTiming.confirmationWindowMs / 1000,
@@ -71,9 +94,12 @@ async function send(command: object): Promise<void> {
 }
 
 function render(): void {
-  text('page-title', section === 'settings' ? 'Settings' : accessFocused ? 'A moment for your next step.' : 'Where do you want to go?');
+  text('page-title', section === 'settings' ? 'Settings' : accessFocused ? 'A moment for your next step.' : 'Atlas');
+  text('page-eyebrow', section === 'settings' ? 'YOUR SAVED COMMITMENTS' : accessFocused ? 'A DELIBERATE NEXT STEP' : 'YOUR INTERNET, WITH INTENTION');
   text('page-description', section === 'settings' ? 'Your destinations, intentional friction and saved commitments.'
-    : accessFocused ? 'Your destination is waiting. You decide whether to continue.' : 'Open a trusted destination. Give unfamiliar ones a moment of thought.');
+    : accessFocused ? 'Your destination is waiting. You decide whether to continue.' : 'A place for the things you choose.');
+  document.body.dataset.section = section;
+  document.body.dataset.mode = accessFocused ? 'access' : 'control';
   const controller = view?.controller;
   const ready = canQueueOperation(controller);
   const status = controller?.status;
@@ -85,8 +111,12 @@ function render(): void {
   element('workspace').hidden = status === 'UNINITIALIZED' || section === 'settings';
   element('settings').hidden = section !== 'settings';
   element('destinations').hidden = accessFocused;
-  element('show-home').setAttribute('aria-pressed', String(section === 'home'));
-  element('show-settings').setAttribute('aria-pressed', String(section === 'settings'));
+  for (const name of ['home', 'settings', 'vault', 'managed', 'diagnostics'] as const) {
+    const button = element(`show-${name}`);
+    button.setAttribute('aria-pressed', String(navigation === name));
+    if (navigation === name) button.setAttribute('aria-current', 'page');
+    else button.removeAttribute('aria-current');
+  }
 
   element<HTMLButtonElement>('save-setup').disabled = busy || status !== 'UNINITIALIZED';
   const contexts = view?.contexts.filter((context) => context.hostname !== null) ?? [];
@@ -111,7 +141,7 @@ function render(): void {
   text('outcome', decision?.outcome.replaceAll('_', ' ') ?? 'No decision');
   text('decision', decision ? `${decision.outcome} · ${decision.reason}`
     : result ? `${result.type}${'reason' in result ? ` · ${result.reason}` : ''}` : 'No current assessment.');
-  text('context-detail', context ? `Context: ${context.contextId}\nNavigation: ${context.navigationId}\nContent: ${context.effect}` : '');
+  text('context-detail', context ? `Context: ${context.contextId}\nNavigation: ${context.navigationId}\nContent: ${context.effect}${context.journey?.phase === 'ENDED' ? `\nJourney ${context.journey.id}: ${context.journey.endReason}` : ''}` : '');
   const now = Date.now(); // Display only. Core decides readiness using its injected clock.
   text('deadline', decision?.outcome === 'WAIT' ? `Wait ${countdown(decision.readyAt, now)}`
     : decision?.outcome === 'REQUIRE_CONFIRMATION' ? `Confirm within ${countdown(decision.confirmBy, now)}`
@@ -128,8 +158,10 @@ function render(): void {
   text('access-scope', scope.length > 0 ? `Temporary access covers exactly: ${scope.join(', ')}` : '');
   const journey = context?.journey;
   const activeJourney = ready && journey != null && journey.phase !== 'ENDED' && now < journey.expiresAt;
-  element('access-panel').hidden = !accessFocused
-    && !activeJourney && (decision === null || decision.outcome === 'ALLOW');
+  element('access-panel').hidden = !accessFocused;
+  element('home-journey').hidden = section !== 'home' || accessFocused || !activeJourney;
+  text('home-journey-label', activeJourney ? `${serviceLabel(journey.rootHostname)} · ${countdown(journey.expiresAt, now)} remaining` : '');
+  element('show-access').hidden = section !== 'home' || accessFocused || context === undefined || activeJourney;
 
   const action = (id: string, show: boolean) => {
     element(id).hidden = !show;
@@ -143,6 +175,11 @@ function render(): void {
   action('open-home', decision?.outcome === 'ALLOW');
   action('start-journey', decision?.reason === 'WHITELISTED' && !activeJourney);
   action('cancel-journey', activeJourney);
+  const retry = context?.retry;
+  const showRetry = retry != null && decision?.outcome !== 'ALLOW' && ready;
+  element('ended-journey').hidden = !showRetry;
+  text('ended-journey-copy', showRetry ? `Your previous journey was to ${retry.destinationLabel}. Start again from ${retry.rootHostname}.` : '');
+  action('restart-journey', showRetry);
   element('home-note').hidden = decision?.outcome !== 'REQUIRE_CONFIRMATION' && decision?.outcome !== 'ALLOW';
   element('journey-panel').hidden = !activeJourney;
   text('journey-phase', activeJourney ? 'Active' : 'Ended');
@@ -156,6 +193,9 @@ function render(): void {
   if (activeJourney) progress.value = Math.max(0, (journey.expiresAt - now) / (journey.expiresAt - journey.startedAt));
   const policy = controller?.snapshot?.policy;
   const proposal = controller?.snapshot?.vaultState.pendingProposal;
+  element('settings-pending').hidden = proposal == null;
+  element('vault-nav-status').hidden = proposal == null;
+  element('vault-empty').hidden = proposal != null;
   const missingDefaults = presetHostnames.filter((hostname) => !policy?.whitelist.includes(hostname));
   text('preset-update-status', policy ? missingDefaults.length > 0
     ? `${missingDefaults.length} curated hostnames are missing from your saved Whitelist.`
@@ -164,7 +204,9 @@ function render(): void {
   element<HTMLButtonElement>('propose-defaults').disabled = busy || !ready || proposal != null;
   element('vault-panel').hidden = proposal == null;
   const review = policyReview?.proposalId === proposal?.id && policyReview?.basePolicyRevision === controller?.snapshot?.policyRevision
+    && policyReview?.baseConfigurationRevision === controller?.snapshot?.configurationRevision
     ? policyReview : null;
+  renderReview(review, proposal != null);
   text('vault-review', review
     ? `Proposal ${review.proposalId} · policy revision ${review.basePolicyRevision}\nWhitelist additions: ${review.whitelist.added.join(', ') || '(none)'}\nWhitelist removals: ${review.whitelist.removed.join(', ') || '(none)'}\nBlacklist additions: ${review.blacklist.added.join(', ') || '(none)'}\nBlacklist removals: ${review.blacklist.removed.join(', ') || '(none)'}\nClassification changes:\n${review.classifications.map((change) => `${change.hostname}: ${change.before} → ${change.after}`).join('\n') || '(none)'}${review.candidateConfiguration ? `\nCurrent settings: ${settingsCopy(review.currentConfiguration!)}\nCandidate settings: ${settingsCopy(review.candidateConfiguration)}` : ''}`
     : policyReviewError ? `Core review unavailable: ${policyReviewError}. Cancel or recover before proceeding.` : 'Loading the frozen Core review…');
@@ -186,6 +228,7 @@ function render(): void {
       settingsKey = configKey;
       configurationValues(activeConfiguration).forEach((value, i) => { element<HTMLInputElement>(timingFields[i]!).value = String(value); });
     }
+    configurationValues(activeConfiguration).forEach((value, i) => { text(`active-${timingFields[i]}`, `Active: ${value}${i === 6 ? ' hops' : ' seconds'}`); });
     text('timing', `Active settings · ${settingsCopy(activeConfiguration)}`);
   } else text('timing', 'No verified timing settings.');
   const formKey = JSON.stringify(policy);
@@ -201,42 +244,42 @@ function render(): void {
   if (destinationsKey !== destinationKey) {
     destinationsKey = destinationKey;
     entries = policy ? destinationIndex(policy) : [];
-    const hostnames = entries.flatMap((entry) => entry.hostnames);
-    const represented = new Set<string>();
-    const makeRow = (label: string, available: readonly string[]) => {
-      const row = document.createElement('div'); row.className = 'destination-item';
-      const name = document.createElement('span'); name.textContent = label;
-      const addresses = document.createElement('select'); addresses.className = 'service-addresses';
-      addresses.setAttribute('aria-label', `${label} entry point`);
-      for (const hostname of available) addresses.append(new Option(hostname, hostname));
-      addresses.hidden = available.length < 2;
-      const button = document.createElement('button'); button.textContent = 'Open';
-      button.setAttribute('aria-label', `Open ${label}`);
-      button.title = available[0]!;
-      button.addEventListener('click', () => { void send({ kind: 'OPEN_DESTINATION', url: `https://${addresses.value}/` }); });
-      row.append(name, addresses, button); return row;
-    };
     const groups: HTMLElement[] = [];
-    for (const group of curatedWhitelist) {
-      const rows: HTMLElement[] = [];
-      for (const service of group.services) {
-        const all = serviceHostnames(service).filter((hostname) => hostnames.includes(hostname));
-        all.forEach((hostname) => represented.add(hostname));
-        if (all.length === 0) continue;
-        const entries = [service.hostname, ...(service.destinations ?? [])].filter((hostname) => hostnames.includes(hostname));
-        rows.push(makeRow(service.label, entries.length > 0 ? entries : [all[0]!]));
+    const categoryOrder = ['University', 'Scholar / Research', 'Writing', 'Development', 'Mail', 'AI', 'Video'];
+    const rank = (category: string) => categoryOrder.includes(category) ? categoryOrder.indexOf(category) : categoryOrder.length;
+    const categories = [...new Set(entries.map((entry) => entry.category))].sort((a, b) => rank(a) - rank(b));
+    for (const category of categories) {
+      const available = entries.filter((entry) => entry.category === category);
+      const group = document.createElement('section'); group.className = category === 'Your destinations' ? 'destination-section' : 'service-group destination-section';
+      group.dataset.category = category;
+      const heading = document.createElement('div'); heading.className = 'section-heading';
+      const title = document.createElement('h2'); title.textContent = category;
+      const count = document.createElement('span'); count.className = 'section-meta'; count.textContent = `${available.length} destination${available.length === 1 ? '' : 's'}`;
+      heading.append(title, count);
+      const grid = document.createElement('div'); grid.className = 'destination-grid';
+      grid.id = `destination-category-${groups.length}`;
+      grid.append(...available.map(makeDestinationCard));
+      if (available.length > 4) {
+        let expanded = false;
+        const toggle = document.createElement('button'); toggle.type = 'button'; toggle.className = 'category-toggle text-button';
+        toggle.setAttribute('aria-controls', grid.id);
+        const update = () => {
+          toggle.textContent = expanded ? 'Show fewer' : `Show all ${available.length} →`;
+          toggle.setAttribute('aria-expanded', String(expanded));
+          toggle.setAttribute('aria-label', `${expanded ? 'Show fewer' : 'Show all'} ${category} destinations`);
+          for (const [index, card] of [...grid.children].entries()) (card as HTMLElement).hidden = !expanded && index >= 4;
+        };
+        toggle.addEventListener('click', () => { expanded = !expanded; update(); }); update();
+        heading.replaceChild(toggle, count);
       }
-      if (rows.length === 0) continue;
-      const detail = document.createElement('details'); detail.className = 'service-group'; detail.open = rows.length <= 3;
-      const summary = document.createElement('summary'); summary.textContent = `${group.label} · ${rows.length}`;
-      detail.append(summary, ...rows); groups.push(detail);
+      group.append(heading, grid); groups.push(group);
     }
-    for (const hostname of hostnames) if (!represented.has(hostname)) groups.push(makeRow(hostname, [hostname]));
     element('destination-list').replaceChildren(...groups);
   }
+  renderPins();
   renderSearch();
   element('empty-destinations').hidden = entries.length > 0;
-  for (const button of document.querySelectorAll<HTMLButtonElement>('#destination-list button, #open-journey, #search-results button')) {
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.destination-open, #open-journey, #search-results button')) {
     if (button.disabled !== (busy || !ready)) button.disabled = busy || !ready;
   }
   element<HTMLButtonElement>('recover').disabled = busy || ready || status === 'UNINITIALIZED' || status === 'COMMITTING';
@@ -245,6 +288,98 @@ function render(): void {
     : 'No verified policy loaded.');
 }
 
+function icon(name: string): SVGSVGElement {
+  const node = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); node.classList.add('icon'); node.setAttribute('aria-hidden', 'true');
+  const use = document.createElementNS('http://www.w3.org/2000/svg', 'use'); use.setAttribute('href', `#icon-${name}`); node.append(use); return node;
+}
+
+async function displayWebsiteIcon(image: HTMLImageElement, hostname: string): Promise<void> {
+  image.dataset.hostname = hostname;
+  if (!websiteIcons.has(hostname)) websiteIcons.set(hostname, iconSnapshot
+    .then(() => loadWebsiteIcon(hostname, observedIcons.get(hostname)))
+    .then((blob) => blob ? URL.createObjectURL(blob) : null).catch(() => null));
+  const loading = websiteIcons.get(hostname)!;
+  const url = await loading;
+  // Entry point changes and policy redraws can outlive an earlier lookup.
+  if (!image.isConnected || image.dataset.hostname !== hostname || websiteIcons.get(hostname) !== loading) return;
+  image.src = url ?? 'site.svg';
+}
+
+function makeDestinationCard(entry: DestinationEntry): HTMLElement {
+  const card = document.createElement('div'); card.className = 'destination-card'; card.dataset.destinationId = destinationId(entry);
+  const points = destinationEntryPoints(entry);
+  const addresses = document.createElement('select'); addresses.className = 'service-addresses'; addresses.setAttribute('aria-label', `${entry.label} entry point`);
+  points.forEach((hostname) => addresses.append(new Option(hostname, hostname))); addresses.hidden = points.length < 2;
+  const open = document.createElement('button'); open.className = 'destination-open'; open.type = 'button'; open.setAttribute('aria-label', `Open ${entry.label}`);
+  const mark = document.createElement('span'); mark.className = 'service-mark'; mark.setAttribute('aria-hidden', 'true');
+  const image = document.createElement('img'); image.className = 'site-icon'; image.width = 32; image.height = 32;
+  image.alt = ''; image.src = 'site.svg'; image.loading = 'lazy'; image.dataset.hostname = addresses.value;
+  image.addEventListener('error', () => { if (!image.src.endsWith('/site.svg')) image.src = 'site.svg'; });
+  mark.append(image); iconObserver.observe(image);
+  const copy = document.createElement('span'); copy.className = 'destination-copy';
+  const name = document.createElement('span'); name.className = 'destination-name'; name.textContent = entry.label;
+  const host = document.createElement('span'); host.className = 'destination-host'; host.textContent = addresses.value;
+  addresses.addEventListener('change', () => { host.textContent = addresses.value; void displayWebsiteIcon(image, addresses.value); });
+  copy.append(name, host); open.append(mark, copy);
+  open.addEventListener('click', () => { void send({ kind: 'OPEN_DESTINATION', url: `https://${addresses.value}/` }); });
+  const pin = document.createElement('button'); pin.type = 'button'; pin.className = 'pin-button'; pin.dataset.pinId = destinationId(entry); pin.dataset.label = entry.label; pin.append(icon('pin'));
+  pin.addEventListener('click', () => { void togglePin(destinationId(entry)); });
+  card.append(open, pin, addresses); return card;
+}
+
+function renderPins(): void {
+  const active = pinnedDestinations(entries, pins);
+  const key = JSON.stringify(active);
+  if (key !== pinnedKey) { pinnedKey = key; element('pinned-list').replaceChildren(...active.map(makeDestinationCard)); }
+  element('pinned-empty').hidden = active.length > 0;
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.pin-button')) {
+    const pinned = pins.includes(button.dataset.pinId!);
+    const label = `${pinned ? 'Unpin' : 'Pin'} ${button.dataset.label}`;
+    if (button.getAttribute('aria-pressed') !== String(pinned)) button.setAttribute('aria-pressed', String(pinned));
+    if (button.getAttribute('aria-label') !== label) button.setAttribute('aria-label', label);
+    if (button.title !== label) button.title = label;
+    const disabled = !pinsLoaded || savingPins || !canQueueOperation(view?.controller);
+    if (button.disabled !== disabled) button.disabled = disabled;
+  }
+}
+
+function togglePin(id: string): void {
+  if (!pinsLoaded || savingPins) return;
+  const next = pins.includes(id) ? pins.filter((pin) => pin !== id) : [...pins, id];
+  if (next.length > 200) { feedback('Your pinned list is full. Unpin a destination first.'); return; }
+  savingPins = true; renderPins();
+  try { localStorage.setItem(pinsStorageKey, JSON.stringify(next)); pins = next; feedback(''); }
+  catch { feedback('Your pin could not be saved. Access and policy are unchanged.'); }
+  finally { savingPins = false; render(); }
+}
+
+function renderReview(review: PolicyReview | null, hasProposal: boolean): void {
+  text('vault-phase', review?.phase === 'WAITING' ? 'Waiting' : review?.phase === 'READY' ? 'Ready to confirm' : review?.phase === 'EXPIRED' ? 'Expired' : '');
+  text('vault-summary', review ? 'These contents are frozen. Your active policy and settings stay in place until you confirm and Atlas saves the change.'
+    : hasProposal ? 'Waiting for a verified Core review. Confirmation is unavailable.' : '');
+  const key = JSON.stringify(review ? [review.proposalId, review.whitelist, review.blacklist, review.currentConfiguration, review.candidateConfiguration] : null);
+  if (key === reviewKey) return;
+  reviewKey = key;
+  const changes: string[] = [];
+  if (review) for (const [label, diff] of [['Whitelist', review.whitelist], ['Blacklist', review.blacklist]] as const) {
+    if (diff.added.length > 0) changes.push(`${label} · add: ${diff.added.join(', ')}`);
+    if (diff.removed.length > 0) changes.push(`${label} · remove: ${diff.removed.join(', ')}`);
+  }
+  element('vault-changes').replaceChildren(...changes.map((value) => { const li = document.createElement('li'); li.textContent = value; return li; }));
+  element('vault-changes').hidden = changes.length === 0;
+  const current = review?.currentConfiguration ? configurationValues(review.currentConfiguration) : [];
+  const proposed = review?.candidateConfiguration ? configurationValues(review.candidateConfiguration) : [];
+  const rows = proposed.flatMap((value, i) => {
+    if (value === current[i]) return [];
+    const row = document.createElement('tr');
+    for (const cell of [timingLabels[i]!, `${current[i]}${i === 6 ? ' hops' : ' s'}`, `${value}${i === 6 ? ' hops' : ' s'}`]) {
+      const td = document.createElement('td'); td.textContent = cell; row.append(td);
+    }
+    return [row];
+  });
+  element('vault-settings-rows').replaceChildren(...rows);
+  element('vault-settings-comparison').hidden = rows.length === 0;
+}
 
 function renderSearch(): void {
   const next = searchDestinations(entries, searchInput.value);
@@ -253,7 +388,11 @@ function renderSearch(): void {
     searchKey = key; matches = next; highlighted = next.length === 1 ? 0 : -1;
     element('search-results').replaceChildren(...matches.map((entry, index) => {
       const button = document.createElement('button'); button.type = 'button'; button.id = `search-result-${index}`;
-      button.setAttribute('role', 'option'); button.textContent = `${entry.label} / ${entry.hostname}`;
+      button.setAttribute('role', 'option');
+      const copy = document.createElement('span'); copy.className = 'result-copy';
+      const label = document.createElement('strong'); label.textContent = entry.label;
+      const host = document.createElement('small'); host.textContent = entry.hostname;
+      copy.append(label, host); button.append(copy, icon('arrow'));
       button.addEventListener('click', () => { void send({ kind: 'OPEN_DESTINATION', url: `https://${entry.hostname}/` }); });
       return button;
     }));
@@ -273,16 +412,34 @@ searchInput.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') { searchInput.value = ''; renderSearch(); }
   if (matches.length > 0 && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
     event.preventDefault(); highlighted = (highlighted + (event.key === 'ArrowDown' ? 1 : highlighted < 0 ? 0 : -1) + matches.length) % matches.length; renderSearch();
+    element(`search-result-${highlighted}`).scrollIntoView({ block: 'nearest' });
   }
 });
 element('search-form').addEventListener('submit', (event) => {
   event.preventDefault(); const entry = matches[highlighted] ?? (matches.length === 1 ? matches[0] : undefined);
   if (entry && canQueueOperation(view?.controller)) void send({ kind: 'OPEN_DESTINATION', url: `https://${entry.hostname}/` });
 });
-for (const name of ['home', 'settings'] as const) element(`show-${name}`).addEventListener('click', () => {
-  section = name;
-  if (name === 'home') { accessFocused = false; document.body.dataset.mode = 'control'; }
+function navigate(name: typeof navigation): void {
+  navigation = name; section = name === 'home' ? 'home' : 'settings';
+  if (name === 'home') accessFocused = false;
   render();
+  const target = name === 'vault' ? element<HTMLDetailsElement>('vault-section') : name === 'managed' ? element('managed-section')
+    : name === 'diagnostics' ? element<HTMLDetailsElement>('diagnostics') : element('main-content');
+  if (target instanceof HTMLDetailsElement) target.open = true;
+  target.scrollIntoView({ block: 'start' });
+  const heading = target.id === 'main-content' ? target : target.querySelector<HTMLElement>('summary, h2') ?? target;
+  heading.setAttribute('tabindex', '-1'); heading.focus({ preventScroll: true });
+  if (name === 'diagnostics') void diagnostics();
+}
+for (const name of ['home', 'settings', 'vault', 'managed', 'diagnostics'] as const) element(`show-${name}`).addEventListener('click', () => { navigate(name); });
+element('review-pending').addEventListener('click', () => { navigate('vault'); });
+for (const id of ['home-journey', 'show-access']) element(id).addEventListener('click', () => {
+  accessFocused = true; render(); element('access-panel').scrollIntoView({ block: 'start' });
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey || event.target instanceof HTMLElement
+    && (event.target.closest('input, textarea, select') || event.target.isContentEditable)) return;
+  event.preventDefault(); navigate('home'); searchInput.focus();
 });
 element('settings-form').addEventListener('submit', (event) => {
   event.preventDefault();
@@ -292,12 +449,14 @@ element('settings-form').addEventListener('submit', (event) => {
   if (candidateConfiguration === null) { feedback('Use positive values in whole milliseconds and a whole hop limit.'); return; }
   element('propose-defaults').closest('details')!.open = true;
   void send({ kind: 'PROPOSE_SETTINGS', candidateConfiguration });
+  navigate('vault');
 });
 element('policy-form').addEventListener('submit', (event) => {
   event.preventDefault();
   const hosts = (id: string) => element<HTMLTextAreaElement>(id).value.split(/\r?\n/).map((host) => host.trim()).filter(Boolean);
   element('propose-defaults').closest('details')!.open = true;
   void send({ kind: 'PROPOSE_POLICY', candidatePolicy: { whitelist: hosts('policy-whitelist'), blacklist: hosts('policy-blacklist') } });
+  navigate('vault');
 });
 
 async function diagnostics(): Promise<void> {
@@ -343,7 +502,7 @@ for (const [id, kind] of Object.entries({ 'confirm-access': 'CONFIRM_ACCESS_AND_
   });
 }
 element('recover').addEventListener('click', () => { void send({ kind: 'RECOVER' }); });
-element('propose-defaults').addEventListener('click', () => { void send({ kind: 'PROPOSE_CURATED_DEFAULTS' }); });
+element('propose-defaults').addEventListener('click', () => { void send({ kind: 'PROPOSE_CURATED_DEFAULTS' }); navigate('vault'); });
 for (const [id, kind] of Object.entries({ 'confirm-policy': 'CONFIRM_POLICY', 'cancel-policy': 'CANCEL_POLICY' })) {
   element(id).addEventListener('click', () => {
     const proposalId = view?.controller?.snapshot?.vaultState.pendingProposal?.id;
@@ -393,4 +552,27 @@ async function poll(): Promise<void> {
     setTimeout(() => { void poll(); }, pending ? 100 : 1000);
   }
 }
+window.addEventListener('storage', (event) => {
+  if (event.key !== pinsStorageKey && event.key !== null) return;
+  try { pins = readPins(event.newValue === null ? null : JSON.parse(event.newValue)); }
+  catch { pins = []; }
+  render();
+});
+element('restart-journey').addEventListener('click', () => {
+  const context = selectedContext(view?.contexts ?? [], selected);
+  if (context?.retry) void send({ kind: 'RESTART_JOURNEY', tabId: context.tabId, journeyId: context.retry.journeyId });
+});
+browser.tabs.onUpdated.addListener((_tabId, changes, tab) => {
+  if ((!changes.favIconUrl && !changes.url) || !tab.url || !tab.favIconUrl) return;
+  try {
+    const hostname = new URL(tab.url).hostname;
+    if (observedIcons.get(hostname) === tab.favIconUrl) return;
+    observedIcons.set(hostname, tab.favIconUrl); websiteIcons.delete(hostname);
+    for (const image of document.querySelectorAll<HTMLImageElement>('.site-icon')) if (image.dataset.hostname === hostname)
+      void displayWebsiteIcon(image, hostname);
+  } catch { /* Missing/unsupported website metadata creates no icon or permission. */ }
+});
+try { pins = readPins(JSON.parse(localStorage.getItem(pinsStorageKey) ?? 'null')); }
+catch { feedback('Pinned destinations are unavailable. Your saved policy is unaffected.'); }
+pinsLoaded = true;
 void poll();

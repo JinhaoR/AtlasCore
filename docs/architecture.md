@@ -2,6 +2,10 @@
 
 D19's [productization contract](productization.md) adds protected configuration to the authoritative snapshot and existing Vault flow. Journey authorization remains D18, with its HTTP redirect risk explicitly accepted for the Ulysses-contract threat model. Require a reproducible real-use failure or practical bypass before increasing authorization complexity.
 
+D20's [interface refinement](ui-design.md) changes Firefox presentation and local pin preferences. Pins resolve only against current active destinations; they are separate from authority and cannot grant access. Core contracts and authoritative storage are unchanged.
+
+D21's [Journey visibility and recovery](firefox-journey-recovery.md) adds a read-only top-level content display and an explicit root retry through the existing gate. Neither surface creates authorization; Core and D18 remain unchanged.
+
 Status: Milestones 1 through 3, D11 Journeys, and D13 aggregate validation/planning implement pure domain logic. D14 adds commit coordination with repository/clock interfaces. D15 adds the first Firefox development adapter and extension-origin repository without changing Core's public API. Requirements and settled decisions live in [foundation.md](foundation.md).
 
 ## Current package

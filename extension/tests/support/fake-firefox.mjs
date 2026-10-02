@@ -23,6 +23,7 @@ export class FakeFirefox {
   badges = new Map();
   titles = new Map();
   badgeUpdates = [];
+  pageMessages = [];
   browserAction = { onClicked: new Event(),
     setBadgeText: async ({ tabId, text }) => { this.badges.set(tabId, text); this.badgeUpdates.push({ tabId, text }); },
     setTitle: async ({ tabId, title }) => { this.titles.set(tabId, title); }, setBadgeBackgroundColor: async () => {} };
@@ -40,6 +41,7 @@ export class FakeFirefox {
       return { ...tab };
     },
     query: async () => [...this.documents.values()].map((tab) => ({ ...tab })),
+    sendMessage: async (tabId, message, options) => { this.pageMessages.push({ tabId, message, options }); },
     update: async (id, { url, active }) => {
       if (this.failUpdate) throw new Error('Update failed');
       if (!this.documents.has(id)) throw new Error('No tab');

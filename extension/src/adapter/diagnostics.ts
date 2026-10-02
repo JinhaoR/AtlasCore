@@ -11,7 +11,7 @@ export interface DiagnosticEntry {
   readonly hostname: string | null;
   readonly outcome: string | null;
   readonly reason: string | null;
-  readonly journey: Pick<Journey, 'id' | 'phase' | 'rootHostname' | 'hopCount' | 'maxHops' | 'expiresAt'> | null;
+  readonly journey: Pick<Journey, 'id' | 'phase' | 'rootHostname' | 'hopCount' | 'maxHops' | 'expiresAt' | 'endReason'> | null;
 }
 
 /** Memory only. Callers supply a closed, hostname-only observation, never browser event objects. */

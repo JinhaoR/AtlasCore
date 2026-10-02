@@ -8,113 +8,100 @@
   <link rel="stylesheet" href="style.css">
   <script src="main.js" defer></script>
 </head>
-<body>
-  <header class="topbar">
-    <a class="brand" href="?view=control" aria-label="Atlas home"><img src="atlas.svg" width="32" height="32" alt="">Atlas</a>
-    <nav aria-label="Atlas"><button id="show-home" class="secondary compact" aria-pressed="true">Home</button> <button id="show-settings" class="secondary compact" aria-pressed="false">Settings</button></nav>
-    <span id="status" class="status" role="status">Connecting…</span>
-  </header>
-  <main>
-    <div class="intro"><p class="eyebrow">A LITTLE SPACE FOR INTENTION</p><h1 id="page-title">Where do you want to go?</h1>
-      <p id="page-description">Open a trusted destination. Give unfamiliar ones a moment of thought.</p></div>
-    <p id="feedback" class="feedback" role="alert" hidden></p>
-    <section id="setup" class="card" hidden>
-      <p class="eyebrow">WELCOME TO ATLAS</p><h2>Choose your first destinations</h2>
-      <p>Start with these curated destinations. You can add exact hostnames before saving your initial policy.</p>
-      <form id="setup-form">
-        <label class="checkbox-label"><input id="use-defaults" type="checkbox" checked> Include the curated Atlas Whitelist</label>
-        <div id="preset-preview"></div>
-        <details><summary>Additional hostnames and manual Blacklist</summary>
-        <div class="columns"><label>Additional Pure Whitelist hostnames<textarea id="whitelist" placeholder="Your institution's Canvas hostname" rows="4" spellcheck="false"></textarea></label>
-          <label>Blacklist<textarea id="blacklist" placeholder="Sites to block" rows="4" spellcheck="false"></textarea></label></div>
-        </details>
-        <button id="save-setup" type="submit">Save my initial policy</button>
-        <p class="note">This setup is available once. Later changes go through Vault in Settings.</p>
-      </form>
-    </section>
-    <div id="workspace" class="workspace">
-      <section id="destinations" class="card destinations">
-        <form id="search-form" role="search"><label for="destination-search" class="sr-only">Search your destinations</label>
-          <input id="destination-search" type="search" placeholder="Search your destinations…" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="search-results" aria-expanded="false">
-          <div id="search-results" role="listbox" aria-label="Matching destinations" hidden></div><p id="search-empty" class="note" hidden>No matching allowed destinations.</p>
+<body data-section="home">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8M5 10v11h5v-7h4v7h5V10"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M8 4v6M16 14v6"/></symbol>
+    <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></symbol>
+    <symbol id="icon-list" viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12M3 6h1M3 12h1M3 18h1"/></symbol>
+    <symbol id="icon-activity" viewBox="0 0 24 24"><path d="M2 12h5l3-8 4 16 3-8h5"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="7"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
+    <symbol id="icon-pin" viewBox="0 0 24 24"><path d="m14 3 7 7-4 1-4 5-2-2-5 5m5-5-3-3 5-4z"/></symbol>
+  </svg>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="?view=control" aria-label="Atlas home"><img src="atlas.svg" width="48" height="48" alt=""><span>Atlas</span></a>
+      <p class="brand-caption">BROWSE WITH INTENTION</p>
+      <nav aria-label="Atlas" class="sidebar-nav">
+        <button id="show-home" aria-pressed="true" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#icon-home"/></svg>Home</button>
+        <button id="show-settings" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-settings"/></svg>Settings</button>
+        <button id="show-vault" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-lock"/></svg>Vault<span id="vault-nav-status" class="nav-dot" hidden aria-label="Pending proposal"></span></button>
+        <button id="show-managed" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-list"/></svg>Managed lists</button>
+        <button id="show-diagnostics" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-activity"/></svg>Diagnostics</button>
+      </nav>
+      <div class="sidebar-bottom"><div class="sidebar-ornament" aria-hidden="true"></div><p>A calmer internet.<br>A little more intention.</p><span id="status" class="status" role="status">Connecting…</span></div>
+    </aside>
+    <main id="main-content" tabindex="-1">
+      <header class="page-header">
+        <div class="intro"><p id="page-eyebrow" class="eyebrow">YOUR INTERNET, WITH INTENTION</p><h1 id="page-title">Atlas</h1><p id="page-description">A place for the things you choose.</p></div>
+        <div class="page-tools">
+          <button id="home-journey" class="journey-strip" hidden><span class="activity-dot" aria-hidden="true"></span><span><strong>Journey active</strong><span id="home-journey-label"></span></span><svg class="icon" aria-hidden="true"><use href="#icon-arrow"/></svg></button>
+          <button id="show-access" class="secondary compact" hidden>Current tab access</button>
+        </div>
+      </header>
+      <p id="feedback" class="feedback" role="alert" hidden></p>
+      <section id="setup" class="card" hidden>
+        <p class="eyebrow">WELCOME TO ATLAS</p><h2>Choose your first destinations</h2>
+        <p>Start with these curated destinations. You can add exact hostnames before saving your initial policy.</p>
+        <form id="setup-form">
+          <label class="checkbox-label"><input id="use-defaults" type="checkbox" checked> Include the curated Atlas Whitelist</label>
+          <div id="preset-preview"></div>
+          <details><summary>Additional hostnames and manual Blacklist</summary>
+            <div class="columns"><label>Additional Pure Whitelist hostnames<textarea id="whitelist" placeholder="Your institution's Canvas hostname" rows="4" spellcheck="false"></textarea></label><label>Blacklist<textarea id="blacklist" placeholder="Sites to block" rows="4" spellcheck="false"></textarea></label></div>
+          </details>
+          <button id="save-setup" type="submit">Save my initial policy</button>
+          <p class="note">This setup is available once. Later changes go through Vault in Settings.</p>
         </form>
-        <div class="section-heading"><h2>Your destinations</h2><span class="pill">Pure Whitelist</span></div>
-        <div id="destination-list" class="destination-list"></div>
-        <p id="empty-destinations" class="note">No destinations in your Pure Whitelist yet.</p>
-        <details class="open-address"><summary>Open a specific address</summary>
-          <form id="journey-form"><label>Website address<input id="destination" placeholder="https://student.ladok.se" required spellcheck="false" autocomplete="off"></label>
-            <button id="open-journey" type="submit" class="secondary">Open</button></form>
-        </details>
       </section>
-      <section id="access-panel" class="card access" data-tone="neutral">
-        <div class="section-heading"><h2>Current access</h2><span id="outcome" class="pill">No tab selected</span></div>
-        <label class="tab-label">Browsing tab<select id="context"><option value="">No websites yet</option></select></label>
-        <p id="hostname" class="hostname">Your next destination</p>
-        <h3 id="access-title">Choose a tab</h3><p id="access-description"></p>
-        <p id="access-scope" class="note"></p>
-        <p id="deadline" class="deadline"></p>
-        <p id="effect-warning" class="feedback" hidden></p>
-        <div class="actions">
-          <button id="start-access" hidden>Request temporary access</button>
-          <button id="confirm-access" hidden>Confirm and open</button>
-          <button id="open-home" hidden>Open site home</button>
-          <button id="cancel-access" class="secondary" hidden>Cancel request</button>
-          <button id="start-journey" class="secondary" hidden>Start Journey in this tab</button>
-        </div>
-        <p id="home-note" class="note" hidden>Opening starts at the site home. Return to your task from there.</p>
-        <div id="journey-panel" class="journey-panel">
-          <div class="section-heading"><h3>Journey</h3><span id="journey-phase" class="pill">None</span></div>
-          <p id="journey">No Journey in this tab.</p><p id="journey-time" class="note"></p>
-          <progress id="journey-progress" max="1" value="0" aria-label="Journey time remaining" hidden></progress>
-          <button id="cancel-journey" class="secondary compact" hidden>End Journey</button>
-        </div>
-        <details class="decision-details"><summary>Decision details</summary><p id="decision" class="mono"></p><p id="context-detail" class="mono"></p></details>
-      </section>
-    </div>
-    <section id="settings" hidden aria-label="Atlas settings">
-    <section class="card"><h2>Timing and friction</h2><p class="note">Changes use your current Vault wait and require confirmation. Existing waits, grants and Journeys keep their original terms.</p>
-      <p id="timing"></p><form id="settings-form"><div class="columns">
-        <label>Greylist wait (seconds)<input id="access-wait" type="number" min="0.001" step="0.001" required></label>
-        <label>Greylist confirmation window (seconds)<input id="access-window" type="number" min="0.001" step="0.001" required></label>
-        <label>Temporary access duration (seconds)<input id="grant-duration" type="number" min="0.001" step="0.001" required></label>
-        <label>Vault wait (seconds)<input id="vault-wait" type="number" min="0.001" step="0.001" required></label>
-        <label>Vault confirmation window (seconds)<input id="vault-window" type="number" min="0.001" step="0.001" required></label>
-        <label>Journey lifetime (seconds)<input id="journey-lifetime" type="number" min="0.001" step="0.001" required></label>
-        <label>Journey hop limit<input id="journey-hops" type="number" min="1" step="1" required></label>
-      </div><button id="propose-settings" type="submit">Propose timing change</button></form>
-    </section>
-    <section class="card"><h2>Manage destinations</h2><p class="note">Exact hostnames, one per line. Review all changes in Vault before committing.</p>
-      <form id="policy-form"><div class="columns"><label>Pure Whitelist<textarea id="policy-whitelist" rows="6" spellcheck="false"></textarea></label><label>Manual Blacklist<textarea id="policy-blacklist" rows="6" spellcheck="false"></textarea></label></div><button id="propose-policy" type="submit">Propose policy change</button></form>
-    </section>
-    <section class="card managed-panel"><div class="section-heading"><h2>Managed Blacklist</h2><span class="pill">StevenBlack</span></div>
-      <p id="managed-status">Loading the bundled blacklist…</p><p id="managed-details" class="note"></p>
-      <details><summary>Source and update details</summary><p id="managed-source" class="mono"></p></details>
-      <p class="note">Temporary access and Journey cannot override this list. Your explicit Whitelist overrides managed entries; your manual Blacklist still wins.</p>
-    </section>
-    <details id="diagnostics" class="card secondary-panel">
-      <summary>Navigation diagnostics <span class="note">Local · last 200 events · hostnames only</span></summary>
-      <p class="note">Inspect requests, redirects, Core results, and Journey state. Restart clears this log. An export contains your visited hostnames; review it before sharing.</p>
-      <p id="managed-conflicts" class="note"></p>
-      <div class="actions"><label class="inline-label">Scope<select id="diagnostic-scope"><option value="selected">Selected tab</option><option value="all">All tabs</option></select></label>
-        <button id="export-diagnostics" class="secondary compact">Export JSON</button><button id="clear-diagnostics" class="secondary compact">Clear log</button></div>
-      <div class="table-scroll"><table><caption class="sr-only">Recent navigation events</caption><thead><tr><th>Sequence</th><th>Event</th><th>Tab / navigation</th><th>Hostname</th><th>Core result</th><th>Journey</th></tr></thead><tbody id="diagnostic-rows"></tbody></table></div>
-      <p id="diagnostic-empty" class="note">No events in this view.</p>
-    </details>
-    <details class="card secondary-panel"><summary>Policy &amp; recovery</summary>
-      <pre id="policy">No policy loaded.</pre>
-      <p class="note">Reload keeps your saved policy. New curated destinations can be added through Vault: review, wait, then confirm. Existing entries and your manual Blacklist are retained.</p>
-      <p id="preset-update-status" class="note"></p>
-      <button id="propose-defaults" class="secondary" hidden>Add curated destinations</button>
-      <div id="vault-panel" hidden>
-        <h3>Review frozen proposal</h3><pre id="vault-review"></pre><p id="vault-deadline" class="deadline"></p>
-        <p id="vault-impact" class="note"></p>
-        <div class="actions"><button id="confirm-policy" hidden>Confirm change</button>
-          <button id="cancel-policy" class="secondary">Cancel proposal</button></div>
+      <div id="workspace" class="workspace">
+        <section id="destinations" class="destinations" aria-label="Your destinations">
+          <form id="search-form" role="search"><label for="destination-search" class="sr-only">Search your destinations</label>
+            <div class="search-field"><svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg><input id="destination-search" type="search" placeholder="Search your destinations…" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="search-results" aria-expanded="false"><span class="search-hint"><kbd>/</kbd> to search</span></div>
+            <div id="search-results" role="listbox" aria-label="Matching destinations" hidden></div><p id="search-empty" class="note" role="status" hidden>No matching allowed destinations. Try another name or hostname.</p>
+          </form>
+          <section id="pinned-section" class="destination-section" aria-labelledby="pinned-title"><div class="section-heading"><h2 id="pinned-title">Pinned</h2><span class="section-meta">Your everyday destinations</span></div><div id="pinned-list" class="destination-grid"></div><p id="pinned-empty" class="empty-pins">Pin a destination below to keep it close.</p></section>
+          <div id="destination-list" class="destination-list"></div>
+          <p id="empty-destinations" class="note">Your destination list is empty. Add destinations through Settings and Vault.</p>
+          <details class="open-address"><summary>Open a specific address</summary><form id="journey-form"><label>Website address<input id="destination" placeholder="https://student.ladok.se" required spellcheck="false" autocomplete="off"></label><button id="open-journey" type="submit" class="secondary">Open address</button></form></details>
+        </section>
+        <section id="access-panel" class="card access" data-tone="neutral" aria-labelledby="access-title">
+          <div class="section-heading"><p class="eyebrow">CURRENT DESTINATION</p><span id="outcome" class="pill">No tab selected</span></div>
+          <p id="hostname" class="hostname">Your next destination</p>
+          <h2 id="access-title">Choose a tab</h2><p id="access-description"></p>
+          <p id="deadline" class="deadline"></p><p id="effect-warning" class="feedback" hidden></p>
+          <div id="ended-journey" class="journey-panel" hidden><h3>Journey ended</h3><p id="ended-journey-copy"></p><button id="restart-journey">Restart journey</button></div>
+          <div class="actions"><button id="start-access" hidden>Request temporary access</button><button id="confirm-access" hidden>Confirm and open</button><button id="open-home" hidden>Open site home</button><button id="cancel-access" class="secondary" hidden>Cancel request</button><button id="start-journey" class="secondary" hidden>Start Journey in this tab</button></div>
+          <p id="access-scope" class="note"></p><p id="home-note" class="note" hidden>Opening starts at the site home. Return to your task from there.</p>
+          <div id="journey-panel" class="journey-panel"><div class="section-heading"><h3>Journey</h3><span id="journey-phase" class="pill">None</span></div><p id="journey">No Journey in this tab.</p><p id="journey-time" class="note"></p><progress id="journey-progress" max="1" value="0" aria-label="Journey time remaining" hidden></progress><button id="cancel-journey" class="secondary compact" hidden>End Journey</button></div>
+          <label class="tab-label">Browsing tab<select id="context"><option value="">No websites yet</option></select></label>
+          <details class="decision-details"><summary>Decision details</summary><p id="decision" class="mono"></p><p id="context-detail" class="mono"></p></details>
+        </section>
       </div>
-      <button id="recover" class="secondary">Reload and reconcile state</button>
-    </details>
-    </section>
-    <footer><p>Firefox handles website security and sign-in.</p></footer>
-  </main>
+      <section id="settings" hidden aria-label="Atlas settings">
+        <p id="settings-pending" class="pending-notice" hidden>A frozen change is waiting in Vault. <button id="review-pending" class="text-button">Review proposal <span aria-hidden="true">→</span></button></p>
+        <section id="destinations-settings" class="card settings-card"><div class="section-heading"><h2>Destinations &amp; policy</h2><span class="pill">Protected</span></div><p class="note">Exact hostnames, one per line. Changes are reviewed in Vault before they take effect.</p>
+          <form id="policy-form"><div class="columns"><label>Pure Whitelist<textarea id="policy-whitelist" rows="6" spellcheck="false"></textarea></label><label>Manual Blacklist<textarea id="policy-blacklist" rows="6" spellcheck="false"></textarea></label></div><button id="propose-policy" type="submit">Review policy change</button></form>
+        </section>
+        <section id="timing-settings" class="card settings-card"><div class="section-heading"><h2>Timing &amp; friction</h2><span class="pill">Protected</span></div><p class="note">A change waits under your current Vault protection, then needs your confirmation. Existing waits, grants and Journeys keep their original terms.</p>
+          <details class="active-settings"><summary>Current active settings</summary><p id="timing"></p></details>
+          <form id="settings-form"><fieldset><legend>Temporary access</legend><div class="columns three-columns"><label>Waiting period <span class="unit">seconds</span><input id="access-wait" type="number" min="0.001" step="0.001" required><span id="active-access-wait" class="field-current"></span></label><label>Confirmation window <span class="unit">seconds</span><input id="access-window" type="number" min="0.001" step="0.001" required><span id="active-access-window" class="field-current"></span></label><label>Access duration <span class="unit">seconds</span><input id="grant-duration" type="number" min="0.001" step="0.001" required><span id="active-grant-duration" class="field-current"></span></label></div></fieldset>
+            <fieldset><legend>Vault protection</legend><div class="columns"><label>Waiting period <span class="unit">seconds</span><input id="vault-wait" type="number" min="0.001" step="0.001" required><span id="active-vault-wait" class="field-current"></span></label><label>Confirmation window <span class="unit">seconds</span><input id="vault-window" type="number" min="0.001" step="0.001" required><span id="active-vault-window" class="field-current"></span></label></div></fieldset>
+            <fieldset><legend>Journey bounds</legend><div class="columns"><label>Lifetime <span class="unit">seconds</span><input id="journey-lifetime" type="number" min="0.001" step="0.001" required><span id="active-journey-lifetime" class="field-current"></span></label><label>Maximum hops<input id="journey-hops" type="number" min="1" step="1" required><span id="active-journey-hops" class="field-current"></span></label></div></fieldset><button id="propose-settings" type="submit">Review timing change</button>
+          </form>
+        </section>
+        <details id="vault-section" class="card settings-card" open><summary id="vault-heading">Vault <span class="section-meta">Review your commitments</span></summary><p class="note">A proposal is frozen while you wait. Only your confirmation and a successful save can apply it.</p>
+          <p class="note">Curated updates retain your saved destinations and manual Blacklist.</p><p id="preset-update-status" class="note"></p><button id="propose-defaults" class="secondary" hidden>Add curated destinations</button>
+          <p id="vault-empty" class="empty-pins">No proposal is waiting. Start a policy or timing change above.</p>
+          <div id="vault-panel" hidden><div class="section-heading"><h3>Review proposed changes</h3><span id="vault-phase" class="pill"></span></div><p id="vault-summary"></p><ul id="vault-changes" class="change-list"></ul><div id="vault-settings-comparison" class="table-scroll" hidden><table class="settings-comparison"><caption>Timing changes</caption><thead><tr><th>Setting</th><th>Active</th><th>Proposed</th></tr></thead><tbody id="vault-settings-rows"></tbody></table></div><p id="vault-deadline" class="deadline"></p><p id="vault-impact" class="note"></p><div class="actions"><button id="confirm-policy" hidden>Confirm change</button><button id="cancel-policy" class="secondary">Cancel proposal</button></div><details><summary>Full Core review</summary><pre id="vault-review"></pre></details></div>
+        </details>
+        <section id="managed-section" class="card settings-card managed-panel"><div class="section-heading"><h2 tabindex="-1">Managed lists</h2><span class="pill">StevenBlack</span></div><h3>Managed Blacklist</h3><p id="managed-status">Loading the bundled blacklist…</p><p id="managed-details" class="note"></p><details><summary>Source and update details</summary><p id="managed-source" class="mono"></p></details><p class="note">Temporary access and Journey cannot override this list. Your explicit Whitelist overrides managed entries; your manual Blacklist still wins.</p></section>
+        <details id="recovery-section" class="card settings-card secondary-panel"><summary>Policy &amp; recovery</summary><pre id="policy">No policy loaded.</pre><p class="note">Reload keeps your saved policy. Recovery verifies saved state; it does not confirm a change or reset your policy.</p><button id="recover" class="secondary">Reload and reconcile state</button></details>
+        <details id="diagnostics" class="card settings-card secondary-panel"><summary>Navigation diagnostics <span class="section-meta">Local · last 200 events</span></summary><p class="note">Hostnames only. Restart clears the log. An export contains your visited hostnames; review it before sharing.</p><p id="managed-conflicts" class="note"></p><div class="actions"><label class="inline-label">Scope<select id="diagnostic-scope"><option value="selected">Selected tab</option><option value="all">All tabs</option></select></label><button id="export-diagnostics" class="secondary compact">Export JSON</button><button id="clear-diagnostics" class="secondary compact">Clear log</button></div><div class="table-scroll"><table><caption class="sr-only">Recent navigation events</caption><thead><tr><th>Sequence</th><th>Event</th><th>Tab / navigation</th><th>Hostname</th><th>Core result</th><th>Journey</th></tr></thead><tbody id="diagnostic-rows"></tbody></table></div><p id="diagnostic-empty" class="note">No events in this view.</p></details>
+      </section>
+      <footer><p>Firefox handles website security and sign-in.</p></footer>
+    </main>
+  </div>
 </body>
 </html>

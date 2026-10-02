@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import shutil
 import socket
+import ssl
 import subprocess
 import tempfile
 import threading
@@ -85,6 +86,8 @@ def main():
     parser.add_argument("--existing-policy", action="store_true", help="Exercise reload and explicit Vault upgrade from an older saved policy")
     parser.add_argument("--productization", action="store_true", help="Add native badge/search/protected settings and schema migration checks")
     parser.add_argument("--productization-only", action="store_true", help="Run the isolated D19 checks after fresh setup")
+    parser.add_argument("--journey-retry-only", action="store_true", help="Run Journey interruption/retry and visibility checks")
+    parser.add_argument("--journey-probe", action="store_true", help="Record pre-fix Journey interruption behavior")
     arguments = parser.parse_args()
     if not Path(arguments.firefox).is_file():
         raise SystemExit("Firefox not found. Set FIREFOX_BINARY or pass --firefox.")
@@ -101,13 +104,21 @@ def main():
         def do_GET(self):
             host = self.headers.get("Host", "").split(":")[0]
             hits.append((host, self.path))
-            port = self.server.server_port
+            port = server.server_port
+            if self.path == '/atlas-site-icon.svg':
+                self.send_response(200)
+                self.send_header('Content-Type', 'image/svg+xml')
+                self.end_headers()
+                self.wfile.write(b'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#405b68"/><circle cx="16" cy="16" r="7" fill="#faf7f0"/></svg>')
+                return
             redirects = {
                 ("root.localhost", "/begin-login"): f"http://login.localhost:{port}/",
                 ("login.localhost", "/choose"): f"http://root.localhost:{port}/bounce",
                 ("root.localhost", "/bounce"): f"http://identity.localhost:{port}/",
                 ("identity.localhost", "/finish"): f"http://root.localhost:{port}/complete",
             }
+            if arguments.journey_retry_only:
+                redirects[("root.localhost", "/")] = f"http://login.localhost:{port}/"
             if (host, self.path) in redirects:
                 self.send_response(302)
                 self.send_header("Location", redirects[(host, self.path)])
@@ -119,12 +130,14 @@ def main():
                 "identity.localhost": ("finish", f"http://identity.localhost:{port}/finish", "Finish"),
             }
             link = links.get(host)
-            body = f"<!doctype html><title>{host}</title><h1>{host}</h1>"
+            body = f'<!doctype html><title>{host}</title><link rel="icon" type="image/svg+xml" href="/atlas-site-icon.svg"><h1>{host}</h1>'
+            if arguments.journey_retry_only and host == 'login.localhost':
+                body += '<form id="synthetic-login" style="position:absolute;left:25%;top:25%;width:40%;height:120px"><label>Synthetic identity<input name="identity"></label><button type="button">Continue</button></form>'
             if link:
                 body += f'<a id="{link[0]}" href="{link[1]}">{link[2]}</a>'
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.send_header("Cache-Control", "no-store")
+            self.send_header("Cache-Control", "max-age=120" if arguments.journey_retry_only else "no-store")
             self.end_headers()
             self.wfile.write(body.encode())
 
@@ -134,6 +147,21 @@ def main():
     server = ThreadingHTTPServer(("127.0.0.1", 0), Pages)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     port = server.server_port
+    secure_server = None
+    if arguments.journey_retry_only:
+        # Exercise the actual Home cards/search (HTTPS root, port 443), without changing
+        # their URL or intercepting Core. Certificate exceptions are profile-local test setup.
+        openssl = shutil.which('openssl') or r'C:\Program Files\Git\usr\bin\openssl.exe'
+        subprocess.run([openssl, 'req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '1',
+                        '-subj', '/CN=root.localhost', '-addext', 'subjectAltName=DNS:root.localhost',
+                        '-keyout', str(run / 'fixture.key'), '-out', str(run / 'fixture.crt')],
+                       check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                       creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+        secure_server = ThreadingHTTPServer(('127.0.0.1', 443), Pages)
+        tls = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        tls.load_cert_chain(run / 'fixture.crt', run / 'fixture.key')
+        secure_server.socket = tls.wrap_socket(secure_server.socket, server_side=True)
+        threading.Thread(target=secure_server.serve_forever, daemon=True).start()
     with socket.socket() as reservation:
         reservation.bind(("127.0.0.1", 0))
         marionette_port = reservation.getsockname()[1]
@@ -166,7 +194,9 @@ def main():
             except (ConnectionRefusedError, TimeoutError):
                 return None
         client = wait_for(connect, "Firefox automation startup", 30)
-        session = client.call("WebDriver:NewSession")
+        session = client.call("WebDriver:NewSession", acceptInsecureCerts=True) if arguments.journey_retry_only else client.call("WebDriver:NewSession")
+        if arguments.journey_retry_only:
+            assert session['capabilities']['acceptInsecureCerts'], 'synthetic HTTPS fixture capability'
         version = session["capabilities"]["browserVersion"]
         client.call("WebDriver:SetWindowRect", width=1280, height=1100)
         client.call("Addon:Install", path=str(EXTENSION / "dist"), temporary=True)
@@ -246,9 +276,15 @@ def main():
         assert "google.com" not in policy["whitelist"] and "www.google.com" not in policy["whitelist"]
         assert policy["blacklist"] == ["black.localhost"]
         print(f"Firefox {version}: curated setup, real IndexedDB, managed list active ({managed['count']} domains)", flush=True)
+        if arguments.journey_retry_only or arguments.journey_probe:
+            from firefox_journey_retry import run_journey_retry
+            result = run_journey_retry(client, ui_handle, UI_URL, port, wait_for, hits, run, probe=arguments.journey_probe)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
         if arguments.productization_only:
             from firefox_productization import run_productization
-            ui_handle, product = run_productization(client, ui_handle, UI_URL, port, wait_for)
+            ui_handle, product = run_productization(client, ui_handle, UI_URL, port, wait_for, run)
             (run / 'result.json').write_text(json.dumps({'firefox': version, 'productization': product}, indent=2), encoding='utf-8')
             for surface in ['home', 'settings']:
                 client.script(f"document.getElementById('show-{surface}').click();")
@@ -333,6 +369,7 @@ def main():
 
         def click(identity):
             client.call("WebDriver:SwitchToWindow", handle=journey_handle)
+            wait_for(lambda: client.script("return !!document.getElementById(arguments[0]);", identity), "fixture control ready")
             client.script("document.getElementById(arguments[0]).click();", identity)
 
         wait_for(lambda: displayed("root.localhost"), "root page arrival")
@@ -417,7 +454,7 @@ def main():
         wait_for(lambda: displayed("identity.localhost"), "saved confirmation opens homepage")
         assert client.message({"kind": "CONFIRM_ACCESS", "requestId": request_id})["result"]["type"] == "REJECTED"
         assert ("identity.localhost", "/after") not in hits[counts:]
-        client.script("document.getElementById('diagnostics').open = true;")
+        client.script("document.getElementById('show-diagnostics').click();")
         wait_for(lambda: client.script("return document.querySelectorAll('#diagnostic-rows tr').length > 0;"), "visible diagnostics")
         entries = client.message({"kind": "GET_DIAGNOSTICS", "tabId": tab_id})["entries"]
         assert any(item["event"] == "REDIRECT" and item["hostname"] == "identity.localhost" for item in entries)
@@ -489,7 +526,7 @@ def main():
             report["checks"].extend(["existing policy reload", "preset Vault review", "preset Vault confirmation"])
         if arguments.productization:
             from firefox_productization import run_productization
-            ui_handle, report["productization"] = run_productization(client, ui_handle, UI_URL, port, wait_for)
+            ui_handle, report["productization"] = run_productization(client, ui_handle, UI_URL, port, wait_for, run)
             client.call("WebDriver:SwitchToWindow", handle=ui_handle)
             shot = client.call("WebDriver:TakeScreenshot", id=None, highlights=[], full=True)
             (run / "home.png").write_bytes(base64.b64decode(shot))
@@ -529,6 +566,8 @@ def main():
             process.terminate()
             process.wait(timeout=10)
         server.shutdown()
+        if secure_server is not None:
+            secure_server.shutdown()
         log.close()
 
 

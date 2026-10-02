@@ -3,7 +3,7 @@ import { mkdir, copyFile, cp } from 'node:fs/promises';
 
 await mkdir('dist', { recursive: true });
 await build({
-  entryPoints: { background: 'src/background/main.ts', 'ui/main': 'src/ui/main.ts' },
+  entryPoints: { background: 'src/background/main.ts', 'ui/main': 'src/ui/main.ts', 'journey-indicator': 'src/content/journey-indicator.ts' },
   outdir: 'dist', bundle: true, platform: 'browser', format: 'iife', target: 'firefox140',
   // Maps are local development artifacts; neither maps nor bundles contain user data.
   sourcemap: true,

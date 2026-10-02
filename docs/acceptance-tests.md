@@ -275,3 +275,11 @@ The [D19 contract](productization.md) owns protected configuration, explicit mig
 - `python extension/scripts/firefox-e2e.py --productization`: native per-tab toolbar state, keyboard search through the real gate, actual redirect completion, cancellation/expiry/restart, Home/Settings reachability, real IndexedDB migration and settings wait/explicit commit/restart. Existing normal and `--existing-policy` scenarios are retained.
 
 Record final counts/native results in [productization.md](productization.md#evidence). Public/authenticated provider availability and physical crash/power-loss durability remain separate gaps.
+
+## Interface refinement evidence (D20)
+
+The [interface document](ui-design.md) records the reference-guided layout, local pins and unchanged authorization boundary. `extension/tests/home-model.test.mjs` tests Blacklist/removed-host exclusion from pins, stable explicit service identity, distinct active entry points and malformed preference fallback. Native productization checks additionally cover actual sidebar section navigation, persisted pins/restart, simulated presentation-save failure, category expansion, search shortcuts outside editable fields, retained card/focus nodes, narrow viewport overflow and readable frozen timing review. Existing ordinary gate, badge, settings commit, migration and restart assertions remain active.
+
+## Journey interruption and visibility evidence (D21)
+
+The [reproduction and recovery report](firefox-journey-recovery.md) records the pre-fix hidden toolbar placement, ended Journey/history trap, adapter-only retry, read-only content display and browser limitations. Seven `extension/tests/journey-recovery.test.mjs` scenarios cover context-scoped presentation, typed Google denial, history, fresh IDs/current settings, stale redirect evidence, duplicate actions, failed/unknown commits, root removal/Blacklist, and website command rejection. Native `firefox-e2e.py --journey-retry-only` tests actual Home cards/search, root retry, address-bar Google denial, stable countdown nodes, form noninterference, document transitions, completion and reload. The focused public Canvas retry probe stops at credential controls. Full results and limits are owned by the linked report.

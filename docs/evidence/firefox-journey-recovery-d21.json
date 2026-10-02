@@ -1,0 +1,399 @@
+{
+  "date": "2026-10-02",
+  "firefox": "157.0",
+  "note": "Sanitized hostname-only evidence. No credentials submitted; public authenticated return untested. Synthetic Back emitted a blocked request, not demonstrated BFCache restoration.",
+  "before": {
+    "artifact": ".tools/firefox-e2e-1cq7s8bq",
+    "sequence": [
+      {
+        "step": "intermediate arrival",
+        "hostname": "login.localhost",
+        "outcome": "ALLOW",
+        "reason": "ACTIVE_JOURNEY",
+        "journey": {
+          "id": 1,
+          "contextId": "e7bf3e0c-72e0-43d5-9a2e-29ae85346068",
+          "rootHostname": "root.localhost",
+          "currentHostname": "login.localhost",
+          "startedAt": 1790926919757,
+          "expiresAt": 1790927219757,
+          "hopCount": 1,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "IN_TRANSIT",
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "typed unrelated navigation",
+        "hostname": "evil.localhost",
+        "outcome": "GREYLIST",
+        "reason": "UNLISTED",
+        "journey": {
+          "id": 1,
+          "contextId": "e7bf3e0c-72e0-43d5-9a2e-29ae85346068",
+          "rootHostname": "root.localhost",
+          "currentHostname": "login.localhost",
+          "startedAt": 1790926919757,
+          "expiresAt": 1790927219757,
+          "hopCount": 1,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "ENDED",
+          "endedAt": 1790926919890,
+          "endReason": "UNRELATED_NAVIGATION"
+        }
+      },
+      {
+        "step": "Back to stale intermediate",
+        "hostname": "login.localhost",
+        "outcome": "GREYLIST",
+        "reason": "UNLISTED",
+        "journey": {
+          "id": 1,
+          "contextId": "e7bf3e0c-72e0-43d5-9a2e-29ae85346068",
+          "rootHostname": "root.localhost",
+          "currentHostname": "login.localhost",
+          "startedAt": 1790926919757,
+          "expiresAt": 1790927219757,
+          "hopCount": 1,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "ENDED",
+          "endedAt": 1790926919890,
+          "endReason": "UNRELATED_NAVIGATION"
+        }
+      },
+      {
+        "step": "fresh explicit root retry",
+        "hostname": "login.localhost",
+        "outcome": "ALLOW",
+        "reason": "ACTIVE_JOURNEY",
+        "journey": {
+          "id": 2,
+          "contextId": "2708afed-954e-4e32-a4ce-6a9b1ef61c5a",
+          "rootHostname": "root.localhost",
+          "currentHostname": "login.localhost",
+          "startedAt": 1790926920080,
+          "expiresAt": 1790927220080,
+          "hopCount": 1,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "IN_TRANSIT",
+          "endedAt": null,
+          "endReason": null
+        }
+      }
+    ],
+    "badge": {
+      "text": "J",
+      "title": "Atlas \u00b7 Journey \u2192 root.localhost\n5:00 remaining"
+    },
+    "toolbar": {
+      "placement": {
+        "area": "unified-extensions-area",
+        "position": 0
+      },
+      "inNavbar": false,
+      "visible": false
+    },
+    "recoveryUI": {
+      "hostname": "login.localhost",
+      "journeyHidden": true,
+      "restartAvailable": false
+    }
+  },
+  "after": {
+    "artifact": ".tools/firefox-e2e-m181z3ep",
+    "sequence": [
+      {
+        "step": "intermediate arrival",
+        "hostname": "login.localhost",
+        "outcome": "ALLOW",
+        "reason": "ACTIVE_JOURNEY",
+        "journey": {
+          "id": 1,
+          "contextId": "1a7abf09-4058-4294-a2b0-5ea38618a81c",
+          "rootHostname": "root.localhost",
+          "currentHostname": "login.localhost",
+          "startedAt": 1790930143439,
+          "expiresAt": 1790930443439,
+          "hopCount": 1,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "IN_TRANSIT",
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "typed unrelated navigation",
+        "hostname": "evil.localhost",
+        "outcome": "GREYLIST",
+        "reason": "UNLISTED",
+        "journey": {
+          "id": 1,
+          "contextId": "1a7abf09-4058-4294-a2b0-5ea38618a81c",
+          "rootHostname": "root.localhost",
+          "currentHostname": "login.localhost",
+          "startedAt": 1790930143439,
+          "expiresAt": 1790930443439,
+          "hopCount": 1,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "ENDED",
+          "endedAt": 1790930145933,
+          "endReason": "UNRELATED_NAVIGATION"
+        }
+      },
+      {
+        "step": "Back to stale intermediate",
+        "hostname": "login.localhost",
+        "outcome": "GREYLIST",
+        "reason": "UNLISTED",
+        "journey": {
+          "id": 1,
+          "contextId": "1a7abf09-4058-4294-a2b0-5ea38618a81c",
+          "rootHostname": "root.localhost",
+          "currentHostname": "login.localhost",
+          "startedAt": 1790930143439,
+          "expiresAt": 1790930443439,
+          "hopCount": 1,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "ENDED",
+          "endedAt": 1790930145933,
+          "endReason": "UNRELATED_NAVIGATION"
+        }
+      },
+      {
+        "step": "fresh explicit root retry",
+        "hostname": "login.localhost",
+        "outcome": "ALLOW",
+        "reason": "ACTIVE_JOURNEY",
+        "journey": {
+          "id": 2,
+          "contextId": "efa14552-f02f-43ae-8d41-1b588532b298",
+          "rootHostname": "root.localhost",
+          "currentHostname": "login.localhost",
+          "startedAt": 1790930146182,
+          "expiresAt": 1790930446182,
+          "hopCount": 1,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "IN_TRANSIT",
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "Home card recovery",
+        "hostname": "login.localhost",
+        "outcome": "ALLOW",
+        "reason": "ACTIVE_JOURNEY",
+        "journey": {
+          "id": 2,
+          "contextId": "efa14552-f02f-43ae-8d41-1b588532b298",
+          "rootHostname": "root.localhost",
+          "currentHostname": "login.localhost",
+          "startedAt": 1790930146182,
+          "expiresAt": 1790930446182,
+          "hopCount": 1,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "IN_TRANSIT",
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "actual Google interruption",
+        "hostname": "google.com",
+        "outcome": "GREYLIST",
+        "reason": "UNLISTED",
+        "journey": {
+          "id": 2,
+          "contextId": "efa14552-f02f-43ae-8d41-1b588532b298",
+          "rootHostname": "root.localhost",
+          "currentHostname": "login.localhost",
+          "startedAt": 1790930146182,
+          "expiresAt": 1790930446182,
+          "hopCount": 1,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "ENDED",
+          "endedAt": 1790930146336,
+          "endReason": "UNRELATED_NAVIGATION"
+        }
+      },
+      {
+        "step": "Restart button recovery",
+        "hostname": "login.localhost",
+        "outcome": "ALLOW",
+        "reason": "ACTIVE_JOURNEY",
+        "journey": {
+          "id": 3,
+          "contextId": "1a7abf09-4058-4294-a2b0-5ea38618a81c",
+          "rootHostname": "root.localhost",
+          "currentHostname": "login.localhost",
+          "startedAt": 1790930146479,
+          "expiresAt": 1790930446479,
+          "hopCount": 1,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "IN_TRANSIT",
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "auth reload cannot retain old authority",
+        "hostname": "login.localhost",
+        "outcome": "GREYLIST",
+        "reason": "UNLISTED",
+        "journey": {
+          "id": 3,
+          "contextId": "1a7abf09-4058-4294-a2b0-5ea38618a81c",
+          "rootHostname": "root.localhost",
+          "currentHostname": "login.localhost",
+          "startedAt": 1790930146479,
+          "expiresAt": 1790930446479,
+          "hopCount": 1,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "ENDED",
+          "endedAt": 1790930146602,
+          "endReason": "UNRELATED_NAVIGATION"
+        }
+      },
+      {
+        "step": "Home search recovery",
+        "hostname": "login.localhost",
+        "outcome": "ALLOW",
+        "reason": "ACTIVE_JOURNEY",
+        "journey": {
+          "id": 4,
+          "contextId": "6e4e1db2-570b-43ed-971d-65d030ba0b77",
+          "rootHostname": "root.localhost",
+          "currentHostname": "login.localhost",
+          "startedAt": 1790930146664,
+          "expiresAt": 1790930446664,
+          "hopCount": 1,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "IN_TRANSIT",
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "successful root return",
+        "hostname": "root.localhost",
+        "outcome": "ALLOW",
+        "reason": "WHITELISTED",
+        "journey": {
+          "id": 4,
+          "contextId": "6e4e1db2-570b-43ed-971d-65d030ba0b77",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790930146664,
+          "expiresAt": 1790930446664,
+          "hopCount": 2,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "ENDED",
+          "endedAt": 1790930147172,
+          "endReason": "RETURNED"
+        }
+      }
+    ],
+    "checks": [
+      "visible destination/decreasing countdown without node churn or form overlap",
+      "toolbar arrival reset and new navbar placement",
+      "actual Google address entry blocked",
+      "actual Home card and search start fresh roots",
+      "Restart button restarts root and fresh terms",
+      "auth reload uses ordinary policy",
+      "second tab has no inherited indicator",
+      "second intermediate recreates indicator",
+      "return clears indicator",
+      "extension reload ends authority and clears indicator",
+      "unrelated typed destination withheld",
+      "ended UNRELATED_NAVIGATION",
+      "Back does not resurrect Journey",
+      "explicit Home root retry creates fresh Journey and succeeds"
+    ],
+    "stableIndicator": {
+      "sameHost": true,
+      "sameTimer": true,
+      "before": "5:00",
+      "after": "4:58",
+      "nodes": 0,
+      "text": 2,
+      "overlap": false
+    },
+    "badge": {
+      "text": "J",
+      "title": "Atlas \u00b7 Journey \u2192 root.localhost\n4:59 remaining"
+    },
+    "toolbar": {
+      "placement": {
+        "area": "nav-bar",
+        "position": 12
+      },
+      "inNavbar": true,
+      "visible": true
+    },
+    "backEvidence": {
+      "requestObserved": true,
+      "arrivalObserved": false,
+      "serverDocumentRequest": false
+    },
+    "recoveryUI": {
+      "hostname": "login.localhost",
+      "journeyHidden": true,
+      "restartAvailable": true
+    }
+  },
+  "publicCanvas": {
+    "artifact": ".tools/auth-enforcing-hfnb5bak",
+    "interruptionRetry": {
+      "oldJourneyId": 1,
+      "endReason": "UNRELATED_NAVIGATION",
+      "googleOutcome": "GREYLIST",
+      "backHostname": "login.ug.kth.se",
+      "freshJourney": {
+        "id": 2,
+        "contextId": "a02fc304-b3de-45d5-b401-c28010fb4b15",
+        "rootHostname": "canvas.kth.se",
+        "currentHostname": "login.ug.kth.se",
+        "startedAt": 1790928576609,
+        "expiresAt": 1790928876609,
+        "hopCount": 2,
+        "maxHops": 12,
+        "policyRevision": 0,
+        "phase": "IN_TRANSIT",
+        "endedAt": null,
+        "endReason": null
+      },
+      "indicatorDestination": "Canvas",
+      "newTab": true
+    },
+    "policyUnchanged": true,
+    "noGrants": true,
+    "toolbar": {
+      "text": "J",
+      "title": "Atlas \u00b7 Journey \u2192 Canvas\n5:00 remaining"
+    }
+  },
+  "regressions": {
+    "core": "169/169",
+    "extension": "84/84",
+    "buildsAndTypechecks": "PASS",
+    "stabilizationAndProductization": ".tools/firefox-e2e-mplwymxt",
+    "existingPolicyReload": ".tools/firefox-e2e-90qcgiol",
+    "enforcingCharacterization34": ".tools/auth-enforcing-967ph9tg",
+    "observerOnlyCharacterization34": ".tools/auth-passive-t0gtbv0p"
+  }
+}

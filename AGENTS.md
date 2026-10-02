@@ -32,6 +32,8 @@ Milestones 1 through 3 implement TypeScript policy evaluation, pure Greylist acc
 
 Keep one small Core package and the separate authorized Firefox adapter package. Prefer pure functions, explicit dependencies and a small public API. Avoid service frameworks, generic workflow engines, plugin systems and unrelated package proliferation.
 
+D20 refines Firefox presentation; `docs/ui-design.md` owns sidebar/search/cards/pins. Presentation preferences carry no policy authority.
+
 ## Open questions and authority
 
 Current user instructions take precedence over this packet. Requirements and settled decisions are distinguished from proposals in the foundation. Historical Zenith behavior is not authority for Atlas.

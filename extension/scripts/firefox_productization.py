@@ -1,11 +1,17 @@
 """D19 native checks, invoked by firefox-e2e.py --productization in its isolated profile."""
+import base64
 import json
 import time
 
 
-def run_productization(client, ui_handle, ui_url, port, wait_for):
+def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None):
     checks = []
     handles_by_tab = {}
+
+    def capture(name):
+        if artifacts is not None:
+            shot = client.call('WebDriver:TakeScreenshot', id=None, highlights=[], full=False)
+            (artifacts / f'{name}.png').write_bytes(base64.b64decode(shot))
 
     def view():
         client.call('WebDriver:SwitchToWindow', handle=ui_handle)
@@ -81,6 +87,76 @@ def run_productization(client, ui_handle, ui_url, port, wait_for):
     client.script('document.getElementById("show-home").click();')
     assert client.script('return document.getElementById("settings").hidden;')
     assert client.script('return !document.getElementById("destination-search").hidden;')
+    wait_for(lambda: client.script('return document.querySelectorAll("#destination-list .destination-card").length > 0;'), 'destination cards')
+    assert client.script('return [...document.querySelectorAll(".service-mark")].every(mark => mark.textContent === "" && mark.querySelector("img.site-icon"));')
+    icon_policy = snapshot()['policy']
+    custom = client.message({'kind': 'OPEN_DESTINATION', 'url': f'http://root.localhost:{port}/icon-probe'})
+    wait_for(lambda: any(c['tabId'] == custom['tabId'] and c['displayedHostname'] == 'root.localhost' for c in view()['contexts']), 'custom icon fixture arrives')
+    client.script('const image = [...document.querySelectorAll(".site-icon")].find(image => image.dataset.hostname === "root.localhost"); image.scrollIntoView();')
+    wait_for(lambda: client.script('const image = [...document.querySelectorAll(".site-icon")].find(image => image.dataset.hostname === "root.localhost"); return image.src.startsWith("blob:") && image.complete && image.naturalWidth > 0;'), 'custom hostname uses observed website icon')
+    assert snapshot()['policy'] == icon_policy
+    close(custom['tabId'])
+    client.script('document.getElementById("show-home").click();')
+    checks.append('native online website icons, observed favicon on a custom host, decoded image rendering and no letter tiles')
+    print('PASS native site icons: custom-host Firefox metadata, decoded images, unchanged policy', flush=True)
+    authority_before_pins = snapshot()
+    for pin_id in ['service:github.com', 'service:canvas.kth.se', 'service:webmail.kth.se']:
+        wait_for(lambda: client.script('return !document.querySelector("#destination-list [data-pin-id=" + CSS.escape(arguments[0]) + "]").disabled;', pin_id), 'pin control ready')
+        client.script('document.querySelector("#destination-list [data-pin-id=" + CSS.escape(arguments[0]) + "]").click();', pin_id)
+        wait_for(lambda: client.script('return [...document.querySelectorAll("#pinned-list .destination-card")].some(card => card.dataset.destinationId === arguments[0]);', pin_id), 'pin saved and displayed')
+    assert snapshot()['policy'] == authority_before_pins['policy']
+    assert snapshot()['configuration'] == authority_before_pins['configuration']
+    assert len(snapshot()['accessState']['grants']) == len(authority_before_pins['accessState']['grants'])
+    assert client.script('return document.getElementById("access-panel").hidden;')
+    assert client.script('return document.querySelector("#destination-list .service-group").dataset.category === "University";')
+    assert client.script('return document.querySelector(".category-toggle").getAttribute("aria-expanded") === "false";')
+    assert client.script('return document.querySelector(".category-toggle").closest("section").querySelectorAll(".destination-card:not([hidden])").length === 4;')
+    client.script('document.querySelector(".category-toggle").click();')
+    assert client.script('return document.querySelector(".category-toggle").getAttribute("aria-expanded") === "true" && document.querySelector(".category-toggle").closest("section").querySelectorAll(".destination-card:not([hidden])").length > 4;')
+    client.script('document.querySelector(".category-toggle").click();')
+    # Presentation-storage failure cannot change pins or stop the authority UI.
+    failed_pin = client.script('''
+      const before = localStorage.getItem('atlas-home-pins-v1'); const original = Storage.prototype.setItem;
+      Storage.prototype.setItem = function() { throw new Error('synthetic unavailable presentation storage'); };
+      try { document.querySelector('#destination-list [data-pin-id="service:chatgpt.com"]').click(); }
+      finally { Storage.prototype.setItem = original; }
+      return {unchanged:localStorage.getItem('atlas-home-pins-v1') === before, count:document.querySelectorAll('#pinned-list .destination-card').length,
+        feedback:document.getElementById('feedback').textContent};
+    ''')
+    assert failed_pin['unchanged'] and failed_pin['count'] == 3 and 'could not be saved' in failed_pin['feedback'], failed_pin
+    client.script('const pin = document.querySelector("#destination-list [data-pin-id=" + CSS.escape(arguments[0]) + "]"); pin.click(); pin.click();', 'service:webmail.kth.se')
+    assert client.script('return document.getElementById("feedback").hidden && document.querySelectorAll("#pinned-list .destination-card").length === 3;')
+    wait_for(lambda: client.script('return [...document.querySelectorAll("#pinned-list .site-icon")].every(image => image.src.startsWith("blob:") && image.complete && image.naturalWidth > 0);'), 'pinned public website icons render', 15)
+    capture('home-viewport')
+    print('Curated icon presentation:', client.script('return [...document.querySelectorAll("#pinned-list .site-icon")].map(image => ({hostname:image.dataset.hostname, websiteIcon:image.src.startsWith("blob:"), decoded:image.complete && image.naturalWidth > 0}));'), flush=True)
+    client.script('document.getElementById("show-settings").click(); document.getElementById("policy-whitelist").focus();')
+    client.script('document.getElementById("policy-whitelist").dispatchEvent(new KeyboardEvent("keydown", {key:"/", bubbles:true}));')
+    assert client.script('return !document.getElementById("settings").hidden && document.activeElement.id === "policy-whitelist";')
+    client.script('document.getElementById("show-home").click(); document.dispatchEvent(new KeyboardEvent("keydown", {key:"/", bubbles:true}));')
+    assert client.script('return document.activeElement.id === "destination-search";')
+    stable = client.script('''
+      const done = arguments[0]; const firstCard = document.querySelector('#destination-list .destination-card');
+      const counts = {cards: 0, pins: 0}; const observers = [];
+      for (const [id, key] of [['destination-list', 'cards'], ['pinned-list', 'pins']]) {
+        const observer = new MutationObserver(records => { counts[key] += records.length; });
+        observer.observe(document.getElementById(id), {childList:true, subtree:true, characterData:true}); observers.push(observer);
+      }
+      setTimeout(() => { observers.forEach(observer => observer.disconnect());
+        done({...counts, sameCard: firstCard === document.querySelector('#destination-list .destination-card'), sameFocus:document.activeElement.id === 'destination-search'}); }, 2200);
+    ''', asynchronous=True)
+    assert stable == {'cards': 0, 'pins': 0, 'sameCard': True, 'sameFocus': True}, stable
+    for name, target in [('vault', 'vault-section'), ('managed', 'managed-section'), ('diagnostics', 'diagnostics')]:
+        client.script('document.getElementById(arguments[0]).click();', f'show-{name}')
+        assert client.script('return !document.getElementById("settings").hidden && document.getElementById(arguments[0]).getAttribute("aria-current") === "page";', f'show-{name}')
+        assert client.script('return document.getElementById(arguments[0]).getBoundingClientRect().top >= 0 && document.getElementById(arguments[0]).getBoundingClientRect().top < innerHeight;', target)
+    client.script('document.getElementById("show-home").click();')
+    client.call('WebDriver:SetWindowRect', width=500, height=900)
+    assert client.script('return document.documentElement.scrollWidth <= document.documentElement.clientWidth;'), 'small screen overflow'
+    assert client.script('return getComputedStyle(document.querySelector(".sidebar")).position === "static";'), 'small screen navigation'
+    capture('home-small-screen')
+    client.call('WebDriver:SetWindowRect', width=1280, height=1100)
+    checks.append('native sidebar navigation, local pin persistence, ordinary cards, search shortcut, stable DOM and small-screen layout')
+    print('PASS native UI polish: sidebar, saved pins, keyboard shortcut, stable cards and small-screen layout', flush=True)
     client.script('''
       const input = document.getElementById('destination-search'); input.focus(); input.value = 'mail';
       input.dispatchEvent(new Event('input')); input.dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowDown', bubbles:true}));
@@ -162,6 +238,7 @@ def run_productization(client, ui_handle, ui_url, port, wait_for):
     ''', asynchronous=True)
     restart()
     after = snapshot()
+    wait_for(lambda: client.script('return document.querySelectorAll("#pinned-list .destination-card").length === 3;'), 'pins survive extension restart')
     assert after['configuration'] == before['configuration']
     assert after['policy'] == before['policy'] and after['policyRevision'] == before['policyRevision']
     assert after['accessState']['pendingRequests'] == before['accessState']['pendingRequests']
@@ -184,6 +261,8 @@ def run_productization(client, ui_handle, ui_url, port, wait_for):
       document.getElementById('journey-hops').value = '2'; document.getElementById('settings-form').requestSubmit();
     ''')
     pending = wait_for(lambda: snapshot()['vaultState']['pendingProposal'], 'native frozen settings proposal')
+    wait_for(lambda: client.script('return document.querySelectorAll("#vault-settings-rows tr").length > 0 && document.getElementById("vault-nav-status").hidden === false;'), 'frozen human-readable timing review')
+    capture('vault-review')
     assert pending['readyAt'] - pending['createdAt'] == 30000
     assert pending['confirmBy'] - pending['readyAt'] == 60000
     assert snapshot()['configuration']['vaultTiming']['waitMs'] == 30000
@@ -211,7 +290,7 @@ def run_productization(client, ui_handle, ui_url, port, wait_for):
     client.call('WebDriver:SwitchToWindow', handle=unknown_handle)
     wait_for(lambda: client.script('return document.getElementById("show-home");'), 'focused access UI')
     client.script('document.getElementById("show-home").click();')
-    assert client.script('return !document.getElementById("destinations").hidden && document.getElementById("page-title").textContent === "Where do you want to go?";')
+    assert client.script('return !document.getElementById("destinations").hidden && document.getElementById("page-title").textContent === "Atlas";')
     active_id, context = open_url(); old_journey = context['journey']
     wait_for(lambda: client.script('return !document.getElementById("confirm-policy").hidden && !document.getElementById("confirm-policy").disabled;'), 'native settings confirmation', 10)
     assert snapshot()['configuration']['vaultTiming']['waitMs'] == 30000

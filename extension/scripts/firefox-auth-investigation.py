@@ -43,6 +43,7 @@ def main():
     parser.add_argument("--mode", choices=["enforcing", "passive"], default="enforcing")
     parser.add_argument("--public", action="store_true")
     parser.add_argument("--case", help="Run one case by name")
+    parser.add_argument("--journey-retry", action="store_true", help="Public Canvas interruption and fresh Home retry; no credentials")
     parser.add_argument("--firefox", default=os.environ.get("FIREFOX_BINARY") or r"C:\Program Files\Mozilla Firefox\firefox.exe")
     args = parser.parse_args()
     artifacts = smoke.EXTENSION.parent / ".tools"
@@ -228,11 +229,20 @@ def main():
                 case["diagnostics"] = client.message({"kind": "GET_DIAGNOSTICS", "tabId": tab_id})["entries"]
                 case["policyUnchanged"] = True
                 case["noGrants"] = True
+                if args.public:
+                    case['toolbar'] = client.script('''const [tabId,done]=arguments;
+                        Promise.all([browser.browserAction.getBadgeText({tabId}),browser.browserAction.getTitle({tabId})])
+                        .then(([text,title])=>done({text,title}));''',tab_id,asynchronous=True)
             recorded = evidence()
             assert recorded["dropped"] == 0
             case["events"] = recorded["entries"]
             if not args.public:
-                assert_fixture(case, args.mode)
+                try:
+                    assert_fixture(case, args.mode)
+                except AssertionError:
+                    (run / 'failed-fixture.json').write_text(json.dumps(case, indent=2), encoding='utf-8')
+                    print('Failed synthetic characterization:', json.dumps({'name':case['name'],'core':case.get('core'),'serverHits':case['serverHits']}), flush=True)
+                    raise
                 case["characterizationPassed"] = True
             report["cases"].append(case)
             (run / "result.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
@@ -341,6 +351,32 @@ def main():
                 except RuntimeError:
                     case["facts"] = {"unavailable": True}
                 case["serverHits"] = hits[start_hit:]
+            if args.journey_retry and name == 'Canvas' and args.mode == 'enforcing':
+                prior = next(c for c in view()['contexts'] if c['tabId'] == tab_id)
+                assert prior['journey']['phase'] == 'IN_TRANSIT', 'public Canvas must reach an active intermediate'
+                previous_id = prior['journey']['id']
+                typed(handle, 'https://google.com/')
+                stopped = smoke.wait_for(lambda: next((c for c in view()['contexts'] if c['tabId'] == tab_id and c['effect'] == 'REMOVED'),None), 'Google denied during Canvas Journey')
+                assert stopped['journey']['endReason'] == 'UNRELATED_NAVIGATION' and stopped['latest']['decision']['outcome'] != 'ALLOW'
+                client.call('WebDriver:SwitchToWindow',handle=handle); client.call('WebDriver:Back')
+                stale = smoke.wait_for(lambda: next((c for c in view()['contexts'] if c['tabId'] == tab_id
+                    and c['hostname'] != 'google.com' and c['effect'] == 'REMOVED'),None), 'public Back blocks stale authentication page')
+                assert stale['journey']['id'] == previous_id and stale['journey']['phase'] == 'ENDED'
+                ui(); before = set(client.call('WebDriver:GetWindowHandles'))
+                smoke.wait_for(lambda: client.script('return !!document.querySelector("[data-destination-id=\\"service:canvas.kth.se\\"] .destination-open");'), 'Canvas Home launcher')
+                client.script('document.getElementById("show-home").click(); document.querySelector("[data-destination-id=\\"service:canvas.kth.se\\"] .destination-open").click();')
+                fresh_handle = smoke.wait_for(lambda: next((h for h in client.call('WebDriver:GetWindowHandles') if h not in before),None), 'fresh Canvas tab')
+                fresh = smoke.wait_for(lambda: next((c for c in view()['contexts'] if c['journey'] and c['journey']['id'] != previous_id
+                    and c['journey']['rootHostname'] == 'canvas.kth.se' and c['journey']['phase'] == 'IN_TRANSIT' and c['displayedHostname']),None), 'fresh Canvas authentication chain')
+                assert fresh['journey']['expiresAt'] - fresh['journey']['startedAt'] == 300000 and fresh['journey']['maxHops'] == 12
+                client.call('WebDriver:SwitchToWindow',handle=fresh_handle)
+                pill = smoke.wait_for(lambda: client.script('const host=document.getElementById("atlas-journey-indicator");return host?.shadowRoot.textContent;'), 'public Canvas Journey indicator')
+                assert 'Canvas' in pill and 'saml-5.sys.kth.se' not in pill
+                case['interruptionRetry'] = {'oldJourneyId':previous_id,'endReason':stopped['journey']['endReason'],
+                    'googleOutcome':stopped['latest']['decision']['outcome'],'backHostname':stale['hostname'],
+                    'freshJourney':fresh['journey'],'indicatorDestination':'Canvas','newTab':fresh['tabId'] != tab_id}
+                case['actions'] += ['address bar Google denied','Back to stale auth denied','actual Home Canvas retry','visible Canvas indicator']
+                tab_id = fresh['tabId']
             capture(case, tab_id)
             ui()
             remaining = client.script("""const done=arguments[arguments.length-1];

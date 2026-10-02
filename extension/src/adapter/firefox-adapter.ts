@@ -6,7 +6,7 @@ import type { InitializableRepository } from '../storage/indexeddb-repository.js
 import { Diagnostics, type DiagnosticEntry } from './diagnostics.js';
 import type { ManagedBlacklistManager, ManagedView } from '../managed/manager.js';
 import { compileCuratedWhitelist, equivalentServiceHostnames } from '../presets/curated-whitelist.js';
-import { journeyIndicator } from './journey-indicator.js';
+import { journeyIndicator, journeyPresentation, journeyRetry } from './journey-indicator.js';
 
 export interface AdapterHost {
   readonly controller: AtlasController;
@@ -31,6 +31,7 @@ interface Context {
   displayedDecision: AtlasControllerResponse | null; latest: Response | null;
   effect: 'NONE' | 'REMOVING' | 'REMOVED' | 'FAILED'; removalTimer: number | null;
   lastArrival: number; navigationId: number; badge: string;
+  pill: string; rootOrigin: { journeyId: number; origin: string } | null;
 }
 
 export interface AdapterView {
@@ -39,6 +40,7 @@ export interface AdapterView {
   readonly contexts: readonly {
     tabId: number; contextId: string; navigationId: number; hostname: string | null; displayedHostname: string | null;
     latest: Response | null; journey: Journey | null; effect: Context['effect'];
+    retry: ReturnType<typeof journeyRetry>;
   }[];
 }
 
@@ -120,7 +122,7 @@ export class FirefoxAdapter {
     if (context === undefined) {
       context = { tabId, id: this.newContextId(), generation: 0, flight: null, launching: false,
         requested: null, displayed: null, displayedDecision: null, latest: null,
-        effect: 'NONE', removalTimer: null, lastArrival: -1, navigationId: 0, badge: '' };
+        effect: 'NONE', removalTimer: null, lastArrival: -1, navigationId: 0, badge: '', pill: '', rootOrigin: null };
       this.contexts.set(tabId, context);
     }
     return context;
@@ -153,7 +155,7 @@ export class FirefoxAdapter {
           : result !== null && 'reason' in result ? result.reason : null,
         journey: journey === null ? null : { id: journey.id, phase: journey.phase,
           rootHostname: journey.rootHostname, hopCount: journey.hopCount,
-          maxHops: journey.maxHops, expiresAt: journey.expiresAt } });
+          maxHops: journey.maxHops, expiresAt: journey.expiresAt, endReason: journey.endReason } });
     } catch { /* Observability failure cannot release or cancel a navigation. */ }
   }
 
@@ -162,6 +164,7 @@ export class FirefoxAdapter {
       ? JSON.stringify(response.decision) : JSON.stringify(response);
     if (signature(context.latest) !== signature(result)) this.trace('DECISION', context, result);
     context.latest = result;
+    this.publishJourney(context);
     const authority = this.host?.controller.getView() ?? null;
     const unavailable = authority?.status === 'UNAVAILABLE' || authority?.status === 'RECONCILING';
     const decision = result.type === 'ASSESSMENT' ? result.decision : null;
@@ -180,6 +183,25 @@ export class FirefoxAdapter {
       this.api.browserAction.setBadgeBackgroundColor({ tabId: context.tabId,
         color: decision?.outcome === 'ALLOW' ? '#24675c' : '#895327' }),
     ]);
+  }
+
+  private pageJourney(context: Context): ReturnType<typeof journeyPresentation> {
+    const journey = this.journey(context);
+    if (context.flight !== null || context.launching || context.displayed === null
+      || context.latest === null || !allowed(context.latest)
+      || !('target' in context.latest.decision) || context.latest.decision.target?.hostname !== context.displayed.target.hostname
+      || journey?.currentHostname !== context.displayed.target.hostname) return null;
+    return journeyPresentation(this.host?.controller.getView() ?? null, journey, this.now());
+  }
+
+  private publishJourney(context: Context): void {
+    const presentation = this.pageJourney(context);
+    const key = JSON.stringify([context.generation, presentation]);
+    if (context.pill === key) return;
+    context.pill = key;
+    // Passive display only. Content scripts have no privileged command channel.
+    void this.api.tabs.sendMessage(context.tabId, { kind: 'ATLAS_JOURNEY_DISPLAY', presentation }, { frameId: 0 })
+      .catch(() => { if (context.pill === key) context.pill = ''; });
   }
 
   private async check(context: Context, target: SiteTarget, record = false,
@@ -249,6 +271,9 @@ export class FirefoxAdapter {
       if (!this.live(context, generation)) return { cancel: true };
       const journey = this.journey(context);
       flight.journeyId = journey?.id ?? null;
+      if (allowed(result) && journey !== null && journey.phase !== 'ENDED'
+        && journey.rootHostname === flight.destination?.target.hostname && context.rootOrigin?.journeyId !== journey.id)
+        context.rootOrigin = { journeyId: journey.id, origin: flight.destination.origin };
       if (allowed(result) && journey !== null && journey.phase !== 'ENDED'
         && flight.destination!.target.hostname !== journey.rootHostname) {
         result = await this.check(context, flight.destination!.target, true, continuation);
@@ -322,6 +347,7 @@ export class FirefoxAdapter {
       // Firefox resets per-tab browserAction properties on document navigation.
       // Reapply once after arrival; timer-only publication still deduplicates.
       context.badge = '';
+      context.pill = '';
       if (withoutFragment(details.url).split('?', 1)[0] === this.uiUrl) {
         if (context.flight !== null || context.launching) return;
         context.lastArrival = details.timeStamp;
@@ -357,6 +383,7 @@ export class FirefoxAdapter {
       context.displayed = observed;
       context.displayedDecision = result.type === 'ADAPTER_ERROR' ? null : result;
       context.requested = observed;
+      this.publishJourney(context);
       this.trace('ARRIVED', context, result, observed.target.hostname);
       if (!allowed(result)) await this.removeContent(context, generation);
     }).catch(() => {
@@ -502,10 +529,21 @@ export class FirefoxAdapter {
         contextId: context.id, navigationId: context.navigationId,
         hostname: context.requested?.target.hostname ?? null,
         displayedHostname: context.displayed?.target.hostname ?? null,
-        latest: context.latest, journey: this.journey(context), effect: context.effect })) };
+        latest: context.latest, journey: this.journey(context), effect: context.effect,
+        retry: journeyRetry(controller, this.journey(context)) })) };
   }
 
   private message = (input: unknown, sender: browser.runtime.MessageSender): Promise<unknown> | false => {
+    // Closed read-only projection for our top-level content script. No state/UI commands.
+    if (sender.id === this.api.runtime.id && sender.tab?.id !== undefined && sender.frameId === 0
+      && input !== null && typeof input === 'object' && !Array.isArray(input)
+      && Object.keys(input).length === 1 && Object.hasOwn(input, 'kind')
+      && (input as { kind?: unknown }).kind === 'GET_JOURNEY_DISPLAY') {
+      const context = this.contexts.get(sender.tab.id);
+      const observed = sender.url === undefined ? null : destination(sender.url);
+      return Promise.resolve({ presentation: context && observed?.target.hostname === context.displayed?.target.hostname
+        ? this.pageJourney(context) : null });
+    }
     if (sender.id !== this.api.runtime.id || sender.url === undefined
       || sender.url.split(/[?#]/, 1)[0] !== this.uiUrl || (sender.frameId ?? 0) !== 0) return false;
     // A trusted extension page still must use a closed, explicit command shape.
@@ -515,6 +553,7 @@ export class FirefoxAdapter {
     const keys: Record<string, readonly string[]> = {
       GET_VIEW: [], RECOVER: [], SETUP: ['policy'], OPEN_JOURNEY: ['url'], OPEN_DESTINATION: ['url'],
       START_JOURNEY: ['tabId'], CANCEL_JOURNEY: ['tabId'], START_ACCESS: ['tabId'],
+      RESTART_JOURNEY: ['tabId', 'journeyId'],
       CONFIRM_ACCESS: ['requestId'], CANCEL_ACCESS: ['requestId'], OPEN_HOME: ['tabId'],
       CONFIRM_ACCESS_AND_OPEN: ['tabId', 'requestId'], GET_DIAGNOSTICS: ['tabId'], CLEAR_DIAGNOSTICS: [],
       PROPOSE_CURATED_DEFAULTS: [], REVIEW_POLICY: ['proposalId'], CONFIRM_POLICY: ['proposalId'], CANCEL_POLICY: ['proposalId'],
@@ -602,6 +641,21 @@ export class FirefoxAdapter {
     if (!Number.isSafeInteger(command.tabId)) return { error: 'INVALID_CONTEXT' };
     const context = this.contexts.get(command.tabId as number);
     if (context === undefined || context.requested === null) return { error: 'CONTEXT_UNAVAILABLE' };
+    if (command.kind === 'RESTART_JOURNEY') {
+      const retry = journeyRetry(controller.getView(), this.journey(context));
+      if (retry === null || retry.journeyId !== command.journeyId) return { error: 'JOURNEY_RETRY_UNAVAILABLE' };
+      if (context.launching || context.flight !== null) return { error: 'NAVIGATION_IN_PROGRESS' };
+      const generation = context.generation;
+      // A fresh current Core assessment/checkpoint must succeed before any browser effect.
+      result = await this.check(context, { hostname: retry.rootHostname });
+      if (!allowed(result) || result.decision.reason !== 'WHITELISTED' || !this.live(context, generation))
+        return { result, opened: false, view: this.view() };
+      const origin = context.rootOrigin?.journeyId === retry.journeyId ? context.rootOrigin.origin : `https://${retry.rootHostname}`;
+      context.requested = destination(`${origin}/`);
+      this.publish(context, result);
+      this.navigate(context, `${origin}/`);
+      return { opened: true, view: this.view() };
+    }
     if (command.kind === 'CONFIRM_ACCESS_AND_OPEN') {
       const pending = controller.getView().snapshot?.accessState.pendingRequests
         .find((request) => request.id === command.requestId);

@@ -95,6 +95,10 @@ D4 records presentation intent for intermediate domains. D11/D18 supply their cu
 
 **D19 (2026-10-01):** The user accepts D18's genuine correlated HTTP redirect exception and its documented residual risk from a deliberately Whitelisted server. Atlas prevents easy impulsive escape; it does not promise an adversarial boundary against a determined owner or malicious Whitelisted website. Journey remains stable unless actual use produces a reproducible failure or demonstrated practical bypass. Productization adds per-tab Journey presentation, local active-destination search, protected timing configuration through Vault, and a homepage/settings structure. The [productization contract](productization.md) owns the implementation plan and settings/migration semantics. No authentication inference, transit graphs, learned infrastructure or AUTH_CONTINUATION is authorized.
 
+**D20 (2026-10-01):** The reference-guided Firefox interface adds a calm sidebar, destination cards, explicit local pins and clearer Settings/Vault review. Pins organize effective active destinations and carry no authorization. The [interface document](ui-design.md) owns presentation behavior and evidence. D18/D19 domain semantics, exact-host scope and persistence-before-permission remain unchanged.
+
+**D21 (2026-10-02):** Concrete dogfooding authorizes stronger Journey visibility and explicit recovery after interruption. The adapter projects saved Journey state into a passive per-tab indicator and offers root retry from verified ended records. Retry enters the ordinary navigation gate with fresh Core terms; it never resumes an intermediate or revives an ended attempt. The [reproduction and recovery contract](firefox-journey-recovery.md) owns findings, browser limitations and evidence. D18 and Core semantics remain unchanged.
+
 ## Milestone 1 input contract
 
 Recorded 2026-09-26 to keep the first evaluator small and explicit:
