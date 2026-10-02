@@ -1,5 +1,7 @@
 # Firefox behavior stabilization
 
+**D22 update (2026-10-02):** The user approved one browser-attested departure from a loaded Pure Whitelist root after the Canvas Login report. Subsequent unfamiliar steps retain HTTP redirect requirements. The [Journey polishing report](firefox-journey-polish.md) owns the current contract and tests; the D18 results below describe the previous strict first-departure behavior.
+
 **D19 update:** Protected timing configuration is now implemented in the aggregate snapshot and shared Vault workflow. See [productization.md](productization.md) for current semantics and evidence; the recommendations below describe the earlier stabilization pass.
 
 Investigation began on 2026-10-01 after real first-run reports. This pass targets navigation semantics and presentation stability, without a homepage redesign or settings implementation.

@@ -1,6 +1,6 @@
 # Starting the new AtlasCore repository
 
-Status: Pure domain modules, D13/D14 planning and commit coordination, D15-D17 Firefox adapter and D18 stabilization are implemented. Electron, broader browser coverage, and Context Whitelist remain deferred. Current commands and results are in the root README.
+Status: Pure domain modules, D13/D14 planning and commit coordination, D15-D17 Firefox adapter, D18 stabilization and subsequent D19-D22 prototype refinements are implemented. D22's approved first root departure and lifecycle corrections are owned by [the polishing report](firefox-journey-polish.md); D23's [coherence review](code-review.md) records subsequent lifecycle and UI cleanup. Electron, broader browser coverage, and Context Whitelist remain deferred. Current commands and results are in the root README.
 
 ## Requirements
 

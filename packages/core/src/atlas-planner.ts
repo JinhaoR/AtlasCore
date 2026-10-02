@@ -205,6 +205,35 @@ function beginNavigation(
   if (bindingError !== null) return reject(bindingError, snapshot);
   const current = snapshot.journeyState.journeys.find((j) => j.id === operation.context.journeyId);
   const access = evaluateAccess(operation.target, accessContext(snapshot, now));
+  const departure = operation.context.continuation?.kind === "ROOT_DEPARTURE"
+    ? operation.context.continuation : undefined;
+  if (departure !== undefined) {
+    // A trusted owner attests one departure from a physically loaded Whitelist root.
+    // Target denial cannot create an attempt, and current policy validates its source.
+    if (access.decision.outcome === "DENY" || managedDenies(snapshot, operation.target.hostname, managed)) {
+      return navigationPlan(operation, snapshot, now, managed);
+    }
+    if (evaluateAccess({ hostname: departure.sourceHostname }, accessContext(snapshot, now)).decision.reason !== "WHITELISTED") {
+      return reject("NOT_WHITELISTED", snapshot);
+    }
+    if (departure.sourceHostname === operation.target.hostname) return reject("INVALID_NAVIGATION", snapshot);
+    if (access.decision.outcome === "ALLOW" && access.decision.reason === "WHITELISTED") {
+      // Independently trusted destinations keep the ordinary requested-root contract.
+      return beginNavigation({ ...operation, context: { contextId: operation.context.contextId,
+        journeyId: operation.context.journeyId } }, snapshot, now, managed, configuration);
+    }
+    if (current !== undefined && current.phase !== "ENDED") {
+      // Only the first step of this attempt can use the departure fact. It cannot
+      // replace or renew an active attempt, including one rooted elsewhere.
+      return navigationPlan(operation, snapshot, now, managed);
+    }
+    const started = startJourney({ hostname: departure.sourceHostname }, operation.context.contextId,
+      journeyContext(snapshot, now), configuration.journeyLimits);
+    if (!started.ok || started.type !== "STARTED") return reject(started.ok ? "INVALID_JOURNEY_STATE" : started.reason, snapshot);
+    const candidate = { ...snapshot, journeyState: started.nextState };
+    const plan = navigationPlan({ ...operation, context: { ...operation.context, journeyId: started.journey.id } }, candidate, now, managed);
+    return makePlan(plan.result, snapshot, plan.observationSnapshot ?? candidate);
+  }
   if (access.decision.outcome !== "ALLOW" || access.decision.reason !== "WHITELISTED") {
     return navigationPlan(operation, snapshot, now, managed);
   }

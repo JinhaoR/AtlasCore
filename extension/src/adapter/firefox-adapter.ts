@@ -219,6 +219,15 @@ export class FirefoxAdapter {
     }
   }
 
+  private async abandonUnreleasedDeparture(context: Context, flight: Flight): Promise<void> {
+    // A saved first hop was never executed. End only that still-bound attempt,
+    // before the newer queued request receives a fresh Core assessment.
+    if (!this.stopped && this.contexts.get(context.tabId) === context && !flight.released
+      && flight.journeyId !== null && this.journey(context)?.id === flight.journeyId) {
+      await this.loseJourney(context);
+    }
+  }
+
   private clearRemoval(context: Context): void {
     if (context.removalTimer !== null) this.unschedule(context.removalTimer);
     context.removalTimer = null;
@@ -240,6 +249,8 @@ export class FirefoxAdapter {
     const correlated = previous !== null && previous.released && previous.requestId === details.requestId
       && previous.redirectUrl === withoutFragment(details.url) && previous.timeStamp <= details.timeStamp;
     const initiator = details.originUrl === undefined ? null : destination(details.originUrl);
+    const sourceDocument = context.displayed;
+    const sourceAuthority = context.displayedDecision;
     if (context.flight !== null && (!context.flight.released || context.flight.requestId !== details.requestId))
       this.trace('SUPERSEDED', context);
     const generation = ++context.generation;
@@ -258,7 +269,7 @@ export class FirefoxAdapter {
       const active = this.journey(context);
       // Attest the authorization cursor, including a root traversed without document arrival.
       // Request ID alone never proves a redirect: the expected target must also match.
-      const continuation: JourneyContinuation | undefined = active !== null && active.phase !== 'ENDED'
+      const existingContinuation: JourneyContinuation | undefined = active !== null && active.phase !== 'ENDED'
         ? correlated && previous.journeyId === active.id
           ? { kind: 'HTTP_REDIRECT', sourceHostname: active.currentHostname }
           : initiator?.target.hostname === context.displayed?.target.hostname
@@ -266,19 +277,38 @@ export class FirefoxAdapter {
             && flight.destination?.target.hostname === active.currentHostname
             ? { kind: 'SAME_HOST', sourceHostname: active.currentHostname } : undefined
         : undefined;
+      // Browser provenance establishes one departure from the actual loaded root,
+      // never authentication purpose. Core revalidates its current Whitelist status.
+      const rootDeparture = sourceDocument !== null && context.displayed === sourceDocument
+        && sourceAuthority !== null && allowed(sourceAuthority) && sourceAuthority.decision.reason === 'WHITELISTED'
+        && initiator?.origin === sourceDocument.origin
+        && flight.destination !== null && flight.destination.target.hostname !== sourceDocument.target.hostname
+        && (active === null || active.phase === 'ENDED'
+          || active.phase === 'STARTED' && active.rootHostname === sourceDocument.target.hostname);
+      const continuation: JourneyContinuation | undefined = existingContinuation
+        ?? (rootDeparture ? { kind: 'ROOT_DEPARTURE', sourceHostname: sourceDocument.target.hostname } : undefined);
       let result: Response = flight.destination === null ? error('INVALID_TARGET')
         : await this.check(context, flight.destination.target, false, continuation, true);
-      if (!this.live(context, generation)) return { cancel: true };
       const journey = this.journey(context);
       flight.journeyId = journey?.id ?? null;
+      if (!this.live(context, generation)) {
+        if (rootDeparture) await this.abandonUnreleasedDeparture(context, flight);
+        return { cancel: true };
+      }
       if (allowed(result) && journey !== null && journey.phase !== 'ENDED'
         && journey.rootHostname === flight.destination?.target.hostname && context.rootOrigin?.journeyId !== journey.id)
         context.rootOrigin = { journeyId: journey.id, origin: flight.destination.origin };
       if (allowed(result) && journey !== null && journey.phase !== 'ENDED'
+        && continuation?.kind === 'ROOT_DEPARTURE' && journey.rootHostname === sourceDocument?.target.hostname)
+        context.rootOrigin = { journeyId: journey.id, origin: sourceDocument.origin };
+      if (allowed(result) && journey !== null && journey.phase !== 'ENDED'
         && flight.destination!.target.hostname !== journey.rootHostname) {
         result = await this.check(context, flight.destination!.target, true, continuation);
       }
-      if (!this.live(context, generation)) return { cancel: true };
+      if (!this.live(context, generation)) {
+        if (rootDeparture) await this.abandonUnreleasedDeparture(context, flight);
+        return { cancel: true };
+      }
       // A browser effect can only use the lifetime returned by Core; this guard only vetoes.
       if (allowed(result) && 'expiresAt' in result.decision && this.now() >= result.decision.expiresAt) {
         result = error('RECHECK_REQUIRED');
@@ -339,8 +369,46 @@ export class FirefoxAdapter {
     if (details.frameId !== 0 || this.stopped) return;
     const context = this.context(details.tabId);
     const generation = context.generation;
+    const received = destination(details.url);
+    const released = context.flight;
+    const receivedJourney = this.journey(context);
+    const matchedAtReceipt = received !== null && released !== null && released.released && released.authority !== null
+      && released.url === withoutFragment(details.url) && released.timeStamp <= details.timeStamp
+      && details.timeStamp > context.lastArrival;
+    if (matchedAtReceipt) {
+      // Capture the browser fact before an immediate form submission can supersede
+      // queued processing. This uses an already saved released-request assessment.
+      context.displayed = received;
+      context.displayedDecision = released.authority;
+    } else if (received === null && !/^https?:\/\//i.test(details.url)
+      && details.timeStamp > context.lastArrival) {
+      // Replacing the loaded document also retires its source authority. Capture
+      // this veto before a following request can supersede queued reconciliation.
+      // Retiring the source leaves a newer held HTTP request or launch intact.
+      context.displayed = null;
+      context.displayedDecision = null;
+    }
     void this.run(async () => {
-      if (!this.live(context, generation) || details.timeStamp <= context.lastArrival) return;
+      if (details.timeStamp <= context.lastArrival) return;
+      if (!this.live(context, generation)) {
+        // New requests may supersede publication, but not a real arrival's domain
+        // bookkeeping. In particular, a root arrival must end the old attempt before
+        // the following root login request starts its fresh one.
+        if (this.stopped || this.contexts.get(context.tabId) !== context || received === null
+          || receivedJourney === null || this.journey(context)?.id !== receivedJourney.id) return;
+        if (matchedAtReceipt && released.journeyId === receivedJourney.id && receivedJourney.phase !== 'ENDED') {
+          await this.host?.controller.handle({ kind: 'RECORD_JOURNEY_NAVIGATION', target: received.target,
+            context: { contextId: context.id, journeyId: receivedJourney.id,
+              continuation: { kind: 'ARRIVAL', sourceHostname: receivedJourney.currentHostname } } });
+          context.lastArrival = details.timeStamp;
+        } else if (!matchedAtReceipt && (released === null || details.timeStamp >= released.timeStamp)) {
+          // A restored document cannot borrow the previous request's authority merely
+          // by submitting a new same-host action before reconciliation runs.
+          await this.loseJourney(context);
+          context.lastArrival = details.timeStamp;
+        }
+        return;
+      }
       const tab = await this.api.tabs.get(details.tabId);
       if (!this.live(context, generation) || tab.url === undefined
         || withoutFragment(tab.url) !== withoutFragment(details.url)) return;
@@ -364,13 +432,27 @@ export class FirefoxAdapter {
         }
         // Firefox can commit the initial about:blank after the HTTP request is already held.
         // Its arrival must not discard that newer request or the deliberate Journey start.
-        if (!context.launching && context.flight === null) await this.loseJourney(context);
+        if (!context.launching && context.flight === null) {
+          context.lastArrival = details.timeStamp;
+          context.displayed = null;
+          context.displayedDecision = null;
+          await this.loseJourney(context);
+        }
         return;
       }
       context.lastArrival = details.timeStamp;
       const flight = context.flight;
       const matched = flight !== null && flight.released && flight.url === withoutFragment(details.url)
         && flight.timeStamp <= details.timeStamp;
+      // Browser arrival is a fact even while its Core checkpoint is being saved.
+      // A document can immediately submit a same-host form during that save; retaining
+      // the previous document here would misclassify that action as unrelated.
+      context.displayed = observed;
+      context.displayedDecision = matched ? flight.authority : null;
+      if (context.launching) {
+        context.launching = false;
+        this.clearRemoval(context);
+      }
       context.flight = null;
       if (!matched) await this.loseJourney(context);
       const journey = this.journey(context);
@@ -380,9 +462,9 @@ export class FirefoxAdapter {
       const result = await this.check(context, observed.target, active, continuation);
       if (!this.live(context, generation)) return;
       this.publish(context, result);
-      context.displayed = observed;
       context.displayedDecision = result.type === 'ADAPTER_ERROR' ? null : result;
       context.requested = observed;
+      if (allowed(result)) context.effect = 'NONE';
       this.publishJourney(context);
       this.trace('ARRIVED', context, result, observed.target.hostname);
       if (!allowed(result)) await this.removeContent(context, generation);
@@ -474,6 +556,10 @@ export class FirefoxAdapter {
         }
         continue;
       }
+      // Until removal arrives, Firefox may still report the previous document.
+      // Keep the denied request's explanation and the original close watchdog.
+      // A new held navigation clears REMOVING through the ordinary gate.
+      if (previous?.effect === 'REMOVING') continue;
       if (observed === null) {
         if (/^https?:\/\//i.test(tab.url)) {
           const context = previous ?? this.context(tab.id);
@@ -644,6 +730,9 @@ export class FirefoxAdapter {
     if (command.kind === 'RESTART_JOURNEY') {
       const retry = journeyRetry(controller.getView(), this.journey(context));
       if (retry === null || retry.journeyId !== command.journeyId) return { error: 'JOURNEY_RETRY_UNAVAILABLE' };
+      // Finish removing the previous document before issuing a new browser effect.
+      // Its expired authorization must not be retained or used to veto a fresh retry.
+      if (context.effect === 'REMOVING') return { error: 'CONTENT_REMOVAL_IN_PROGRESS', opened: false, view: this.view() };
       if (context.launching || context.flight !== null) return { error: 'NAVIGATION_IN_PROGRESS' };
       const generation = context.generation;
       // A fresh current Core assessment/checkpoint must succeed before any browser effect.

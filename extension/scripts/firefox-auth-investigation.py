@@ -28,6 +28,7 @@ smoke = public.smoke
 
 PUBLIC = [
     ("Canvas", "canvas.kth.se", "https://canvas.kth.se/"),
+    ("KTH Apps", "app.kth.se", "https://app.kth.se/"),
     ("KTH webmail", "webmail.kth.se", "https://webmail.kth.se/"),
     ("Gmail", "mail.google.com", "https://mail.google.com/"),
     ("Microsoft account", "myaccount.microsoft.com", "https://myaccount.microsoft.com/"),
@@ -43,9 +44,16 @@ def main():
     parser.add_argument("--mode", choices=["enforcing", "passive"], default="enforcing")
     parser.add_argument("--public", action="store_true")
     parser.add_argument("--case", help="Run one case by name")
+    parser.add_argument("--public-url", help="Public entry path for the selected case; no queries, fragments or credentials")
     parser.add_argument("--journey-retry", action="store_true", help="Public Canvas interruption and fresh Home retry; no credentials")
     parser.add_argument("--firefox", default=os.environ.get("FIREFOX_BINARY") or r"C:\Program Files\Mozilla Firefox\firefox.exe")
     args = parser.parse_args()
+    if args.public_url:
+        selected = next((case for case in PUBLIC if case[0] == args.case), None)
+        supplied = urlsplit(args.public_url)
+        if not args.public or selected is None or supplied.scheme != 'https' or supplied.hostname != selected[1] \
+                or supplied.query or supplied.fragment or supplied.username or supplied.password:
+            parser.error('--public-url requires one matching HTTPS public case without private URL fields')
     artifacts = smoke.EXTENSION.parent / ".tools"
     artifacts.mkdir(exist_ok=True)
     run = Path(tempfile.mkdtemp(prefix=f"auth-{args.mode}-", dir=artifacts))
@@ -274,7 +282,7 @@ def main():
             time.sleep(0.25)
             evidence("RESET")
             start_hit = len(hits)
-            url = operation_or_url if args.public else f"http://app.localhost:{server.server_port}{root_or_path}"
+            url = (args.public_url or operation_or_url) if args.public else f"http://app.localhost:{server.server_port}{root_or_path}"
             typed(handle, url)
             case = {"name": name, "actions": ["address bar root"]}
             if args.public:
@@ -292,7 +300,7 @@ def main():
                         if page["atlasPage"] or page["browserError"] or (page["credentialForm"] and
                             (name not in ["Overleaf", "GitHub"] or clicked)):
                             break
-                        if page["documentReady"] and (not clicked or name == "Ladok" and len(case["actions"]) < 4) and name in ["Overleaf", "GitHub", "Ladok"]:
+                        if page["documentReady"] and (not clicked or name == "Ladok" and len(case["actions"]) < 4) and name in ["Overleaf", "GitHub", "Ladok", "KTH Apps", "Canvas"]:
                             client.call("WebDriver:SwitchToWindow", handle=handle)
                             action = client.script(public.DEEP_QUERY + """
                                 const links=queryAll('a,button').filter(e=>e.getClientRects().length>0);
@@ -300,9 +308,14 @@ def main():
                                     ?? links.find(e=>/logga in|log in|sign in/i.test(e.textContent))
                                   : links.find(e=>e.matches('a[href="/login"]'))
                                     ?? links.find(e=>/sign in|log in|logga in|login/i.test(e.textContent));
-                                if(item){item.click();return true}return false;""", name == "Ladok")
+                                if(item){
+                                    const target = item.matches('a[href]') ? new URL(item.href, location.href).hostname : null;
+                                    const fact = {sourceHostname: location.hostname, targetHostname: target, elementKind: item.tagName};
+                                    item.click();return fact;
+                                }return null;""", name == "Ladok")
                             if action:
                                 case["actions"].append("script-click public sign-in control; no credential submission")
+                                case.setdefault('publicLoginActions', []).append(action)
                                 clicked = True
                     except RuntimeError:
                         pass
@@ -427,8 +440,9 @@ def assert_fixture(case, mode):
     if mode == "passive":
         return
     decision = case["core"]["latest"]["decision"]
-    grey = ["B_href", "B_assign", "B_replace", "B_auto_JS", "E_auto_JS", "auto_POST", "C_POST", "GET_form",
-            "JS_submit", "D_link", "E_JS", "F_during", "F_after", "H_SAML_POST", "meta_refresh", "iframe_promote"]
+    # D22 approves one origin-matched departure from a loaded Whitelisted root,
+    # including page-driven actions. Later unfamiliar page actions remain strict.
+    grey = ["F_during", "F_after", "H_SAML_POST", "iframe_promote"]
     expected = "GREYLIST" if name in grey else "DENY" if name == "blacklist_HTTP" else "ALLOW"
     assert decision["outcome"] == expected
     if expected != "ALLOW":
@@ -437,8 +451,14 @@ def assert_fixture(case, mode):
     if name in ["G_popup", "blank_link"]:
         assert any(e["event"] == "webNavigation.onCreatedNavigationTarget" for e in events)
         assert not any(h["hostname"] == "auth.localhost" for h in hits)
-    if name.startswith("A_") or name == "I_intermediate":
+    if name.startswith("A_") or name in ["I_intermediate", "B_href", "B_assign", "B_replace", "B_auto_JS",
+                                        "auto_POST", "C_POST", "GET_form", "JS_submit", "meta_refresh"]:
         assert case["core"]["journey"]["endReason"] == "RETURNED"
+    if name in ["E_auto_JS", "D_link", "E_JS"]:
+        # The deliberately accepted first-departure risk: provenance is not purpose.
+        assert decision["reason"] == "ACTIVE_JOURNEY"
+        assert case["core"]["journey"]["rootHostname"] == "app.localhost"
+        assert case["core"]["journey"]["hopCount"] == 1
     if name == "J_canonical":
         assert case["core"]["journey"]["endReason"] == "DESTINATION_CHANGED"
     deadlines = {}

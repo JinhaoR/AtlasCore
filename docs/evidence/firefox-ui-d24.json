@@ -1,0 +1,50 @@
+{
+  "milestone": "D24",
+  "date": "2026-10-02",
+  "extensionVersion": "0.1.4",
+  "firefox": "157.0",
+  "coherence": [
+    "unsaved policy/timing drafts survive unavailable authority and reconnect; commands stay disabled",
+    "fractional millisecond draft cannot create a Vault proposal or change active settings",
+    "explicit navigation clears stale feedback; search/Escape retain focus; responsive Home has no horizontal overflow",
+    "current destination and Home move focus to their visible content",
+    "native internal replacement clears root evidence; next unknown site gets no Journey or grant",
+    "Greylist request preserves wait; hidden action transfers focus to access heading"
+  ],
+  "productization": {
+    "checks": [
+      "native sidebar width, accessible icon controls, Space/Enter focus, UI reload, native cross-document storage sync, corrupt preference fallback and ephemeral layout after failed preference save",
+      "native online website icons, observed favicon on a custom host, decoded image rendering and no letter tiles",
+      "unpinning a focused Pinned card moves focus to its visible destination pin",
+      "native narrow layout: requested 350px outer width, actual 500px viewport, no horizontal overflow and fully visible Home/Settings labels",
+      "native Home/Settings navigation and actual settings disclosures, local pin persistence, ordinary cards, search shortcut, stable DOM and small-screen layout",
+      "native local search, aliases, blacklist exclusion, keyboard selection and ordinary gate",
+      "native atomic schema-1 migration, unchanged policy/runtime terms and frozen pending policy wait",
+      "native per-tab badge/title, cancellation, expiry and restart clearing",
+      "native old-term settings wait, explicit confirmation, atomic activation and frozen Access/Journey terms",
+      "native committed settings and pending proposal restart",
+      "Home/Settings preserve policy, managed list, Vault, diagnostics and recovery tools"
+    ],
+    "configurationRevision": 1
+  },
+  "existingPolicyAndBrowsing": [
+    "managed denial",
+    "managed cache restart",
+    "journey",
+    "redirect",
+    "greylist",
+    "confirmation UI",
+    "focus retention",
+    "diagnostics UI",
+    "closed-tab selection",
+    "request withholding",
+    "background restart",
+    "existing policy reload",
+    "preset Vault review",
+    "preset Vault confirmation"
+  ],
+  "limitations": [
+    "Firefox clamps the requested 350px outer window to a 500px viewport; native smaller-width and dedicated screen-reader/zoom checks remain unverified.",
+    "Synthetic profiles do not establish authenticated provider compatibility."
+  ]
+}

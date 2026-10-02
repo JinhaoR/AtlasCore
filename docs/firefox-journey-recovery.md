@@ -1,5 +1,7 @@
 # Journey visibility and interruption recovery (D21)
 
+**D22 update:** [Journey polishing](firefox-journey-polish.md) adds arrival/retry ordering fixes and the approved first departure from a loaded trusted root. The D21 results below describe the previous authorization boundary and remain evidence for its presentation/recovery work.
+
 Authorized dogfooding fixes on 2026-10-02. Keep D18 authorization and Core unchanged. This document owns the narrow presentation/retry change.
 
 ## Before changing production behavior

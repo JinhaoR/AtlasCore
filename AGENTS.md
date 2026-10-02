@@ -34,6 +34,12 @@ Keep one small Core package and the separate authorized Firefox adapter package.
 
 D20 refines Firefox presentation; `docs/ui-design.md` owns sidebar/search/cards/pins. Presentation preferences carry no policy authority.
 
+D22 fixes Journey arrival/retry ordering and adds the explicitly approved first browser-attested departure from a loaded Whitelisted root. Later unfamiliar steps retain HTTP redirect requirements. See `docs/firefox-journey-polish.md`; no provider trust is inferred.
+
+D23's logic/structure/UI review is recorded in `docs/code-review.md`. Timing display and draft conversion belong to `extension/src/ui/settings-model.ts`; they carry no authorization. Preserve drafts across unavailable authority and retire departed browser source evidence promptly.
+
+D24 simplifies Firefox navigation to Home/Settings with native disclosures and a saved minimized sidebar; `docs/ui-design.md` owns the presentation contract. Sidebar/pin preferences remain separate from authoritative storage.
+
 ## Open questions and authority
 
 Current user instructions take precedence over this packet. Requirements and settled decisions are distinguished from proposals in the foundation. Historical Zenith behavior is not authority for Atlas.

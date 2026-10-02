@@ -5,6 +5,18 @@ import { openRepository } from '../dist/lib/storage/indexeddb-repository.js';
 import { policy, configuration } from './support/fixture.mjs';
 import { planAtlasOperation } from '@atlas/core';
 
+test('a blocked repository open closes any connection delivered after rejection', async () => {
+  const request = {};
+  const opening = openRepository({ open: () => request }, () => 'v1');
+  const rejected = assert.rejects(opening, /STORAGE_UNAVAILABLE/);
+  request.onblocked();
+  await rejected;
+  let closed = false;
+  request.result = { close: () => { closed = true; } };
+  request.onsuccess();
+  assert.equal(closed, true, 'the rejected caller cannot own or close a later connection');
+});
+
 async function setup(t) {
   const factory = new IDBFactory();
   let version = 0;

@@ -86,12 +86,16 @@ def main():
     parser.add_argument("--existing-policy", action="store_true", help="Exercise reload and explicit Vault upgrade from an older saved policy")
     parser.add_argument("--productization", action="store_true", help="Add native badge/search/protected settings and schema migration checks")
     parser.add_argument("--productization-only", action="store_true", help="Run the isolated D19 checks after fresh setup")
+    parser.add_argument("--coherence-only", action="store_true", help="Run isolated adapter/source, UI draft and keyboard-focus regressions")
     parser.add_argument("--journey-retry-only", action="store_true", help="Run Journey interruption/retry and visibility checks")
     parser.add_argument("--journey-probe", action="store_true", help="Record pre-fix Journey interruption behavior")
+    parser.add_argument("--journey-polish-only", action="store_true", help="Exercise loaded-root login, immediate SAML-style submission and repeated same-tab retry")
+    parser.add_argument("--root-departure-probe", action="store_true", help="With --journey-polish-only, record prior strict denial of a direct loaded-root Login link")
+    parser.add_argument("--addon-dir", type=Path, default=EXTENSION / 'dist', help="Built add-on directory (default: extension/dist)")
     arguments = parser.parse_args()
     if not Path(arguments.firefox).is_file():
         raise SystemExit("Firefox not found. Set FIREFOX_BINARY or pass --firefox.")
-    if not (EXTENSION / "dist/manifest.json").is_file():
+    if not (arguments.addon_dir / "manifest.json").is_file():
         raise SystemExit("Build the extension first: npm --prefix extension run build")
     artifacts = EXTENSION.parent / ".tools"
     artifacts.mkdir(exist_ok=True)
@@ -101,6 +105,23 @@ def main():
     hits = []
 
     class Pages(BaseHTTPRequestHandler):
+        def do_POST(self):
+            host = self.headers.get('Host', '').split(':')[0]
+            if arguments.journey_polish_only and host == 'app.localhost' and self.path == '/polish-app-post':
+                hits.append((host, self.path))
+                self.send_response(303)
+                self.send_header('Location', f'http://login.localhost:{server.server_port}/polish-auto')
+                self.end_headers()
+                return
+            if arguments.journey_polish_only and self.path == '/polish-select':
+                hits.append((host, self.path))
+                self.send_response(303)
+                self.send_header('Location', f'http://identity.localhost:{server.server_port}/polish-identity')
+                self.end_headers()
+                return
+            self.send_response(404)
+            self.end_headers()
+
         def do_GET(self):
             host = self.headers.get("Host", "").split(":")[0]
             hits.append((host, self.path))
@@ -119,6 +140,11 @@ def main():
             }
             if arguments.journey_retry_only:
                 redirects[("root.localhost", "/")] = f"http://login.localhost:{port}/"
+            if arguments.journey_polish_only:
+                redirects[("root.localhost", "/polish-login")] = f"http://login.localhost:{port}/polish-auto"
+                redirects[("identity.localhost", "/polish-finish")] = f"http://root.localhost:{port}/polish-complete"
+                redirects[("app.localhost", "/polish-app")] = f"http://login.localhost:{port}/polish-auto"
+                redirects[("app.localhost", "/polish-app-script")] = f"http://login.localhost:{port}/polish-auto"
             if (host, self.path) in redirects:
                 self.send_response(302)
                 self.send_header("Location", redirects[(host, self.path)])
@@ -133,6 +159,19 @@ def main():
             body = f'<!doctype html><title>{host}</title><link rel="icon" type="image/svg+xml" href="/atlas-site-icon.svg"><h1>{host}</h1>'
             if arguments.journey_retry_only and host == 'login.localhost':
                 body += '<form id="synthetic-login" style="position:absolute;left:25%;top:25%;width:40%;height:120px"><label>Synthetic identity<input name="identity"></label><button type="button">Continue</button></form>'
+            if arguments.journey_polish_only:
+                if host == 'root.localhost':
+                    if self.path == '/polish-slow':
+                        time.sleep(4)
+                    body += f'<a id="polish-login" href="http://root.localhost:{port}/polish-login">Log in</a>'
+                    body += f'<p><a id="polish-direct-login" href="http://app.localhost:{port}/polish-app">Direct Login</a></p>'
+                    body += f'<form method="POST" action="http://app.localhost:{port}/polish-app-post"><button id="polish-direct-post" type="submit">Direct POST Login</button></form>'
+                    body += f'<button id="polish-direct-script" onclick="location.href=\'http://app.localhost:{port}/polish-app-script\'">Script Login</button>'
+                elif host == 'login.localhost' and self.path == '/polish-auto':
+                    body += '<form id="polish-auto" method="POST" action="/polish-select"></form><script>document.getElementById("polish-auto").submit()</script>'
+                elif host == 'identity.localhost':
+                    body += f'<a id="polish-finish" href="http://identity.localhost:{port}/polish-finish">Finish</a>'
+                    body += f'<p><a id="polish-unrelated" href="http://evil.localhost:{port}/polish-uncorrelated">Unrelated destination</a></p>'
             if link:
                 body += f'<a id="{link[0]}" href="{link[1]}">{link[2]}</a>'
             self.send_response(200)
@@ -199,7 +238,7 @@ def main():
             assert session['capabilities']['acceptInsecureCerts'], 'synthetic HTTPS fixture capability'
         version = session["capabilities"]["browserVersion"]
         client.call("WebDriver:SetWindowRect", width=1280, height=1100)
-        client.call("Addon:Install", path=str(EXTENSION / "dist"), temporary=True)
+        client.call("Addon:Install", path=str(arguments.addon_dir.resolve()), temporary=True)
         handles = client.call("WebDriver:GetWindowHandles")
         client.call("WebDriver:SwitchToWindow", handle=handles[-1])
         # WebDriver forbids content-context navigation to privileged extension URLs.
@@ -254,7 +293,7 @@ def main():
             """, spare_id, asynchronous=True)
             assert client.message({"kind": "GET_VIEW"})["view"]["controller"]["snapshot"]["policy"] == policy
             wait_for(lambda: client.script("return document.getElementById('propose-defaults')?.hidden === false && !document.getElementById('propose-defaults').disabled;"), "preset upgrade button")
-            client.script("document.getElementById('show-settings').click(); document.getElementById('propose-defaults').closest('details').open = true; document.getElementById('propose-defaults').click();")
+            client.script("document.getElementById('show-settings').click(); document.getElementById('vault-heading').click(); document.getElementById('propose-defaults').scrollIntoView({block:'center'}); document.getElementById('propose-defaults').click();")
             def proposal():
                 return client.message({"kind": "GET_VIEW"})["view"]["controller"]["snapshot"]["vaultState"]["pendingProposal"]
             frozen = wait_for(proposal, "frozen preset proposal")
@@ -276,6 +315,19 @@ def main():
         assert "google.com" not in policy["whitelist"] and "www.google.com" not in policy["whitelist"]
         assert policy["blacklist"] == ["black.localhost"]
         print(f"Firefox {version}: curated setup, real IndexedDB, managed list active ({managed['count']} domains)", flush=True)
+        if arguments.coherence_only:
+            from firefox_coherence import run_coherence
+            result = run_coherence(client, ui_handle, UI_URL, port, wait_for, run)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.journey_polish_only:
+            from firefox_journey_polish import run_journey_polish
+            result = run_journey_polish(client, ui_handle, UI_URL, port, wait_for, hits, run,
+                root_departure_probe=arguments.root_departure_probe)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
         if arguments.journey_retry_only or arguments.journey_probe:
             from firefox_journey_retry import run_journey_retry
             result = run_journey_retry(client, ui_handle, UI_URL, port, wait_for, hits, run, probe=arguments.journey_probe)
@@ -288,6 +340,7 @@ def main():
             (run / 'result.json').write_text(json.dumps({'firefox': version, 'productization': product}, indent=2), encoding='utf-8')
             for surface in ['home', 'settings']:
                 client.script(f"document.getElementById('show-{surface}').click();")
+                wait_for(lambda: client.script("return !document.getAnimations().some(animation => animation.playState === 'running');"), f'{surface} presentation settles')
                 shot = client.call('WebDriver:TakeScreenshot', id=None, highlights=[], full=True)
                 (run / f'{surface}.png').write_bytes(base64.b64decode(shot))
             print(f'Artifacts: {run}', flush=True)
@@ -399,12 +452,19 @@ def main():
 
         counts = len(hits)
         client.call("WebDriver:SwitchToWindow", handle=journey_handle)
-        client.script("location.href = arguments[0];", f"http://identity.localhost:{port}/after")
+        # Independent access is an address-bar request. A script departure from
+        # this loaded Whitelist root intentionally starts a fresh D22 Journey.
+        completed_id = journey()["id"]
+        client.call("WebDriver:SwitchToWindow", handle=journey_handle)
+        client.call("Marionette:SetContext", value="chrome")
+        client.script("gURLBar.value = arguments[0]; gURLBar.handleCommand();", f"http://identity.localhost:{port}/after")
+        client.call("Marionette:SetContext", value="content")
         wait_for(lambda: any(context["tabId"] == tab_id and context["hostname"] == "identity.localhost"
                             and context["effect"] == "REMOVED" and context["latest"]["type"] == "ASSESSMENT"
                             and context["latest"]["decision"]["outcome"] == "GREYLIST"
                             for context in view()["contexts"]), "post-Journey Greylist UI")
         assert ("identity.localhost", "/after") not in hits[counts:]
+        assert journey()["id"] == completed_id and journey()["phase"] == "ENDED"
         selected = next(context for context in view()["contexts"] if context["tabId"] == tab_id)
         assert selected["latest"]["decision"]["outcome"] == "GREYLIST", selected
         print("PASS intermediate access ends; independent server saw no denied /after request", flush=True)
@@ -454,7 +514,7 @@ def main():
         wait_for(lambda: displayed("identity.localhost"), "saved confirmation opens homepage")
         assert client.message({"kind": "CONFIRM_ACCESS", "requestId": request_id})["result"]["type"] == "REJECTED"
         assert ("identity.localhost", "/after") not in hits[counts:]
-        client.script("document.getElementById('show-diagnostics').click();")
+        client.script("document.getElementById('show-settings').click(); document.getElementById('diagnostics').open = true; document.getElementById('diagnostics').scrollIntoView({block:'start'});")
         wait_for(lambda: client.script("return document.querySelectorAll('#diagnostic-rows tr').length > 0;"), "visible diagnostics")
         entries = client.message({"kind": "GET_DIAGNOSTICS", "tabId": tab_id})["entries"]
         assert any(item["event"] == "REDIRECT" and item["hostname"] == "identity.localhost" for item in entries)

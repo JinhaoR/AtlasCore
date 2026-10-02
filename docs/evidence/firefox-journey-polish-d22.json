@@ -1,0 +1,3257 @@
+{
+  "date": "2026-10-02",
+  "firefox": "157.0",
+  "extension": "0.1.2",
+  "tests": {
+    "core": 185,
+    "extension": 114
+  },
+  "limits": [
+    "Synthetic top-level transports; no real accounts or credentials",
+    "Public Canvas credential entry observed separately; authenticated return untested",
+    "First trusted-root departure can be page-driven; provenance does not prove login purpose"
+  ],
+  "beforeStrictDeparture": {
+    "checks": [
+      "prior strict direct loaded-root Login returns Greylist",
+      "root remains REACHED and no new Journey exists",
+      "direct request withheld",
+      "policy unchanged/no grants"
+    ],
+    "sequence": [
+      {
+        "step": "initial root document reached",
+        "tabId": 2,
+        "contextId": "81aa68bb-820d-40c3-9b29-f2a638e7eb44",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 1,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790934713784,
+          "expiresAt": 1790935013784,
+          "hopCount": 0,
+          "maxHops": 12,
+          "endedAt": 1790934713804,
+          "endReason": "REACHED"
+        }
+      },
+      {
+        "step": "prior strict model: actual direct root Login is Greylist",
+        "tabId": 2,
+        "contextId": "81aa68bb-820d-40c3-9b29-f2a638e7eb44",
+        "hostname": "app.localhost",
+        "displayedHostname": null,
+        "effect": "REMOVED",
+        "decision": {
+          "outcome": "GREYLIST",
+          "reason": "UNLISTED",
+          "target": {
+            "hostname": "app.localhost"
+          }
+        },
+        "journey": {
+          "id": 1,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790934713784,
+          "expiresAt": 1790935013784,
+          "hopCount": 0,
+          "maxHops": 12,
+          "endedAt": 1790934713804,
+          "endReason": "REACHED"
+        }
+      }
+    ]
+  },
+  "afterDepartureAndRecovery": {
+    "checks": [
+      "loaded root ends REACHED; actual Login starts a new Journey",
+      "immediate same-host auto-POST survives document/request ordering",
+      "same-host POST does not consume a hop or extend the fixed deadline",
+      "four same-tab Google denial/root re-entry/Login/return cycles",
+      "explicit cancellation and Restart action reach fresh root and fresh Login",
+      "two tabs keep independent authorization and indicators; denied synthetic request withheld",
+      "four-second root document delay survives timer checkpoints without losing permission",
+      "actual direct GET, cross-host POST and root script departures start fresh Journeys",
+      "first departure consumes hop one; subsequent unfamiliar hosts use correlated HTTP only",
+      "all direct-departure returns end the same Journey without renewed deadline",
+      "uncorrelated intermediate link stays Greylist and its destination request is withheld",
+      "typed Google stays Greylist during direct-departure Journey",
+      "same-tab root re-entry and legitimate direct Login succeed after each ended attempt",
+      "policy/configuration unchanged",
+      "no permanent trust, pending Access request or temporary grant created"
+    ],
+    "sequence": [
+      {
+        "step": "initial root document reached",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 1,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945613742,
+          "expiresAt": 1790945913742,
+          "hopCount": 0,
+          "maxHops": 12,
+          "endedAt": 1790945613760,
+          "endReason": "REACHED"
+        }
+      },
+      {
+        "step": "Login after root REACHED creates fresh Journey",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 2,
+          "expiresAt": 1790945913894
+        },
+        "journey": {
+          "id": 2,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945613894,
+          "expiresAt": 1790945913894,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "cycle 1: Google denied and prior Journey ended",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "google.com",
+        "displayedHostname": null,
+        "effect": "REMOVED",
+        "decision": {
+          "outcome": "GREYLIST",
+          "reason": "UNLISTED",
+          "target": {
+            "hostname": "google.com"
+          }
+        },
+        "journey": {
+          "id": 2,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945613894,
+          "expiresAt": 1790945913894,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": 1790945614139,
+          "endReason": "UNRELATED_NAVIGATION"
+        }
+      },
+      {
+        "step": "cycle 1: native typed root re-entry reaches document",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 3,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945614281,
+          "expiresAt": 1790945914281,
+          "hopCount": 0,
+          "maxHops": 12,
+          "endedAt": 1790945614327,
+          "endReason": "REACHED"
+        }
+      },
+      {
+        "step": "cycle 1: legitimate Login and fast POST succeed",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 4,
+          "expiresAt": 1790945914411
+        },
+        "journey": {
+          "id": 4,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945614411,
+          "expiresAt": 1790945914411,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "cycle 1: successful root return",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 4,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945614411,
+          "expiresAt": 1790945914411,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": 1790945614696,
+          "endReason": "RETURNED"
+        }
+      },
+      {
+        "step": "cycle 1: next deliberate Login starts independently",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 5,
+          "expiresAt": 1790945914787
+        },
+        "journey": {
+          "id": 5,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945614787,
+          "expiresAt": 1790945914787,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "cycle 2: Google denied and prior Journey ended",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "google.com",
+        "displayedHostname": null,
+        "effect": "REMOVED",
+        "decision": {
+          "outcome": "GREYLIST",
+          "reason": "UNLISTED",
+          "target": {
+            "hostname": "google.com"
+          }
+        },
+        "journey": {
+          "id": 5,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945614787,
+          "expiresAt": 1790945914787,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": 1790945614922,
+          "endReason": "UNRELATED_NAVIGATION"
+        }
+      },
+      {
+        "step": "cycle 2: native typed root re-entry reaches document",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 6,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945615053,
+          "expiresAt": 1790945915053,
+          "hopCount": 0,
+          "maxHops": 12,
+          "endedAt": 1790945615067,
+          "endReason": "REACHED"
+        }
+      },
+      {
+        "step": "cycle 2: legitimate Login and fast POST succeed",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 7,
+          "expiresAt": 1790945915185
+        },
+        "journey": {
+          "id": 7,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945615185,
+          "expiresAt": 1790945915185,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "cycle 2: successful root return",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 7,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945615185,
+          "expiresAt": 1790945915185,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": 1790945615369,
+          "endReason": "RETURNED"
+        }
+      },
+      {
+        "step": "cycle 2: next deliberate Login starts independently",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 8,
+          "expiresAt": 1790945915458
+        },
+        "journey": {
+          "id": 8,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945615458,
+          "expiresAt": 1790945915458,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "cycle 3: Google denied and prior Journey ended",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "google.com",
+        "displayedHostname": null,
+        "effect": "REMOVED",
+        "decision": {
+          "outcome": "GREYLIST",
+          "reason": "UNLISTED",
+          "target": {
+            "hostname": "google.com"
+          }
+        },
+        "journey": {
+          "id": 8,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945615458,
+          "expiresAt": 1790945915458,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": 1790945615697,
+          "endReason": "UNRELATED_NAVIGATION"
+        }
+      },
+      {
+        "step": "cycle 3: native typed root re-entry reaches document",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 9,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945615818,
+          "expiresAt": 1790945915818,
+          "hopCount": 0,
+          "maxHops": 12,
+          "endedAt": 1790945615832,
+          "endReason": "REACHED"
+        }
+      },
+      {
+        "step": "cycle 3: legitimate Login and fast POST succeed",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 10,
+          "expiresAt": 1790945915951
+        },
+        "journey": {
+          "id": 10,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945615951,
+          "expiresAt": 1790945915951,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "cycle 3: successful root return",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 10,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945615951,
+          "expiresAt": 1790945915951,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": 1790945616113,
+          "endReason": "RETURNED"
+        }
+      },
+      {
+        "step": "cycle 3: next deliberate Login starts independently",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 11,
+          "expiresAt": 1790945916239
+        },
+        "journey": {
+          "id": 11,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945616239,
+          "expiresAt": 1790945916239,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "cycle 4: Google denied and prior Journey ended",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "google.com",
+        "displayedHostname": null,
+        "effect": "REMOVED",
+        "decision": {
+          "outcome": "GREYLIST",
+          "reason": "UNLISTED",
+          "target": {
+            "hostname": "google.com"
+          }
+        },
+        "journey": {
+          "id": 11,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945616239,
+          "expiresAt": 1790945916239,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": 1790945616394,
+          "endReason": "UNRELATED_NAVIGATION"
+        }
+      },
+      {
+        "step": "cycle 4: native typed root re-entry reaches document",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 12,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945616525,
+          "expiresAt": 1790945916525,
+          "hopCount": 0,
+          "maxHops": 12,
+          "endedAt": 1790945616538,
+          "endReason": "REACHED"
+        }
+      },
+      {
+        "step": "cycle 4: legitimate Login and fast POST succeed",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 13,
+          "expiresAt": 1790945916671
+        },
+        "journey": {
+          "id": 13,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945616671,
+          "expiresAt": 1790945916671,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "cycle 4: successful root return",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 13,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945616671,
+          "expiresAt": 1790945916671,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": 1790945616847,
+          "endReason": "RETURNED"
+        }
+      },
+      {
+        "step": "live Journey before explicit cancellation",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 14,
+          "expiresAt": 1790945916971
+        },
+        "journey": {
+          "id": 14,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945616971,
+          "expiresAt": 1790945916971,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "explicit cancellation removes identity permission",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": null,
+        "effect": "REMOVED",
+        "decision": {
+          "outcome": "GREYLIST",
+          "reason": "UNLISTED",
+          "target": {
+            "hostname": "identity.localhost"
+          }
+        },
+        "journey": {
+          "id": 14,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945616971,
+          "expiresAt": 1790945916971,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": 1790945617123,
+          "endReason": "CANCELLED"
+        }
+      },
+      {
+        "step": "Restart action reaches fresh root without restoring cancelled Journey",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 15,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945617269,
+          "expiresAt": 1790945917269,
+          "hopCount": 0,
+          "maxHops": 12,
+          "endedAt": 1790945617282,
+          "endReason": "REACHED"
+        }
+      },
+      {
+        "step": "Login after cancelled-Journey root retry succeeds",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 16,
+          "expiresAt": 1790945917395
+        },
+        "journey": {
+          "id": 16,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945617395,
+          "expiresAt": 1790945917395,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "initial root document reached",
+        "tabId": 3,
+        "contextId": "cf64ae11-6acc-4b25-899e-018d0d43d238",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 17,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945617548,
+          "expiresAt": 1790945917548,
+          "hopCount": 0,
+          "maxHops": 12,
+          "endedAt": 1790945617584,
+          "endReason": "REACHED"
+        }
+      },
+      {
+        "step": "unrelated second tab has no inherited Journey authorization",
+        "tabId": 3,
+        "contextId": "cf64ae11-6acc-4b25-899e-018d0d43d238",
+        "hostname": "identity.localhost",
+        "displayedHostname": null,
+        "effect": "REMOVED",
+        "decision": {
+          "outcome": "GREYLIST",
+          "reason": "UNLISTED",
+          "target": {
+            "hostname": "identity.localhost"
+          }
+        },
+        "journey": {
+          "id": 17,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945617548,
+          "expiresAt": 1790945917548,
+          "hopCount": 0,
+          "maxHops": 12,
+          "endedAt": 1790945617584,
+          "endReason": "REACHED"
+        }
+      },
+      {
+        "step": "first-tab Journey unaffected by second-tab denial",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 16,
+          "expiresAt": 1790945917395
+        },
+        "journey": {
+          "id": 16,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945617395,
+          "expiresAt": 1790945917395,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "first-tab completion after isolated second-tab denial",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 16,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945617395,
+          "expiresAt": 1790945917395,
+          "hopCount": 2,
+          "maxHops": 12,
+          "endedAt": 1790945617905,
+          "endReason": "RETURNED"
+        }
+      },
+      {
+        "step": "slow root has saved permission while document arrival is pending",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 18,
+          "phase": "STARTED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945618024,
+          "expiresAt": 1790945918024,
+          "hopCount": 0,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "pending slow root survives background cadence",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 18,
+          "phase": "STARTED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945618024,
+          "expiresAt": 1790945918024,
+          "hopCount": 0,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "slow root arrival ends the same saved Journey REACHED",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 18,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945618024,
+          "expiresAt": 1790945918024,
+          "hopCount": 0,
+          "maxHops": 12,
+          "endedAt": 1790945622037,
+          "endReason": "REACHED"
+        }
+      },
+      {
+        "step": "loaded-root direct GET Login starts fresh bounded Journey",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 19,
+          "expiresAt": 1790945922121
+        },
+        "journey": {
+          "id": 19,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945622121,
+          "expiresAt": 1790945922121,
+          "hopCount": 3,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "direct GET Login HTTP chain returns to original root",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 19,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945622121,
+          "expiresAt": 1790945922121,
+          "hopCount": 3,
+          "maxHops": 12,
+          "endedAt": 1790945622302,
+          "endReason": "RETURNED"
+        }
+      },
+      {
+        "step": "loaded-root direct cross-host POST Login starts fresh bounded Journey",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 20,
+          "expiresAt": 1790945922431
+        },
+        "journey": {
+          "id": 20,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945622431,
+          "expiresAt": 1790945922431,
+          "hopCount": 3,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "direct cross-host POST Login HTTP chain returns to original root",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 20,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945622431,
+          "expiresAt": 1790945922431,
+          "hopCount": 3,
+          "maxHops": 12,
+          "endedAt": 1790945622733,
+          "endReason": "RETURNED"
+        }
+      },
+      {
+        "step": "loaded-root root script navigation starts fresh bounded Journey",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 21,
+          "expiresAt": 1790945922827
+        },
+        "journey": {
+          "id": 21,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945622827,
+          "expiresAt": 1790945922827,
+          "hopCount": 3,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "root script navigation HTTP chain returns to original root",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 21,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945622827,
+          "expiresAt": 1790945922827,
+          "hopCount": 3,
+          "maxHops": 12,
+          "endedAt": 1790945623123,
+          "endReason": "RETURNED"
+        }
+      },
+      {
+        "step": "fresh direct departure before uncorrelated intermediate link",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 22,
+          "expiresAt": 1790945923228
+        },
+        "journey": {
+          "id": 22,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945623228,
+          "expiresAt": 1790945923228,
+          "hopCount": 3,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "intermediate cross-host link cannot rebase the Journey or reach server",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "evil.localhost",
+        "displayedHostname": null,
+        "effect": "REMOVED",
+        "decision": {
+          "outcome": "GREYLIST",
+          "reason": "UNLISTED",
+          "target": {
+            "hostname": "evil.localhost"
+          }
+        },
+        "journey": {
+          "id": 22,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945623228,
+          "expiresAt": 1790945923228,
+          "hopCount": 3,
+          "maxHops": 12,
+          "endedAt": 1790945623372,
+          "endReason": "UNRELATED_NAVIGATION"
+        }
+      },
+      {
+        "step": "same-tab root re-entry restores legitimate direct Login after unrelated denial",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 24,
+          "expiresAt": 1790945923644
+        },
+        "journey": {
+          "id": 24,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945623644,
+          "expiresAt": 1790945923644,
+          "hopCount": 3,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "same-tab direct Login succeeds after previously ended Journey",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 24,
+          "expiresAt": 1790945923644
+        },
+        "journey": {
+          "id": 24,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945623644,
+          "expiresAt": 1790945923644,
+          "hopCount": 3,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "Google cannot borrow loaded-root departure evidence",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "google.com",
+        "displayedHostname": null,
+        "effect": "REMOVED",
+        "decision": {
+          "outcome": "GREYLIST",
+          "reason": "UNLISTED",
+          "target": {
+            "hostname": "google.com"
+          }
+        },
+        "journey": {
+          "id": 24,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945623644,
+          "expiresAt": 1790945923644,
+          "hopCount": 3,
+          "maxHops": 12,
+          "endedAt": 1790945623784,
+          "endReason": "UNRELATED_NAVIGATION"
+        }
+      },
+      {
+        "step": "direct Login succeeds again after typed Google interruption",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "identity.localhost",
+        "displayedHostname": "identity.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "ACTIVE_JOURNEY",
+          "target": {
+            "hostname": "identity.localhost"
+          },
+          "journeyId": 26,
+          "expiresAt": 1790945924055
+        },
+        "journey": {
+          "id": 26,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790945624055,
+          "expiresAt": 1790945924055,
+          "hopCount": 3,
+          "maxHops": 12,
+          "endedAt": null,
+          "endReason": null
+        }
+      },
+      {
+        "step": "final fresh direct Login returns to root",
+        "tabId": 2,
+        "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+        "hostname": "root.localhost",
+        "displayedHostname": "root.localhost",
+        "effect": "NONE",
+        "decision": {
+          "outcome": "ALLOW",
+          "reason": "WHITELISTED",
+          "target": {
+            "hostname": "root.localhost"
+          }
+        },
+        "journey": {
+          "id": 26,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "currentHostname": "root.localhost",
+          "startedAt": 1790945624055,
+          "expiresAt": 1790945924055,
+          "hopCount": 3,
+          "maxHops": 12,
+          "endedAt": 1790945624236,
+          "endReason": "RETURNED"
+        }
+      }
+    ],
+    "chains": [
+      {
+        "step": "Login after root REACHED creates fresh Journey",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945613897,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 2,
+            "hostname": "root.localhost",
+            "outcome": "ALLOW",
+            "reason": "WHITELISTED",
+            "journey": {
+              "id": 2,
+              "phase": "STARTED",
+              "rootHostname": "root.localhost",
+              "hopCount": 0,
+              "maxHops": 12,
+              "expiresAt": 1790945913894,
+              "endReason": null
+            },
+            "sequence": 7
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945613907,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 3,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 2,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945913894,
+              "endReason": null
+            },
+            "sequence": 11
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945613950,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 4,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 2,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945913894,
+              "endReason": null
+            },
+            "sequence": 14
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945613956,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 5,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 2,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945913894,
+              "endReason": null
+            },
+            "sequence": 18
+          }
+        ],
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "cycle 1: legitimate Login and fast POST succeed",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945614414,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 8,
+            "hostname": "root.localhost",
+            "outcome": "ALLOW",
+            "reason": "WHITELISTED",
+            "journey": {
+              "id": 4,
+              "phase": "STARTED",
+              "rootHostname": "root.localhost",
+              "hopCount": 0,
+              "maxHops": 12,
+              "expiresAt": 1790945914411,
+              "endReason": null
+            },
+            "sequence": 28
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945614424,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 9,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 4,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945914411,
+              "endReason": null
+            },
+            "sequence": 32
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945614499,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 10,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 4,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945914411,
+              "endReason": null
+            },
+            "sequence": 35
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945614505,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 11,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 4,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945914411,
+              "endReason": null
+            },
+            "sequence": 39
+          }
+        ],
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "cycle 1: next deliberate Login starts independently",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945614792,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 14,
+            "hostname": "root.localhost",
+            "outcome": "ALLOW",
+            "reason": "WHITELISTED",
+            "journey": {
+              "id": 5,
+              "phase": "STARTED",
+              "rootHostname": "root.localhost",
+              "hopCount": 0,
+              "maxHops": 12,
+              "expiresAt": 1790945914787,
+              "endReason": null
+            },
+            "sequence": 49
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945614803,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 15,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 5,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945914787,
+              "endReason": null
+            },
+            "sequence": 53
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945614846,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 16,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 5,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945914787,
+              "endReason": null
+            },
+            "sequence": 56
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945614853,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 17,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 5,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945914787,
+              "endReason": null
+            },
+            "sequence": 60
+          }
+        ],
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "cycle 2: legitimate Login and fast POST succeed",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945615187,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 20,
+            "hostname": "root.localhost",
+            "outcome": "ALLOW",
+            "reason": "WHITELISTED",
+            "journey": {
+              "id": 7,
+              "phase": "STARTED",
+              "rootHostname": "root.localhost",
+              "hopCount": 0,
+              "maxHops": 12,
+              "expiresAt": 1790945915185,
+              "endReason": null
+            },
+            "sequence": 70
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945615197,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 21,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 7,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945915185,
+              "endReason": null
+            },
+            "sequence": 74
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945615241,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 22,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 7,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945915185,
+              "endReason": null
+            },
+            "sequence": 77
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945615247,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 23,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 7,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945915185,
+              "endReason": null
+            },
+            "sequence": 81
+          }
+        ],
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "cycle 2: next deliberate Login starts independently",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945615462,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 26,
+            "hostname": "root.localhost",
+            "outcome": "ALLOW",
+            "reason": "WHITELISTED",
+            "journey": {
+              "id": 8,
+              "phase": "STARTED",
+              "rootHostname": "root.localhost",
+              "hopCount": 0,
+              "maxHops": 12,
+              "expiresAt": 1790945915458,
+              "endReason": null
+            },
+            "sequence": 91
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945615471,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 27,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 8,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945915458,
+              "endReason": null
+            },
+            "sequence": 95
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945615544,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 28,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 8,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945915458,
+              "endReason": null
+            },
+            "sequence": 98
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945615551,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 29,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 8,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945915458,
+              "endReason": null
+            },
+            "sequence": 102
+          }
+        ],
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "cycle 3: legitimate Login and fast POST succeed",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945615956,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 32,
+            "hostname": "root.localhost",
+            "outcome": "ALLOW",
+            "reason": "WHITELISTED",
+            "journey": {
+              "id": 10,
+              "phase": "STARTED",
+              "rootHostname": "root.localhost",
+              "hopCount": 0,
+              "maxHops": 12,
+              "expiresAt": 1790945915951,
+              "endReason": null
+            },
+            "sequence": 112
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945615965,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 33,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 10,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945915951,
+              "endReason": null
+            },
+            "sequence": 116
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945616011,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 34,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 10,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945915951,
+              "endReason": null
+            },
+            "sequence": 119
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945616019,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 35,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 10,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945915951,
+              "endReason": null
+            },
+            "sequence": 123
+          }
+        ],
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "cycle 3: next deliberate Login starts independently",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945616243,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 38,
+            "hostname": "root.localhost",
+            "outcome": "ALLOW",
+            "reason": "WHITELISTED",
+            "journey": {
+              "id": 11,
+              "phase": "STARTED",
+              "rootHostname": "root.localhost",
+              "hopCount": 0,
+              "maxHops": 12,
+              "expiresAt": 1790945916239,
+              "endReason": null
+            },
+            "sequence": 133
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945616255,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 39,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 11,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945916239,
+              "endReason": null
+            },
+            "sequence": 137
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945616302,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 40,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 11,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945916239,
+              "endReason": null
+            },
+            "sequence": 140
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945616310,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 41,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 11,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945916239,
+              "endReason": null
+            },
+            "sequence": 144
+          }
+        ],
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "cycle 4: legitimate Login and fast POST succeed",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945616674,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 44,
+            "hostname": "root.localhost",
+            "outcome": "ALLOW",
+            "reason": "WHITELISTED",
+            "journey": {
+              "id": 13,
+              "phase": "STARTED",
+              "rootHostname": "root.localhost",
+              "hopCount": 0,
+              "maxHops": 12,
+              "expiresAt": 1790945916671,
+              "endReason": null
+            },
+            "sequence": 154
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945616692,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 45,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 13,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945916671,
+              "endReason": null
+            },
+            "sequence": 158
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945616745,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 46,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 13,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945916671,
+              "endReason": null
+            },
+            "sequence": 161
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945616752,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 47,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 13,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945916671,
+              "endReason": null
+            },
+            "sequence": 165
+          }
+        ],
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "live Journey before explicit cancellation",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945616975,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 50,
+            "hostname": "root.localhost",
+            "outcome": "ALLOW",
+            "reason": "WHITELISTED",
+            "journey": {
+              "id": 14,
+              "phase": "STARTED",
+              "rootHostname": "root.localhost",
+              "hopCount": 0,
+              "maxHops": 12,
+              "expiresAt": 1790945916971,
+              "endReason": null
+            },
+            "sequence": 175
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945616989,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 51,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 14,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945916971,
+              "endReason": null
+            },
+            "sequence": 179
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945617037,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 52,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 14,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945916971,
+              "endReason": null
+            },
+            "sequence": 182
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945617047,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 53,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 14,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945916971,
+              "endReason": null
+            },
+            "sequence": 186
+          }
+        ],
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "Login after cancelled-Journey root retry succeeds",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945617396,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 55,
+            "hostname": "root.localhost",
+            "outcome": "ALLOW",
+            "reason": "WHITELISTED",
+            "journey": {
+              "id": 16,
+              "phase": "STARTED",
+              "rootHostname": "root.localhost",
+              "hopCount": 0,
+              "maxHops": 12,
+              "expiresAt": 1790945917395,
+              "endReason": null
+            },
+            "sequence": 197
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945617406,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 56,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 16,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945917395,
+              "endReason": null
+            },
+            "sequence": 201
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945617450,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 57,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 16,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945917395,
+              "endReason": null
+            },
+            "sequence": 204
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945617457,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 58,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 16,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945917395,
+              "endReason": null
+            },
+            "sequence": 208
+          }
+        ],
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "loaded-root direct GET Login starts fresh bounded Journey",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945622130,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 64,
+            "hostname": "app.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 19,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945922121,
+              "endReason": null
+            },
+            "sequence": 229
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945622140,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 65,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 19,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945922121,
+              "endReason": null
+            },
+            "sequence": 233
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945622204,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 66,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 19,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945922121,
+              "endReason": null
+            },
+            "sequence": 236
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945622219,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 67,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 19,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 3,
+              "maxHops": 12,
+              "expiresAt": 1790945922121,
+              "endReason": null
+            },
+            "sequence": 240
+          }
+        ],
+        "rootDepartureReachedServer": true,
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "loaded-root direct cross-host POST Login starts fresh bounded Journey",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945622441,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 70,
+            "hostname": "app.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 20,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945922431,
+              "endReason": null
+            },
+            "sequence": 251
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945622454,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 71,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 20,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945922431,
+              "endReason": null
+            },
+            "sequence": 255
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945622538,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 72,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 20,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945922431,
+              "endReason": null
+            },
+            "sequence": 258
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945622548,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 73,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 20,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 3,
+              "maxHops": 12,
+              "expiresAt": 1790945922431,
+              "endReason": null
+            },
+            "sequence": 262
+          }
+        ],
+        "rootDepartureReachedServer": true,
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "loaded-root root script navigation starts fresh bounded Journey",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945622834,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 76,
+            "hostname": "app.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 21,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945922827,
+              "endReason": null
+            },
+            "sequence": 273
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945622841,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 77,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 21,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945922827,
+              "endReason": null
+            },
+            "sequence": 277
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945622922,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 78,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 21,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945922827,
+              "endReason": null
+            },
+            "sequence": 280
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945622929,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 79,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 21,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 3,
+              "maxHops": 12,
+              "expiresAt": 1790945922827,
+              "endReason": null
+            },
+            "sequence": 284
+          }
+        ],
+        "rootDepartureReachedServer": true,
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "fresh direct departure before uncorrelated intermediate link",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945623237,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 82,
+            "hostname": "app.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 22,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945923228,
+              "endReason": null
+            },
+            "sequence": 295
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945623251,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 83,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 22,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945923228,
+              "endReason": null
+            },
+            "sequence": 299
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945623298,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 84,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 22,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945923228,
+              "endReason": null
+            },
+            "sequence": 302
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945623309,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 85,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 22,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 3,
+              "maxHops": 12,
+              "expiresAt": 1790945923228,
+              "endReason": null
+            },
+            "sequence": 306
+          }
+        ],
+        "rootDepartureReachedServer": true,
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "same-tab root re-entry restores legitimate direct Login after unrelated denial",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945623652,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 88,
+            "hostname": "app.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 24,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945923644,
+              "endReason": null
+            },
+            "sequence": 317
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945623659,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 89,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 24,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945923644,
+              "endReason": null
+            },
+            "sequence": 321
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945623707,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 90,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 24,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945923644,
+              "endReason": null
+            },
+            "sequence": 324
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945623715,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 91,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 24,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 3,
+              "maxHops": 12,
+              "expiresAt": 1790945923644,
+              "endReason": null
+            },
+            "sequence": 328
+          }
+        ],
+        "rootDepartureReachedServer": true,
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      },
+      {
+        "step": "direct Login succeeds again after typed Google interruption",
+        "releases": [
+          {
+            "event": "RELEASED",
+            "at": 1790945624062,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 94,
+            "hostname": "app.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 26,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 1,
+              "maxHops": 12,
+              "expiresAt": 1790945924055,
+              "endReason": null
+            },
+            "sequence": 339
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945624068,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 95,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 26,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945924055,
+              "endReason": null
+            },
+            "sequence": 343
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945624114,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 96,
+            "hostname": "login.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 26,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 2,
+              "maxHops": 12,
+              "expiresAt": 1790945924055,
+              "endReason": null
+            },
+            "sequence": 346
+          },
+          {
+            "event": "RELEASED",
+            "at": 1790945624120,
+            "tabId": 2,
+            "contextId": "82846319-e2da-45f3-bb8a-d6fa95917dfe",
+            "navigationId": 97,
+            "hostname": "identity.localhost",
+            "outcome": "ALLOW",
+            "reason": "ACTIVE_JOURNEY",
+            "journey": {
+              "id": 26,
+              "phase": "IN_TRANSIT",
+              "rootHostname": "root.localhost",
+              "hopCount": 3,
+              "maxHops": 12,
+              "expiresAt": 1790945924055,
+              "endReason": null
+            },
+            "sequence": 350
+          }
+        ],
+        "rootDepartureReachedServer": true,
+        "autoPostReachedServer": true,
+        "sameHostPostConsumedNoHop": true
+      }
+    ]
+  },
+  "removalFailureBeforeFix": {
+    "artifact": ".tools/firefox-e2e-dasiqrwe/journey-polish-failure.json",
+    "events": [
+      {
+        "event": "REQUEST",
+        "at": 1790935288736,
+        "tabId": 2,
+        "contextId": "37ec7a38-7077-4940-b7e6-42c7b5141bfe",
+        "navigationId": 42,
+        "hostname": "google.com",
+        "outcome": null,
+        "reason": null,
+        "journey": {
+          "id": 11,
+          "phase": "IN_TRANSIT",
+          "rootHostname": "root.localhost",
+          "hopCount": 2,
+          "maxHops": 12,
+          "expiresAt": 1790935588603,
+          "endReason": null
+        },
+        "sequence": 146
+      },
+      {
+        "event": "DECISION",
+        "at": 1790935288740,
+        "tabId": 2,
+        "contextId": "37ec7a38-7077-4940-b7e6-42c7b5141bfe",
+        "navigationId": 42,
+        "hostname": "google.com",
+        "outcome": "GREYLIST",
+        "reason": "UNLISTED",
+        "journey": {
+          "id": 11,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "hopCount": 2,
+          "maxHops": 12,
+          "expiresAt": 1790935588603,
+          "endReason": "UNRELATED_NAVIGATION"
+        },
+        "sequence": 147
+      },
+      {
+        "event": "DECISION",
+        "at": 1790935288752,
+        "tabId": 2,
+        "contextId": "37ec7a38-7077-4940-b7e6-42c7b5141bfe",
+        "navigationId": 42,
+        "hostname": "google.com",
+        "outcome": "GREYLIST",
+        "reason": "UNLISTED",
+        "journey": {
+          "id": 11,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "hopCount": 2,
+          "maxHops": 12,
+          "expiresAt": 1790935588603,
+          "endReason": "UNRELATED_NAVIGATION"
+        },
+        "sequence": 148
+      },
+      {
+        "event": "CONTENT_REMOVED",
+        "at": 1790935288753,
+        "tabId": 2,
+        "contextId": "37ec7a38-7077-4940-b7e6-42c7b5141bfe",
+        "navigationId": 42,
+        "hostname": "identity.localhost",
+        "outcome": "GREYLIST",
+        "reason": "UNLISTED",
+        "journey": {
+          "id": 11,
+          "phase": "ENDED",
+          "rootHostname": "root.localhost",
+          "hopCount": 2,
+          "maxHops": 12,
+          "expiresAt": 1790935588603,
+          "endReason": "UNRELATED_NAVIGATION"
+        },
+        "sequence": 149
+      }
+    ],
+    "contexts": [
+      {
+        "tabId": 1,
+        "contextId": "e2036851-1e03-443e-804b-bb3e3cd3d274",
+        "navigationId": 0,
+        "hostname": null,
+        "displayedHostname": null,
+        "journey": null,
+        "effect": "REMOVED",
+        "retry": null,
+        "latest": {
+          "type": null,
+          "decision": null,
+          "reason": null,
+          "policyRevision": null,
+          "observedAt": null
+        }
+      },
+      {
+        "tabId": 2,
+        "contextId": "37ec7a38-7077-4940-b7e6-42c7b5141bfe",
+        "navigationId": 42,
+        "hostname": "identity.localhost",
+        "displayedHostname": null,
+        "journey": {
+          "id": 11,
+          "contextId": "37ec7a38-7077-4940-b7e6-42c7b5141bfe",
+          "rootHostname": "root.localhost",
+          "currentHostname": "identity.localhost",
+          "startedAt": 1790935288603,
+          "expiresAt": 1790935588603,
+          "hopCount": 2,
+          "maxHops": 12,
+          "policyRevision": 0,
+          "phase": "ENDED",
+          "endedAt": 1790935288738,
+          "endReason": "UNRELATED_NAVIGATION"
+        },
+        "effect": "REMOVED",
+        "retry": {
+          "journeyId": 11,
+          "rootHostname": "root.localhost",
+          "destinationLabel": "root.localhost"
+        },
+        "latest": {
+          "type": "ASSESSMENT",
+          "decision": {
+            "outcome": "GREYLIST",
+            "reason": "UNLISTED",
+            "target": {
+              "hostname": "identity.localhost"
+            }
+          },
+          "reason": null,
+          "policyRevision": 0,
+          "observedAt": 1790935303244
+        }
+      }
+    ],
+    "explanation": "Google denied, then old identity hostname overwrote requested destination while removal was pending."
+  },
+  "enforcingCharacterization": [
+    {
+      "name": "A_301",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "A_302",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "A_303",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "A_307",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "A_308",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "B_href",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "B_assign",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "B_replace",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "B_auto_JS",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "E_auto_JS",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "ACTIVE_JOURNEY",
+      "hostname": "evil.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "auto_POST",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "C_POST",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "GET_form",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "JS_submit",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "D_link",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "ACTIVE_JOURNEY",
+      "hostname": "evil.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "E_JS",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "ACTIVE_JOURNEY",
+      "hostname": "evil.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "F_during",
+      "passed": true,
+      "outcome": "GREYLIST",
+      "reason": "UNLISTED",
+      "hostname": "evil.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "F_after",
+      "passed": true,
+      "outcome": "GREYLIST",
+      "reason": "UNLISTED",
+      "hostname": "evil.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "G_popup",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "blank_link",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "H_SAML_POST",
+      "passed": true,
+      "outcome": "GREYLIST",
+      "reason": "UNLISTED",
+      "hostname": "auth.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "I_intermediate",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "J_canonical",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "www.app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "meta_refresh",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "history_push",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "history_replace",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "SPA",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "iframe",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "iframe_promote",
+      "passed": true,
+      "outcome": "GREYLIST",
+      "reason": "UNLISTED",
+      "hostname": "auth.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "reload",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "back_forward",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "bookmark",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "hostname": "app.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "malicious_HTTP",
+      "passed": true,
+      "outcome": "ALLOW",
+      "reason": "ACTIVE_JOURNEY",
+      "hostname": "evil.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    },
+    {
+      "name": "blacklist_HTTP",
+      "passed": true,
+      "outcome": "DENY",
+      "reason": "BLACKLISTED",
+      "hostname": "black.localhost",
+      "policyUnchanged": true,
+      "noGrants": true
+    }
+  ],
+  "artifactReferences": {
+    "before": ".tools/firefox-e2e-zwg1gb8a/result.json",
+    "after": ".tools/firefox-e2e-3ngir1lb/result.json",
+    "enforcing": ".tools/auth-enforcing-hqrkbzms/result.json",
+    "observerOnly": ".tools/auth-passive-23mqwszo/result.json",
+    "recoveryRegression": ".tools/firefox-e2e-k5hskona/result.json",
+    "productizationRegression": ".tools/firefox-e2e-6e61dgrl/result.json"
+  },
+  "recoveryRegression": {
+    "completed": true,
+    "firefox": "157.0",
+    "checks": [
+      "visible destination/decreasing countdown without node churn or form overlap",
+      "toolbar arrival reset and new navbar placement",
+      "actual Google address entry blocked",
+      "actual Home card and search start fresh roots",
+      "Restart button restarts root and fresh terms",
+      "auth reload uses ordinary policy",
+      "second tab has no inherited indicator",
+      "second intermediate recreates indicator",
+      "return clears indicator",
+      "extension reload ends authority and clears indicator",
+      "unrelated typed destination withheld",
+      "ended UNRELATED_NAVIGATION",
+      "Back does not resurrect Journey",
+      "explicit Home root retry creates fresh Journey and succeeds"
+    ],
+    "stableIndicator": {
+      "sameHost": true,
+      "sameTimer": true,
+      "before": "5:00",
+      "after": "4:58",
+      "nodes": 0,
+      "text": 2,
+      "overlap": false
+    },
+    "backEvidence": {
+      "requestObserved": true,
+      "arrivalObserved": false,
+      "serverDocumentRequest": false
+    }
+  },
+  "productizationRegression": {
+    "completed": true,
+    "firefox": "157.0",
+    "resultFields": [
+      "firefox",
+      "journey",
+      "requests",
+      "managed",
+      "checks",
+      "productization"
+    ]
+  }
+}

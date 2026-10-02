@@ -1,5 +1,7 @@
 # Firefox navigation and authentication investigation
 
+**D22 update (2026-10-02):** Canvas Login dogfooding led to explicit approval of one browser-attested departure from a loaded Pure Whitelist root. Later unfamiliar steps still require correlated HTTP redirects. The [Journey polishing report](firefox-journey-polish.md) owns that implementation and new evidence. The recommendations and measurements below remain historical D18 findings, not the current first-departure rule.
+
 **Decision update (D19, 2026-10-01):** The user accepted the bounded Whitelisted-server HTTP redirect tradeoff. Preserve D18 and require reproducible real-use evidence before revisiting authorization. The open design discussion below is dated investigation history; [productization.md](productization.md) records the settled product decision.
 
 Status: evidence and recommendations for human review, 2026-10-01. **No Core or production adapter authorization was changed in this pass.** D18 remains the implemented contract. This report owns the findings; it does not approve a new Journey rule.

@@ -1,5 +1,13 @@
 # Firefox public-site checks
 
+## D22 follow-up (2026-10-02)
+
+The user clarified that `app.kth.se` is the blocked target after clicking Login on a loaded Canvas page. This led to explicit approval of one browser-attested departure from a loaded Pure Whitelist root. The [Journey polishing report](firefox-journey-polish.md) owns the current rule and native before/after evidence. Earlier D18 compatibility limits below remain historical measurements.
+
+A fresh-profile public Canvas course entry reached `saml-5.sys.kth.se` and `login.ug.kth.se` with ACTIVE_JOURNEY in `.tools/auth-enforcing-5w01b71h/result.json`. It stopped at the credential form. That profile did not reproduce the user's existing-session Canvas header/Login state. A separate public `app.kth.se` root probe was allowed and exposed no Login control; it tested the target directly and therefore did not diagnose the reported Canvas departure.
+
+The final synthetic Firefox scenario reproduces loaded root → direct unlisted auth entry → HTTP providers → root, with links, POST and script navigation. The previous strict build denied its first departure; 0.1.2 completes it with fixed Journey terms and no policy/grant changes. This verifies the reported navigation shape, not authenticated Canvas/KTH completion. No provider was added to the production whitelist.
+
 The [2026-10-01 navigation/authentication investigation](firefox-auth-investigation.md#3-real-public-flows) adds event-level enforcing/passive comparisons for Canvas, KTH webmail, Gmail, Microsoft/Outlook, Overleaf, GitHub and Ladok. It includes sanitized traces and explains the post-arrival compatibility gap without changing Core rules.
 
 Checked on 2026-09-30 with Firefox 157.0 on Windows, using the Atlas prototype and a fresh disposable profile. These checks exercise public entry pages and navigation authorization. **No account identifiers, passwords, consent grants, MFA, or authenticated return were submitted or tested.**

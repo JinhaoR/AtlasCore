@@ -105,7 +105,7 @@ Journeys allow unfamiliar intermediate top-level destinations during a bounded a
 | `observeJourneys(context)` | Observes time/revision and ends expired or invalidated attempts without navigation. |
 | `cancelJourney(id, contextId, context)` / `closeJourneyContext(id, contextId, context)` | Ends a matching attempt. |
 
-Context is `{ policy, policyRevision, state: journeyState, now }`. Navigation calls accept optional portable continuation evidence and return `{ decision, nextState }`; other commands return `{ ok, ... , nextState }`. Thread all non-null state onward, including denials. D18 requires trusted continuation evidence for unfamiliar hosts. Actual initial root arrival ends REACHED; a recorded return after leaving ends RETURNED. BEGIN_NAVIGATION starts Whitelist attempts regardless of origin; CHECK_NAVIGATION never starts them. Host changes to intermediates consume hops; reloads never extend time; root return requires no extra hop. Repeated Start on an active context rejects without renewal.
+Context is `{ policy, policyRevision, state: journeyState, now }`. Navigation calls accept optional portable continuation evidence and return `{ decision, nextState }`; other commands return `{ ok, ... , nextState }`. Thread all non-null state onward, including denials. D18/D22 require trusted continuation evidence for unfamiliar hosts. Actual initial root arrival ends REACHED; a recorded return after leaving ends RETURNED. BEGIN_NAVIGATION starts Whitelist attempts regardless of origin and can start a source-rooted attempt for D22's one attested departure from a loaded Whitelisted page. Later unfamiliar hops need HTTP redirect evidence; CHECK_NAVIGATION never starts attempts. Host changes to intermediates consume hops; reloads never extend time; root return requires no extra hop. Repeated Start on an active context rejects without renewal. See [the D22 contract](docs/firefox-journey-polish.md) for browser provenance and limitations.
 
 An ended Journey permits no intermediate access of its own. Ordinary Whitelist access remains available; an independent Greylist grant is evaluated separately with `evaluateAccess`. Malformed state fails closed. These functions do not combine all authorization state or enforce browser navigation.
 
@@ -183,7 +183,7 @@ In Firefox, open `about:debugging#/runtime/this-firefox`, choose **Load Temporar
 
 The managed StevenBlack list is bundled for offline first use, cached separately, and refreshed at most once per day. Core applies manual Blacklist → explicit Whitelist → managed Blacklist → grants/Journey → Greylist. Managed conflicts and update status are visible. Existing installations retain their policy; setup never replaces active policy.
 
-For an existing profile, open **Policy & recovery → Add curated destinations**, review the proposal, wait, then select **Confirm policy update**. This uses Core's existing Vault workflow and preserves current entries and the manual Blacklist. Rebuild before Firefox reload; code reload alone never updates saved policy. See the [upgrade instructions](extension/README.md#updating-an-existing-development-installation).
+For an existing profile, open **Settings → Vault → Add curated destinations**, review the proposal, wait, then select **Confirm policy update**. This uses Core's existing Vault workflow and preserves current entries and the manual Blacklist. Rebuild before Firefox reload; code reload alone never updates saved policy. See the [upgrade instructions](extension/README.md#updating-an-existing-development-installation).
 
 The extension uses a persistent background page, top-level HTTP(S) request interception, a transactional IndexedDB repository, and a private control interface with Journey visibility and bounded hostname diagnostics. Resource requests are outside its gate. Native tests cover synthetic workflows and real UI actions; separate [public-site checks](docs/firefox-real-sites.md) document sign-in entry points and remaining account-dependent gaps.
 
@@ -198,7 +198,7 @@ npm --prefix packages/core run build
 npm --prefix packages/core test
 ```
 
-`test` also builds first. Build output and declarations go to `packages/core/dist` and are ignored by Git. Tests use explicit fixture times and need no browser, storage backend, real clock, accounts, or network access.
+`test` also builds first. Build output and declarations go to `packages/core/dist`. Core and extension `dist` directories can be tracked by Git. Tests use explicit fixture times and need no browser, storage backend, real clock, accounts, or network access.
 
 ## Open questions
 
@@ -221,6 +221,6 @@ Read `AGENTS.md` and the foundation first. Follow the small milestones in [first
 
 ## Status and evidence
 
-Verification on Node.js 24.12.0 / npm 11.6.4 / TypeScript 6.0.3: build and type checks pass; all 158 Core tests pass (the previous 152 plus six stabilization regressions). [Acceptance scenarios](docs/acceptance-tests.md) map this evidence to implemented behavior and distinguish the remaining integration work.
+The Firefox interface is now **0.1.4**, with Home/Settings navigation, a saved minimized sidebar and simpler Settings disclosures. The [UI report](docs/ui-design.md#firefox-interface-cleanup-d24) records its build, type checks, **119 passing extension tests** and native Firefox 157.0 checks. Prior D23 verification passed **185 Core tests** on Node.js 24.12.0 / npm 11.6.4 / TypeScript 6.0.3; the [code review](docs/code-review.md) records that lifecycle/structure cleanup. The [Journey polishing report](docs/firefox-journey-polish.md) owns the approved first-departure rule and its failure reproductions. [Acceptance scenarios](docs/acceptance-tests.md) distinguish domain, adapter and native evidence from remaining integration work.
 
 D18 brings the extension suite to 56 passing tests, including the follow-up protected preset upgrade for existing profiles. Native Firefox 157.0 checks curated setup, managed denial/cache restart, Journey, confirmation, and existing UI/lifecycle behavior; the upgrade scenario also covers reload and the actual Vault controls. The [managed policy evidence](docs/acceptance-tests.md#curated-defaults-and-managed-blacklist-evidence-d17) and [prototype evidence](docs/acceptance-tests.md#firefox-prototype-evidence-d16) distinguish mocked APIs, emulated storage, native checks, and incomplete authenticated flows. Exhaustive event coverage and physical power-loss durability remain untested. Zenith's historical results are not Atlas validation.

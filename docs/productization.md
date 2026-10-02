@@ -1,5 +1,7 @@
 # Firefox productization and dogfooding (D19)
 
+**D22 update:** The reported Canvas Login failure led to explicit approval of one departure from a loaded Whitelisted root. Later unfamiliar steps remain strict. The [polishing report](firefox-journey-polish.md) owns that narrow update; D19's timing, Vault and presentation decisions below remain in force.
+
 The user accepted D18's bounded genuine HTTP redirect exception on 2026-10-01. A deliberately Whitelisted destination is trusted to select those redirects, subject to manual Blacklist and existing context, lifetime, revision and hop bounds. Redirect provenance does not prove authentication necessity. Atlas aims to prevent easy impulsive escape through a Ulysses contract; it does not promise a hostile-web sandbox or resistance to a determined owner. Journey authorization and destination-arrival completion remain unchanged.
 
 > Do not increase Journey or authorization complexity for hypothetical web compatibility or escape cases. Require a reproducible real-world failure or demonstrated practical bypass before changing the authorization model.

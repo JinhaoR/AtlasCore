@@ -47,14 +47,18 @@ function isEndReason(value: unknown): value is JourneyEndReason {
 
 export function readJourneyContinuation(value: unknown): JourneyContinuation | null {
   if (!hasJourneyFields(value, ["kind", "sourceHostname"]) || !canonicalHostname(value.sourceHostname)
-    || !["HTTP_REDIRECT", "SAME_HOST", "RETAINED", "ARRIVAL"].includes(value.kind as string)) return null;
+    || !["HTTP_REDIRECT", "SAME_HOST", "RETAINED", "ARRIVAL", "ROOT_DEPARTURE"].includes(value.kind as string)) return null;
   return { kind: value.kind as JourneyContinuation["kind"], sourceHostname: value.sourceHostname };
 }
 
 export function continuesJourney(journey: Journey, target: string, evidence?: JourneyContinuation): boolean {
-  return journey.phase !== "ENDED" && evidence !== undefined && evidence.sourceHostname === journey.currentHostname
-    && (evidence.kind === "HTTP_REDIRECT" || target === journey.currentHostname
-      || evidence.kind === "ARRIVAL" && target === journey.rootHostname);
+  if (journey.phase === "ENDED" || evidence === undefined || evidence.sourceHostname !== journey.currentHostname) return false;
+  if (evidence.kind === "ROOT_DEPARTURE") {
+    return journey.phase === "STARTED" && journey.currentHostname === journey.rootHostname
+      && target !== journey.rootHostname;
+  }
+  return evidence.kind === "HTTP_REDIRECT" || target === journey.currentHostname
+    || evidence.kind === "ARRIVAL" && target === journey.rootHostname;
 }
 
 function readJourney(value: unknown): Journey | null {

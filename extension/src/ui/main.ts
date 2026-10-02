@@ -4,11 +4,14 @@ import { destinationIndex, searchDestinations, type DestinationEntry } from './d
 import { destinationEntryPoints, destinationId, pinnedDestinations, readPins } from './home-model.js';
 import { loadWebsiteIcon } from './website-icons.js';
 import { accessCopy, canQueueOperation, countdown, selectedContext } from './presentation.js';
+import { configurationFromDraft, settingsCopy, timingFields, type TimingDraft } from './settings-model.js';
+import { initializeSidebar } from './sidebar.js';
 import { compileCuratedWhitelist, curatedWhitelist, equivalentServiceHostnames, serviceLabel } from '../presets/curated-whitelist.js';
-import { readConfiguration, type PolicyReview, type AtlasConfiguration } from '@atlas/core';
+import type { Policy, PolicyReview } from '@atlas/core';
 
 const element = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const text = (id: string, value: string) => { const node = element(id); if (node.textContent !== value) node.textContent = value; };
+initializeSidebar(element<HTMLButtonElement>('sidebar-toggle'));
 const select = element<HTMLSelectElement>('context');
 const params = new URL(location.href).searchParams;
 let selected = params.get('tab') ?? '';
@@ -22,10 +25,11 @@ let diagnosticKey = '';
 let policyReview: PolicyReview | null = null;
 let policyReviewError = '';
 let section: 'home' | 'settings' = 'home';
-let navigation: 'home' | 'settings' | 'vault' | 'managed' | 'diagnostics' = 'home';
+type NavigationTarget = 'home' | 'settings' | 'vault';
 let accessFocused = params.get('view') === 'access';
 let settingsKey = '';
 let policyFormKey = '';
+let displayedProposalId: number | null = null;
 let entries: readonly DestinationEntry[] = [];
 let matches: readonly DestinationEntry[] = [];
 let searchKey = '';
@@ -51,14 +55,12 @@ const iconObserver = new IntersectionObserver((changes) => {
     void displayWebsiteIcon(image, image.dataset.hostname!);
   }
 }, { rootMargin: '160px' });
-const timingFields = ['access-wait', 'access-window', 'grant-duration', 'vault-wait', 'vault-window', 'journey-lifetime', 'journey-hops'] as const;
-const timingLabels = ['Greylist wait', 'Greylist confirmation', 'Temporary access', 'Vault wait', 'Vault confirmation', 'Journey lifetime', 'Journey limit'];
-const configurationValues = (config: AtlasConfiguration) => [config.accessTiming.waitMs / 1000, config.accessTiming.confirmationWindowMs / 1000,
-  config.accessTiming.grantDurationMs / 1000, config.vaultTiming.waitMs / 1000, config.vaultTiming.confirmationWindowMs / 1000,
-  config.journeyLimits.lifetimeMs / 1000, config.journeyLimits.maxHops];
-const settingsCopy = (config: AtlasConfiguration) => configurationValues(config).map((value, i) => `${timingLabels[i]}: ${value}${i === 6 ? ' hops' : 's'}`).join(' · ');
 
 const presetHostnames = compileCuratedWhitelist().whitelist;
+const buildVersion = document.createElement('p');
+buildVersion.id = 'build-version'; buildVersion.className = 'note';
+buildVersion.textContent = `Atlas extension ${browser.runtime.getManifest().version}`;
+element('diagnostics').append(buildVersion);
 document.body.dataset.mode = params.get('view') === 'access' ? 'access' : 'control';
 element('preset-preview').replaceChildren(...curatedWhitelist.map((group) => {
   const detail = document.createElement('details'); detail.className = 'preset-group';
@@ -84,7 +86,8 @@ async function send(command: object): Promise<void> {
     if (response?.view) view = response.view;
     policyReview = null; policyReviewError = '';
     if (response?.tabId !== undefined && (response?.result?.type === 'COMMITTED' || response?.opened === true)) selected = String(response.tabId);
-    feedback(response?.error ? `Atlas could not complete that action (${response.error}).`
+    feedback(response?.error === 'CONTENT_REMOVAL_IN_PROGRESS' ? 'Atlas is closing the previous page. Restart will be available in a moment.'
+      : response?.error ? `Atlas could not complete that action (${response.error}).`
       : response?.initialized === false ? 'Setup was not saved. Check the hostnames; an existing policy cannot be replaced here.'
         : response?.result?.type === 'REJECTED' ? `That action is not available (${response.result.reason}).`
           : response?.result?.type === 'BLOCKED' ? 'State could not be saved or verified. Open Policy & recovery before trying again.'
@@ -94,6 +97,7 @@ async function send(command: object): Promise<void> {
 }
 
 function render(): void {
+  const focused = document.activeElement;
   text('page-title', section === 'settings' ? 'Settings' : accessFocused ? 'A moment for your next step.' : 'Atlas');
   text('page-eyebrow', section === 'settings' ? 'YOUR SAVED COMMITMENTS' : accessFocused ? 'A DELIBERATE NEXT STEP' : 'YOUR INTERNET, WITH INTENTION');
   text('page-description', section === 'settings' ? 'Your destinations, intentional friction and saved commitments.'
@@ -103,18 +107,19 @@ function render(): void {
   const controller = view?.controller;
   const ready = canQueueOperation(controller);
   const status = controller?.status;
-  text('status', busy && status === 'COMMITTING' ? 'Saving…' : ready ? '● Atlas is ready'
+  text('status', busy ? status === 'COMMITTING' ? 'Saving…' : 'Working…' : ready ? 'Atlas is ready'
     : status === 'UNINITIALIZED' ? 'Setup needed' : status === 'RECONCILING' ? 'Recovery needed'
       : status === 'UNAVAILABLE' ? 'State unavailable' : 'Connecting…');
+  element('status').title = element('status').textContent ?? '';
   if (element('status').dataset.ready !== String(ready)) element('status').dataset.ready = String(ready);
   element('setup').hidden = status !== 'UNINITIALIZED';
   element('workspace').hidden = status === 'UNINITIALIZED' || section === 'settings';
   element('settings').hidden = section !== 'settings';
   element('destinations').hidden = accessFocused;
-  for (const name of ['home', 'settings', 'vault', 'managed', 'diagnostics'] as const) {
+  for (const name of ['home', 'settings'] as const) {
     const button = element(`show-${name}`);
-    button.setAttribute('aria-pressed', String(navigation === name));
-    if (navigation === name) button.setAttribute('aria-current', 'page');
+    button.setAttribute('aria-pressed', String(section === name));
+    if (section === name) button.setAttribute('aria-current', 'page');
     else button.removeAttribute('aria-current');
   }
 
@@ -155,7 +160,10 @@ function render(): void {
   const scope = record === undefined ? (context?.hostname === null || context?.hostname === undefined ? []
     : equivalentServiceHostnames(context.hostname).filter((host) => !controller?.snapshot?.policy.whitelist.includes(host)
       || controller.snapshot.policy.blacklist.includes(host))) : record.scopeHostnames ?? [record.hostname];
-  text('access-scope', scope.length > 0 ? `Temporary access covers exactly: ${scope.join(', ')}` : '');
+  const showScope = scope.length > 0 && (decision?.outcome === 'GREYLIST' || decision?.outcome === 'WAIT'
+    || decision?.outcome === 'REQUIRE_CONFIRMATION' || decision?.reason === 'ACTIVE_GRANT');
+  element('access-scope').hidden = !showScope;
+  text('access-scope', showScope ? `Temporary access covers exactly: ${scope.join(', ')}` : '');
   const journey = context?.journey;
   const activeJourney = ready && journey != null && journey.phase !== 'ENDED' && now < journey.expiresAt;
   element('access-panel').hidden = !accessFocused;
@@ -178,8 +186,11 @@ function render(): void {
   const retry = context?.retry;
   const showRetry = retry != null && decision?.outcome !== 'ALLOW' && ready;
   element('ended-journey').hidden = !showRetry;
-  text('ended-journey-copy', showRetry ? `Your previous journey was to ${retry.destinationLabel}. Start again from ${retry.rootHostname}.` : '');
+  text('ended-journey-copy', showRetry ? context?.effect === 'REMOVING'
+    ? `Atlas is closing the previous page. You can restart your journey to ${retry.destinationLabel} in a moment.`
+    : `Your journey to ${retry.destinationLabel} ended. Start again from ${retry.rootHostname}.` : '');
   action('restart-journey', showRetry);
+  if (context?.effect === 'REMOVING') element<HTMLButtonElement>('restart-journey').disabled = true;
   element('home-note').hidden = decision?.outcome !== 'REQUIRE_CONFIRMATION' && decision?.outcome !== 'ALLOW';
   element('journey-panel').hidden = !activeJourney;
   text('journey-phase', activeJourney ? 'Active' : 'Ended');
@@ -191,12 +202,31 @@ function render(): void {
   const progress = element<HTMLProgressElement>('journey-progress');
   progress.hidden = !activeJourney;
   if (activeJourney) progress.value = Math.max(0, (journey.expiresAt - now) / (journey.expiresAt - journey.startedAt));
+  renderSettings(controller, ready, now);
+  renderHome(controller?.snapshot?.policy, ready);
+  if (focused instanceof HTMLButtonElement && focused.closest('#access-panel') && (focused.disabled || focused.closest('[hidden]'))
+    && accessFocused && section === 'home') element('access-title').focus({ preventScroll: true });
+  if (focused instanceof HTMLButtonElement && focused.closest('#vault-section') && (focused.disabled || focused.closest('[hidden]'))
+    && section === 'settings') element('vault-heading').focus({ preventScroll: true });
+}
+
+function renderSettings(controller: AdapterView['controller'] | undefined, ready: boolean, now: number): void {
+  const status = controller?.status;
   const policy = controller?.snapshot?.policy;
   const proposal = controller?.snapshot?.vaultState.pendingProposal;
   element('settings-pending').hidden = proposal == null;
-  element('vault-nav-status').hidden = proposal == null;
+  element('settings-nav-status').hidden = proposal == null;
+  const settingsLabel = proposal == null ? 'Settings' : 'Settings, pending change';
+  element('show-settings').setAttribute('aria-label', settingsLabel);
+  element('show-settings').title = settingsLabel;
+  const proposalId = proposal?.id ?? null;
+  if (controller?.snapshot && proposalId !== displayedProposalId) {
+    displayedProposalId = proposalId;
+    if (proposalId !== null) element<HTMLDetailsElement>('vault-section').open = true;
+  }
   element('vault-empty').hidden = proposal != null;
   const missingDefaults = presetHostnames.filter((hostname) => !policy?.whitelist.includes(hostname));
+  element('preset-update').hidden = !policy || missingDefaults.length === 0;
   text('preset-update-status', policy ? missingDefaults.length > 0
     ? `${missingDefaults.length} curated hostnames are missing from your saved Whitelist.`
     : 'Your saved Whitelist includes all current curated hostnames.' : '');
@@ -226,20 +256,27 @@ function render(): void {
     const configKey = JSON.stringify(activeConfiguration);
     if (configKey !== settingsKey) {
       settingsKey = configKey;
-      configurationValues(activeConfiguration).forEach((value, i) => { element<HTMLInputElement>(timingFields[i]!).value = String(value); });
+      timingFields.forEach((field) => { element<HTMLInputElement>(field.id).value = field.value(activeConfiguration); });
     }
-    configurationValues(activeConfiguration).forEach((value, i) => { text(`active-${timingFields[i]}`, `Active: ${value}${i === 6 ? ' hops' : ' seconds'}`); });
-    text('timing', `Active settings · ${settingsCopy(activeConfiguration)}`);
-  } else text('timing', 'No verified timing settings.');
-  const formKey = JSON.stringify(policy);
-  if (formKey !== policyFormKey) {
+    timingFields.forEach((field) => { text(`active-${field.id}`, `Active: ${field.value(activeConfiguration)} ${field.unit}`); });
+  }
+  // Temporary loss of authority disables commands; it must not erase an unsaved draft.
+  const formKey = policy === undefined ? policyFormKey : JSON.stringify(policy);
+  if (policy !== undefined && formKey !== policyFormKey) {
     policyFormKey = formKey;
-    element<HTMLTextAreaElement>('policy-whitelist').value = policy?.whitelist.join('\n') ?? '';
-    element<HTMLTextAreaElement>('policy-blacklist').value = policy?.blacklist.join('\n') ?? '';
+    element<HTMLTextAreaElement>('policy-whitelist').value = policy.whitelist.join('\n');
+    element<HTMLTextAreaElement>('policy-blacklist').value = policy.blacklist.join('\n');
   }
   for (const id of ['propose-settings', 'propose-policy']) element<HTMLButtonElement>(id).disabled = busy || !ready || proposal != null;
   text('vault-impact', review?.invalidatesAccess ? 'Policy changes invalidate current requests, grants and Journeys.'
     : 'Settings changes preserve existing waits, grants and Journey terms. New activity uses the committed settings.');
+  element<HTMLButtonElement>('recover').disabled = busy || ready || status === 'UNINITIALIZED' || status === 'COMMITTING';
+  text('policy', controller?.snapshot
+    ? `Pure Whitelist: ${policy!.whitelist.join(', ') || '(empty)'}\nBlacklist: ${policy!.blacklist.join(', ') || '(empty)'}\nPolicy revision: ${controller.snapshot.policyRevision}\nState: ${status}${controller.reason ? ` · ${controller.reason}` : ''}`
+    : 'No verified policy loaded.');
+}
+
+function renderHome(policy: Policy | undefined, ready: boolean): void {
   const destinationKey = JSON.stringify(policy ?? null);
   if (destinationsKey !== destinationKey) {
     destinationsKey = destinationKey;
@@ -279,13 +316,9 @@ function render(): void {
   renderPins();
   renderSearch();
   element('empty-destinations').hidden = entries.length > 0;
-  for (const button of document.querySelectorAll<HTMLButtonElement>('.destination-open, #open-journey, #search-results button')) {
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.destination-open, #open-journey')) {
     if (button.disabled !== (busy || !ready)) button.disabled = busy || !ready;
   }
-  element<HTMLButtonElement>('recover').disabled = busy || ready || status === 'UNINITIALIZED' || status === 'COMMITTING';
-  text('policy', controller?.snapshot
-    ? `Pure Whitelist: ${policy!.whitelist.join(', ') || '(empty)'}\nBlacklist: ${policy!.blacklist.join(', ') || '(empty)'}\nPolicy revision: ${controller.snapshot.policyRevision}\nState: ${status}${controller.reason ? ` · ${controller.reason}` : ''}`
-    : 'No verified policy loaded.');
 }
 
 function icon(name: string): SVGSVGElement {
@@ -345,12 +378,21 @@ function renderPins(): void {
 
 function togglePin(id: string): void {
   if (!pinsLoaded || savingPins) return;
+  const focused = document.activeElement;
+  const pinnedFocus = focused instanceof HTMLButtonElement && focused.closest('#pinned-list') !== null;
   const next = pins.includes(id) ? pins.filter((pin) => pin !== id) : [...pins, id];
   if (next.length > 200) { feedback('Your pinned list is full. Unpin a destination first.'); return; }
   savingPins = true; renderPins();
   try { localStorage.setItem(pinsStorageKey, JSON.stringify(next)); pins = next; feedback(''); }
   catch { feedback('Your pin could not be saved. Access and policy are unchanged.'); }
-  finally { savingPins = false; render(); }
+  finally {
+    savingPins = false; render();
+    if (pinnedFocus && !focused.isConnected) {
+      const counterpart = [...element('destination-list').querySelectorAll<HTMLButtonElement>('.pin-button')]
+        .find((button) => button.dataset.pinId === id && button.closest('[hidden]') === null && !button.disabled);
+      (counterpart ?? searchInput).focus();
+    }
+  }
 }
 
 function renderReview(review: PolicyReview | null, hasProposal: boolean): void {
@@ -367,16 +409,16 @@ function renderReview(review: PolicyReview | null, hasProposal: boolean): void {
   }
   element('vault-changes').replaceChildren(...changes.map((value) => { const li = document.createElement('li'); li.textContent = value; return li; }));
   element('vault-changes').hidden = changes.length === 0;
-  const current = review?.currentConfiguration ? configurationValues(review.currentConfiguration) : [];
-  const proposed = review?.candidateConfiguration ? configurationValues(review.candidateConfiguration) : [];
-  const rows = proposed.flatMap((value, i) => {
-    if (value === current[i]) return [];
+  const rows = review?.currentConfiguration && review.candidateConfiguration ? timingFields.flatMap((field) => {
+    const current = field.value(review.currentConfiguration!);
+    const proposed = field.value(review.candidateConfiguration!);
+    if (current === proposed) return [];
     const row = document.createElement('tr');
-    for (const cell of [timingLabels[i]!, `${current[i]}${i === 6 ? ' hops' : ' s'}`, `${value}${i === 6 ? ' hops' : ' s'}`]) {
+    for (const cell of [field.label, `${current} ${field.unit}`, `${proposed} ${field.unit}`]) {
       const td = document.createElement('td'); td.textContent = cell; row.append(td);
     }
     return [row];
-  });
+  }) : [];
   element('vault-settings-rows').replaceChildren(...rows);
   element('vault-settings-comparison').hidden = rows.length === 0;
 }
@@ -389,6 +431,9 @@ function renderSearch(): void {
     element('search-results').replaceChildren(...matches.map((entry, index) => {
       const button = document.createElement('button'); button.type = 'button'; button.id = `search-result-${index}`;
       button.setAttribute('role', 'option');
+      // The combobox keeps one keyboard focus; arrows select its active descendant.
+      button.tabIndex = -1;
+      button.addEventListener('mousedown', (event) => { event.preventDefault(); });
       const copy = document.createElement('span'); copy.className = 'result-copy';
       const label = document.createElement('strong'); label.textContent = entry.label;
       const host = document.createElement('small'); host.textContent = entry.hostname;
@@ -419,22 +464,24 @@ element('search-form').addEventListener('submit', (event) => {
   event.preventDefault(); const entry = matches[highlighted] ?? (matches.length === 1 ? matches[0] : undefined);
   if (entry && canQueueOperation(view?.controller)) void send({ kind: 'OPEN_DESTINATION', url: `https://${entry.hostname}/` });
 });
-function navigate(name: typeof navigation): void {
-  navigation = name; section = name === 'home' ? 'home' : 'settings';
+function navigate(name: NavigationTarget): void {
+  feedback('');
+  section = name === 'home' ? 'home' : 'settings';
   if (name === 'home') accessFocused = false;
   render();
-  const target = name === 'vault' ? element<HTMLDetailsElement>('vault-section') : name === 'managed' ? element('managed-section')
-    : name === 'diagnostics' ? element<HTMLDetailsElement>('diagnostics') : element('main-content');
+  const target = name === 'vault' ? element<HTMLDetailsElement>('vault-section') : element('main-content');
   if (target instanceof HTMLDetailsElement) target.open = true;
   target.scrollIntoView({ block: 'start' });
   const heading = target.id === 'main-content' ? target : target.querySelector<HTMLElement>('summary, h2') ?? target;
-  heading.setAttribute('tabindex', '-1'); heading.focus({ preventScroll: true });
-  if (name === 'diagnostics') void diagnostics();
+  heading.focus({ preventScroll: true });
 }
-for (const name of ['home', 'settings', 'vault', 'managed', 'diagnostics'] as const) element(`show-${name}`).addEventListener('click', () => { navigate(name); });
+for (const name of ['home', 'settings'] as const) element(`show-${name}`).addEventListener('click', () => { navigate(name); });
+element('brand-home').addEventListener('click', (event) => { event.preventDefault(); navigate('home'); });
 element('review-pending').addEventListener('click', () => { navigate('vault'); });
 for (const id of ['home-journey', 'show-access']) element(id).addEventListener('click', () => {
+  feedback('');
   accessFocused = true; render(); element('access-panel').scrollIntoView({ block: 'start' });
+  element('access-title').focus({ preventScroll: true });
 });
 document.addEventListener('keydown', (event) => {
   if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey || event.target instanceof HTMLElement
@@ -443,9 +490,8 @@ document.addEventListener('keydown', (event) => {
 });
 element('settings-form').addEventListener('submit', (event) => {
   event.preventDefault();
-  const values = timingFields.map((id, i) => i === 6 ? Number(element<HTMLInputElement>(id).value) : Math.round(Number(element<HTMLInputElement>(id).value) * 1000));
-  const candidateConfiguration = readConfiguration({ accessTiming: { waitMs: values[0], confirmationWindowMs: values[1], grantDurationMs: values[2] },
-    vaultTiming: { waitMs: values[3], confirmationWindowMs: values[4] }, journeyLimits: { lifetimeMs: values[5], maxHops: values[6] } });
+  const draft = Object.fromEntries(timingFields.map((field) => [field.id, element<HTMLInputElement>(field.id).value])) as TimingDraft;
+  const candidateConfiguration = configurationFromDraft(draft);
   if (candidateConfiguration === null) { feedback('Use positive values in whole milliseconds and a whole hop limit.'); return; }
   element('propose-defaults').closest('details')!.open = true;
   void send({ kind: 'PROPOSE_SETTINGS', candidateConfiguration });
@@ -460,7 +506,7 @@ element('policy-form').addEventListener('submit', (event) => {
 });
 
 async function diagnostics(): Promise<void> {
-  if (!element<HTMLDetailsElement>('diagnostics').open) return;
+  if (section !== 'settings' || !element<HTMLDetailsElement>('diagnostics').open) return;
   const tabId = element<HTMLSelectElement>('diagnostic-scope').value === 'all' ? null : Number(selected || -1);
   try {
     const response = await browser.runtime.sendMessage({ kind: 'GET_DIAGNOSTICS', tabId });
@@ -543,7 +589,7 @@ async function poll(): Promise<void> {
       if (ticket === epoch) render();
     }
     await diagnostics();
-  } catch { if (ticket === epoch) { view = null; render(); element('status').textContent = 'Atlas is unavailable'; } }
+  } catch { if (ticket === epoch) { view = null; render(); text('status', 'Atlas is unavailable'); element('status').title = 'Atlas is unavailable'; } }
   finally {
     polling = false;
     // A one-second UI interval can repeatedly coincide with the background's one-second

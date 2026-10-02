@@ -23,15 +23,20 @@ export function openRepository(
   if (bootstrap === null) return Promise.reject(new TypeError('INVALID_CONFIGURATION'));
   return new Promise((resolve, reject) => {
     const request = factory.open(name, 1);
+    let failed = false;
     request.onupgradeneeded = () => {
       const database = request.result;
       database.createObjectStore('authority').put(false, 'initialized');
       database.createObjectStore('receipts');
     };
-    request.onerror = () => reject(new Error('STORAGE_UNAVAILABLE'));
-    request.onblocked = () => reject(new Error('STORAGE_UNAVAILABLE'));
+    request.onerror = request.onblocked = () => {
+      failed = true;
+      reject(new Error('STORAGE_UNAVAILABLE'));
+    };
     request.onsuccess = () => {
       const database = request.result;
+      // A blocked open remains pending and can succeed after its caller has failed.
+      if (failed) { database.close(); return; }
       database.onversionchange = () => database.close();
       resolve(new IndexedDBRepository(database, newVersion, bootstrap));
     };

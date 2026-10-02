@@ -1,6 +1,6 @@
-# Atlas interface refinement (D20)
+# Atlas Firefox interface
 
-This 2026-10-01 pass follows the user's reference as a visual direction: warm parchment and stone, muted olive/bronze/navy accents, restrained serif headings, quiet borders, spacious destination cards and a left sidebar. It uses the real service data and existing Firefox page. Core, authorization, repository authority and D18 Journey semantics are unchanged.
+The original 2026-10-01 pass follows the user's reference as a visual direction: warm parchment and stone, muted olive/bronze/navy accents, restrained serif headings, quiet borders, spacious destination cards and a left sidebar. D24 simplifies this interface on 2026-10-02. It uses the real service data and existing Firefox page. Core and repository authority stay separate from presentation; Journey behavior remains owned by D18/D22.
 
 ## Home
 
@@ -14,9 +14,13 @@ D21 adds a passive Journey indicator on web documents and explicit root retry on
 
 ## Settings and navigation
 
-The sidebar contains Home, Settings, Vault, Managed lists and Diagnostics. The last three open/focus their actual sections within Settings. On small screens it becomes a compact horizontal navigation row.
+The D24 cleanup (2026-10-02) keeps two primary sidebar destinations: Home and Settings. Vault, managed lists, recovery and diagnostics live inside Settings. Timing, an empty Vault and managed data are collapsed initially; a new saved proposal opens Vault, and explicit review focuses it. Settings retains one pending-change marker. Policy fields remain directly available.
 
-Settings contains destination/policy editing, grouped timing fields, Vault, managed lists, recovery and diagnostics. Timing fields show each active value beside the editable draft. Proposing a change takes the user to Vault. Frozen review shows actual list changes and a table of changed timing values, Active versus Proposed; the full Core review remains expandable. Pending proposals have a small sidebar marker and a link from Settings. Existing wait, explicit confirmation, cancellation and persistence behavior remains owned by Core.
+The desktop sidebar can minimize to an 80-pixel icon rail with accessible names, hover titles, a status indicator and a visible expand control. Layout preference uses `atlas-sidebar-v1` in extension-origin localStorage, separate from policy. Missing/corrupt/unavailable preference reads use the expanded layout. Failed writes keep the chosen page layout; reload uses the last saved preference. Storage events synchronize open Atlas pages. At 700 pixels or below a compact horizontal header ignores the desktop preference and keeps both destinations visible.
+
+Settings contains destination/policy editing, grouped timing fields, Vault, managed lists, recovery and diagnostics. Timing fields show each active value beside the editable draft. Proposing a change takes the user to Vault. Frozen review shows actual list changes and a table of changed timing values, Active versus Proposed; the full Core review remains expandable. Existing wait, explicit confirmation, cancellation and persistence behavior remains owned by Core.
+
+The brand returns to Home within the page, preserving drafts. Busy actions show Working/Saving feedback. When a Vault action disappears or disables, focus moves to its summary. Unpinning a focused card returns focus to that destination's visible category pin, with search as a fallback. Home spacing and Settings rhythm are tighter; decorative slogans and duplicate timing summaries are removed. Short hover/layout transitions respect reduced-motion settings.
 
 Diagnostics, source details, raw policy and recovery remain available. Their technical information is secondary to browsing. The sidebar keeps authority availability visible; it creates no permission.
 
@@ -29,6 +33,8 @@ Every pinned entry is resolved against the current effective-Whitelist display i
 Category/card nodes are retained while policy is unchanged. Pin rows change only when active pin contents change; timers update their text without rebuilding the page. Search and settings drafts retain focus during housekeeping. Reduced-motion styles, visible keyboard focus, a skip link and labeled controls are included.
 
 ## Visual compromises and limits
+
+D23's [code review](code-review.md) separates Settings/Home rendering and centralizes timing display/draft conversion in `settings-model.ts`. Unsaved drafts survive a temporary failed state query while commands disable. Access headings receive focus when opening the panel or hiding the focused action; search keeps combobox focus. Temporary scope copy appears only for Access flows. Explicit navigation clears stale feedback. The existing visual system and authority boundary remain unchanged.
 
 The reference's palette, hierarchy and spacing guide the implementation. Existing Atlas identity, real categories and system fonts are retained. Scenic photography is outside this pass. There are no mock Edit controls or invented frequent destinations.
 
@@ -61,3 +67,19 @@ An initial native probe caught use of an unavailable `browser.storage` namespace
 Inspected previews: [Home](evidence/atlas-home-d20.png), [small screen](evidence/atlas-small-screen-d20.png), [frozen Vault review](evidence/atlas-vault-d20.png). These use an isolated synthetic profile with explicitly selected pins and fixture timing proposals. They do not alter the user's installed policy/settings.
 
 Next polish should follow daily use: destination ordering/reordering, clearer feedback for large policy reviews, and dedicated screen-reader/zoom checks. Preserve the settled authorization model and use reproducible failures to guide adapter corrections.
+
+## Firefox interface cleanup (D24)
+
+Extension **0.1.4** implements the Settings/sidebar contract above. It removes duplicate sidebar destinations and repetitive decorative/status copy, keeps secondary Settings sections initially closed, and reveals a new saved proposal for review. Curated-update notices appear only when there are actual missing entries. The brand changes views without reloading the page. Focus stays visible after unpinning or completing a Vault action; native disclosure summaries remain in Tab order. Layout transitions respect reduced motion.
+
+`extension/src/ui/sidebar.ts` owns the small presentation preference. `main.ts`, `assets/index.html` and `assets/style.css` own rendering, structure and style. There are no new dependencies, manifest permissions, authorization operations, storage schemas or Core source changes in this pass.
+
+Build and TypeScript checks pass on Node.js 24.12.0 / npm 11.6.4 / TypeScript 6.0.3; **119/119 extension tests pass**. The prior D23 Core result remains **185/185**; this UI pass rebuilds Core and changes no domain behavior.
+
+Native Firefox 157.0 checks use isolated synthetic profiles and real extension controls. `--coherence-only` verifies unavailable authority, preserved drafts, rejected timing precision, focus, internal-document source retirement and Greylist waiting. `--existing-policy` verifies the now-collapsed Vault's curated update, frozen review, old-policy retention, explicit saved confirmation and the ordinary navigation/restart scenario. These are separate from authenticated provider compatibility.
+
+Final runs pass **6 coherence, 11 productization and 14 existing-policy/browsing check groups**. `--productization-only` also verifies the 80-pixel rail, actual Space/Enter activation, reload and extension restart, corrupt preferences, failed saves without lost controller polling, native cross-document storage events, pin focus, visible decoded website icons, secondary disclosure controls and saved timing changes. Evidence: [sanitized results](evidence/firefox-ui-d24.json), from `.tools/firefox-e2e-5cz21w66`, `.tools/firefox-e2e-c_kmvhhx` and `.tools/firefox-e2e-mfxczui_`.
+
+Visually inspected previews: [expanded Home](evidence/atlas-home-expanded-d24.png), [minimized Home](evidence/atlas-home-collapsed-d24.png), [Settings overview](evidence/atlas-settings-d24.png), [compact header](evidence/atlas-small-screen-d24.png), and [frozen Vault review](evidence/atlas-vault-d24.png). The requested 350-pixel outer window is clamped by Firefox to a 500-pixel viewport; native checks establish no horizontal overflow and visible navigation at that actual width, not below it.
+
+Screenshots wait for presentation transitions to finish. Preview pins and policy/settings data belong to disposable fixtures; the tests do not modify the user's installed profile. Dedicated screen-reader and zoom testing remain outstanding.

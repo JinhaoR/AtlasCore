@@ -1,0 +1,45 @@
+{
+  "firefox": "157.0",
+  "extensionVersion": "0.1.3",
+  "checks": [
+    "unsaved policy/timing drafts survive unavailable authority and reconnect; commands stay disabled",
+    "fractional millisecond draft cannot create a Vault proposal or change active settings",
+    "explicit navigation clears stale feedback; search/Escape retain focus; responsive Home has no horizontal overflow",
+    "current destination and Home move focus to their visible content",
+    "native internal replacement clears root evidence; next unknown site gets no Journey or grant",
+    "Greylist request preserves wait; hidden action transfers focus to access heading"
+  ],
+  "journeyRegression": {
+    "checks": [
+      "loaded root ends REACHED; actual Login starts a new Journey",
+      "immediate same-host auto-POST survives document/request ordering",
+      "same-host POST does not consume a hop or extend the fixed deadline",
+      "four same-tab Google denial/root re-entry/Login/return cycles",
+      "explicit cancellation and Restart action reach fresh root and fresh Login",
+      "two tabs keep independent authorization and indicators; denied synthetic request withheld",
+      "four-second root document delay survives timer checkpoints without losing permission",
+      "actual direct GET, cross-host POST and root script departures start fresh Journeys",
+      "first departure consumes hop one; subsequent unfamiliar hosts use correlated HTTP only",
+      "all direct-departure returns end the same Journey without renewed deadline",
+      "uncorrelated intermediate link stays Greylist and its destination request is withheld",
+      "typed Google stays Greylist during direct-departure Journey",
+      "same-tab root re-entry and legitimate direct Login succeed after each ended attempt",
+      "policy/configuration unchanged",
+      "no permanent trust, pending Access request or temporary grant created"
+    ],
+    "firefox": "157.0"
+  },
+  "interfaceRegression": {
+    "checks": [
+      "native online website icons, observed favicon on a custom host, decoded image rendering and no letter tiles",
+      "native sidebar navigation, local pin persistence, ordinary cards, search shortcut, stable DOM and small-screen layout",
+      "native local search, aliases, blacklist exclusion, keyboard selection and ordinary gate",
+      "native atomic schema-1 migration, unchanged policy/runtime terms and frozen pending policy wait",
+      "native per-tab badge/title, cancellation, expiry and restart clearing",
+      "native old-term settings wait, explicit confirmation, atomic activation and frozen Access/Journey terms",
+      "native committed settings and pending proposal restart",
+      "Home/Settings preserve policy, managed list, Vault, diagnostics and recovery tools"
+    ],
+    "firefox": "157.0"
+  }
+}

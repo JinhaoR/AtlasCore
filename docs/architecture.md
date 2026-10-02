@@ -1,14 +1,20 @@
 # Atlas Core architecture
 
-D19's [productization contract](productization.md) adds protected configuration to the authoritative snapshot and existing Vault flow. Journey authorization remains D18, with its HTTP redirect risk explicitly accepted for the Ulysses-contract threat model. Require a reproducible real-use failure or practical bypass before increasing authorization complexity.
+D19's [productization contract](productization.md) adds protected configuration to the authoritative snapshot and existing Vault flow. Journey authorization follows D18 and D22, with the redirect and first-departure risks explicitly accepted for the Ulysses-contract threat model. Require a reproducible real-use failure or practical bypass before increasing authorization complexity.
 
 D20's [interface refinement](ui-design.md) changes Firefox presentation and local pin preferences. Pins resolve only against current active destinations; they are separate from authority and cannot grant access. Core contracts and authoritative storage are unchanged.
 
 D21's [Journey visibility and recovery](firefox-journey-recovery.md) adds a read-only top-level content display and an explicit root retry through the existing gate. Neither surface creates authorization; Core and D18 remain unchanged.
 
+D22's [Journey lifecycle corrections](firefox-journey-polish.md) preserve matched actual arrivals when immediate page actions supersede queued publication. Browser observations and saved permission remain distinct; genuine arrival completion precedes the following login attempt. The approved first departure from a loaded Whitelisted root extends D18 narrowly; later unfamiliar steps retain its strict HTTP contract.
+
 Status: Milestones 1 through 3, D11 Journeys, and D13 aggregate validation/planning implement pure domain logic. D14 adds commit coordination with repository/clock interfaces. D15 adds the first Firefox development adapter and extension-origin repository without changing Core's public API. Requirements and settled decisions live in [foundation.md](foundation.md).
 
 ## Current package
+
+D23's [coherence review](code-review.md) validates these boundaries and corrects Firefox lifecycle/presentation issues. The small Core package and its public API remain unchanged.
+
+D24's [Firefox interface cleanup](ui-design.md#firefox-interface-cleanup-d24) simplifies navigation and Settings, and adds a saved minimized sidebar. These local presentation preferences carry no authority; planner, controller and repository contracts remain unchanged.
 
 `packages/core` is the single Core package; `extension/` is the separate Firefox adapter package. Its public exports include policy evaluation, target normalization, Greylist access transitions, Vault proposal/review/commit preparation, and Journey transitions, with readonly domain models.
 
@@ -18,6 +24,7 @@ Status: Milestones 1 through 3, D11 Journeys, and D13 aggregate validation/plann
 | `target.ts` | Request normalization and the shared hostname validator. |
 | `policy.ts` | Validate and normalize both complete policy lists into fresh arrays. |
 | `evaluate.ts` | Validate inputs, check Blacklist first, then Whitelist, then return Greylist. |
+| `managed-blacklist.ts` | Compile and query injected managed deny data without downloading or storing it. |
 | `access-models.ts` | Pending requests, grants, access state/context, timing, and result variants. |
 | `access-state.ts` | Explicit initialization; validate and copy complete workflow state, configuration, and context. |
 | `access.ts` | Derive temporal access decisions and compute explicit request/grant transitions. |
@@ -61,7 +68,7 @@ The package emits JavaScript ES modules and type declarations and stays private 
 
 ## Dependency direction
 
-The coordinator and external contracts below describe later milestones, not current modules.
+The controller and repository/clock contracts are implemented in D14. The broader runtime facade and ledger described below remain proposals; Firefox uses D15's narrower execution protocol.
 
 ```text
 Browser events / application UI
@@ -200,7 +207,7 @@ Restart is simulated by serializing an adopted domain snapshot and reloading it 
 
 ## Vault workflow (Milestone 3)
 
-Status: adopted through foundation D10 and implemented as pure domain logic. Proposal creation, review, cancellation, and commit preparation are implemented. The standalone Vault module has no persistence or UI. D14 now supplies commit coordination; D15 supplies a repository. Vault editing in the Firefox development UI remains deferred.
+Status: adopted through foundation D10 and implemented as pure domain logic. Proposal creation, review, cancellation, and commit preparation are implemented. The standalone Vault module has no persistence or UI. D14 supplies commit coordination; D15 supplies a repository. D19/D20 provide protected policy and timing editing with frozen review in the Firefox interface.
 
 ### Scope and invariants
 
@@ -529,7 +536,7 @@ D13/D14 implement aggregate planning and controller commit coordination with fak
 
 ## Journey workflow
 
-The [Firefox authentication investigation](firefox-auth-investigation.md) records measured navigation evidence and continuation proposals for review. It changes no authorization semantics. Document arrival is distinct from authentication completion; current D18 termination and HTTP evidence rules remain in effect.
+The [Firefox authentication investigation](firefox-auth-investigation.md) records historical D18 navigation evidence and proposals. Document arrival is distinct from authentication completion. D22 explicitly extends the first departure as described below; the investigation itself grants no authorization.
 
 Status: D11 implementation narrowed by user-approved D18 stabilization; pure tests cover both standalone workflows and aggregate navigation. It replaces the former supporting-domain catalog proposal for the current scope. No Context Whitelist, learned relationships, trust graph, or link inheritance is included.
 
@@ -537,13 +544,13 @@ Status: D11 implementation narrowed by user-approved D18 stabilization; pure tes
 
 A Journey represents one deliberate attempt to reach a Pure Whitelist hostname. Pure Whitelist uses the existing `Policy.whitelist`; Blacklist wins even when a root is also Whitelisted. During a valid Journey, unfamiliar intermediate top-level destinations receive temporary authorization only in its bound context. There is no provider lookup, automatic enrollment, or Access Grant creation.
 
-This is a deliberate bounded exception to ordinary Greylist access. Core checks the attempt's state and boundaries; it cannot prove that a destination is necessary or safe. Unrelated typed navigation and cross-host page actions do not inherit the allowance. An attested redirect can still be page-controlled: correlation is not proof of necessity or safety. The fixed deadline bounds one attempt, not cumulative use across deliberate new attempts. Browser and website authentication, TLS, cookies, credentials, and OAuth correctness remain outside Core.
+This is a deliberate bounded exception to ordinary Greylist access. Core checks the attempt's state and boundaries; it cannot prove that a destination is necessary or safe. Unrelated typed navigation does not inherit the allowance. D22 permits one browser-attested page departure from a loaded Pure Whitelist root; later unfamiliar page actions do not inherit it. Both that first departure and an attested HTTP redirect can be page-controlled: provenance is not proof of necessity or safety. The fixed deadline bounds one attempt, not cumulative use across deliberate new attempts. Browser and website authentication, TLS, cookies, credentials, and OAuth correctness remain outside Core.
 
 **Invariant:** An active Journey is permission to reach one intended destination through necessary transitional infrastructure. It is not general temporary browsing permission. The first practical model approximates continuation through trusted HTTP redirect correlation; it does not claim to recognize authentication.
 
-The trusted adapter supplies `JourneyContinuation { kind, sourceHostname }`. `HTTP_REDIRECT` attests a correlated chain from the current authorization cursor; `SAME_HOST` attests a document action staying at the current host; `RETAINED` reevaluates that same host; `ARRIVAL` records actual current/root arrival. The source must match `currentHostname`. Missing or mismatched evidence for an unfamiliar host ends the attempt with `UNRELATED_NAVIGATION` and uses ordinary policy/grants/Greylist. Malformed evidence rejects the operation. No browser request IDs or URLs enter Core.
+The trusted adapter supplies `JourneyContinuation { kind, sourceHostname }`. `HTTP_REDIRECT` attests a correlated chain from the current authorization cursor; `SAME_HOST` attests a document action staying at the current host; `RETAINED` reevaluates that same host; `ARRIVAL` records actual current/root arrival. The source must match `currentHostname`. D22 adds `ROOT_DEPARTURE`: a browser-attested first departure from an actually displayed Whitelisted document. BEGIN may establish a fresh attempt rooted at the revalidated source when no active attempt remains; an existing STARTED attempt at that same root retains its ID/deadline. Only STARTED at the root can accept this unfamiliar step. Recording it consumes the first hop and enters IN_TRANSIT, where unfamiliar steps need HTTP_REDIRECT. It cannot rebase an active attempt or renew one from an intermediate. Missing or mismatched evidence for an unfamiliar host ends the attempt with `UNRELATED_NAVIGATION` and uses ordinary policy/grants/Greylist. Malformed evidence rejects the operation. No browser request IDs or URLs enter Core.
 
-All held Whitelist requests use `BEGIN_NAVIGATION` regardless of UI, bookmark, address bar, link or new tab. A correlated active continuation preserves its ID and fixed terms, including a redirect traversing the root without arrival. A new independent Whitelisted destination ends the previous attempt and starts its own. An actual final document on a different already Whitelisted host ends with `DESTINATION_CHANGED`, without global alias equivalence. `CHECK_NAVIGATION` remains a check and never starts an attempt. Initial root arrival closes `REACHED`; later login can begin through a fresh request to that Whitelisted root whose HTTP response redirects to a provider.
+All held Whitelist requests use `BEGIN_NAVIGATION` regardless of UI, bookmark, address bar, link or new tab. A correlated active continuation preserves its ID and fixed terms, including a redirect traversing the root without arrival. A new independent Whitelisted destination ends the previous attempt and starts its own. An actual final document on a different already Whitelisted host ends with `DESTINATION_CHANGED`, without global alias equivalence. `CHECK_NAVIGATION` remains a check and never starts an attempt. Initial root arrival closes `REACHED`; later login can begin through a fresh root request or D22's first browser-attested cross-host departure from that loaded root. The latter starts at departure time, rather than reviving the ended attempt.
 
 ### Minimal records
 
@@ -589,7 +596,7 @@ The Journey API does not inspect or change `AccessState`, and it cannot create o
 
 Only the trusted owner may start an attempt or select its context. D18 `BEGIN_NAVIGATION` starts Whitelisted requests through the common path; correlated active continuations never renew a deadline. Page messages, timer observations and history restoration cannot start attempts. Explicitly choosing a different destination cancels the old attempt. Contexts do not share or fork authority; popups and embedded flows have no automatic allowance.
 
-Expiry/cancellation removes authorization for already displayed intermediate content as well as future navigation. The adapter must reevaluate and remove or block content that has no other valid permission; returning to the Whitelisted root remains available. Ending on actual root document arrival may interrupt page-driven authentication that departs afterward; such cross-host actions need ordinary policy authorization. A later held request to the Whitelisted root can establish a new independent attempt. These are intentional D18 limits.
+Expiry/cancellation removes authorization for already displayed intermediate content as well as future navigation. The adapter must reevaluate and remove or block content that has no other valid permission; returning to the Whitelisted root remains available. D22 permits one departure from a loaded trusted root, without proving login purpose. Other cross-host page actions need ordinary policy authorization. A later held request to the Whitelisted root can establish a new independent attempt. Intermediate reloads/actions cannot extend either attempt.
 
 The standalone Journey module has no timer, real clock, browser API, persistence, or concurrency control. D14 serializes and commits its transitions; D15 supplies Firefox facts and effects. Restart cannot create a fresh allowance automatically: loss of a binding ends the attempt; any future restoration must preserve its ID, consumed state, limits, deadlines, and valid binding. Serialization tests alone prove no browser or crash-durability guarantees. No credentials, authentication URLs, dependency history, or provider metadata are stored.
 
