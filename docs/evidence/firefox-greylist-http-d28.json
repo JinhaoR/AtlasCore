@@ -1,0 +1,31 @@
+{
+  "scope": "Public homepage authorization only; no account or authenticated compatibility claim",
+  "firefox": "157.0",
+  "extensionVersion": "0.1.9",
+  "requestedHostname": "goodreads.com",
+  "displayedHostname": "www.goodreads.com",
+  "requestedScheme": "http",
+  "initialNavigationProtocol": "http:",
+  "discoveryProtocols": [
+    "https:"
+  ],
+  "discoveryHostnames": [
+    "goodreads.com"
+  ],
+  "isolatedTransportTestPreferences": true,
+  "decisionReason": "ACTIVE_GRANT",
+  "scopeHostnames": [
+    "goodreads.com",
+    "www.goodreads.com"
+  ],
+  "preparedSource": "CANONICAL_REDIRECT",
+  "scopeDisclosedBeforeStart": true,
+  "discoveryCreatesNoRequestOrGrant": true,
+  "oneRequest": true,
+  "oneConfirmation": true,
+  "prematureConfirmationRejected": true,
+  "duplicateConfirmationRejected": true,
+  "fixedGrantDeadline": true,
+  "policyUnchanged": true,
+  "noJourney": true
+}

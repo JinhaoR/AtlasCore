@@ -2038,6 +2038,145 @@ ${countdown(display.expiresAt, now2)} remaining`;
     return grants.sort((a, b) => a.expiresAt - b.expiresAt || a.requestId - b.requestId);
   }
 
+  // src/adapter/canonical-entry.ts
+  var redirectStatuses = /* @__PURE__ */ new Set([301, 302, 303, 307, 308]);
+  var reservedEndings = [
+    "localhost",
+    "local",
+    "localdomain",
+    "internal",
+    "lan",
+    "home",
+    "corp",
+    "test",
+    "invalid",
+    "example",
+    "onion",
+    "alt",
+    "home.arpa",
+    "example.com",
+    "example.net",
+    "example.org"
+  ];
+  function publicHostname(hostname) {
+    const labels = hostname.split(".");
+    return hostname.length <= 253 && labels.length >= 2 && labels.every((label) => label.length <= 63 && /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label)) && /[a-z]/.test(labels.at(-1) ?? "") && !reservedEndings.some((ending) => hostname === ending || hostname.endsWith(`.${ending}`));
+  }
+  function publicRoot(origin) {
+    try {
+      const root = new URL(origin);
+      if (root.protocol !== "https:" || root.port !== "" || root.username !== "" || root.password !== "" || root.pathname !== "/" || root.search !== "" || root.hash !== "" || !publicHostname(root.hostname) || origin !== root.origin && origin !== `${root.origin}/`) return null;
+      return root;
+    } catch {
+      return null;
+    }
+  }
+  function canonicalDiscoveryOrigin(requestedOrigin) {
+    try {
+      const root = new URL(requestedOrigin);
+      if (!["http:", "https:"].includes(root.protocol) || root.port !== "" || requestedOrigin !== root.origin && requestedOrigin !== `${root.origin}/`) return null;
+      root.protocol = "https:";
+      return publicRoot(root.href)?.origin ?? null;
+    } catch {
+      return null;
+    }
+  }
+  function canonicalEntryCounterpart(origin, location) {
+    const root = publicRoot(origin);
+    if (root === null || typeof location !== "string" || location.trim() === "") return null;
+    try {
+      const target = new URL(location, root);
+      const partner = root.hostname.startsWith("www.") ? root.hostname.slice(4) : `www.${root.hostname}`;
+      if (target.protocol !== root.protocol || target.port !== root.port || target.username !== "" || target.password !== "" || target.hostname !== partner || !publicHostname(target.hostname)) return null;
+      return target.hostname;
+    } catch {
+      return null;
+    }
+  }
+  function createCanonicalEntryDiscovery(api, request = fetch, timeoutMs = 3e3) {
+    const inFlight = /* @__PURE__ */ new Map();
+    function probe(root) {
+      return new Promise((resolve) => {
+        const abort = new AbortController();
+        let finished = false;
+        let requestId = null;
+        let timer;
+        let extension;
+        try {
+          extension = new URL(api.runtime.getURL(""));
+        } catch {
+          resolve(null);
+          return;
+        }
+        const ownRequest = (details) => {
+          const sources = [details.originUrl, details.documentUrl].filter((source) => source !== void 0);
+          return details.tabId === -1 && details.type === "xmlhttprequest" && details.method === "HEAD" && details.url === root.href && sources.length > 0 && sources.every((source) => {
+            try {
+              const initiator = new URL(source);
+              return initiator.protocol === "moz-extension:" && initiator.host === extension.host && initiator.username === "" && initiator.password === "";
+            } catch {
+              return false;
+            }
+          });
+        };
+        const finish = (hostname) => {
+          if (finished) return;
+          finished = true;
+          if (timer !== void 0) clearTimeout(timer);
+          try {
+            api.webRequest.onBeforeRequest.removeListener(before);
+          } catch {
+          }
+          try {
+            api.webRequest.onHeadersReceived.removeListener(headers);
+          } catch {
+          }
+          abort.abort();
+          resolve(hostname);
+        };
+        const before = (details) => {
+          if (!finished && requestId === null && ownRequest(details)) requestId = details.requestId;
+        };
+        const headers = (details) => {
+          if (finished || requestId === null || details.requestId !== requestId || !ownRequest(details)) return;
+          const locations = details.responseHeaders?.filter((header) => header.name.toLowerCase() === "location") ?? [];
+          finish(redirectStatuses.has(details.statusCode) && locations.length === 1 && locations[0]?.value !== void 0 ? canonicalEntryCounterpart(root.origin, locations[0].value) : null);
+        };
+        try {
+          const filter = { urls: [root.href], types: ["xmlhttprequest"] };
+          api.webRequest.onBeforeRequest.addListener(before, filter);
+          api.webRequest.onHeadersReceived.addListener(headers, filter, ["responseHeaders"]);
+          timer = setTimeout(() => finish(null), timeoutMs);
+          void request(root.href, {
+            method: "HEAD",
+            credentials: "omit",
+            redirect: "manual",
+            cache: "no-store",
+            referrerPolicy: "no-referrer",
+            signal: abort.signal
+          }).catch(() => finish(null));
+        } catch {
+          finish(null);
+        }
+      });
+    }
+    return (origin) => {
+      const discoveryOrigin = canonicalDiscoveryOrigin(origin);
+      const root = discoveryOrigin === null ? null : publicRoot(discoveryOrigin);
+      if (root === null || !Number.isSafeInteger(timeoutMs) || timeoutMs <= 0 || timeoutMs > 2147483647) {
+        return Promise.resolve(null);
+      }
+      const existing = inFlight.get(root.href);
+      if (existing !== void 0) return existing;
+      const pending = probe(root);
+      inFlight.set(root.href, pending);
+      void pending.then(() => {
+        if (inFlight.get(root.href) === pending) inFlight.delete(root.href);
+      });
+      return pending;
+    };
+  }
+
   // src/adapter/firefox-adapter.ts
   function destination(url) {
     if (!/^https?:\/\//i.test(url)) return null;
@@ -2049,12 +2188,13 @@ ${countdown(display.expiresAt, now2)} remaining`;
   var allowed = (result) => result.type === "ASSESSMENT" && result.decision.outcome === "ALLOW";
   var error = (reason) => ({ type: "ADAPTER_ERROR", reason });
   var FirefoxAdapter = class {
-    constructor(api, host2, newContextId, now2, schedule = (callback, delay) => setTimeout(callback, delay), unschedule = (id) => clearTimeout(id)) {
+    constructor(api, host2, newContextId, now2, schedule = (callback, delay) => setTimeout(callback, delay), unschedule = (id) => clearTimeout(id), discoverCanonicalEntry) {
       this.api = api;
       this.newContextId = newContextId;
       this.now = now2;
       this.schedule = schedule;
       this.unschedule = unschedule;
+      this.discoverCanonicalEntry = discoverCanonicalEntry;
       this.uiUrl = api.runtime.getURL("ui/index.html");
       api.webRequest.onBeforeRequest.addListener(
         this.beforeRequest,
@@ -2089,6 +2229,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
     refreshPending = null;
     stopped = false;
     nextNavigation = 0;
+    nextAccessScope = 0;
     diagnostics = new Diagnostics();
     ready;
     uiUrl;
@@ -2134,7 +2275,8 @@ ${countdown(display.expiresAt, now2)} remaining`;
           navigationId: 0,
           badge: "",
           pill: "",
-          rootOrigin: null
+          rootOrigin: null,
+          accessScope: null
         };
         this.contexts.set(tabId, context);
       }
@@ -2579,6 +2721,66 @@ ${countdown(display.expiresAt, now2)} remaining`;
         if (!allowed(result)) await this.removeContent(context, generation);
       }
     }
+    preparedAccessScope(context) {
+      const scope = context.accessScope;
+      const snapshot = this.host?.controller.getView().snapshot;
+      return scope !== null && snapshot !== null && snapshot !== void 0 && this.live(context, scope.generation) && context.requested?.origin === scope.origin && snapshot.policyRevision === scope.policyRevision ? scope : null;
+    }
+    /** Discovery runs outside the operation queue and can never hold navigation checks. */
+    async prepareAccessScope(tabId) {
+      if (!Number.isSafeInteger(tabId)) return { error: "INVALID_CONTEXT" };
+      const prepared = await this.run(async () => {
+        const context = this.contexts.get(tabId);
+        const controller = this.host?.controller;
+        if (context?.requested === null || context === void 0 || controller === void 0)
+          return { error: "CONTEXT_UNAVAILABLE" };
+        const generation = context.generation;
+        const result = await this.check(context, context.requested.target);
+        if (!this.live(context, generation)) return { error: "REQUEST_CONTEXT_CHANGED" };
+        this.publish(context, result);
+        if (result.type !== "ASSESSMENT" || result.decision.outcome !== "GREYLIST")
+          return { error: "NOT_GREYLIST" };
+        const snapshot = controller.getView().snapshot;
+        if (snapshot == null) return { error: "STORAGE_UNAVAILABLE" };
+        const existing = this.preparedAccessScope(context);
+        if (existing !== null) return { work: existing.work };
+        const aliases = equivalentServiceHostnames(context.requested.target.hostname);
+        const hostnames = aliases.filter((host2) => !snapshot.policy.whitelist.includes(host2) || snapshot.policy.blacklist.includes(host2));
+        const discoveryOrigin = canonicalDiscoveryOrigin(context.requested.origin);
+        const discover = aliases.length === 1 && discoveryOrigin !== null && this.discoverCanonicalEntry !== void 0;
+        const scope = {
+          generation,
+          origin: context.requested.origin,
+          policyRevision: snapshot.policyRevision,
+          preview: Object.freeze({
+            id: `${context.id}:${++this.nextAccessScope}`,
+            status: discover ? "PREPARING" : "READY",
+            hostnames: Object.freeze(hostnames),
+            source: aliases.length > 1 ? "DECLARED" : "EXACT"
+          }),
+          work: Promise.resolve()
+        };
+        context.accessScope = scope;
+        if (discover) {
+          scope.work = Promise.resolve().then(() => this.discoverCanonicalEntry(discoveryOrigin)).catch(() => null).then((partner) => this.run(() => {
+            if (this.preparedAccessScope(context) !== scope) return;
+            const current = controller.getView().snapshot;
+            const sanitized = typeof partner === "string" ? canonicalEntryCounterpart(discoveryOrigin, `https://${partner}/`) : null;
+            const counterpart = sanitized === partner ? sanitized : null;
+            const members = counterpart === null ? hostnames : [...hostnames, counterpart].filter((host2) => !current.policy.whitelist.includes(host2) || current.policy.blacklist.includes(host2));
+            scope.preview = Object.freeze({
+              ...scope.preview,
+              status: "READY",
+              hostnames: Object.freeze(members),
+              source: counterpart === null ? "EXACT" : "CANONICAL_REDIRECT"
+            });
+          })).then(() => void 0);
+        }
+        return { work: scope.work };
+      });
+      if ("work" in prepared) await prepared.work;
+      return { ..."error" in prepared ? { error: prepared.error } : {}, view: this.view() };
+    }
     view() {
       const controller = this.host?.controller.getView() ?? null;
       return {
@@ -2594,7 +2796,8 @@ ${countdown(display.expiresAt, now2)} remaining`;
           latest: context.latest,
           journey: this.journey(context),
           effect: context.effect,
-          retry: journeyRetry(controller, this.journey(context))
+          retry: journeyRetry(controller, this.journey(context)),
+          accessScope: this.preparedAccessScope(context)?.preview ?? null
         }))
       };
     }
@@ -2616,6 +2819,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         START_JOURNEY: ["tabId"],
         CANCEL_JOURNEY: ["tabId"],
         START_ACCESS: ["tabId"],
+        PREPARE_ACCESS: ["tabId"],
         RESTART_JOURNEY: ["tabId", "journeyId"],
         CONFIRM_ACCESS: ["requestId"],
         CANCEL_ACCESS: ["requestId"],
@@ -2630,7 +2834,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         PROPOSE_SETTINGS: ["candidateConfiguration"],
         PROPOSE_POLICY: ["candidatePolicy"]
       };
-      const fields = Object.hasOwn(keys, command.kind) ? keys[command.kind] : void 0;
+      const fields = command.kind === "START_ACCESS" && Object.hasOwn(command, "scopeId") ? ["tabId", "scopeId"] : Object.hasOwn(keys, command.kind) ? keys[command.kind] : void 0;
       if (fields === void 0 || Object.keys(command).length !== fields.length + 1 || fields.some((field) => !Object.hasOwn(command, field))) return Promise.resolve({ error: "INVALID_COMMAND" });
       if (command.kind === "GET_VIEW") return Promise.resolve({ view: this.view() });
       if (command.kind === "GET_DIAGNOSTICS") return Promise.resolve(command.tabId === null || Number.isSafeInteger(command.tabId) ? { entries: this.diagnostics.read(command.tabId) } : { error: "INVALID_CONTEXT" });
@@ -2638,6 +2842,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         this.diagnostics.clear();
         return Promise.resolve({ entries: [] });
       }
+      if (command.kind === "PREPARE_ACCESS") return this.prepareAccessScope(command.tabId).catch(() => ({ error: "SCOPE_PREPARATION_FAILED", view: this.view() }));
       return this.run(() => this.command(command)).catch(() => ({ error: "ADAPTER_FAILURE" }));
     };
     async command(command) {
@@ -2743,8 +2948,22 @@ ${countdown(display.expiresAt, now2)} remaining`;
       }
       if (command.kind === "START_ACCESS") {
         const policy = controller.getView().snapshot?.policy;
-        const scopeHostnames = equivalentServiceHostnames(context.requested.target.hostname).filter((host2) => !policy?.whitelist.includes(host2) || policy.blacklist.includes(host2));
+        const prepared = this.preparedAccessScope(context);
+        let scopeHostnames = prepared?.preview.hostnames ?? equivalentServiceHostnames(context.requested.target.hostname).filter((host2) => !policy?.whitelist.includes(host2) || policy.blacklist.includes(host2));
+        if (this.discoverCanonicalEntry !== void 0 || Object.hasOwn(command, "scopeId")) {
+          const generation = context.generation;
+          const current = await this.check(context, context.requested.target);
+          if (!this.live(context, generation)) return { error: "REQUEST_CONTEXT_CHANGED", view: this.view() };
+          this.publish(context, current);
+          if (current.type === "ASSESSMENT" && (current.decision.outcome === "WAIT" || current.decision.outcome === "REQUIRE_CONFIRMATION")) {
+            const requestId = current.decision.requestId;
+            const pending = controller.getView().snapshot?.accessState.pendingRequests.find((request) => request.id === requestId);
+            if (pending === void 0) return { error: "REQUEST_CONTEXT_CHANGED", view: this.view() };
+            scopeHostnames = pending.scopeHostnames ?? [pending.hostname];
+          } else if (current.type !== "ASSESSMENT" || current.decision.outcome !== "GREYLIST" || this.preparedAccessScope(context) !== prepared || prepared?.preview.status !== "READY" || command.scopeId !== prepared.preview.id) return { error: "SCOPE_REVIEW_REQUIRED", view: this.view() };
+        }
         result = await controller.handle({ kind: "START_ACCESS", target: context.requested.target, scopeHostnames });
+        if (result.type === "COMMITTED") context.accessScope = null;
       } else if (command.kind === "START_JOURNEY") {
         if (context.flight !== null) return { error: "NAVIGATION_IN_PROGRESS" };
         result = await controller.handle({ kind: "START_JOURNEY", root: context.requested.target, contextId: context.id });
@@ -3325,7 +3544,15 @@ ${countdown(display.expiresAt, now2)} remaining`;
       })
     };
   });
-  var adapter = new FirefoxAdapter(browser, host, () => crypto.randomUUID(), now);
+  var adapter = new FirefoxAdapter(
+    browser,
+    host,
+    () => crypto.randomUUID(),
+    now,
+    void 0,
+    void 0,
+    createCanonicalEntryDiscovery(browser)
+  );
   void adapter.ready.then(async () => {
     await adapter.refresh();
     const managed = await managedPromise;

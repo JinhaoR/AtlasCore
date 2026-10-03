@@ -28,7 +28,7 @@ export async function fixture(t, initialize = true, options = {}) {
   let contextId = 0;
   const adapter = new FirefoxAdapter(firefox, Promise.resolve({ controller, repository }),
     options.newContextId ?? (() => `context_${++contextId}`), () => clock.now(),
-    options.schedule ?? firefox.schedule, firefox.unschedule);
+    options.schedule ?? firefox.schedule, firefox.unschedule, options.discoverCanonicalEntry);
   await adapter.ready;
   firefox.settle = () => adapter.whenIdle();
   t.after(() => { adapter.stop(); repository.close(); });

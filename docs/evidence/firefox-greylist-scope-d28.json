@@ -1,0 +1,134 @@
+{
+  "date": "2026-10-03",
+  "scope": "Public homepage authorization in isolated Firefox profiles; no credentials or authenticated compatibility claim",
+  "reports": {
+    "beforeFix": {
+      "scope": "Public homepage authorization only; no account, authentication or page-content evidence",
+      "firefox": "157.0",
+      "extensionVersion": "0.1.7",
+      "credentialFreeManualHead": {
+        "status": 0,
+        "type": "opaqueredirect",
+        "redirectHostname": null
+      },
+      "initial": {
+        "hostname": "goodreads.com",
+        "reason": "UNLISTED"
+      },
+      "afterFirstConfirmation": {
+        "blockedHostname": "www.goodreads.com",
+        "decisionReason": "UNLISTED",
+        "grantCount": 1,
+        "pendingRequestCount": 0,
+        "scopeHostnames": [
+          "goodreads.com"
+        ],
+        "fixedGrantDeadline": true,
+        "policyUnchanged": true
+      },
+      "afterSecondConfirmation": {
+        "displayedHostname": "www.goodreads.com",
+        "decisionReason": "ACTIVE_GRANT",
+        "grantCount": 2,
+        "scopeHostnames": [
+          [
+            "goodreads.com"
+          ],
+          [
+            "www.goodreads.com"
+          ]
+        ],
+        "twoRequestsForTwoExactHostnames": true,
+        "policyUnchanged": true,
+        "noJourney": true
+      },
+      "navigationEvidence": [
+        {
+          "event": "RELEASED",
+          "hostname": "goodreads.com",
+          "reason": "ACTIVE_GRANT"
+        },
+        {
+          "event": "REDIRECT",
+          "hostname": "www.goodreads.com",
+          "reason": null
+        },
+        {
+          "event": "RELEASED",
+          "hostname": "www.goodreads.com",
+          "reason": "ACTIVE_GRANT"
+        }
+      ]
+    },
+    "headerFeasibility": {
+      "scope": "Credential-free HEAD feasibility only; no account or page contents",
+      "firefox": "157.0",
+      "extensionVersion": "0.1.7",
+      "probe": {
+        "headerEvents": [
+          {
+            "statusCode": 301,
+            "redirectHostname": "www.goodreads.com",
+            "sourceOwnExtensionProven": true,
+            "originFieldPresent": true,
+            "documentFieldPresent": true
+          }
+        ],
+        "response": {
+          "status": 0,
+          "type": "opaqueredirect"
+        }
+      }
+    },
+    "goodreads": {
+      "scope": "Public homepage authorization only; no account or authenticated compatibility claim",
+      "firefox": "157.0",
+      "extensionVersion": "0.1.8",
+      "requestedHostname": "goodreads.com",
+      "displayedHostname": "www.goodreads.com",
+      "decisionReason": "ACTIVE_GRANT",
+      "scopeHostnames": [
+        "goodreads.com",
+        "www.goodreads.com"
+      ],
+      "preparedSource": "CANONICAL_REDIRECT",
+      "scopeDisclosedBeforeStart": true,
+      "discoveryCreatesNoRequestOrGrant": true,
+      "oneRequest": true,
+      "oneConfirmation": true,
+      "prematureConfirmationRejected": true,
+      "duplicateConfirmationRejected": true,
+      "fixedGrantDeadline": true,
+      "policyUnchanged": true,
+      "noJourney": true
+    },
+    "amazon": {
+      "scope": "Public homepage authorization only; no account or authenticated compatibility claim",
+      "firefox": "157.0",
+      "extensionVersion": "0.1.8",
+      "requestedHostname": "amazon.se",
+      "displayedHostname": "www.amazon.se",
+      "decisionReason": "ACTIVE_GRANT",
+      "scopeHostnames": [
+        "amazon.se",
+        "www.amazon.se"
+      ],
+      "preparedSource": "DECLARED",
+      "scopeDisclosedBeforeStart": true,
+      "discoveryCreatesNoRequestOrGrant": true,
+      "oneRequest": true,
+      "oneConfirmation": true,
+      "prematureConfirmationRejected": true,
+      "duplicateConfirmationRejected": true,
+      "fixedGrantDeadline": true,
+      "policyUnchanged": true,
+      "noJourney": true
+    }
+  },
+  "verification": {
+    "coreTests": 191,
+    "extensionTests": 177,
+    "coreTypecheck": true,
+    "extensionTypecheck": true
+  }
+}

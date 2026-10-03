@@ -1,11 +1,10 @@
 import { destinationIndex, searchDestinations } from './destinations.js';
 import { destinationEntryPoints, destinationId, pinnedDestinations, readPins } from './home-model.js';
 import { loadWebsiteIcon } from './website-icons.js';
-import { accessCopy, canQueueOperation, countdown, journeyEndCopy, selectedContext } from './presentation.js';
+import { accessCopy, canQueueOperation, countdown, journeyEndCopy, selectedAccessRecord, selectedContext } from './presentation.js';
 import { configurationFromDraft, settingsCopy, timingFields } from './settings-model.js';
 import { initializeSidebar } from './sidebar.js';
 import { compileCuratedWhitelist, curatedWhitelist, serviceLabel } from '../presets/curated-whitelist.js';
-import { equivalentServiceHostnames } from '../presets/access-aliases.js';
 const element = (id) => document.getElementById(id);
 const text = (id, value) => { const node = element(id); if (node.textContent !== value)
     node.textContent = value; };
@@ -17,6 +16,7 @@ let view = null;
 let busy = false;
 let polling = false;
 let epoch = 0;
+const preparingScopes = new Set();
 let optionsKey = '';
 let destinationsKey = '';
 let diagnosticKey = '';
@@ -115,6 +115,22 @@ async function send(command) {
         render();
     }
 }
+function prepareScope(context) {
+    const key = `${context.contextId}:${context.navigationId}:${view?.controller?.snapshot?.policyRevision}`;
+    if (preparingScopes.has(key))
+        return;
+    preparingScopes.add(key);
+    const ticket = epoch;
+    void browser.runtime.sendMessage({ kind: 'PREPARE_ACCESS', tabId: context.tabId }).then(response => {
+        const current = selectedContext(view?.contexts ?? [], selected);
+        if (ticket === epoch && current?.contextId === context.contextId
+            && current.navigationId === context.navigationId && response?.view) {
+            view = response.view;
+            render();
+        }
+    }).catch(() => { })
+        .finally(() => { preparingScopes.delete(key); });
+}
 function render() {
     const focused = document.activeElement;
     text('page-title', section === 'settings' ? 'Settings' : accessFocused ? 'A moment for your next step.' : 'Atlas');
@@ -178,16 +194,23 @@ function render() {
     const failedRemoval = context?.effect === 'FAILED';
     element('effect-warning').hidden = !failedRemoval;
     text('effect-warning', failedRemoval ? 'Firefox could not remove the document. Close the affected tab.' : '');
-    const pending = controller?.snapshot?.accessState.pendingRequests.find((request) => (request.scopeHostnames ?? [request.hostname]).includes(context?.hostname ?? ''));
-    const grant = controller?.snapshot?.accessState.grants.find((entry) => (entry.scopeHostnames ?? [entry.hostname]).includes(context?.hostname ?? ''));
-    const record = pending ?? (decision?.reason === 'ACTIVE_GRANT' ? grant : undefined);
-    const scope = record === undefined ? (context?.hostname === null || context?.hostname === undefined ? []
-        : equivalentServiceHostnames(context.hostname).filter((host) => !controller?.snapshot?.policy.whitelist.includes(host)
-            || controller.snapshot.policy.blacklist.includes(host))) : record.scopeHostnames ?? [record.hostname];
+    const { pending, grant } = selectedAccessRecord(decision, controller?.snapshot?.accessState, context?.hostname);
+    const record = pending ?? grant;
+    const preparedScope = context?.accessScope;
+    const scope = record === undefined ? (preparedScope?.status === 'READY' ? preparedScope.hostnames : [])
+        : record.scopeHostnames ?? [record.hostname];
     const showScope = scope.length > 0 && (decision?.outcome === 'GREYLIST' || decision?.outcome === 'WAIT'
         || decision?.outcome === 'REQUIRE_CONFIRMATION' || decision?.reason === 'ACTIVE_GRANT');
     element('access-scope').hidden = !showScope;
     text('access-scope', showScope ? `Temporary access covers exactly: ${scope.join(', ')}` : '');
+    const preparing = decision?.outcome === 'GREYLIST' && preparedScope?.status !== 'READY';
+    element('access-scope-note').hidden = decision?.outcome !== 'GREYLIST';
+    text('access-scope-note', preparing ? 'Checking the public site address before preparing your request…'
+        : preparedScope?.source === 'CANONICAL_REDIRECT'
+            ? 'The site redirects between these addresses. Both will share one wait and one access deadline.'
+            : 'Only the exact hostnames shown are covered. Other addresses may need a separate request.');
+    if (preparing && ready && context !== undefined && accessFocused && section === 'home')
+        prepareScope(context);
     const journey = context?.journey;
     const activeJourney = ready && journey != null && journey.phase !== 'ENDED' && now < journey.expiresAt;
     element('access-panel').hidden = !accessFocused;
@@ -202,6 +225,9 @@ function render() {
             button.disabled = disabled;
     };
     action('start-access', decision?.outcome === 'GREYLIST');
+    if (preparing)
+        element('start-access').disabled = true;
+    text('start-access', preparing ? 'Checking address…' : 'Request temporary access');
     action('confirm-access', decision?.outcome === 'REQUIRE_CONFIRMATION');
     action('cancel-access', pending !== undefined);
     action('open-home', decision?.outcome === 'ALLOW');
@@ -708,14 +734,20 @@ element('journey-form').addEventListener('submit', (event) => {
     event.preventDefault();
     void send({ kind: 'OPEN_DESTINATION', url: element('destination').value.trim() });
 });
-for (const [id, kind] of Object.entries({ 'start-access': 'START_ACCESS', 'open-home': 'OPEN_HOME',
+element('start-access').addEventListener('click', () => {
+    const context = selectedContext(view?.contexts ?? [], selected);
+    if (context?.accessScope?.status === 'READY')
+        void send({ kind: 'START_ACCESS', tabId: context.tabId, scopeId: context.accessScope.id });
+});
+for (const [id, kind] of Object.entries({ 'open-home': 'OPEN_HOME',
     'start-journey': 'START_JOURNEY', 'cancel-journey': 'CANCEL_JOURNEY' }))
     element(id).addEventListener('click', () => { if (selected !== '')
         void send({ kind, tabId: Number(selected) }); });
 for (const [id, kind] of Object.entries({ 'confirm-access': 'CONFIRM_ACCESS_AND_OPEN', 'cancel-access': 'CANCEL_ACCESS' })) {
     element(id).addEventListener('click', () => {
         const context = selectedContext(view?.contexts ?? [], selected);
-        const pending = view?.controller?.snapshot?.accessState.pendingRequests.find((request) => (request.scopeHostnames ?? [request.hostname]).includes(context?.hostname ?? ''));
+        const decision = context?.latest?.type === 'ASSESSMENT' ? context.latest.decision : null;
+        const { pending } = selectedAccessRecord(decision, view?.controller?.snapshot?.accessState, context?.hostname);
         if (pending && context)
             void send({ kind, requestId: pending.id, ...(kind === 'CONFIRM_ACCESS_AND_OPEN' ? { tabId: context.tabId } : {}) });
     });

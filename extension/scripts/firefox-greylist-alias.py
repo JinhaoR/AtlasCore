@@ -1,8 +1,11 @@
-"""Optional native check of one Greylist cycle across Amazon's public redirect.
+"""Optional native check of one Greylist cycle across a public canonical redirect.
 
 Fresh Firefox profile, public homepage only, no login, cookies from a user profile,
 or page contents in evidence. The server may show a bot challenge; the check is of
 Atlas's navigation authorization, not shopping or authenticated compatibility.
+Amazon uses declared aliases; Goodreads exercises pre-request canonical discovery.
+The optional HTTP entry check disables automatic HTTPS upgrades only in its
+disposable test profile, proving that scope preparation still probes HTTPS.
 """
 import argparse
 import importlib.util
@@ -34,8 +37,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--firefox', default=os.environ.get('FIREFOX_BINARY') or shutil.which('firefox')
                         or r'C:\Program Files\Mozilla Firefox\firefox.exe')
-    parser.add_argument('--hostname', choices=['amazon.se', 'www.amazon.se'], default='amazon.se')
+    parser.add_argument('--hostname', choices=['amazon.se', 'www.amazon.se', 'goodreads.com'], default='amazon.se')
+    parser.add_argument('--scheme', choices=['http', 'https'], default='https',
+                        help='Requested homepage scheme; HTTP mode uses an isolated transport test profile')
     args = parser.parse_args()
+    apex_hostname = args.hostname.removeprefix('www.')
+    canonical_hostname = f'www.{apex_hostname}'
+    expected_scope = [apex_hostname, canonical_hostname]
     artifacts = smoke.EXTENSION.parent / '.tools'
     artifacts.mkdir(exist_ok=True)
     run = Path(tempfile.mkdtemp(prefix='firefox-greylist-', dir=artifacts))
@@ -51,6 +59,15 @@ def main():
         'datareporting.healthreport.uploadEnabled': False, 'toolkit.telemetry.reportingpolicy.firstRun': False,
         'extensions.webextensions.uuids': json.dumps({smoke.ADDON_ID: smoke.UUID}),
     }
+    if args.scheme == 'http':
+        # Only this fresh test profile: ensure Firefox presents the adapter with
+        # the HTTP entry rather than upgrading it before interception. Production
+        # browser transport security and extension settings remain unchanged.
+        preferences.update({
+            'dom.security.https_first': False, 'dom.security.https_first_pbm': False,
+            'dom.security.https_only_mode': False, 'dom.security.https_only_mode_pbm': False,
+            'network.stricttransportsecurity.preloadlist': False,
+        })
     (profile / 'user.js').write_text('\n'.join(
         f'user_pref({json.dumps(key)}, {json.dumps(value)});' for key, value in preferences.items()), encoding='utf-8')
     process = subprocess.Popen([args.firefox, '-headless', '-no-remote', '-profile', str(profile),
@@ -79,11 +96,33 @@ def main():
         policy = {'whitelist': [], 'blacklist': []}
         smoke.configure_policy(client, policy)
         smoke.wait_for(lambda: client.message({'kind': 'GET_VIEW'})['view'].get('managed', {}).get('updateStatus') != 'UPDATING', 'managed refresh', 40)
+        client.script("""
+            const scope = new Set(arguments[0]);
+            const extensionHost = new URL(browser.runtime.getURL('')).host;
+            window.atlasPublicRequestEvidence = [];
+            browser.webRequest.onBeforeRequest.addListener(details => {
+                const target = new URL(details.url);
+                if (!scope.has(target.hostname)) return;
+                const navigation = details.type === 'main_frame' && details.frameId === 0 && details.method === 'GET';
+                const sources = [details.originUrl, details.documentUrl].filter(source => source !== undefined);
+                const discovery = details.tabId === -1 && details.type === 'xmlhttprequest' && details.method === 'HEAD'
+                    && sources.length > 0 && sources.every(source => {
+                        try {
+                            const origin = new URL(source);
+                            return origin.protocol === 'moz-extension:' && origin.host === extensionHost;
+                        } catch { return false; }
+                    });
+                if (navigation || discovery) window.atlasPublicRequestEvidence.push({
+                    kind: navigation ? 'NAVIGATION' : 'DISCOVERY', hostname: target.hostname,
+                    protocol: target.protocol,
+                });
+            }, {urls: ['http://*/*', 'https://*/*'], types: ['main_frame', 'xmlhttprequest']});
+        """, expected_scope)
         handles = client.call('WebDriver:GetWindowHandles')
         tab_id = client.script("""
             const done = arguments[arguments.length - 1];
             browser.tabs.create({url: arguments[0], active: false}).then(tab => done(tab.id));
-        """, f'https://{args.hostname}/', asynchronous=True)
+        """, f'{args.scheme}://{args.hostname}/', asynchronous=True)
         site_handle = smoke.wait_for(lambda: next((h for h in client.call('WebDriver:GetWindowHandles') if h not in handles), None), 'site tab')
 
         def view():
@@ -97,12 +136,28 @@ def main():
             return view()['controller']['snapshot']['accessState']['pendingRequests']
 
         smoke.wait_for(lambda: context() and context()['effect'] == 'REMOVED', 'initial Greylist block')
+        prepared = smoke.wait_for(lambda: (c := context()) and (scope := c.get('accessScope'))
+                                  and scope['status'] == 'READY' and scope, 'prepared scope before request', 20)
+        assert prepared['hostnames'] == expected_scope
+        assert prepared['source'] == ('CANONICAL_REDIRECT' if args.hostname == 'goodreads.com' else 'DECLARED')
+        client.call('WebDriver:SwitchToWindow', handle=ui_handle)
+        preparation_evidence = client.script('return window.atlasPublicRequestEvidence;')
+        entry = next(e for e in preparation_evidence if e['kind'] == 'NAVIGATION' and e['hostname'] == args.hostname)
+        assert entry['protocol'] == f'{args.scheme}:'
+        discovery = [e for e in preparation_evidence if e['kind'] == 'DISCOVERY']
+        if args.hostname == 'goodreads.com':
+            assert len(discovery) >= 1
+            assert all(e['protocol'] == 'https:' and e['hostname'] == args.hostname for e in discovery)
+        else:
+            assert discovery == []
+        assert pending() == []
+        assert view()['controller']['snapshot']['accessState']['grants'] == []
         client.call('WebDriver:SwitchToWindow', handle=site_handle)
-        scope_text = 'Temporary access covers exactly: amazon.se, www.amazon.se'
+        scope_text = f'Temporary access covers exactly: {", ".join(expected_scope)}'
         smoke.wait_for(lambda: client.script("return document.getElementById('access-scope')?.textContent === arguments[0] && !document.getElementById('start-access').disabled;", scope_text), 'scope preview before request')
         client.script("document.getElementById('start-access').click();")
         request = smoke.wait_for(lambda: next(iter(pending()), None), 'one persisted request')
-        assert request['scopeHostnames'] == ['amazon.se', 'www.amazon.se']
+        assert request['scopeHostnames'] == expected_scope
         assert len(pending()) == 1
         assert client.message({'kind': 'CONFIRM_ACCESS', 'requestId': request['id']})['result']['reason'] == 'NOT_READY'
         assert view()['controller']['snapshot']['accessState']['grants'] == []
@@ -111,7 +166,7 @@ def main():
         assert view()['controller']['snapshot']['accessState']['grants'] == []
         client.call('WebDriver:SwitchToWindow', handle=site_handle)
         client.script("document.getElementById('confirm-access').click();")
-        released = smoke.wait_for(lambda: (c := context()) and c['displayedHostname'] == 'www.amazon.se'
+        released = smoke.wait_for(lambda: (c := context()) and c['displayedHostname'] == canonical_hostname
                                   and c['latest'].get('decision', {}).get('reason') == 'ACTIVE_GRANT' and c, 'canonical homepage allowed', 30)
         snapshot = view()['controller']['snapshot']
         assert snapshot['accessState']['pendingRequests'] == []
@@ -123,15 +178,21 @@ def main():
         assert snapshot['journeyState']['journeys'] == []
         assert client.message({'kind': 'CONFIRM_ACCESS', 'requestId': request['id']})['result']['reason'] == 'REQUEST_NOT_FOUND'
         entries = client.message({'kind': 'GET_DIAGNOSTICS', 'tabId': tab_id})['entries']
-        if args.hostname == 'amazon.se':
-            assert any(e['event'] == 'RELEASED' and e['hostname'] == 'amazon.se' for e in entries)
-            assert any(e['event'] == 'REDIRECT' and e['hostname'] == 'www.amazon.se' for e in entries)
-        assert any(e['event'] == 'RELEASED' and e['hostname'] == 'www.amazon.se' for e in entries)
+        if args.hostname == apex_hostname:
+            assert any(e['event'] == 'RELEASED' and e['hostname'] == apex_hostname for e in entries)
+            assert any(e['event'] == 'REDIRECT' and e['hostname'] == canonical_hostname for e in entries)
+        assert any(e['event'] == 'RELEASED' and e['hostname'] == canonical_hostname for e in entries)
         report = {
             'scope': 'Public homepage authorization only; no account or authenticated compatibility claim',
             'firefox': version, 'extensionVersion': client.script('return browser.runtime.getManifest().version;'),
             'requestedHostname': args.hostname, 'displayedHostname': released['displayedHostname'],
+            'requestedScheme': args.scheme, 'initialNavigationProtocol': entry['protocol'],
+            'discoveryProtocols': sorted(set(e['protocol'] for e in discovery)),
+            'discoveryHostnames': sorted(set(e['hostname'] for e in discovery)),
+            'isolatedTransportTestPreferences': args.scheme == 'http',
             'decisionReason': released['latest']['decision']['reason'], 'scopeHostnames': grant['scopeHostnames'],
+            'preparedSource': prepared['source'], 'scopeDisclosedBeforeStart': True,
+            'discoveryCreatesNoRequestOrGrant': True,
             'oneRequest': True, 'oneConfirmation': True, 'prematureConfirmationRejected': True,
             'duplicateConfirmationRejected': True, 'fixedGrantDeadline': True,
             'policyUnchanged': True, 'noJourney': True,

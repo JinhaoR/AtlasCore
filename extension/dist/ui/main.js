@@ -440,6 +440,18 @@
   function selectedContext(contexts, selected2) {
     return contexts.find((context) => String(context.tabId) === selected2);
   }
+  function selectedAccessRecord(decision, state, hostname) {
+    let pending;
+    let grant;
+    if (state != null && hostname != null && decision != null) {
+      if ((decision.outcome === "WAIT" || decision.outcome === "REQUIRE_CONFIRMATION") && decision.target.hostname === hostname) {
+        pending = state.pendingRequests.find((request) => request.id === decision.requestId && (request.scopeHostnames ?? [request.hostname]).includes(hostname));
+      } else if (decision.outcome === "ALLOW" && decision.reason === "ACTIVE_GRANT" && decision.target.hostname === hostname) {
+        grant = state.grants.find((entry) => entry.requestId === decision.requestId && (entry.scopeHostnames ?? [entry.hostname]).includes(hostname));
+      }
+    }
+    return { pending, grant };
+  }
 
   // src/ui/settings-model.ts
   function seconds(milliseconds) {
@@ -517,22 +529,6 @@
     });
   }
 
-  // src/presets/access-aliases.ts
-  var greylistAliases = [
-    { hostname: "amazon.se", aliases: ["www.amazon.se"] }
-  ];
-  function equivalentServiceHostnames(hostname) {
-    for (const group of curatedWhitelist) for (const service of group.services) {
-      const aliases = [service.hostname, ...service.aliases ?? []];
-      if (aliases.includes(hostname)) return aliases;
-    }
-    for (const service of greylistAliases) {
-      const aliases = [service.hostname, ...service.aliases];
-      if (aliases.includes(hostname)) return aliases;
-    }
-    return [hostname];
-  }
-
   // src/ui/main.ts
   var element = (id) => document.getElementById(id);
   var text = (id, value) => {
@@ -547,6 +543,7 @@
   var busy = false;
   var polling = false;
   var epoch = 0;
+  var preparingScopes = /* @__PURE__ */ new Set();
   var optionsKey = "";
   var destinationsKey = "";
   var diagnosticKey = "";
@@ -633,6 +630,22 @@
       render();
     }
   }
+  function prepareScope(context) {
+    const key = `${context.contextId}:${context.navigationId}:${view?.controller?.snapshot?.policyRevision}`;
+    if (preparingScopes.has(key)) return;
+    preparingScopes.add(key);
+    const ticket = epoch;
+    void browser.runtime.sendMessage({ kind: "PREPARE_ACCESS", tabId: context.tabId }).then((response) => {
+      const current = selectedContext(view?.contexts ?? [], selected);
+      if (ticket === epoch && current?.contextId === context.contextId && current.navigationId === context.navigationId && response?.view) {
+        view = response.view;
+        render();
+      }
+    }).catch(() => {
+    }).finally(() => {
+      preparingScopes.delete(key);
+    });
+  }
   function render() {
     const focused = document.activeElement;
     text("page-title", section === "settings" ? "Settings" : accessFocused ? "A moment for your next step." : "Atlas");
@@ -686,13 +699,17 @@ Journey ${context.journey.id}: ${context.journey.endReason}` : ""}` : "");
     const failedRemoval = context?.effect === "FAILED";
     element("effect-warning").hidden = !failedRemoval;
     text("effect-warning", failedRemoval ? "Firefox could not remove the document. Close the affected tab." : "");
-    const pending = controller?.snapshot?.accessState.pendingRequests.find((request) => (request.scopeHostnames ?? [request.hostname]).includes(context?.hostname ?? ""));
-    const grant = controller?.snapshot?.accessState.grants.find((entry) => (entry.scopeHostnames ?? [entry.hostname]).includes(context?.hostname ?? ""));
-    const record = pending ?? (decision?.reason === "ACTIVE_GRANT" ? grant : void 0);
-    const scope = record === void 0 ? context?.hostname === null || context?.hostname === void 0 ? [] : equivalentServiceHostnames(context.hostname).filter((host) => !controller?.snapshot?.policy.whitelist.includes(host) || controller.snapshot.policy.blacklist.includes(host)) : record.scopeHostnames ?? [record.hostname];
+    const { pending, grant } = selectedAccessRecord(decision, controller?.snapshot?.accessState, context?.hostname);
+    const record = pending ?? grant;
+    const preparedScope = context?.accessScope;
+    const scope = record === void 0 ? preparedScope?.status === "READY" ? preparedScope.hostnames : [] : record.scopeHostnames ?? [record.hostname];
     const showScope = scope.length > 0 && (decision?.outcome === "GREYLIST" || decision?.outcome === "WAIT" || decision?.outcome === "REQUIRE_CONFIRMATION" || decision?.reason === "ACTIVE_GRANT");
     element("access-scope").hidden = !showScope;
     text("access-scope", showScope ? `Temporary access covers exactly: ${scope.join(", ")}` : "");
+    const preparing = decision?.outcome === "GREYLIST" && preparedScope?.status !== "READY";
+    element("access-scope-note").hidden = decision?.outcome !== "GREYLIST";
+    text("access-scope-note", preparing ? "Checking the public site address before preparing your request\u2026" : preparedScope?.source === "CANONICAL_REDIRECT" ? "The site redirects between these addresses. Both will share one wait and one access deadline." : "Only the exact hostnames shown are covered. Other addresses may need a separate request.");
+    if (preparing && ready && context !== void 0 && accessFocused && section === "home") prepareScope(context);
     const journey = context?.journey;
     const activeJourney = ready && journey != null && journey.phase !== "ENDED" && now < journey.expiresAt;
     element("access-panel").hidden = !accessFocused;
@@ -706,6 +723,8 @@ Journey ${context.journey.id}: ${context.journey.endReason}` : ""}` : "");
       if (button.disabled !== disabled) button.disabled = disabled;
     };
     action("start-access", decision?.outcome === "GREYLIST");
+    if (preparing) element("start-access").disabled = true;
+    text("start-access", preparing ? "Checking address\u2026" : "Request temporary access");
     action("confirm-access", decision?.outcome === "REQUIRE_CONFIRMATION");
     action("cancel-access", pending !== void 0);
     action("open-home", decision?.outcome === "ALLOW");
@@ -1210,8 +1229,12 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
     event.preventDefault();
     void send({ kind: "OPEN_DESTINATION", url: element("destination").value.trim() });
   });
+  element("start-access").addEventListener("click", () => {
+    const context = selectedContext(view?.contexts ?? [], selected);
+    if (context?.accessScope?.status === "READY")
+      void send({ kind: "START_ACCESS", tabId: context.tabId, scopeId: context.accessScope.id });
+  });
   for (const [id, kind] of Object.entries({
-    "start-access": "START_ACCESS",
     "open-home": "OPEN_HOME",
     "start-journey": "START_JOURNEY",
     "cancel-journey": "CANCEL_JOURNEY"
@@ -1222,7 +1245,8 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
   for (const [id, kind] of Object.entries({ "confirm-access": "CONFIRM_ACCESS_AND_OPEN", "cancel-access": "CANCEL_ACCESS" })) {
     element(id).addEventListener("click", () => {
       const context = selectedContext(view?.contexts ?? [], selected);
-      const pending = view?.controller?.snapshot?.accessState.pendingRequests.find((request) => (request.scopeHostnames ?? [request.hostname]).includes(context?.hostname ?? ""));
+      const decision = context?.latest?.type === "ASSESSMENT" ? context.latest.decision : null;
+      const { pending } = selectedAccessRecord(decision, view?.controller?.snapshot?.accessState, context?.hostname);
       if (pending && context) void send({ kind, requestId: pending.id, ...kind === "CONFIRM_ACCESS_AND_OPEN" ? { tabId: context.tabId } : {} });
     });
   }

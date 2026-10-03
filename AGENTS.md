@@ -42,6 +42,8 @@ D26 separates explicit Greylist access aliases from the curated Whitelist, fixin
 
 D27 shows committed temporary access on Home and seeds the user's approved 51-host Whitelist only in genuinely empty development installations. `docs/ui-design.md` and `docs/managed-policy.md` own presentation and first-run behavior. Existing or damaged authority is never replaced by defaults.
 
+D28 prepares new Greylist scopes from a bounded, credential-free public apex/`www` redirect check before Start. Standard HTTP and HTTPS entries inspect the same hostname over HTTPS while preserving the original navigation. The user approved live request preparation; discovered partners are disclosed exact terms, never permanent aliases. `docs/firefox-stabilization.md` owns the boundaries. Existing requests/grants never widen.
+
 D24 simplifies Firefox navigation to Home/Settings with native disclosures and a saved minimized sidebar; `docs/ui-design.md` owns the presentation contract. Sidebar/pin preferences remain separate from authoritative storage.
 
 ## Open questions and authority

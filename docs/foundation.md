@@ -111,6 +111,10 @@ D4 records presentation intent for intermediate domains. D11/D18 supply their cu
 
 **D27 (2026-10-03):** The user requested a Home overview of active temporary Greylist access with remaining time, and their current Whitelist bundled for friend testing and pushed to Git. The supplied 51 exact hostnames and empty Blacklist match the existing curated preset. Fresh development repositories automatically initialize that policy through the existing atomic adapter repository; saved or damaged authority is never replaced. This supersedes first-run setup for this development slice only. Temporary-access presentation uses current Core plans over committed grants; it creates no permissions. [UI design](ui-design.md#temporary-access-overview-d27) and [managed policy](managed-policy.md#curated-services) own these changes. Core semantics and future onboarding remain unchanged.
 
+**D28 (2026-10-03):** Goodreads reproduces the undeclared canonical-host mismatch after a successful Greylist confirmation. The user approved request-time discovery of a real public apex/`www` HTTP redirect before a new request starts. The adapter discloses both exact hosts and freezes them through the existing scope API for one wait/confirmation/grant. This narrowly supersedes D26's exclusion of live discovery; arbitrary redirects, global equivalence and widening saved terms remain excluded. [The stabilization contract](firefox-stabilization.md#d28-greylist-request-time-scope-preparation-2026-10-03) owns discovery boundaries, failure handling and evidence. Core semantics remain unchanged.
+
+The 0.1.9 follow-up derives HTTPS discovery for standard HTTP entries of the same hostname, closing a reproduced preparation gap while keeping the original browsing origin and exact-host authorization unchanged. The owning D28 contract records tests and limits.
+
 ## Milestone 1 input contract
 
 Recorded 2026-09-26 to keep the first evaluator small and explicit:

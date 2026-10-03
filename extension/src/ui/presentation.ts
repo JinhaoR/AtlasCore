@@ -1,4 +1,7 @@
-import type { AtlasControllerView, AtlasNavigationDecision, JourneyEndReason } from '@atlas/core';
+import type {
+  AccessGrant, AccessState, AtlasControllerView, AtlasNavigationDecision, JourneyEndReason,
+  PendingAccessRequest,
+} from '@atlas/core';
 
 /** Explain saved termination; this copy never changes the authorization decision. */
 export function journeyEndCopy(reason: JourneyEndReason | null): string {
@@ -41,4 +44,26 @@ export function countdown(deadline: number, now: number): string {
 export function selectedContext<T extends { tabId: number }>(contexts: readonly T[], selected: string): T | undefined {
   // A missing selected tab is missing. Never silently act on a different one.
   return contexts.find((context) => String(context.tabId) === selected);
+}
+
+/** Display only the record named by the current decision; Core owns validity and time. */
+export function selectedAccessRecord(
+  decision: AtlasNavigationDecision | null | undefined,
+  state: AccessState | null | undefined,
+  hostname: string | null | undefined,
+): { pending: PendingAccessRequest | undefined; grant: AccessGrant | undefined } {
+  let pending: PendingAccessRequest | undefined;
+  let grant: AccessGrant | undefined;
+  if (state != null && hostname != null && decision != null) {
+    if ((decision.outcome === 'WAIT' || decision.outcome === 'REQUIRE_CONFIRMATION')
+      && decision.target.hostname === hostname) {
+      pending = state.pendingRequests.find((request) => request.id === decision.requestId
+        && (request.scopeHostnames ?? [request.hostname]).includes(hostname));
+    } else if (decision.outcome === 'ALLOW' && decision.reason === 'ACTIVE_GRANT'
+      && decision.target.hostname === hostname) {
+      grant = state.grants.find((entry) => entry.requestId === decision.requestId
+        && (entry.scopeHostnames ?? [entry.hostname]).includes(hostname));
+    }
+  }
+  return { pending, grant };
 }

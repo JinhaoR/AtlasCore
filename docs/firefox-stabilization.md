@@ -1,5 +1,46 @@
 # Firefox behavior stabilization
 
+## D28: Greylist request-time scope preparation (2026-10-03)
+
+**Approved:** the user chose redirect-based scope preparation after reviewing this diagnosis. D28 narrowly supersedes D26's exclusion of live discovery; exact matching and frozen saved terms remain unchanged.
+
+The user reports that Amazon Sweden and Google Drive work after one wait and confirmation, while Goodreads requires two. Public, credential-free HEAD requests observed `amazon.se` → `www.amazon.se` (301), `goodreads.com` → `www.goodreads.com` (301), and logged-out `drive.google.com` → `accounts.google.com` (302). These observations describe homepage responses, not authenticated compatibility.
+
+The real controller and IndexedDB repository, exercised with fake browser events and time, reproduce the distinction: Amazon's declared two-host scope permits its redirect; a single-host Drive grant permits same-host navigation; a Goodreads grant permits the apex but the redirect to `www.goodreads.com` returns `UNLISTED`. Native Firefox 157 with Atlas 0.1.7 reproduces two separate saved grants through the actual UI. After the first denial its confirmation is still saved: the request is consumed and its exact apex grant remains. The second cycle authorizes another hostname. This is a mismatch between service-level intention and the request's prepared exact scope, rather than lost confirmation or a timer reset. Logged-out Drive can encounter the same boundary at its separate login host.
+
+D26 fixed one instance with declared metadata. Adding another catalog entry for every report cannot solve the general problem. Core's exact matching, frozen scope and commit-before-permission behavior are doing their intended jobs. They should remain unchanged.
+
+### Request-time scope preparation
+
+Before a **new** Greylist request starts, the Firefox adapter checks the requested public HTTPS homepage for a canonical HTTP redirect when no reviewed aliases already provide its scope. A credential-free HEAD request inspects only the initial response; it does not render a page, follow an authentication flow, send a saved path/query, or change authority. The probe omits credentials and referrers, has a fixed three-second timeout, and correlates its own request ID and extension origin rather than page/resource traffic. Native Firefox confirms that Fetch hides manual-redirect headers while `webRequest.onHeadersReceived` exposes them. The observer waits for its matching headers or timeout, since headers can arrive after Fetch resolves. See [Mozilla's response-type contract](https://developer.mozilla.org/en-US/docs/Web/API/Response/type) and [response-header events](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/onHeadersReceived).
+
+Only a demonstrated redirect to the exact add/remove-`www` counterpart on standard HTTPS proposes the additional hostname. Eligible HTTP and HTTPS entries inspect the same hostname's HTTPS homepage; the original browsing origin remains unchanged. Custom ports, IP addresses and single-label/internal/reserved names use exact scope without probing. Arbitrary login hosts, other subdomains, country domains and unrelated destinations do not qualify. The redirect is an untrusted suggestion, not proof of ownership, equivalence or authentication purpose.
+
+The Atlas interface shows the complete proposed exact scope **before Start**. Starting that disclosed request passes the scope to the existing Core API; the ordinary cooldown, explicit confirmation and atomic save produce one grant with a fixed deadline. `PREPARE_ACCESS` produces one ephemeral draft shared by the preview and Start. `START_ACCESS` references its opaque `scopeId`; production rejects missing, changed, foreign-context or still-preparing drafts. A changed tab/destination or policy revision invalidates the preparation. Discovery runs outside the operation queue so a slow site cannot hold other navigation checks. Core still rechecks all members against current manual and managed policy.
+
+Discovery failure leaves the exact-host scope and explains the limitation. Existing live requests and grants keep their saved terms; discovery cannot expand them, transfer a wait, renew access or create a Journey. No discovered relationship is persisted as an alias or policy rule. Already reviewed explicit aliases remain supported. Sites using JavaScript redirects, credential-dependent redirects or separate login providers remain outside this narrow canonical-entry solution.
+
+This changes request preparation only. Core's API, grant lifecycle, persistence acknowledgement and exact matching are unchanged. Declared aliases are metadata; discovered partners are ephemeral request terms. Neither creates permanent trust or global apex/`www` equivalence.
+
+### Verification needed for implementation
+
+- Undeclared canonical pair: one displayed frozen scope, one wait, one confirmation, one fixed-expiry grant; both navigations still pass through Core.
+- Same-host or unrelated redirect, unavailable/malformed discovery, Blacklist member, changed context/policy and late asynchronous result: no undisclosed scope expansion or permission.
+- Early/duplicate confirmation and failed/conflicting/unknown persistence: no page release.
+- Existing singleton requests/grants and restart: original exact scope and timestamps remain unchanged.
+- Expired/stale pending records: scope preview describes the next new request, rather than retained old terms. Display and action lookup select saved terms by the current Core decision's request ID; they do not independently decide validity.
+- Real Firefox homepage evidence is separate from authenticated website compatibility; fixtures use fake time and isolated authority.
+
+### D28 results
+
+**HTTP entry follow-up, extension 0.1.9:** A subsequent review reproduced the same failure when the initial entry was `http://goodreads.com`. Version 0.1.8 passed the HTTPS three-site sequence, but its HTTP origin skipped discovery and froze an apex-only grant. Version 0.1.9 derives a standard HTTPS discovery origin from the requested hostname for either standard entry scheme. The draft remains bound to the original browsing origin, context and revision; requests still open that original origin. Only HTTPS response evidence can propose a counterpart. Custom ports are rejected before scheme conversion, and paths/queries never enter the probe. Core already matches hostnames across schemes, so this is a preparation correction with unchanged authorization semantics.
+
+Three additional tests bring the suite to **180 extension tests**: HTTP/HTTPS probe validation and shared in-flight lookup; the exact same-tab Amazon → Drive → HTTP Goodreads sequence with one frozen grant through HTTP → HTTPS → `www`; and manual/managed denial for HTTP preparation. All pass, with builds and both TypeScript checks; **191 Core tests** remain passing. Native Firefox 157 confirms a genuine HTTP initial request, HTTPS-only HEAD discovery, disclosed pair and one wait/confirmation/grant on 0.1.9. Its HTTPS/HSTS test preferences affect only the disposable profile. [Sanitized HTTP evidence](evidence/firefox-greylist-http-d28.json) records protocol observations without URLs or credentials. A reported installed failure still needs its actual version/scope to distinguish this path from timeout, old singleton consent or expiry.
+
+Extension **0.1.8** passes **177 extension and 191 Core tests**, builds and both TypeScript checks. Ten new discovery tests cover exact observed counterparts, request/origin correlation, delayed headers, timeout/cleanup, concurrent probes and malformed/unrelated responses. Thirteen new adapter scenarios cover one-cycle access, read-only preparation, consumed drafts/idempotent Start, denial precedence, foreign/stale contexts, nonblocking discovery, save failures, cancellation/expiry, legacy scopes and restart. Four presentation tests reject stale/mismatched records without inventing decisions.
+
+Native Firefox 157 passes `firefox-greylist-alias.py --hostname goodreads.com` and the Amazon apex case on 0.1.8. The actual UI discloses the complete scope before Start, with no request or grant during discovery. One full wait and one explicit confirmation save one fixed-expiry grant and release the canonical page. Early/replayed confirmation is rejected, policy stays unchanged and no Journey is created. The Goodreads source is `CANONICAL_REDIRECT`; Amazon retains `DECLARED` metadata. [Sanitized evidence](evidence/firefox-greylist-scope-d28.json) includes the 0.1.7 failure and Firefox header feasibility probe alongside the passing checks. These are homepage authorization results, not authenticated compatibility claims.
+
 ## D26: Greylist canonical entry aliases (2026-10-03)
 
 The Amazon report reproduces D18's hostname mismatch: a credential-free public HEAD request to `amazon.se` returned HTTP 301 to `www.amazon.se`. The existing alias lookup only describes curated Whitelist services, so Amazon's first grant covered the apex alone. The canonical redirect therefore required another full Greylist cycle. A regression test reproduced the missing second hostname before the fix.
