@@ -4,7 +4,7 @@ A Firefox WebExtension consuming `@atlas/core`. Core decides policy, Greylist, V
 
 ## Build and load
 
-Current build: **0.1.9**, with [request-time canonical scope preparation](../docs/firefox-stabilization.md#d28-greylist-request-time-scope-preparation-2026-10-03), fixing Goodreads without adding another service alias. Standard HTTP and HTTPS entries inspect the same hostname's HTTPS homepage while preserving the browsing origin. The temporary-access overview, first-run development policy and bounded Journey POST continuations remain included. Reload the built manifest and verify **Atlas extension 0.1.9** under **Settings → Diagnostics**. Reload preserves saved authority; it does not replace policy. Older singleton Greylist scopes remain frozen until cancelled or expired.
+Current build: **0.1.10**, with [verified distribution and startup recovery](../docs/managed-policy.md#distribution-and-startup-recovery-d29). Windows Git checkouts preserve the pinned Blacklist's exact bytes, first-run installations receive the approved 51-host Whitelist, and failed startup has a specific diagnostic and explicit retry. The [canonical scope preparation](../docs/firefox-stabilization.md#d28-greylist-request-time-scope-preparation-2026-10-03), temporary-access overview and bounded Journey POST continuations remain included. Verify **Atlas extension 0.1.10** under **Settings → Diagnostics**. Reload preserves saved authority; older Greylist scopes remain frozen.
 
 Use Node.js 24, npm, and Firefox 140 or newer. Firefox 157.0 on Windows is the native runtime exercised so far.
 
@@ -19,6 +19,19 @@ npm --prefix extension run build
 Open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `extension/dist/manifest.json`. Click the Atlas toolbar button (or its entry in the Extensions menu) to open the control page. Repeated toolbar clicks reuse that page. Temporary installation is a development workflow; Firefox removes temporary add-ons on exit. This is not a signed distribution.
 
 For friend testing, download or clone the repository and load the committed `extension/dist/manifest.json`. Keep the complete `extension/dist/` folder together. Node.js and a local build are needed only when changing source; the committed development build is ready to load with all 51 approved Whitelist entries.
+
+### Repairing an older Windows checkout
+
+An older clone may already contain CRLF-converted bundled hosts files. Pulling the new attributes does not necessarily rewrite unchanged files. From the repository root, restore just these public bundled assets after pulling:
+
+```sh
+git pull
+git restore --source=HEAD --worktree -- extension/data/stevenblack/hosts extension/dist/data/stevenblack/hosts
+```
+
+Then reload `extension/dist/manifest.json`. If startup still shows a failure, **Settings → Policy & recovery → Retry startup** retries initialization. The startup diagnostic distinguishes bundled-list verification from unavailable storage. Saved Firefox policy stays in IndexedDB and is preserved; do not delete your profile to update the build. A new clone at 0.1.10 needs no asset repair or manual setup.
+
+### Browsing
 
 1. New development installations automatically save the user's approved 51-host Whitelist and empty manual Blacklist. It includes AI, Mail, Video, Scholar / Research, Writing, University, and Development groups; no setup or manual site entry is needed. Existing saved policies are preserved. Friends with an older saved empty policy can use **Settings → Vault → Add curated destinations**, wait and confirm. Policy edits use Settings and Vault.
 2. Open an ordinary Whitelist URL to exercise the request gate.
@@ -155,3 +168,5 @@ After interruption, the access page offers **Restart journey** when the saved en
 After building, run `python extension/scripts/firefox-e2e.py --journey-retry-only`. This uses an isolated profile, synthetic HTTP authentication pages and a local HTTPS root on port 443 so actual Home cards/search can run unchanged. It requires an available OpenSSL executable (the Windows Git installation was used), a free loopback port 443, and a profile-local Marionette certificate exception for the generated test certificate. No certificate or browser setting is installed in your normal profile.
 
 Optional public verification: `python extension/scripts/firefox-auth-investigation.py --mode enforcing --public --case Canvas --journey-retry`. It requests public Canvas/KTH entry pages, blocks an actual Google address-bar attempt and retries through Home, without entering credentials. Sanitized evidence and known limits are in [Journey recovery](../docs/firefox-journey-recovery.md).
+
+`python extension/scripts/firefox-distribution.py` requires Git and runs two fresh Firefox profiles against a real `core.autocrlf=true` package checkout: first-run seeding and a deliberately converted feed followed by explicit UI recovery after repair. It checks managed verification, visible destination cards, no copied runtime permissions, repeated recovery and reload. `--addon-dir` selects an existing complete checkout. Run native scenarios serially. `node extension/scripts/verify-bundle.mjs extension/dist` verifies the shipped assets without launching Firefox.

@@ -1366,7 +1366,7 @@
       return "JOURNEY_NOT_FOUND";
     return journey.contextId === context.contextId ? null : "CONTEXT_MISMATCH";
   }
-  function navigationPlan(operation, snapshot, now2, managed) {
+  function navigationPlan(operation, snapshot, now2, managed2) {
     const bindingError = checkBinding(operation.context, snapshot);
     if (bindingError !== null)
       return reject4(bindingError, snapshot);
@@ -1375,7 +1375,7 @@
       return reject4("INVALID_ACCESS_STATE");
     let observation = { ...snapshot, accessState: access.nextState };
     const decision = access.decision;
-    const managedDecision = managedDenies(snapshot, operation.target.hostname, managed) ? { outcome: "DENY", reason: "MANAGED_BLACKLISTED", target: operation.target } : null;
+    const managedDecision = managedDenies(snapshot, operation.target.hostname, managed2) ? { outcome: "DENY", reason: "MANAGED_BLACKLISTED", target: operation.target } : null;
     const navigation = { ...operation.context, target: operation.target };
     if (operation.context.journeyId !== null) {
       const journey = evaluateJourneyNavigation(navigation, journeyContext(observation, now2));
@@ -1401,7 +1401,7 @@
       return reject4("INVALID_JOURNEY_ID", observation);
     return makePlan({ type: "ASSESSMENT", decision: managedDecision ?? decision }, observation);
   }
-  function beginNavigation(operation, snapshot, now2, managed, configuration2) {
+  function beginNavigation(operation, snapshot, now2, managed2, configuration2) {
     const bindingError = checkBinding(operation.context, snapshot);
     if (bindingError !== null)
       return reject4(bindingError, snapshot);
@@ -1409,8 +1409,8 @@
     const access = evaluateAccess(operation.target, accessContext(snapshot, now2));
     const departure = operation.context.continuation?.kind === "ROOT_DEPARTURE" ? operation.context.continuation : void 0;
     if (departure !== void 0) {
-      if (access.decision.outcome === "DENY" || managedDenies(snapshot, operation.target.hostname, managed)) {
-        return navigationPlan(operation, snapshot, now2, managed);
+      if (access.decision.outcome === "DENY" || managedDenies(snapshot, operation.target.hostname, managed2)) {
+        return navigationPlan(operation, snapshot, now2, managed2);
       }
       if (evaluateAccess({ hostname: departure.sourceHostname }, accessContext(snapshot, now2)).decision.reason !== "WHITELISTED") {
         return reject4("NOT_WHITELISTED", snapshot);
@@ -1421,24 +1421,24 @@
         return beginNavigation({ ...operation, context: {
           contextId: operation.context.contextId,
           journeyId: operation.context.journeyId
-        } }, snapshot, now2, managed, configuration2);
+        } }, snapshot, now2, managed2, configuration2);
       }
       if (current !== void 0 && current.phase !== "ENDED") {
-        return navigationPlan(operation, snapshot, now2, managed);
+        return navigationPlan(operation, snapshot, now2, managed2);
       }
       const started2 = startJourney({ hostname: departure.sourceHostname }, operation.context.contextId, journeyContext(snapshot, now2), configuration2.journeyLimits);
       if (!started2.ok || started2.type !== "STARTED")
         return reject4(started2.ok ? "INVALID_JOURNEY_STATE" : started2.reason, snapshot);
       const candidate2 = { ...snapshot, journeyState: started2.nextState };
-      const plan2 = navigationPlan({ ...operation, context: { ...operation.context, journeyId: started2.journey.id } }, candidate2, now2, managed);
+      const plan2 = navigationPlan({ ...operation, context: { ...operation.context, journeyId: started2.journey.id } }, candidate2, now2, managed2);
       return makePlan(plan2.result, snapshot, plan2.observationSnapshot ?? candidate2);
     }
     if (access.decision.outcome !== "ALLOW" || access.decision.reason !== "WHITELISTED") {
-      return navigationPlan(operation, snapshot, now2, managed);
+      return navigationPlan(operation, snapshot, now2, managed2);
     }
     if (current !== void 0 && current.phase !== "ENDED") {
       if (continuesJourney(current, operation.target.hostname, operation.context.continuation) || current.phase === "STARTED" && current.rootHostname === operation.target.hostname) {
-        return navigationPlan(operation, snapshot, now2, managed);
+        return navigationPlan(operation, snapshot, now2, managed2);
       }
       snapshot = { ...snapshot, journeyState: replaceJourney(snapshot.journeyState, finishJourney(current, "UNRELATED_NAVIGATION", now2)) };
     }
@@ -1446,11 +1446,11 @@
     if (!started.ok || started.type !== "STARTED")
       return reject4(started.ok ? "INVALID_JOURNEY_STATE" : started.reason, snapshot);
     const candidate = { ...snapshot, journeyState: started.nextState };
-    const plan = navigationPlan({ ...operation, context: { contextId: operation.context.contextId, journeyId: started.journey.id } }, candidate, now2, managed);
+    const plan = navigationPlan({ ...operation, context: { contextId: operation.context.contextId, journeyId: started.journey.id } }, candidate, now2, managed2);
     return makePlan(plan.result, snapshot, plan.observationSnapshot ?? candidate);
   }
-  function managedDenies(snapshot, hostname, managed) {
-    return managed !== void 0 && !snapshot.policy.blacklist.includes(hostname) && !snapshot.policy.whitelist.includes(hostname) && managedBlacklistContains(managed, hostname) === true;
+  function managedDenies(snapshot, hostname, managed2) {
+    return managed2 !== void 0 && !snapshot.policy.blacklist.includes(hostname) && !snapshot.policy.whitelist.includes(hostname) && managedBlacklistContains(managed2, hostname) === true;
   }
   function planAtlasOperation(operationInput, contextInput) {
     const fields = ["snapshot", "now", "configuration"];
@@ -1461,10 +1461,10 @@
     const validated = validateAtlasSnapshot(contextInput.snapshot);
     if (!validated.ok)
       return reject4(validated.reason);
-    const managed = Object.hasOwn(contextInput, "managedBlacklist") ? contextInput.managedBlacklist : void 0;
-    if (Object.hasOwn(contextInput, "managedBlacklist") && !isManagedBlacklist(managed))
+    const managed2 = Object.hasOwn(contextInput, "managedBlacklist") ? contextInput.managedBlacklist : void 0;
+    if (Object.hasOwn(contextInput, "managedBlacklist") && !isManagedBlacklist(managed2))
       return reject4("INVALID_MANAGED_BLACKLIST");
-    const managedList = managed;
+    const managedList = managed2;
     const snapshot = validated.snapshot;
     const now2 = contextInput.now;
     if (!nonnegativeInteger(now2))
@@ -1630,8 +1630,8 @@
       setStatus("UNAVAILABLE", "MANAGED_BLACKLIST_UNAVAILABLE");
       return null;
     }
-    function context(snapshot, now2, managed) {
-      return { snapshot, now: now2, configuration: snapshot.configuration, ...managed === void 0 ? {} : { managedBlacklist: managed } };
+    function context(snapshot, now2, managed2) {
+      return { snapshot, now: now2, configuration: snapshot.configuration, ...managed2 === void 0 ? {} : { managedBlacklist: managed2 } };
     }
     function enqueue(work, failed) {
       const next = queue.then(work).catch(() => {
@@ -1791,10 +1791,10 @@
       const now2 = sampleTime();
       if (now2 === null)
         return getView();
-      const managed = sampleManaged();
-      if (managed === null)
+      const managed2 = sampleManaged();
+      if (managed2 === null)
         return getView();
-      const observed = planAtlasOperation({ kind: "OBSERVE_TIME" }, context(authority.snapshot, now2, managed));
+      const observed = planAtlasOperation({ kind: "OBSERVE_TIME" }, context(authority.snapshot, now2, managed2));
       let recovery = observed.observationSnapshot;
       if (recovery === null) {
         setStatus("UNAVAILABLE", "CORRUPT_STATE");
@@ -1807,7 +1807,7 @@
           kind: "CLOSE_JOURNEY_CONTEXT",
           journeyId: journey.id,
           contextId: journey.contextId
-        }, context(recovery, now2, managed));
+        }, context(recovery, now2, managed2));
         if (closed.candidateSnapshot === null) {
           setStatus("UNAVAILABLE", "CORRUPT_STATE");
           return getView();
@@ -1847,10 +1847,10 @@
       const now2 = sampleTime();
       if (now2 === null)
         return blocked();
-      const managed = sampleManaged();
-      if (managed === null)
+      const managed2 = sampleManaged();
+      if (managed2 === null)
         return blocked();
-      const plan = planAtlasOperation(operation, context(authority.snapshot, now2, managed));
+      const plan = planAtlasOperation(operation, context(authority.snapshot, now2, managed2));
       const next = plan.candidateSnapshot ?? plan.observationSnapshot;
       if (next !== null && (plan.candidateSnapshot !== null || !same(next, authority.snapshot))) {
         if (!await save(next))
@@ -1863,7 +1863,7 @@
       const currentManaged = sampleManaged();
       if (currentManaged === null)
         return blocked();
-      if (currentManaged !== managed)
+      if (currentManaged !== managed2)
         return blocked("REEVALUATION_REQUIRED");
       if (plan.result.type === "ASSESSMENT" && plan.result.decision.outcome === "ALLOW" && "expiresAt" in plan.result.decision && finalTime >= plan.result.decision.expiresAt) {
         return blocked("REEVALUATION_REQUIRED");
@@ -2177,6 +2177,18 @@ ${countdown(display.expiresAt, now2)} remaining`;
     };
   }
 
+  // src/adapter/startup-status.ts
+  var StartupError = class extends Error {
+    constructor(stage, reason) {
+      super(reason);
+      this.stage = stage;
+      this.reason = reason;
+    }
+  };
+  function startupFailure(error2) {
+    return error2 instanceof StartupError ? { status: "FAILED", stage: error2.stage, reason: error2.reason } : { status: "FAILED", stage: "STARTUP", reason: "STARTUP_FAILED" };
+  }
+
   // src/adapter/firefox-adapter.ts
   function destination(url) {
     if (!/^https?:\/\//i.test(url)) return null;
@@ -2188,8 +2200,9 @@ ${countdown(display.expiresAt, now2)} remaining`;
   var allowed = (result) => result.type === "ASSESSMENT" && result.decision.outcome === "ALLOW";
   var error = (reason) => ({ type: "ADAPTER_ERROR", reason });
   var FirefoxAdapter = class {
-    constructor(api, host2, newContextId, now2, schedule = (callback, delay) => setTimeout(callback, delay), unschedule = (id) => clearTimeout(id), discoverCanonicalEntry) {
+    constructor(api, hostSource, newContextId, now2, schedule = (callback, delay) => setTimeout(callback, delay), unschedule = (id) => clearTimeout(id), discoverCanonicalEntry) {
       this.api = api;
+      this.hostSource = hostSource;
       this.newContextId = newContextId;
       this.now = now2;
       this.schedule = schedule;
@@ -2216,16 +2229,12 @@ ${countdown(display.expiresAt, now2)} remaining`;
       api.tabs.onUpdated.addListener(this.updated);
       api.runtime.onMessage.addListener(this.message);
       api.browserAction.onClicked.addListener(this.toolbar);
-      this.ready = host2.then(async (value) => {
-        this.host = value;
-        await value.controller.open();
-      }).catch(() => {
-        this.host = null;
-      });
+      this.ready = this.loadHost();
     }
     contexts = /* @__PURE__ */ new Map();
     queue = Promise.resolve();
     host = null;
+    startup = { status: "LOADING" };
     refreshPending = null;
     stopped = false;
     nextNavigation = 0;
@@ -2233,6 +2242,35 @@ ${countdown(display.expiresAt, now2)} remaining`;
     diagnostics = new Diagnostics();
     ready;
     uiUrl;
+    async loadHost() {
+      this.startup = { status: "LOADING" };
+      let candidate = null;
+      try {
+        const opened = await Promise.resolve().then(() => typeof this.hostSource === "function" ? this.hostSource() : this.hostSource);
+        candidate = opened;
+        try {
+          await opened.controller.open();
+        } catch {
+          throw new StartupError("CONTROLLER", "CONTROLLER_UNAVAILABLE");
+        }
+        if (this.stopped) {
+          opened.repository.close();
+          return;
+        }
+        this.host = opened;
+        this.startup = { status: "READY" };
+      } catch (error2) {
+        try {
+          candidate?.repository.close();
+        } catch {
+        }
+        this.host = null;
+        this.startup = startupFailure(error2);
+      }
+    }
+    startupReason() {
+      return this.startup.status === "FAILED" ? this.startup.reason : "STARTUP_FAILED";
+    }
     run(work) {
       const next = this.queue.then(async () => {
         await this.ready;
@@ -2367,7 +2405,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         kind: record ? "RECORD_JOURNEY_NAVIGATION" : begin ? "BEGIN_NAVIGATION" : "CHECK_NAVIGATION",
         target,
         context: this.binding(context, continuation)
-      }) ?? error("STORAGE_UNAVAILABLE");
+      }) ?? error(this.startupReason());
     }
     async loseJourney(context) {
       const journey = this.journey(context);
@@ -2741,7 +2779,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         if (result.type !== "ASSESSMENT" || result.decision.outcome !== "GREYLIST")
           return { error: "NOT_GREYLIST" };
         const snapshot = controller.getView().snapshot;
-        if (snapshot == null) return { error: "STORAGE_UNAVAILABLE" };
+        if (snapshot == null) return { error: this.host === null ? this.startupReason() : "STORAGE_UNAVAILABLE" };
         const existing = this.preparedAccessScope(context);
         if (existing !== null) return { work: existing.work };
         const aliases = equivalentServiceHostnames(context.requested.target.hostname);
@@ -2784,6 +2822,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
     view() {
       const controller = this.host?.controller.getView() ?? null;
       return {
+        startup: this.startup,
         controller,
         managed: this.host?.managed?.getView(controller?.snapshot?.policy.whitelist) ?? null,
         temporaryAccess: temporaryAccessView(controller, this.now(), this.host?.managed?.getBlacklist()),
@@ -2846,17 +2885,19 @@ ${countdown(display.expiresAt, now2)} remaining`;
       return this.run(() => this.command(command)).catch(() => ({ error: "ADAPTER_FAILURE" }));
     };
     async command(command) {
+      if (command.kind === "RECOVER") {
+        if (this.host === null) await this.loadHost();
+        else await this.host.controller.open();
+        if (this.host === null) return { error: this.startupReason(), view: this.view() };
+        await this.recheck();
+        return { view: this.view() };
+      }
       const controller = this.host?.controller;
-      if (controller === void 0) return { error: "STORAGE_UNAVAILABLE", view: this.view() };
+      if (controller === void 0) return { error: this.startupReason(), view: this.view() };
       if (command.kind === "SETUP") {
         const initialized = await this.host.repository.initialize(command.policy);
         if (initialized) await controller.open();
         return { initialized, view: this.view() };
-      }
-      if (command.kind === "RECOVER") {
-        await controller.open();
-        await this.recheck();
-        return { view: this.view() };
       }
       if (command.kind === "PROPOSE_CURATED_DEFAULTS") {
         const observed = await controller.handle({ kind: "OBSERVE_TIME" });
@@ -3246,6 +3287,41 @@ ${countdown(display.expiresAt, now2)} remaining`;
     if (loaded.type === "UNINITIALIZED") await repository.initialize(compileCuratedWhitelist());
   }
 
+  // src/background/startup.ts
+  async function createAdapterHost(dependencies) {
+    let repository;
+    try {
+      repository = await dependencies.openRepository();
+    } catch {
+      throw new StartupError("STORAGE", "STORAGE_UNAVAILABLE");
+    }
+    try {
+      let managed2;
+      try {
+        managed2 = await dependencies.loadManaged();
+      } catch (error2) {
+        const code = error2 instanceof Error ? error2.message : "";
+        throw new StartupError("MANAGED_BLACKLIST", code === "BUNDLED_BLACKLIST_INVALID" ? code : code === "BUNDLE_UNAVAILABLE" ? code : "MANAGED_BLACKLIST_UNAVAILABLE");
+      }
+      try {
+        await initializeDevelopmentPolicy(repository);
+      } catch {
+        throw new StartupError("INITIALIZATION", "INITIALIZATION_FAILED");
+      }
+      try {
+        return { repository, managed: managed2, controller: dependencies.createController(repository, managed2) };
+      } catch {
+        throw new StartupError("CONTROLLER", "CONTROLLER_UNAVAILABLE");
+      }
+    } catch (error2) {
+      try {
+        repository.close();
+      } catch {
+      }
+      throw error2;
+    }
+  }
+
   // src/storage/managed-cache.ts
   function openManagedCache(factory, name = "atlas-managed-blacklist-v1") {
     return new Promise((resolve, reject5) => {
@@ -3504,46 +3580,52 @@ ${countdown(display.expiresAt, now2)} remaining`;
 
   // src/background/main.ts
   var now = () => Date.now();
-  var managedPromise = openManagedCache(indexedDB).catch(() => ({
-    load: async () => null,
-    save: async () => false
-  })).then((cache) => createManagedBlacklist({
-    cache,
-    now,
-    digest: sha256,
-    download: downloadStevenBlack,
-    bundle: async () => {
-      const base = browser.runtime.getURL("data/stevenblack/");
-      const [data, metadata] = await Promise.all([fetch(`${base}hosts`), fetch(`${base}metadata.json`)]);
-      if (!data.ok || !metadata.ok) throw new Error("BUNDLE_UNAVAILABLE");
-      const record = await metadata.json();
-      return {
-        text: await data.text(),
-        sourceUrl: record.sourceUrl,
-        sha256: record.sha256,
-        fetchedAt: null,
-        upstreamVersion: record.revision
-      };
-    },
-    publish: (work) => adapter.publishManagedUpdate(work),
-    changed: () => {
-      void adapter.refresh();
-    }
-  }));
-  var host = Promise.all([openRepository(indexedDB, () => crypto.randomUUID()), managedPromise]).then(async ([repository, managed]) => {
-    await initializeDevelopmentPolicy(repository);
-    return {
-      repository,
-      managed,
-      controller: createAtlasController({
+  var managed = null;
+  var cachePromise = null;
+  var host = async () => {
+    const value = await createAdapterHost({
+      openRepository: () => openRepository(indexedDB, () => crypto.randomUUID()),
+      loadManaged: async () => {
+        cachePromise ??= openManagedCache(indexedDB).catch(() => ({ load: async () => null, save: async () => false }));
+        const cache = await cachePromise;
+        return createManagedBlacklist({
+          cache,
+          now,
+          digest: sha256,
+          download: downloadStevenBlack,
+          bundle: async () => {
+            const base = browser.runtime.getURL("data/stevenblack/");
+            const [data, metadata] = await Promise.all([
+              fetch(`${base}hosts`, { cache: "no-store" }),
+              fetch(`${base}metadata.json`, { cache: "no-store" })
+            ]);
+            if (!data.ok || !metadata.ok) throw new Error("BUNDLE_UNAVAILABLE");
+            const record = await metadata.json();
+            return {
+              text: await data.text(),
+              sourceUrl: record.sourceUrl,
+              sha256: record.sha256,
+              fetchedAt: null,
+              upstreamVersion: record.revision
+            };
+          },
+          publish: (work) => adapter.publishManagedUpdate(work),
+          changed: () => {
+            void adapter.refresh();
+          }
+        });
+      },
+      createController: (repository, blacklist) => createAtlasController({
         repository,
         clock: { now },
         configuration,
         ownerId: crypto.randomUUID(),
-        managedBlacklist: managed.getBlacklist
+        managedBlacklist: blacklist.getBlacklist
       })
-    };
-  });
+    });
+    managed = value.managed;
+    return value;
+  };
   var adapter = new FirefoxAdapter(
     browser,
     host,
@@ -3555,14 +3637,13 @@ ${countdown(display.expiresAt, now2)} remaining`;
   );
   void adapter.ready.then(async () => {
     await adapter.refresh();
-    const managed = await managedPromise;
-    void managed.refresh().catch(() => void 0);
+    void managed?.refresh().catch(() => void 0);
   }).catch(() => void 0);
   setInterval(() => {
     void adapter.refresh();
   }, 1e3);
   setInterval(() => {
-    void managedPromise.then((managed) => managed.refresh()).catch(() => void 0);
+    void managed?.refresh().catch(() => void 0);
   }, 60 * 60 * 1e3);
 })();
 //# sourceMappingURL=background.js.map

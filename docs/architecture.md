@@ -1,5 +1,7 @@
 # Atlas Core architecture
 
+D29's [distribution and startup recovery](managed-policy.md#distribution-and-startup-recovery-d29) protects pinned bundle bytes through Git checkout and distinguishes retriable adapter startup failures from unavailable Core authority. Core and repository contracts remain unchanged.
+
 D19's [productization contract](productization.md) adds protected configuration to the authoritative snapshot and existing Vault flow. Journey authorization follows D18 and D22, with the redirect and first-departure risks explicitly accepted for the Ulysses-contract threat model. Require a reproducible real-use failure or practical bypass before increasing authorization complexity.
 
 D20's [interface refinement](ui-design.md) changes Firefox presentation and local pin preferences. Pins resolve only against current active destinations; they are separate from authority and cannot grant access. Core contracts and authoritative storage are unchanged.

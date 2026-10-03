@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Atlas",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Intentional top-level web access, decided by AtlasCore.",
   "browser_specific_settings": {
     "gecko": { "id": "atlas-development@atlas.invalid", "strict_min_version": "140.0" }

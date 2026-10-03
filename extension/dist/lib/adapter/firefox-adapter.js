@@ -5,6 +5,7 @@ import { equivalentServiceHostnames } from '../presets/access-aliases.js';
 import { journeyIndicator, journeyPresentation, journeyRetry } from './journey-indicator.js';
 import { temporaryAccessView } from './temporary-access.js';
 import { canonicalDiscoveryOrigin, canonicalEntryCounterpart } from './canonical-entry.js';
+import { startupFailure, StartupError } from './startup-status.js';
 function destination(url) {
     if (!/^https?:\/\//i.test(url))
         return null;
@@ -19,6 +20,7 @@ const error = (reason) => ({ type: 'ADAPTER_ERROR', reason });
 /** Browser facts and effects only. Every permission is obtained from the shared Core controller. */
 export class FirefoxAdapter {
     api;
+    hostSource;
     newContextId;
     now;
     schedule;
@@ -27,6 +29,7 @@ export class FirefoxAdapter {
     contexts = new Map();
     queue = Promise.resolve();
     host = null;
+    startup = { status: 'LOADING' };
     refreshPending = null;
     stopped = false;
     nextNavigation = 0;
@@ -34,8 +37,9 @@ export class FirefoxAdapter {
     diagnostics = new Diagnostics();
     ready;
     uiUrl;
-    constructor(api, host, newContextId, now, schedule = (callback, delay) => setTimeout(callback, delay), unschedule = (id) => clearTimeout(id), discoverCanonicalEntry) {
+    constructor(api, hostSource, newContextId, now, schedule = (callback, delay) => setTimeout(callback, delay), unschedule = (id) => clearTimeout(id), discoverCanonicalEntry) {
         this.api = api;
+        this.hostSource = hostSource;
         this.newContextId = newContextId;
         this.now = now;
         this.schedule = schedule;
@@ -53,10 +57,40 @@ export class FirefoxAdapter {
         api.tabs.onUpdated.addListener(this.updated);
         api.runtime.onMessage.addListener(this.message);
         api.browserAction.onClicked.addListener(this.toolbar);
-        this.ready = host.then(async (value) => {
-            this.host = value;
-            await value.controller.open();
-        }).catch(() => { this.host = null; });
+        this.ready = this.loadHost();
+    }
+    async loadHost() {
+        this.startup = { status: 'LOADING' };
+        let candidate = null;
+        try {
+            // Defer construction until listeners and the background adapter are assigned.
+            const opened = await Promise.resolve().then(() => typeof this.hostSource === 'function'
+                ? this.hostSource() : this.hostSource);
+            candidate = opened;
+            try {
+                await opened.controller.open();
+            }
+            catch {
+                throw new StartupError('CONTROLLER', 'CONTROLLER_UNAVAILABLE');
+            }
+            if (this.stopped) {
+                opened.repository.close();
+                return;
+            }
+            this.host = opened;
+            this.startup = { status: 'READY' };
+        }
+        catch (error) {
+            try {
+                candidate?.repository.close();
+            }
+            catch { /* Keep the safe startup reason. */ }
+            this.host = null;
+            this.startup = startupFailure(error);
+        }
+    }
+    startupReason() {
+        return this.startup.status === 'FAILED' ? this.startup.reason : 'STARTUP_FAILED';
     }
     run(work) {
         const next = this.queue.then(async () => {
@@ -169,7 +203,7 @@ export class FirefoxAdapter {
     }
     async check(context, target, record = false, continuation, begin = false) {
         return this.host?.controller.handle({ kind: record ? 'RECORD_JOURNEY_NAVIGATION' : begin ? 'BEGIN_NAVIGATION' : 'CHECK_NAVIGATION',
-            target, context: this.binding(context, continuation) }) ?? error('STORAGE_UNAVAILABLE');
+            target, context: this.binding(context, continuation) }) ?? error(this.startupReason());
     }
     async loseJourney(context) {
         const journey = this.journey(context);
@@ -632,7 +666,7 @@ export class FirefoxAdapter {
                 return { error: 'NOT_GREYLIST' };
             const snapshot = controller.getView().snapshot;
             if (snapshot == null)
-                return { error: 'STORAGE_UNAVAILABLE' };
+                return { error: this.host === null ? this.startupReason() : 'STORAGE_UNAVAILABLE' };
             const existing = this.preparedAccessScope(context);
             if (existing !== null)
                 return { work: existing.work };
@@ -674,7 +708,7 @@ export class FirefoxAdapter {
     }
     view() {
         const controller = this.host?.controller.getView() ?? null;
-        return { controller, managed: this.host?.managed?.getView(controller?.snapshot?.policy.whitelist) ?? null,
+        return { startup: this.startup, controller, managed: this.host?.managed?.getView(controller?.snapshot?.policy.whitelist) ?? null,
             temporaryAccess: temporaryAccessView(controller, this.now(), this.host?.managed?.getBlacklist()),
             contexts: [...this.contexts.values()].map((context) => ({ tabId: context.tabId,
                 contextId: context.id, navigationId: context.navigationId,
@@ -733,19 +767,26 @@ export class FirefoxAdapter {
         return this.run(() => this.command(command)).catch(() => ({ error: 'ADAPTER_FAILURE' }));
     };
     async command(command) {
+        if (command.kind === 'RECOVER') {
+            // Failed startup has no controller to reconcile. Retry construction once,
+            // through the same serialized queue used by all privileged commands.
+            if (this.host === null)
+                await this.loadHost();
+            else
+                await this.host.controller.open();
+            if (this.host === null)
+                return { error: this.startupReason(), view: this.view() };
+            await this.recheck();
+            return { view: this.view() };
+        }
         const controller = this.host?.controller;
         if (controller === undefined)
-            return { error: 'STORAGE_UNAVAILABLE', view: this.view() };
+            return { error: this.startupReason(), view: this.view() };
         if (command.kind === 'SETUP') {
             const initialized = await this.host.repository.initialize(command.policy);
             if (initialized)
                 await controller.open();
             return { initialized, view: this.view() };
-        }
-        if (command.kind === 'RECOVER') {
-            await controller.open();
-            await this.recheck();
-            return { view: this.view() };
         }
         if (command.kind === 'PROPOSE_CURATED_DEFAULTS') {
             // Refresh verified authority before constructing the explicit proposed batch.

@@ -1,0 +1,42 @@
+{
+  "extension": "0.1.10",
+  "checkout": "Git core.autocrlf=true",
+  "olderCheckoutRepair": "PASS git pull + exact asset restore",
+  "results": [
+    {
+      "firefox": "157.0",
+      "mode": "fresh-checkout",
+      "whitelistHosts": 51,
+      "policyRevision": 0,
+      "startupFailure": null,
+      "checks": [
+        "verified managed data",
+        "saved first-run policy",
+        "no copied runtime permissions",
+        "repeated recovery preserves policy",
+        "reload retains policy"
+      ]
+    },
+    {
+      "firefox": "157.0",
+      "mode": "repaired-bundle",
+      "whitelistHosts": 51,
+      "policyRevision": 0,
+      "startupFailure": {
+        "status": "FAILED",
+        "stage": "MANAGED_BLACKLIST",
+        "reason": "BUNDLED_BLACKLIST_INVALID"
+      },
+      "checks": [
+        "verified managed data",
+        "saved first-run policy",
+        "no copied runtime permissions",
+        "repeated recovery preserves policy",
+        "reload retains policy",
+        "corrupt bundle stops before initialization",
+        "safe diagnostic",
+        "explicit UI startup retry"
+      ]
+    }
+  ]
+}

@@ -43,6 +43,12 @@ A separate extension-origin IndexedDB cache atomically retains the last good fee
 
 UI shows active source, domain count, categories, upstream date/version when available, successful fetch time, bundle/cache origin, refresh state, and failure reason. Diagnostics report exact Whitelist/managed conflicts as review information; an explicit Whitelist exception changes no managed dataset. The curated preset is a product default, not a final policy or provider database.
 
+## Distribution and startup recovery (D29)
+
+Fresh Windows-style Git checkouts can convert text files to CRLF. That changes the pinned hosts file's SHA-256 and prevents managed data verification before first-run policy initialization. Both source and distributed hosts files must retain their exact upstream bytes through `.gitattributes`. Build and distribution tests verify those bytes against the pinned metadata; runtime verification remains required.
+
+Startup failures must identify the failing stage without exposing raw exceptions or private browser data. Explicit Recovery retries host construction when startup failed, closing any repository opened by the failed attempt. Once a controller exists, Recovery uses that same controller's reconciliation path and retains its time and commit guards. Neither path resets saved policy or confirms a workflow. The approved development preset is still initialized only after authoritative `UNINITIALIZED`; unavailable or damaged initialized state cannot trigger it.
+
 ## Evidence required
 
 Test preset coverage and exact aliases, missing Google Search/auth infrastructure, all precedence levels, managed denial before Greylist confirmation and during Journey, failed and malformed updates, persistence/restart/throttling, and a 200,000-domain compiled lookup without reading its input array again. Run Core and extension checks plus the native Firefox scenario. Native evidence must exercise the bundled list and setup UI separately from Core tests. Authenticated-provider compatibility remains outside this milestone.

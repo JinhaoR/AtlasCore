@@ -1,3 +1,13 @@
+/** Explain adapter startup separately from Core authority. This creates no state. */
+export function startupCopy(startup) {
+    if (startup?.status !== 'FAILED')
+        return '';
+    if (startup.stage === 'MANAGED_BLACKLIST')
+        return 'Atlas could not verify its bundled safety list. Load the complete current extension/dist folder, then retry startup in Settings.';
+    if (startup.stage === 'STORAGE')
+        return 'Atlas could not open its saved state. Retry startup in Settings. If this continues, check Firefox storage availability.';
+    return 'Atlas could not finish startup. Retry startup in Settings. Your saved policy is preserved.';
+}
 /** Explain saved termination; this copy never changes the authorization decision. */
 export function journeyEndCopy(reason) {
     switch (reason) {

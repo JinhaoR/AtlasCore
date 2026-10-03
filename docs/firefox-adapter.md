@@ -8,6 +8,8 @@ The D17 follow-up introduced a narrow existing-profile preset proposal/review/co
 
 ## Architecture and API choices
 
+D29 adds a retriable background host factory and closed `GET_VIEW.startup` projection (`LOADING`, `READY`, or `FAILED` with safe stage/reason). Startup readiness describes host construction; the controller still owns whether authority is READY, unavailable, or reconciling. Explicit `RECOVER` retries construction only when there is no host; otherwise it calls the existing controller. Failed attempts close their repository. Policy initialization and all permission publication retain their existing persistence guards. See [distribution and startup recovery](managed-policy.md#distribution-and-startup-recovery-d29).
+
 Use Manifest V2 with a persistent background page for this Firefox-only slice. Firefox continues supporting V2. Persistence avoids event-page suspension losing live tab/Journey bindings during an attempt. A later V3 port must explicitly handle that lifecycle; Firefox V3 uses event pages, not Chrome service workers. [Mozilla support statement](https://blog.mozilla.org/en/firefox/firefox-manifest-v3-adblockers/), [background manifest](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/background).
 
 `extension/` is a separate private TypeScript package with a local `@atlas/core` dependency. Build Core, then bundle its public exports and extension entry points with esbuild. No browser imports or new runtime dependencies enter Core. Type declarations and test-only IndexedDB emulation are development dependencies.

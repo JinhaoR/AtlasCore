@@ -207,6 +207,8 @@ Resolve the questions that block the current small milestone, document the answe
 
 ## Terminology and limits
 
+D29 (2026-10-03) repairs distribution and adapter startup without changing authorization: preserve pinned managed-feed bytes through Git checkout, verify the shipped bundle, and retry failed startup explicitly with safe stage diagnostics. Recovery of an existing controller retains its authority, clock and uncertain-commit guards. The approved 51-host development preset still applies only to genuinely empty repositories. The [managed-policy contract](managed-policy.md#distribution-and-startup-recovery-d29) owns the details.
+
 Use Whitelist, Blacklist, Greylist, Access Grant, Policy Change and Vault consistently. Greylist is a default classification; a grant is not a temporary Whitelist entry. "Sphere" was a Zenith presentation term and need not become a Core type or stored state.
 
 Policy state means the user's Atlas commitments, not whether the user is logged into a website. Core cannot infer login success or authentication intent from a hostname or a page message.

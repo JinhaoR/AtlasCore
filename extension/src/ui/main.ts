@@ -3,7 +3,7 @@ import type { DiagnosticEntry } from '../adapter/diagnostics.js';
 import { destinationIndex, searchDestinations, type DestinationEntry } from './destinations.js';
 import { destinationEntryPoints, destinationId, pinnedDestinations, readPins } from './home-model.js';
 import { loadWebsiteIcon } from './website-icons.js';
-import { accessCopy, canQueueOperation, countdown, journeyEndCopy, selectedAccessRecord, selectedContext } from './presentation.js';
+import { accessCopy, canQueueOperation, countdown, journeyEndCopy, selectedAccessRecord, selectedContext, startupCopy } from './presentation.js';
 import { configurationFromDraft, settingsCopy, timingFields, type TimingDraft } from './settings-model.js';
 import { initializeSidebar } from './sidebar.js';
 import { compileCuratedWhitelist, curatedWhitelist, serviceLabel } from '../presets/curated-whitelist.js';
@@ -63,6 +63,7 @@ const buildVersion = document.createElement('p');
 buildVersion.id = 'build-version'; buildVersion.className = 'note';
 buildVersion.textContent = `Atlas extension ${browser.runtime.getManifest().version}`;
 element('diagnostics').append(buildVersion);
+element('diagnostics').append(element('startup-diagnostic'));
 document.body.dataset.mode = params.get('view') === 'access' ? 'access' : 'control';
 element('preset-preview').replaceChildren(...curatedWhitelist.map((group) => {
   const detail = document.createElement('details'); detail.className = 'preset-group';
@@ -89,7 +90,7 @@ async function send(command: object): Promise<void> {
     policyReview = null; policyReviewError = '';
     if (response?.tabId !== undefined && (response?.result?.type === 'COMMITTED' || response?.opened === true)) selected = String(response.tabId);
     feedback(response?.error === 'CONTENT_REMOVAL_IN_PROGRESS' ? 'Atlas is closing the previous page. Restart will be available in a moment.'
-      : response?.error ? `Atlas could not complete that action (${response.error}).`
+      : response?.error ? startupCopy(view?.startup) || `Atlas could not complete that action (${response.error}).`
       : response?.initialized === false ? 'Setup was not saved. Check the hostnames; an existing policy cannot be replaced here.'
         : response?.result?.type === 'REJECTED' ? `That action is not available (${response.result.reason}).`
           : response?.result?.type === 'BLOCKED' ? 'State could not be saved or verified. Open Policy & recovery before trying again.'
@@ -125,9 +126,12 @@ function render(): void {
   const controller = view?.controller;
   const ready = canQueueOperation(controller);
   const status = controller?.status;
+  const startupMessage = startupCopy(view?.startup);
+  text('startup-warning', startupMessage);
+  element('startup-warning').hidden = startupMessage === '';
   text('status', busy ? status === 'COMMITTING' ? 'Saving…' : 'Working…' : ready ? 'Atlas is ready'
     : status === 'UNINITIALIZED' ? 'Setup needed' : status === 'RECONCILING' ? 'Recovery needed'
-      : status === 'UNAVAILABLE' ? 'State unavailable' : 'Connecting…');
+      : status === 'UNAVAILABLE' ? 'State unavailable' : view?.startup.status === 'FAILED' ? 'Startup failed' : 'Connecting…');
   element('status').title = element('status').textContent ?? '';
   if (element('status').dataset.ready !== String(ready)) element('status').dataset.ready = String(ready);
   element('setup').hidden = status !== 'UNINITIALIZED';
@@ -330,9 +334,11 @@ function renderSettings(controller: AdapterView['controller'] | undefined, ready
   text('vault-impact', review?.invalidatesAccess ? 'Policy changes invalidate current requests, grants and Journeys.'
     : 'Settings changes preserve existing waits, grants and Journey terms. New activity uses the committed settings.');
   element<HTMLButtonElement>('recover').disabled = busy || ready || status === 'UNINITIALIZED' || status === 'COMMITTING';
+  text('recover', view?.startup.status === 'FAILED' ? 'Retry startup' : 'Reload and reconcile state');
+  text('startup-diagnostic', view?.startup.status === 'FAILED' ? `Startup: ${view.startup.stage} · ${view.startup.reason}` : '');
   text('policy', controller?.snapshot
     ? `Pure Whitelist: ${policy!.whitelist.join(', ') || '(empty)'}\nBlacklist: ${policy!.blacklist.join(', ') || '(empty)'}\nPolicy revision: ${controller.snapshot.policyRevision}\nState: ${status}${controller.reason ? ` · ${controller.reason}` : ''}`
-    : 'No verified policy loaded.');
+    : startupCopy(view?.startup) || 'No verified policy loaded.');
 }
 
 function renderHome(policy: Policy | undefined, ready: boolean): void {

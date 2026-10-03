@@ -44,6 +44,8 @@ D27 shows committed temporary access on Home and seeds the user's approved 51-ho
 
 D28 prepares new Greylist scopes from a bounded, credential-free public apex/`www` redirect check before Start. Standard HTTP and HTTPS entries inspect the same hostname over HTTPS while preserving the original navigation. The user approved live request preparation; discovered partners are disclosed exact terms, never permanent aliases. `docs/firefox-stabilization.md` owns the boundaries. Existing requests/grants never widen.
 
+D29 protects pinned managed-feed bytes across Git checkout and verifies source/shipped bundles during build. Startup failures expose safe stage codes; explicit Recovery retries failed construction or reconciles the existing controller without resetting authority. `docs/managed-policy.md` owns the contract; older Windows checkouts may require re-checking out the two public hosts assets after pulling.
+
 D24 simplifies Firefox navigation to Home/Settings with native disclosures and a saved minimized sidebar; `docs/ui-design.md` owns the presentation contract. Sidebar/pin preferences remain separate from authoritative storage.
 
 ## Open questions and authority

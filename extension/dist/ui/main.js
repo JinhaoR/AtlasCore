@@ -390,6 +390,12 @@
   }
 
   // src/ui/presentation.ts
+  function startupCopy(startup) {
+    if (startup?.status !== "FAILED") return "";
+    if (startup.stage === "MANAGED_BLACKLIST") return "Atlas could not verify its bundled safety list. Load the complete current extension/dist folder, then retry startup in Settings.";
+    if (startup.stage === "STORAGE") return "Atlas could not open its saved state. Retry startup in Settings. If this continues, check Firefox storage availability.";
+    return "Atlas could not finish startup. Retry startup in Settings. Your saved policy is preserved.";
+  }
   function journeyEndCopy(reason) {
     switch (reason) {
       case "UNRELATED_NAVIGATION":
@@ -591,6 +597,7 @@
   buildVersion.className = "note";
   buildVersion.textContent = `Atlas extension ${browser.runtime.getManifest().version}`;
   element("diagnostics").append(buildVersion);
+  element("diagnostics").append(element("startup-diagnostic"));
   document.body.dataset.mode = params.get("view") === "access" ? "access" : "control";
   element("preset-preview").replaceChildren(...curatedWhitelist.map((group) => {
     const detail = document.createElement("details");
@@ -621,7 +628,7 @@
       policyReview = null;
       policyReviewError = "";
       if (response?.tabId !== void 0 && (response?.result?.type === "COMMITTED" || response?.opened === true)) selected = String(response.tabId);
-      feedback(response?.error === "CONTENT_REMOVAL_IN_PROGRESS" ? "Atlas is closing the previous page. Restart will be available in a moment." : response?.error ? `Atlas could not complete that action (${response.error}).` : response?.initialized === false ? "Setup was not saved. Check the hostnames; an existing policy cannot be replaced here." : response?.result?.type === "REJECTED" ? `That action is not available (${response.result.reason}).` : response?.result?.type === "BLOCKED" ? "State could not be saved or verified. Open Policy & recovery before trying again." : response?.opened === false ? "The tab changed before opening. Check the selected tab before continuing." : "");
+      feedback(response?.error === "CONTENT_REMOVAL_IN_PROGRESS" ? "Atlas is closing the previous page. Restart will be available in a moment." : response?.error ? startupCopy(view?.startup) || `Atlas could not complete that action (${response.error}).` : response?.initialized === false ? "Setup was not saved. Check the hostnames; an existing policy cannot be replaced here." : response?.result?.type === "REJECTED" ? `That action is not available (${response.result.reason}).` : response?.result?.type === "BLOCKED" ? "State could not be saved or verified. Open Policy & recovery before trying again." : response?.opened === false ? "The tab changed before opening. Check the selected tab before continuing." : "");
     } catch {
       feedback("Atlas is unavailable. No access has been confirmed.");
     } finally {
@@ -656,7 +663,10 @@
     const controller = view?.controller;
     const ready = canQueueOperation(controller);
     const status = controller?.status;
-    text("status", busy ? status === "COMMITTING" ? "Saving\u2026" : "Working\u2026" : ready ? "Atlas is ready" : status === "UNINITIALIZED" ? "Setup needed" : status === "RECONCILING" ? "Recovery needed" : status === "UNAVAILABLE" ? "State unavailable" : "Connecting\u2026");
+    const startupMessage = startupCopy(view?.startup);
+    text("startup-warning", startupMessage);
+    element("startup-warning").hidden = startupMessage === "";
+    text("status", busy ? status === "COMMITTING" ? "Saving\u2026" : "Working\u2026" : ready ? "Atlas is ready" : status === "UNINITIALIZED" ? "Setup needed" : status === "RECONCILING" ? "Recovery needed" : status === "UNAVAILABLE" ? "State unavailable" : view?.startup.status === "FAILED" ? "Startup failed" : "Connecting\u2026");
     element("status").title = element("status").textContent ?? "";
     if (element("status").dataset.ready !== String(ready)) element("status").dataset.ready = String(ready);
     element("setup").hidden = status !== "UNINITIALIZED";
@@ -855,10 +865,12 @@ Unsupported names skipped: ${managed.ignoredNames}` : "");
     for (const id of ["propose-settings", "propose-policy"]) element(id).disabled = busy || !ready || proposal != null;
     text("vault-impact", review?.invalidatesAccess ? "Policy changes invalidate current requests, grants and Journeys." : "Settings changes preserve existing waits, grants and Journey terms. New activity uses the committed settings.");
     element("recover").disabled = busy || ready || status === "UNINITIALIZED" || status === "COMMITTING";
+    text("recover", view?.startup.status === "FAILED" ? "Retry startup" : "Reload and reconcile state");
+    text("startup-diagnostic", view?.startup.status === "FAILED" ? `Startup: ${view.startup.stage} \xB7 ${view.startup.reason}` : "");
     text("policy", controller?.snapshot ? `Pure Whitelist: ${policy.whitelist.join(", ") || "(empty)"}
 Blacklist: ${policy.blacklist.join(", ") || "(empty)"}
 Policy revision: ${controller.snapshot.policyRevision}
-State: ${status}${controller.reason ? ` \xB7 ${controller.reason}` : ""}` : "No verified policy loaded.");
+State: ${status}${controller.reason ? ` \xB7 ${controller.reason}` : ""}` : startupCopy(view?.startup) || "No verified policy loaded.");
   }
   function renderHome(policy, ready) {
     const destinationKey = JSON.stringify(policy ?? null);
