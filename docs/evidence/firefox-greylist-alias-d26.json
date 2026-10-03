@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-03",
+  "extensionVersion": "0.1.6",
+  "firefox": "157.0",
+  "scope": "Public homepage navigation authorization in fresh profiles; no accounts, authenticated compatibility, or shopping claim",
+  "publicHead": {
+    "hostname": "amazon.se",
+    "status": 301,
+    "redirectHostname": "www.amazon.se"
+  },
+  "beforeFix": {
+    "adapterRegression": "one Amazon request, wait and confirmation authorizes the apex-to-www redirect",
+    "expectedScope": ["amazon.se", "www.amazon.se"],
+    "actualScope": ["amazon.se"],
+    "failedAsExpected": true
+  },
+  "nativeCases": [
+    {
+      "requestedHostname": "amazon.se",
+      "displayedHostname": "www.amazon.se",
+      "decisionReason": "ACTIVE_GRANT",
+      "scopeHostnames": ["amazon.se", "www.amazon.se"],
+      "bothHostsShownBeforeRequest": true,
+      "oneRequest": true,
+      "oneConfirmation": true,
+      "httpRedirectObserved": true,
+      "prematureConfirmationRejected": true,
+      "duplicateConfirmationRejected": true,
+      "fixedGrantDeadline": true,
+      "policyUnchanged": true,
+      "noJourney": true
+    },
+    {
+      "requestedHostname": "www.amazon.se",
+      "displayedHostname": "www.amazon.se",
+      "decisionReason": "ACTIVE_GRANT",
+      "scopeHostnames": ["amazon.se", "www.amazon.se"],
+      "bothHostsShownBeforeRequest": true,
+      "oneRequest": true,
+      "oneConfirmation": true,
+      "prematureConfirmationRejected": true,
+      "duplicateConfirmationRejected": true,
+      "fixedGrantDeadline": true,
+      "policyUnchanged": true,
+      "noJourney": true
+    }
+  ],
+  "deterministicChecks": {
+    "newExtensionTests": 7,
+    "extensionTestsPassed": 137,
+    "coreTestsPassed": 191,
+    "coreTypecheckPassed": true,
+    "extensionTypecheckPassed": true,
+    "buildPassed": true,
+    "coverage": [
+      "single-cycle canonical redirect",
+      "explicit aliases without global inference or Whitelist changes",
+      "www initiation and shared frozen request without waiting bypass",
+      "manual and managed Blacklist on either alias",
+      "failed, conflicting and uncertain confirmation commits",
+      "legacy singleton scopes remain unchanged",
+      "restart preserves grant scope and expiry",
+      "duplicate confirmation and expiry",
+      "unlisted subdomains, lookalikes and other Amazon country domains"
+    ]
+  }
+}

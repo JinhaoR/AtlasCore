@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fixture } from './support/fixture.mjs';
-import { equivalentServiceHostnames } from '../dist/lib/presets/curated-whitelist.js';
+import { equivalentServiceHostnames } from '../dist/lib/presets/access-aliases.js';
 
 test('alias request scope excludes separate service destinations and never infers www', () => {
   assert.deepEqual(equivalentServiceHostnames('www.overleaf.com'), ['overleaf.com', 'www.overleaf.com']);

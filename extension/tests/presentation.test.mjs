@@ -1,6 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { accessCopy, canQueueOperation, countdown, selectedContext } from '../dist/lib/ui/presentation.js';
+import { accessCopy, canQueueOperation, countdown, journeyEndCopy, selectedContext } from '../dist/lib/ui/presentation.js';
+
+test('Journey termination copy distinguishes an uncorrelated navigation from expiry and cancellation', () => {
+  assert.match(journeyEndCopy('UNRELATED_NAVIGATION'), /could not be linked/);
+  assert.match(journeyEndCopy('EXPIRED'), /fixed time limit/);
+  assert.match(journeyEndCopy('HOP_LIMIT'), /navigation limit/);
+  assert.match(journeyEndCopy('CANCELLED'), /You ended/);
+  const decision = { outcome: 'GREYLIST', reason: 'UNLISTED', target: { hostname: 'saml.example' } };
+  journeyEndCopy('UNRELATED_NAVIGATION');
+  assert.equal(accessCopy(decision).tone, 'wait');
+  assert.equal(decision.outcome, 'GREYLIST');
+});
 
 test('housekeeping keeps verified UI intents available; startup, failure and uncertainty stay unavailable', () => {
   for (const status of ['READY', 'LOADING', 'COMMITTING']) assert.equal(canQueueOperation({ status, snapshot: {} }), true);

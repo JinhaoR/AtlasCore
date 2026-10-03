@@ -20,10 +20,10 @@ export function journeyIndicator(view: AtlasControllerView | null, journey: Jour
 
 /** Retry copy comes from the latest saved ended record, never from a page's hostname. */
 export function journeyRetry(view: AtlasControllerView | null, journey: Journey | null):
-  { journeyId: number; rootHostname: string; destinationLabel: string } | null {
+  { journeyId: number; rootHostname: string; destinationLabel: string; endReason: Journey['endReason'] } | null {
   journey = view?.snapshot?.journeyState.journeys.find((entry) => entry.id === journey?.id && entry.contextId === journey?.contextId) ?? null;
   if ((view?.status !== 'READY' && view?.status !== 'COMMITTING') || !view.snapshot || journey === null || journey.phase !== 'ENDED'
     || ['REACHED', 'RETURNED', 'DESTINATION_CHANGED', 'CONTEXT_CLOSED'].includes(journey.endReason!)
     || evaluate(journey.rootHostname, view.snapshot.policy).reason !== 'WHITELISTED') return null;
-  return { journeyId: journey.id, rootHostname: journey.rootHostname, destinationLabel: serviceLabel(journey.rootHostname) };
+  return { journeyId: journey.id, rootHostname: journey.rootHostname, destinationLabel: serviceLabel(journey.rootHostname), endReason: journey.endReason };
 }

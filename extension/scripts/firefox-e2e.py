@@ -79,6 +79,31 @@ def wait_for(predicate, description, timeout=15):
     raise AssertionError(f"Timed out: {description}")
 
 
+def configure_policy(client, policy):
+    """Fresh-profile fixtures use real Vault protection after automatic first-run seeding.
+
+    Historical builds can still use their explicit first setup. No installed user
+    profile, direct state edit, artificial clock or production bypass is used.
+    """
+    policy = {key: sorted(set(policy[key])) for key in ['whitelist', 'blacklist']}
+    def authority():
+        return client.message({'kind': 'GET_VIEW'}).get('view', {}).get('controller') or {}
+    initial = wait_for(lambda: (v := authority()) and v.get('status') in ['READY', 'UNINITIALIZED'] and v, 'fixture authority')
+    if initial['status'] == 'UNINITIALIZED':
+        assert client.message({'kind': 'SETUP', 'policy': policy})['initialized']
+    elif initial['snapshot']['policy'] != policy:
+        proposed = client.message({'kind': 'PROPOSE_POLICY', 'candidatePolicy': policy})
+        assert proposed['result']['type'] == 'COMMITTED'
+        pending = proposed['view']['controller']['snapshot']['vaultState']['pendingProposal']
+        assert authority()['snapshot']['policy'] == initial['snapshot']['policy']
+        assert client.message({'kind': 'CONFIRM_POLICY', 'proposalId': pending['id']})['result']['reason'] == 'NOT_READY'
+        wait_for(lambda: time.time() * 1000 >= pending['readyAt'], 'fixture Vault wait', 40)
+        assert client.message({'kind': 'CONFIRM_POLICY', 'proposalId': pending['id']})['result']['type'] == 'COMMITTED'
+    ready = wait_for(lambda: (v := authority()) and v.get('status') == 'READY' and v, 'fixture policy save')
+    assert ready['snapshot']['policy'] == policy
+    return ready
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--firefox", default=os.environ.get("FIREFOX_BINARY") or shutil.which("firefox")
@@ -87,6 +112,7 @@ def main():
     parser.add_argument("--productization", action="store_true", help="Add native badge/search/protected settings and schema migration checks")
     parser.add_argument("--productization-only", action="store_true", help="Run the isolated D19 checks after fresh setup")
     parser.add_argument("--coherence-only", action="store_true", help="Run isolated adapter/source, UI draft and keyboard-focus regressions")
+    parser.add_argument("--friend-prototype-only", action="store_true", help="Check automatic first-run policy, temporary access overview/countdown, expiry and restart")
     parser.add_argument("--journey-retry-only", action="store_true", help="Run Journey interruption/retry and visibility checks")
     parser.add_argument("--journey-probe", action="store_true", help="Record pre-fix Journey interruption behavior")
     parser.add_argument("--journey-polish-only", action="store_true", help="Exercise loaded-root login, immediate SAML-style submission and repeated same-tab retry")
@@ -107,6 +133,19 @@ def main():
     class Pages(BaseHTTPRequestHandler):
         def do_POST(self):
             host = self.headers.get('Host', '').split(':')[0]
+            if arguments.journey_polish_only and host == 'login.localhost' and self.path == '/polish-mfa-approved':
+                hits.append((host, self.path))
+                self.send_response(200)
+                self.send_header('Content-Type', 'text/html; charset=utf-8')
+                self.end_headers()
+                self.wfile.write((f'<!doctype html><title>Synthetic confirmation return</title><form id="return" method="POST" action="http://app.localhost:{server.server_port}/polish-mfa-callback"></form><script>document.getElementById("return").submit()</script>').encode())
+                return
+            if arguments.journey_polish_only and host == 'app.localhost' and self.path == '/polish-mfa-callback':
+                hits.append((host, self.path))
+                self.send_response(303)
+                self.send_header('Location', f'http://root.localhost:{server.server_port}/polish-complete')
+                self.end_headers()
+                return
             if arguments.journey_polish_only and host == 'app.localhost' and self.path == '/polish-app-post':
                 hits.append((host, self.path))
                 self.send_response(303)
@@ -172,6 +211,7 @@ def main():
                 elif host == 'identity.localhost':
                     body += f'<a id="polish-finish" href="http://identity.localhost:{port}/polish-finish">Finish</a>'
                     body += f'<p><a id="polish-unrelated" href="http://evil.localhost:{port}/polish-uncorrelated">Unrelated destination</a></p>'
+                    body += f'<form method="POST" action="http://login.localhost:{port}/polish-mfa-approved"><button id="polish-mfa-confirm">Complete synthetic phone confirmation</button></form>'
             if link:
                 body += f'<a id="{link[0]}" href="{link[1]}">{link[2]}</a>'
             self.send_response(200)
@@ -255,14 +295,21 @@ def main():
         wait_for(lambda: client.message({"kind": "GET_VIEW"}).get("view", {}).get("controller"), "Core startup")
         assert client.script("return document.getElementById('use-defaults').checked;"), "preset offered by default"
         assert client.script("return document.querySelectorAll('#preset-preview details').length;") == 7
-        if arguments.existing_policy:
-            client.script("document.getElementById('use-defaults').checked = false;")
-        client.script("""
-            document.getElementById('whitelist').value = arguments[0];
-            document.getElementById('blacklist').value = arguments[1];
-            document.getElementById('setup-form').requestSubmit();
-        """, "root.localhost", "black.localhost")
-        wait_for(lambda: client.message({"kind": "GET_VIEW"})["view"]["controller"]["status"] == "READY", "setup form save")
+        startup = wait_for(lambda: (v := client.message({'kind': 'GET_VIEW'})['view']['controller'])
+                           and v['status'] in ['READY', 'UNINITIALIZED'] and v, 'first-run authority')
+        if startup['status'] == 'UNINITIALIZED':
+            if arguments.existing_policy:
+                client.script("document.getElementById('use-defaults').checked = false;")
+            client.script("""
+                document.getElementById('whitelist').value = arguments[0];
+                document.getElementById('blacklist').value = arguments[1];
+                document.getElementById('setup-form').requestSubmit();
+            """, "root.localhost", "black.localhost")
+        else:
+            assert client.script("return document.getElementById('setup').hidden;"), 'friend seed needs no setup'
+            fixture_white = ['root.localhost'] if arguments.existing_policy else startup['snapshot']['policy']['whitelist'] + ['root.localhost']
+            configure_policy(client, {'whitelist': fixture_white, 'blacklist': ['black.localhost']})
+        wait_for(lambda: client.message({"kind": "GET_VIEW"})["view"]["controller"]["status"] == "READY", "fixture policy saved")
         initial = client.message({"kind": "GET_VIEW"})["view"]["controller"]
         assert initial["status"] == "READY", initial
         policy = initial["snapshot"]["policy"]
@@ -306,7 +353,7 @@ def main():
             client.script("document.getElementById('confirm-policy').click();")
             wait_for(lambda: proposal() is None, "preset confirmation persisted")
             updated = client.message({"kind": "GET_VIEW"})["view"]["controller"]["snapshot"]
-            assert updated["policyRevision"] == 1
+            assert updated["policyRevision"] == initial['snapshot']['policyRevision'] + 1
             policy = updated["policy"]
             assert client.message({"kind": "CONFIRM_POLICY", "proposalId": frozen["id"]})["result"]["type"] == "REJECTED"
             print("PASS explicit native Vault confirmation saved curated defaults and retained manual Blacklist", flush=True)
@@ -315,6 +362,12 @@ def main():
         assert "google.com" not in policy["whitelist"] and "www.google.com" not in policy["whitelist"]
         assert policy["blacklist"] == ["black.localhost"]
         print(f"Firefox {version}: curated setup, real IndexedDB, managed list active ({managed['count']} domains)", flush=True)
+        if arguments.friend_prototype_only:
+            from firefox_friend_prototype import run_friend_prototype
+            ui_handle, result = run_friend_prototype(client, ui_handle, UI_URL, port, wait_for, hits, run, startup)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
         if arguments.coherence_only:
             from firefox_coherence import run_coherence
             result = run_coherence(client, ui_handle, UI_URL, port, wait_for, run)

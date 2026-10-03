@@ -1,10 +1,11 @@
 import { destinationIndex, searchDestinations } from './destinations.js';
 import { destinationEntryPoints, destinationId, pinnedDestinations, readPins } from './home-model.js';
 import { loadWebsiteIcon } from './website-icons.js';
-import { accessCopy, canQueueOperation, countdown, selectedContext } from './presentation.js';
+import { accessCopy, canQueueOperation, countdown, journeyEndCopy, selectedContext } from './presentation.js';
 import { configurationFromDraft, settingsCopy, timingFields } from './settings-model.js';
 import { initializeSidebar } from './sidebar.js';
-import { compileCuratedWhitelist, curatedWhitelist, equivalentServiceHostnames, serviceLabel } from '../presets/curated-whitelist.js';
+import { compileCuratedWhitelist, curatedWhitelist, serviceLabel } from '../presets/curated-whitelist.js';
+import { equivalentServiceHostnames } from '../presets/access-aliases.js';
 const element = (id) => document.getElementById(id);
 const text = (id, value) => { const node = element(id); if (node.textContent !== value)
     node.textContent = value; };
@@ -36,6 +37,7 @@ let pinsLoaded = false;
 let savingPins = false;
 let pinnedKey = '';
 let reviewKey = '';
+let temporaryKey = '';
 const searchInput = element('destination-search');
 const websiteIcons = new Map();
 const observedIcons = new Map();
@@ -210,7 +212,7 @@ function render() {
     element('ended-journey').hidden = !showRetry;
     text('ended-journey-copy', showRetry ? context?.effect === 'REMOVING'
         ? `Atlas is closing the previous page. You can restart your journey to ${retry.destinationLabel} in a moment.`
-        : `Your journey to ${retry.destinationLabel} ended. Start again from ${retry.rootHostname}.` : '');
+        : `${journeyEndCopy(retry.endReason)} Start again from ${retry.rootHostname}.` : '');
     action('restart-journey', showRetry);
     if (context?.effect === 'REMOVING')
         element('restart-journey').disabled = true;
@@ -228,12 +230,51 @@ function render() {
         progress.value = Math.max(0, (journey.expiresAt - now) / (journey.expiresAt - journey.startedAt));
     renderSettings(controller, ready, now);
     renderHome(controller?.snapshot?.policy, ready);
+    renderTemporaryAccess(now);
     if (focused instanceof HTMLButtonElement && focused.closest('#access-panel') && (focused.disabled || focused.closest('[hidden]'))
         && accessFocused && section === 'home')
         element('access-title').focus({ preventScroll: true });
     if (focused instanceof HTMLButtonElement && focused.closest('#vault-section') && (focused.disabled || focused.closest('[hidden]'))
         && section === 'settings')
         element('vault-heading').focus({ preventScroll: true });
+}
+function renderTemporaryAccess(now) {
+    const available = view?.temporaryAccess != null;
+    const grants = (view?.temporaryAccess ?? []).filter((grant) => grant.expiresAt > now);
+    const key = JSON.stringify(grants);
+    const list = element('temporary-list');
+    if (temporaryKey !== key) {
+        temporaryKey = key;
+        list.replaceChildren(...grants.map((grant) => {
+            const row = document.createElement('li');
+            row.className = 'temporary-row';
+            const copy = document.createElement('span');
+            copy.className = 'temporary-copy';
+            const name = document.createElement('strong');
+            name.className = 'temporary-name';
+            name.textContent = serviceLabel(grant.hostnames[0]);
+            const scope = document.createElement('span');
+            scope.className = 'temporary-scope';
+            scope.textContent = grant.hostnames.join(', ');
+            scope.hidden = grant.hostnames.length === 1 && name.textContent === grant.hostnames[0];
+            copy.append(name, scope);
+            const time = document.createElement('span');
+            time.className = 'temporary-time';
+            time.dataset.expiresAt = String(grant.expiresAt);
+            time.title = `Expires at ${new Date(grant.expiresAt).toLocaleTimeString()}`;
+            row.append(copy, time);
+            return row;
+        }));
+    }
+    for (const time of list.querySelectorAll('.temporary-time')) {
+        const label = `${countdown(Number(time.dataset.expiresAt), now)} remaining`;
+        if (time.textContent !== label)
+            time.textContent = label;
+    }
+    list.hidden = !available || grants.length === 0;
+    element('temporary-empty').hidden = !available || grants.length > 0;
+    element('temporary-unavailable').hidden = available;
+    text('temporary-count', available && grants.length > 0 ? `${grants.length} active` : '');
 }
 function renderSettings(controller, ready, now) {
     const status = controller?.status;
@@ -640,9 +681,10 @@ async function diagnostics() {
         diagnosticKey = key;
         element('diagnostic-rows').replaceChildren(...[...entries].reverse().map((entry) => {
             const row = document.createElement('tr');
-            for (const value of [String(entry.sequence), entry.event, `${entry.tabId} / ${entry.navigationId}`, entry.hostname ?? '—',
+            const request = entry.method ? `\n${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : ' · no source origin'}${entry.continuationKind ? ` · ${entry.continuationKind}` : ''}` : '';
+            for (const value of [String(entry.sequence), `${entry.event}${request}`, `${entry.tabId} / ${entry.navigationId}`, entry.hostname ?? '—',
                 `${entry.outcome ?? '—'}${entry.reason ? ` · ${entry.reason}` : ''}`,
-                entry.journey ? `${entry.journey.id} · ${entry.journey.phase} · ${entry.journey.hopCount}/${entry.journey.maxHops}` : '—']) {
+                entry.journey ? `${entry.journey.id} · ${entry.journey.phase} · ${entry.journey.hopCount}/${entry.journey.maxHops}${entry.journey.endReason ? ` · ${entry.journey.endReason}` : ''}` : '—']) {
                 const cell = document.createElement('td');
                 cell.textContent = value;
                 row.append(cell);

@@ -1,6 +1,30 @@
-# Journey event ordering and retry polish (D22)
+# Journey event ordering and bounded continuations (D22/D25)
 
 Authorized dogfooding work on 2026-10-02. This pass fixes Firefox adapter ordering and recovery and implements the explicitly approved first departure from a loaded Pure Whitelist root. That narrow Core extension supersedes D18's first-departure restriction. Policy classification, grants, fixed deadlines and database schema remain unchanged.
+
+D25 subsequently adds the approved POST continuation described below. D22's historical HTTP-only statements for later unfamiliar steps are narrowed by that explicit exception.
+
+## Bounded POST continuations (D25)
+
+The reported Ladok failure ended Journey 60 as `UNRELATED_NAVIGATION`, with ordinary `GREYLIST / UNLISTED` afterwards. It was not an expiry report. A synthetic unexpired Journey through a SAML host and a login host reproduces that result when the loaded login page submits a new cross-domain POST. Native Firefox's synthetic `H_SAML_POST` also demonstrates the existing form restriction. These reproductions establish the restriction; they do not establish the exact private Ladok request method without its navigation trace.
+
+The user approved this concrete exception before implementation:
+
+- The blocking event is a top-level, frame-zero HTTP(S) POST in the same bound context.
+- Its browser-supplied initiator origin exactly matches the currently loaded document origin, including scheme and port. That loaded document has a saved ALLOW assessment and matches the active Journey's current hostname. No request body, form fields or credentials are read.
+- Only an existing `IN_TRANSIT` Journey can use `FORM_POST`. It cannot start an attempt, renew one, restore it after reload, or revive an ended record. Core validates the current source hostname, policy revision, deadline and hop budget.
+- Checking preserves the authorization cursor; recording a successful adopted step consumes the usual cross-host hop. The request stays held until that candidate is successfully committed. An actual root arrival ends the attempt normally; permission to request the root does not itself mean arrival.
+- HTTP redirects and same-host actions continue under their existing rules. Later unfamiliar GET links/scripts, typed destinations and mismatched sources receive ordinary policy. Iframes receive no Journey authority; other tabs never inherit an attempt. Blacklist precedence remains unchanged.
+
+`FORM_POST` is a trusted host fact in the platform-independent continuation contract. Firefox establishes method/document provenance; Core owns whether the fact continues the bounded attempt. The browser still owns authentication. A malicious authorized page can submit a POST to an unrelated hostname within the remaining budget. The accepted exception deliberately does not classify providers or infer purpose.
+
+The ended-Journey warning identifies its saved end reason, separating an uncorrelated navigation from expiry, cancellation and exhausted hops. Diagnostics display that reason alongside the Journey record, plus the coarse request method (GET/POST/OTHER), source hostname and selected continuation kind. Paths, queries, form fields and request bodies remain excluded. These observations explain a decision and never provide authority.
+
+Implementation is extension **0.1.5**. The portable model gains only `FORM_POST`; state shapes, saved records and database schema stay unchanged. Six new Core tests and ten new adapter tests cover the accepted continuation and its failure boundaries; a presentation test distinguishes end reasons. Current totals are **191 Core and 130 extension tests passing**. Builds and both TypeScript checks pass.
+
+Native Firefox 157.0 runs use disposable profiles and synthetic sites. Before the change, `H_SAML_POST` is withheld and ends UNRELATED_NAVIGATION (`.tools/auth-enforcing-cb2vjbp9/result.json`). With D25, the complete 34-case enforcing investigation passes, including SAML POST return, typed-target denial, popup isolation, resource boundaries and Blacklist (`.tools/auth-enforcing-kqxccfhu/result.json`). The Journey polish sequence additionally covers a confirmation POST followed by an immediate cross-domain auto-POST and a root return with one Journey ID, fixed deadline and unchanged policy/grants. No authenticated real-account Ladok return was performed.
+
+The final instrumented build also passes all **16 Journey check groups** (`.tools/firefox-e2e-dnybv90d/result.json`), including exact POST/source/continuation diagnostics for both confirmation hops. [Sanitized D25 evidence](evidence/firefox-post-continuation-d25.json) records the before/after results and limits. Reload `extension/dist/manifest.json`, verify **0.1.5** in Settings → Diagnostics, then start a fresh attempt from `student.ladok.se`. An old blocked POST is never replayed, and restart does not revive the old Journey.
 
 ## Reproduced defects
 

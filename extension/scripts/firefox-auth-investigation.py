@@ -204,8 +204,7 @@ def main():
         policy = {"whitelist": [case[1] for case in PUBLIC] + ["www.overleaf.com"] if args.public
                   else ["app.localhost", "www.app.localhost", "other.localhost"], "blacklist": ["black.localhost"]}
         if args.mode == "enforcing":
-            smoke.wait_for(lambda: (view().get("controller") or {}).get("status") == "UNINITIALIZED", "Core initialization")
-            assert client.message({"kind": "SETUP", "policy": policy})["initialized"]
+            policy = smoke.configure_policy(client, policy)['snapshot']['policy']
         def typed(handle, destination):
             client.call("WebDriver:SwitchToWindow", handle=handle)
             client.call("Marionette:SetContext", value="chrome")
@@ -441,8 +440,8 @@ def assert_fixture(case, mode):
         return
     decision = case["core"]["latest"]["decision"]
     # D22 approves one origin-matched departure from a loaded Whitelisted root,
-    # including page-driven actions. Later unfamiliar page actions remain strict.
-    grey = ["F_during", "F_after", "H_SAML_POST", "iframe_promote"]
+    # including page-driven actions. D25 also permits attested intermediate POSTs.
+    grey = ["F_during", "F_after", "iframe_promote"]
     expected = "GREYLIST" if name in grey else "DENY" if name == "blacklist_HTTP" else "ALLOW"
     assert decision["outcome"] == expected
     if expected != "ALLOW":
@@ -452,7 +451,7 @@ def assert_fixture(case, mode):
         assert any(e["event"] == "webNavigation.onCreatedNavigationTarget" for e in events)
         assert not any(h["hostname"] == "auth.localhost" for h in hits)
     if name.startswith("A_") or name in ["I_intermediate", "B_href", "B_assign", "B_replace", "B_auto_JS",
-                                        "auto_POST", "C_POST", "GET_form", "JS_submit", "meta_refresh"]:
+                                        "auto_POST", "C_POST", "GET_form", "JS_submit", "meta_refresh", "H_SAML_POST"]:
         assert case["core"]["journey"]["endReason"] == "RETURNED"
     if name in ["E_auto_JS", "D_link", "E_JS"]:
         # The deliberately accepted first-departure risk: provenance is not purpose.

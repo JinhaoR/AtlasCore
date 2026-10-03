@@ -47,7 +47,7 @@ function isEndReason(value: unknown): value is JourneyEndReason {
 
 export function readJourneyContinuation(value: unknown): JourneyContinuation | null {
   if (!hasJourneyFields(value, ["kind", "sourceHostname"]) || !canonicalHostname(value.sourceHostname)
-    || !["HTTP_REDIRECT", "SAME_HOST", "RETAINED", "ARRIVAL", "ROOT_DEPARTURE"].includes(value.kind as string)) return null;
+    || !["HTTP_REDIRECT", "SAME_HOST", "RETAINED", "ARRIVAL", "ROOT_DEPARTURE", "FORM_POST"].includes(value.kind as string)) return null;
   return { kind: value.kind as JourneyContinuation["kind"], sourceHostname: value.sourceHostname };
 }
 
@@ -57,6 +57,9 @@ export function continuesJourney(journey: Journey, target: string, evidence?: Jo
     return journey.phase === "STARTED" && journey.currentHostname === journey.rootHostname
       && target !== journey.rootHostname;
   }
+  // A trusted host attests a POST from the currently loaded intermediate.
+  // This continues an existing attempt; it cannot establish a new root departure.
+  if (evidence.kind === "FORM_POST") return journey.phase === "IN_TRANSIT";
   return evidence.kind === "HTTP_REDIRECT" || target === journey.currentHostname
     || evidence.kind === "ARRIVAL" && target === journey.rootHostname;
 }

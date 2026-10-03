@@ -61,16 +61,6 @@ export function serviceLabel(hostname) {
         }
     return hostname;
 }
-/** Only declared equivalent aliases; other service destinations have independent scope. */
-export function equivalentServiceHostnames(hostname) {
-    for (const group of curatedWhitelist)
-        for (const service of group.services) {
-            const aliases = [service.hostname, ...(service.aliases ?? [])];
-            if (aliases.includes(hostname))
-                return aliases;
-        }
-    return [hostname];
-}
 export function compileCuratedWhitelist(groups = curatedWhitelist) {
     const hostnames = new Set();
     for (const group of groups)

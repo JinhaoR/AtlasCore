@@ -5,8 +5,10 @@ import {
 import type { InitializableRepository } from '../storage/indexeddb-repository.js';
 import { Diagnostics, type DiagnosticEntry } from './diagnostics.js';
 import type { ManagedBlacklistManager, ManagedView } from '../managed/manager.js';
-import { compileCuratedWhitelist, equivalentServiceHostnames } from '../presets/curated-whitelist.js';
+import { compileCuratedWhitelist } from '../presets/curated-whitelist.js';
+import { equivalentServiceHostnames } from '../presets/access-aliases.js';
 import { journeyIndicator, journeyPresentation, journeyRetry } from './journey-indicator.js';
+import { temporaryAccessView, type TemporaryAccess } from './temporary-access.js';
 
 export interface AdapterHost {
   readonly controller: AtlasController;
@@ -24,6 +26,8 @@ interface Flight {
   released: boolean; journeyId: number | null;
   authority: Extract<AtlasControllerResponse, { type: 'ASSESSMENT' }> | null;
   redirectUrl: string | null;
+  method: 'GET' | 'POST' | 'OTHER'; sourceHostname: string | null;
+  continuationKind: JourneyContinuation['kind'] | null;
 }
 interface Context {
   tabId: number; id: string; generation: number; flight: Flight | null; launching: boolean;
@@ -37,6 +41,7 @@ interface Context {
 export interface AdapterView {
   readonly controller: AtlasControllerView | null;
   readonly managed: ManagedView | null;
+  readonly temporaryAccess: readonly TemporaryAccess[] | null;
   readonly contexts: readonly {
     tabId: number; contextId: string; navigationId: number; hostname: string | null; displayedHostname: string | null;
     latest: Response | null; journey: Journey | null; effect: Context['effect'];
@@ -153,6 +158,8 @@ export class FirefoxAdapter {
         outcome: result?.type === 'ASSESSMENT' ? result.decision.outcome : result?.type ?? null,
         reason: result?.type === 'ASSESSMENT' ? result.decision.reason
           : result !== null && 'reason' in result ? result.reason : null,
+        method: context.flight?.method ?? null, sourceHostname: context.flight?.sourceHostname ?? null,
+        continuationKind: context.flight?.continuationKind ?? null,
         journey: journey === null ? null : { id: journey.id, phase: journey.phase,
           rootHostname: journey.rootHostname, hopCount: journey.hopCount,
           maxHops: journey.maxHops, expiresAt: journey.expiresAt, endReason: journey.endReason } });
@@ -259,7 +266,9 @@ export class FirefoxAdapter {
     this.clearRemoval(context);
     context.effect = 'NONE';
     const flight: Flight = { requestId: details.requestId, url: withoutFragment(details.url),
-      timeStamp: details.timeStamp, destination: destination(details.url), released: false, journeyId: null, authority: null, redirectUrl: null };
+      timeStamp: details.timeStamp, destination: destination(details.url), released: false, journeyId: null, authority: null, redirectUrl: null,
+      method: details.method === 'GET' || details.method === 'POST' ? details.method : 'OTHER',
+      sourceHostname: initiator?.target.hostname ?? null, continuationKind: null };
     context.flight = flight;
     context.requested = flight.destination;
     this.trace('REQUEST', context, null);
@@ -275,7 +284,12 @@ export class FirefoxAdapter {
           : initiator?.target.hostname === context.displayed?.target.hostname
             && initiator?.target.hostname === active.currentHostname
             && flight.destination?.target.hostname === active.currentHostname
-            ? { kind: 'SAME_HOST', sourceHostname: active.currentHostname } : undefined
+            ? { kind: 'SAME_HOST', sourceHostname: active.currentHostname }
+            : active.phase === 'IN_TRANSIT' && details.method === 'POST'
+              && context.displayed?.target.hostname === active.currentHostname
+              && initiator?.origin === context.displayed?.origin
+              && context.displayedDecision !== null && allowed(context.displayedDecision)
+              ? { kind: 'FORM_POST', sourceHostname: active.currentHostname } : undefined
         : undefined;
       // Browser provenance establishes one departure from the actual loaded root,
       // never authentication purpose. Core revalidates its current Whitelist status.
@@ -287,6 +301,7 @@ export class FirefoxAdapter {
           || active.phase === 'STARTED' && active.rootHostname === sourceDocument.target.hostname);
       const continuation: JourneyContinuation | undefined = existingContinuation
         ?? (rootDeparture ? { kind: 'ROOT_DEPARTURE', sourceHostname: sourceDocument.target.hostname } : undefined);
+      flight.continuationKind = continuation?.kind ?? null; // Diagnostic projection only.
       let result: Response = flight.destination === null ? error('INVALID_TARGET')
         : await this.check(context, flight.destination.target, false, continuation, true);
       const journey = this.journey(context);
@@ -611,6 +626,7 @@ export class FirefoxAdapter {
   view(): AdapterView {
     const controller = this.host?.controller.getView() ?? null;
     return { controller, managed: this.host?.managed?.getView(controller?.snapshot?.policy.whitelist) ?? null,
+      temporaryAccess: temporaryAccessView(controller, this.now(), this.host?.managed?.getBlacklist()),
       contexts: [...this.contexts.values()].map((context) => ({ tabId: context.tabId,
         contextId: context.id, navigationId: context.navigationId,
         hostname: context.requested?.target.hostname ?? null,

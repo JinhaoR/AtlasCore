@@ -6,7 +6,7 @@ Authorized on 2026-10-01. This milestone adds an initial curated Whitelist and t
 
 `extension/src/presets/curated-whitelist.ts` owns the preset. Each service appears once with its group, label, primary hostname, explicit equivalent aliases, and any distinct service entry points. The compiler expands these into ordinary exact `Policy.whitelist` entries. It never infers `www`, parent domains, subdomains, or wildcards. UI groups show service entries rather than duplicating alias rows. Google Search and authentication intermediates are not preset destinations. Other Canvas institution roots must be added explicitly; login continuation uses Journey.
 
-Defaults are offered only during one-time initialization. Existing policy is never replaced by a preset or feed update. Later explicit policy changes remain subject to Vault.
+D27 (2026-10-03) seeds this preset automatically in genuinely empty development installations for friend testing. The user supplied their current 51 exact Whitelist hostnames and empty Blacklist; they exactly match the current compiler output. Only policy contents are bundled, with fresh revision/counters and no waits, grants, Journeys, history or browser profile. `extension/src/background/bootstrap.ts` attempts initialization only after the repository explicitly reports `UNINITIALIZED`; its atomic guard prevents replacing existing, concurrently initialized, missing or damaged authority. This supersedes D15's initial setup requirement for this development build. Failed writes cannot publish initialized authority. Reload and already initialized empty policies remain unchanged. Later changes still use Vault; future onboarding is deferred.
 
 ### Applying defaults to an existing profile
 

@@ -1,4 +1,4 @@
-import type { Journey } from '@atlas/core';
+import type { Journey, JourneyContinuation } from '@atlas/core';
 
 export interface DiagnosticEntry {
   readonly sequence: number;
@@ -11,6 +11,9 @@ export interface DiagnosticEntry {
   readonly hostname: string | null;
   readonly outcome: string | null;
   readonly reason: string | null;
+  readonly method: 'GET' | 'POST' | 'OTHER' | null;
+  readonly sourceHostname: string | null;
+  readonly continuationKind: JourneyContinuation['kind'] | null;
   readonly journey: Pick<Journey, 'id' | 'phase' | 'rootHostname' | 'hopCount' | 'maxHops' | 'expiresAt' | 'endReason'> | null;
 }
 

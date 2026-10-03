@@ -22,5 +22,5 @@ export function journeyRetry(view, journey) {
         || ['REACHED', 'RETURNED', 'DESTINATION_CHANGED', 'CONTEXT_CLOSED'].includes(journey.endReason)
         || evaluate(journey.rootHostname, view.snapshot.policy).reason !== 'WHITELISTED')
         return null;
-    return { journeyId: journey.id, rootHostname: journey.rootHostname, destinationLabel: serviceLabel(journey.rootHostname) };
+    return { journeyId: journey.id, rootHostname: journey.rootHostname, destinationLabel: serviceLabel(journey.rootHostname), endReason: journey.endReason };
 }

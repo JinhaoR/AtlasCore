@@ -1,0 +1,336 @@
+{
+  "milestone": "D25",
+  "date": "2026-10-02",
+  "extensionVersion": "0.1.5",
+  "firefox": "157.0",
+  "tests": {
+    "core": 191,
+    "extension": 130,
+    "builds": "PASS",
+    "typechecks": "PASS"
+  },
+  "before": {
+    "case": "H_SAML_POST",
+    "passed": true,
+    "decision": {
+      "outcome": "GREYLIST",
+      "reason": "UNLISTED",
+      "target": {
+        "hostname": "auth.localhost"
+      }
+    },
+    "journey": {
+      "id": 1,
+      "contextId": "55f7af0c-71ca-4ccd-befa-bcfe7d846caa",
+      "rootHostname": "app.localhost",
+      "currentHostname": "selector.localhost",
+      "startedAt": 1790956610762,
+      "expiresAt": 1790956910762,
+      "hopCount": 1,
+      "maxHops": 12,
+      "policyRevision": 0,
+      "phase": "ENDED",
+      "endedAt": 1790956611588,
+      "endReason": "UNRELATED_NAVIGATION"
+    },
+    "policyUnchanged": true,
+    "noGrants": true
+  },
+  "after": {
+    "case": "H_SAML_POST",
+    "passed": true,
+    "decision": {
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "target": {
+        "hostname": "app.localhost"
+      }
+    },
+    "journey": {
+      "id": 32,
+      "contextId": "9db27c25-6b08-4b58-a5b9-6d3755298886",
+      "rootHostname": "app.localhost",
+      "currentHostname": "app.localhost",
+      "startedAt": 1790957389415,
+      "expiresAt": 1790957689415,
+      "hopCount": 2,
+      "maxHops": 12,
+      "policyRevision": 0,
+      "phase": "ENDED",
+      "endedAt": 1790957390280,
+      "endReason": "RETURNED"
+    },
+    "policyUnchanged": true,
+    "noGrants": true
+  },
+  "nativeAuthenticationCases": [
+    {
+      "case": "A_301",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "A_302",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "A_303",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "A_307",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "A_308",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "B_href",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "B_assign",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "B_replace",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "B_auto_JS",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "E_auto_JS",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "auto_POST",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "C_POST",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "GET_form",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "JS_submit",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "D_link",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "E_JS",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "F_during",
+      "passed": true,
+      "outcome": "GREYLIST"
+    },
+    {
+      "case": "F_after",
+      "passed": true,
+      "outcome": "GREYLIST"
+    },
+    {
+      "case": "G_popup",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "blank_link",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "H_SAML_POST",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "I_intermediate",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "J_canonical",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "meta_refresh",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "history_push",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "history_replace",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "SPA",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "iframe",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "iframe_promote",
+      "passed": true,
+      "outcome": "GREYLIST"
+    },
+    {
+      "case": "reload",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "back_forward",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "bookmark",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "malicious_HTTP",
+      "passed": true,
+      "outcome": "ALLOW"
+    },
+    {
+      "case": "blacklist_HTTP",
+      "passed": true,
+      "outcome": "DENY"
+    }
+  ],
+  "journeyChecks": [
+    "loaded root ends REACHED; actual Login starts a new Journey",
+    "immediate same-host auto-POST survives document/request ordering",
+    "same-host POST does not consume a hop or extend the fixed deadline",
+    "four same-tab Google denial/root re-entry/Login/return cycles",
+    "explicit cancellation and Restart action reach fresh root and fresh Login",
+    "two tabs keep independent authorization and indicators; denied synthetic request withheld",
+    "four-second root document delay survives timer checkpoints without losing permission",
+    "actual direct GET, cross-host POST and root script departures start fresh Journeys",
+    "first departure consumes hop one; subsequent redirects retain HTTP correlation",
+    "all direct-departure returns end the same Journey without renewed deadline",
+    "uncorrelated intermediate link stays Greylist and its destination request is withheld",
+    "typed Google stays Greylist during direct-departure Journey",
+    "same-tab root re-entry and legitimate direct Login succeed after each ended attempt",
+    "cross-domain confirmation POST and immediate auto-POST return with unchanged Journey ID/deadline",
+    "policy/configuration unchanged",
+    "no permanent trust, pending Access request or temporary grant created"
+  ],
+  "syntheticConfirmationReturn": {
+    "step": "synthetic phone confirmation returned through POSTs",
+    "tabId": 2,
+    "contextId": "55ccba80-b164-455e-a3dc-7f32d23114c9",
+    "hostname": "root.localhost",
+    "displayedHostname": "root.localhost",
+    "effect": "NONE",
+    "decision": {
+      "outcome": "ALLOW",
+      "reason": "WHITELISTED",
+      "target": {
+        "hostname": "root.localhost"
+      }
+    },
+    "journey": {
+      "id": 27,
+      "phase": "ENDED",
+      "rootHostname": "root.localhost",
+      "currentHostname": "root.localhost",
+      "startedAt": 1790957575751,
+      "expiresAt": 1790957875751,
+      "hopCount": 5,
+      "maxHops": 12,
+      "endedAt": 1790957575981,
+      "endReason": "RETURNED"
+    }
+  },
+  "postEvidence": [
+    {
+      "event": "RELEASED",
+      "at": 1790957575909,
+      "tabId": 2,
+      "contextId": "55ccba80-b164-455e-a3dc-7f32d23114c9",
+      "navigationId": 104,
+      "hostname": "login.localhost",
+      "outcome": "ALLOW",
+      "reason": "ACTIVE_JOURNEY",
+      "method": "POST",
+      "sourceHostname": "identity.localhost",
+      "continuationKind": "FORM_POST",
+      "journey": {
+        "id": 27,
+        "phase": "IN_TRANSIT",
+        "rootHostname": "root.localhost",
+        "hopCount": 4,
+        "maxHops": 12,
+        "expiresAt": 1790957875751,
+        "endReason": null
+      },
+      "sequence": 376
+    },
+    {
+      "event": "RELEASED",
+      "at": 1790957575951,
+      "tabId": 2,
+      "contextId": "55ccba80-b164-455e-a3dc-7f32d23114c9",
+      "navigationId": 105,
+      "hostname": "app.localhost",
+      "outcome": "ALLOW",
+      "reason": "ACTIVE_JOURNEY",
+      "method": "POST",
+      "sourceHostname": "login.localhost",
+      "continuationKind": "FORM_POST",
+      "journey": {
+        "id": 27,
+        "phase": "IN_TRANSIT",
+        "rootHostname": "root.localhost",
+        "hopCount": 5,
+        "maxHops": 12,
+        "expiresAt": 1790957875751,
+        "endReason": null
+      },
+      "sequence": 380
+    }
+  ],
+  "limitations": [
+    "The user trace proves UNRELATED_NAVIGATION; the exact private Ladok request method was not captured.",
+    "Synthetic confirmation/auto-submit returns pass; authenticated real-account Ladok completion requires manual retry.",
+    "Approved POST provenance does not prove authentication purpose."
+  ]
+}

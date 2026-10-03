@@ -105,6 +105,12 @@ D4 records presentation intent for intermediate domains. D11/D18 supply their cu
 
 **D24 (2026-10-02):** The user requested Firefox UI simplification, removal of duplicate Settings navigation, a clean minimized sidebar and further interaction polish. The [UI contract](ui-design.md) owns two primary destinations, secondary disclosures, local layout preferences and keyboard behavior. Core, browser enforcement and authoritative storage remain unchanged.
 
+**D25 (2026-10-02):** Ladok dogfooding reported a post-phone-authentication block with a saved `UNRELATED_NAVIGATION` end reason. A synthetic cross-domain POST reproduces it before expiry. The user explicitly approved bounded POST continuations from the currently loaded Journey page, keeping the same context, fixed deadline, hop limit and Blacklist checks. This narrowly extends D18/D22's later-step HTTP-only restriction. A page can POST to an unrelated destination; origin/method evidence does not prove authentication purpose. No provider database, permanent trust, grants or body inspection are introduced. The [Journey contract](firefox-journey-polish.md#bounded-post-continuations-d25) owns the browser evidence, Core continuation and validation.
+
+**D26 (2026-10-03):** Amazon Greylist dogfooding exposed an apex-only grant followed by a canonical `www.amazon.se` redirect. Apply D18's approved explicit-equivalent scope to Greylist services outside the curated Whitelist: a separate adapter declaration covers `amazon.se` and `www.amazon.se` without changing policy. Both hosts are listed before Start and frozen into one request/grant. No global alias inference or automatic widening of saved records is introduced. The [stabilization report](firefox-stabilization.md#d26-greylist-canonical-entry-aliases-2026-10-03) owns the implementation and evidence.
+
+**D27 (2026-10-03):** The user requested a Home overview of active temporary Greylist access with remaining time, and their current Whitelist bundled for friend testing and pushed to Git. The supplied 51 exact hostnames and empty Blacklist match the existing curated preset. Fresh development repositories automatically initialize that policy through the existing atomic adapter repository; saved or damaged authority is never replaced. This supersedes first-run setup for this development slice only. Temporary-access presentation uses current Core plans over committed grants; it creates no permissions. [UI design](ui-design.md#temporary-access-overview-d27) and [managed policy](managed-policy.md#curated-services) own these changes. Core semantics and future onboarding remain unchanged.
+
 ## Milestone 1 input contract
 
 Recorded 2026-09-26 to keep the first evaluator small and explicit:
@@ -191,7 +197,7 @@ The [aggregate planner contract](architecture.md#aggregate-planner-d13) owns D13
 | Q10 | D15 adopts explicit one-time setup in an empty repository and blocks corrupt/missing initialized records. D19 explicitly migrates known valid schema-1 snapshots atomically. Broader backup/recovery and future migrations remain open; no destructive reset UI is provided. | Recovery or schema evolution. |
 | Q11 | Which audit events are useful, how long are they retained, and how can they be removed without resetting policy? | Persisted history. |
 | Q12 | D15 selects Firefox and exposed top-level HTTP(S) navigation, with later observation of retained/restored content. Protected/internal pages, private browsing, downloads, non-HTTP schemes, and embedded content are outside the slice. | Broader browser coverage or another frontend. |
-| Q13 | Resolved by D19/D22: retain bounded HTTP redirects and destination-arrival completion; D22 explicitly permits one browser-attested departure from a loaded Whitelisted root. Later unfamiliar steps remain strict. | Revisit only for a reproducible failure or practical bypass during actual use. |
+| Q13 | Resolved by D19/D22/D25: bounded HTTP redirects and destination-arrival completion, one browser-attested loaded-root departure, and bounded intermediate POST continuations. Later unfamiliar GETs stay under ordinary policy. | Revisit only for a reproducible failure or practical bypass during actual use. |
 
 Resolve the questions that block the current small milestone, document the answer and test it. Optional future features remain deferred.
 

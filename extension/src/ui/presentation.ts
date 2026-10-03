@@ -1,4 +1,19 @@
-import type { AtlasControllerView, AtlasNavigationDecision } from '@atlas/core';
+import type { AtlasControllerView, AtlasNavigationDecision, JourneyEndReason } from '@atlas/core';
+
+/** Explain saved termination; this copy never changes the authorization decision. */
+export function journeyEndCopy(reason: JourneyEndReason | null): string {
+  switch (reason) {
+    case 'UNRELATED_NAVIGATION': return 'The next navigation could not be linked to your active Journey.';
+    case 'EXPIRED': return 'Your Journey reached its fixed time limit.';
+    case 'HOP_LIMIT': return 'Your Journey reached its navigation limit.';
+    case 'CANCELLED': return 'You ended this Journey.';
+    case 'POLICY_CHANGED': case 'INVALID_POLICY': case 'ROOT_NOT_WHITELISTED': return 'The policy changed or could no longer authorize this Journey.';
+    case 'CONTEXT_CLOSED': return 'The browsing context closed.';
+    case 'REACHED': case 'RETURNED': return 'You reached your destination.';
+    case 'DESTINATION_CHANGED': return 'You reached another Whitelisted destination.';
+    default: return 'Your Journey ended.';
+  }
+}
 
 /** UI can queue an intent during housekeeping; only a fresh controller result authorizes effects. */
 export function canQueueOperation(view: AtlasControllerView | null | undefined): boolean {

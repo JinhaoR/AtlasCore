@@ -112,20 +112,23 @@ test('a non-HTTP replacement cannot retain a departed root as first-departure au
   }
 });
 
-test('an intermediate cannot open a second unfamiliar destination directly or renew its attempt after expiry', async t => {
+test('an intermediate GET remains blocked; an approved POST continues without renewing, and expiry blocks both', async t => {
   for (const expired of [false, true]) {
-    const { firefox, adapter, controller, clock } = await fixture(t);
-    const tabId = await loadedRoot(firefox);
-    await firefox.visit(tabId, 'https://auth.example/', { originUrl: 'https://root.example/' });
-    const journey = current(adapter, tabId).journey;
-    const nextId = controller.getView().snapshot.journeyState.nextJourneyId;
-    if (expired) clock.time = journey.expiresAt;
-    assert.equal((await firefox.request(tabId, 'https://other-auth.example/', { originUrl: 'https://auth.example/', method: 'POST' })).cancel, true);
-    assert.equal(current(adapter, tabId).journey.id, journey.id);
-    assert.equal(current(adapter, tabId).journey.expiresAt, journey.expiresAt);
-    assert.equal(current(adapter, tabId).journey.endReason, expired ? 'EXPIRED' : 'UNRELATED_NAVIGATION');
-    assert.equal(controller.getView().snapshot.journeyState.nextJourneyId, nextId);
-    assert.deepEqual(controller.getView().snapshot.accessState.grants, []);
+    for (const method of ['GET', 'POST']) {
+      const { firefox, adapter, controller, clock } = await fixture(t);
+      const tabId = await loadedRoot(firefox);
+      await firefox.visit(tabId, 'https://auth.example/', { originUrl: 'https://root.example/' });
+      const journey = current(adapter, tabId).journey;
+      const nextId = controller.getView().snapshot.journeyState.nextJourneyId;
+      if (expired) clock.time = journey.expiresAt;
+      const permitted = !expired && method === 'POST';
+      assert.deepEqual(await firefox.request(tabId, 'https://other-auth.example/', { originUrl: 'https://auth.example/', method }), permitted ? {} : { cancel: true });
+      assert.equal(current(adapter, tabId).journey.id, journey.id);
+      assert.equal(current(adapter, tabId).journey.expiresAt, journey.expiresAt);
+      assert.equal(current(adapter, tabId).journey.endReason, expired ? 'EXPIRED' : permitted ? null : 'UNRELATED_NAVIGATION');
+      assert.equal(controller.getView().snapshot.journeyState.nextJourneyId, nextId);
+      assert.deepEqual(controller.getView().snapshot.accessState.grants, []);
+    }
   }
 });
 

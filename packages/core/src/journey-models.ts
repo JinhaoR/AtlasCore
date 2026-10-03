@@ -52,7 +52,7 @@ export interface JourneyNavigation {
 
 /** Trusted host facts, never claims supplied by a website. */
 export interface JourneyContinuation {
-  readonly kind: "HTTP_REDIRECT" | "SAME_HOST" | "RETAINED" | "ARRIVAL" | "ROOT_DEPARTURE";
+  readonly kind: "HTTP_REDIRECT" | "SAME_HOST" | "RETAINED" | "ARRIVAL" | "ROOT_DEPARTURE" | "FORM_POST";
   readonly sourceHostname: string;
 }
 

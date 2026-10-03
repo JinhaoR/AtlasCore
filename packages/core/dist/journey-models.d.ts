@@ -46,7 +46,7 @@ export interface JourneyNavigation {
 }
 /** Trusted host facts, never claims supplied by a website. */
 export interface JourneyContinuation {
-    readonly kind: "HTTP_REDIRECT" | "SAME_HOST" | "RETAINED" | "ARRIVAL" | "ROOT_DEPARTURE";
+    readonly kind: "HTTP_REDIRECT" | "SAME_HOST" | "RETAINED" | "ARRIVAL" | "ROOT_DEPARTURE" | "FORM_POST";
     readonly sourceHostname: string;
 }
 export type JourneyError = "INVALID_POLICY" | "INVALID_STATE" | "INVALID_TIME" | "INVALID_POLICY_REVISION" | "CLOCK_ROLLBACK" | "POLICY_ROLLBACK" | "INVALID_TARGET" | "INVALID_LIMITS" | "INVALID_CONTEXT_ID" | "INVALID_JOURNEY_ID" | "INVALID_NAVIGATION" | "NOT_WHITELISTED" | "JOURNEY_ACTIVE" | "JOURNEY_NOT_FOUND" | "JOURNEY_ENDED" | "CONTEXT_MISMATCH" | "ID_EXHAUSTED" | "TIME_OVERFLOW";

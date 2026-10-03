@@ -111,9 +111,8 @@ def main():
         client.call("Marionette:SetContext", value="content")
         smoke.wait_for(lambda: client.script("return location.protocol === 'moz-extension:' && document.readyState === 'complete';"), "private UI")
         ui_handle = client.call("WebDriver:GetWindowHandle")
-        smoke.wait_for(lambda: (client.message({"kind": "GET_VIEW"}).get("view", {}).get("controller") or {}).get("status") == "UNINITIALIZED", "initialization")
-        policy = {"whitelist": [case[1] for case in CASES], "blacklist": []}
-        assert client.message({"kind": "SETUP", "policy": policy})["initialized"]
+        policy = {"whitelist": sorted(case[1] for case in CASES), "blacklist": []}
+        smoke.configure_policy(client, policy)
 
         def view():
             client.call("WebDriver:SwitchToWindow", handle=ui_handle)

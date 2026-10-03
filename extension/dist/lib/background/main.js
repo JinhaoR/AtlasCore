@@ -2,6 +2,7 @@ import { createAtlasController } from '@atlas/core';
 import { FirefoxAdapter } from '../adapter/firefox-adapter.js';
 import { openRepository } from '../storage/indexeddb-repository.js';
 import { configuration } from './configuration.js';
+import { initializeDevelopmentPolicy } from './bootstrap.js';
 import { openManagedCache } from '../storage/managed-cache.js';
 import { createManagedBlacklist, downloadStevenBlack, sha256 } from '../managed/manager.js';
 const now = () => Date.now();
@@ -19,10 +20,13 @@ const managedPromise = openManagedCache(indexedDB).catch(() => ({
     }, publish: (work) => adapter.publishManagedUpdate(work),
     changed: () => { void adapter.refresh(); }, }));
 const host = Promise.all([openRepository(indexedDB, () => crypto.randomUUID()), managedPromise])
-    .then(([repository, managed]) => ({ repository, managed,
-    controller: createAtlasController({ repository, clock: { now }, configuration,
-        ownerId: crypto.randomUUID(), managedBlacklist: managed.getBlacklist }),
-}));
+    .then(async ([repository, managed]) => {
+    await initializeDevelopmentPolicy(repository);
+    return { repository, managed,
+        controller: createAtlasController({ repository, clock: { now }, configuration,
+            ownerId: crypto.randomUUID(), managedBlacklist: managed.getBlacklist }),
+    };
+});
 const adapter = new FirefoxAdapter(browser, host, () => crypto.randomUUID(), now);
 void adapter.ready.then(async () => {
     await adapter.refresh();

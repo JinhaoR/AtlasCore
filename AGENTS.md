@@ -34,9 +34,13 @@ Keep one small Core package and the separate authorized Firefox adapter package.
 
 D20 refines Firefox presentation; `docs/ui-design.md` owns sidebar/search/cards/pins. Presentation preferences carry no policy authority.
 
-D22 fixes Journey arrival/retry ordering and adds the explicitly approved first browser-attested departure from a loaded Whitelisted root. Later unfamiliar steps retain HTTP redirect requirements. See `docs/firefox-journey-polish.md`; no provider trust is inferred.
+D22 fixes Journey arrival/retry ordering and adds the explicitly approved first browser-attested departure from a loaded Whitelisted root. D25 also approves bounded POST continuation from the loaded current intermediate, with exact browser origin and saved authority. Later unfamiliar steps require HTTP redirect or POST evidence. See `docs/firefox-journey-polish.md`; no provider trust is inferred.
 
 D23's logic/structure/UI review is recorded in `docs/code-review.md`. Timing display and draft conversion belong to `extension/src/ui/settings-model.ts`; they carry no authorization. Preserve drafts across unavailable authority and retire departed browser source evidence promptly.
+
+D26 separates explicit Greylist access aliases from the curated Whitelist, fixing Amazon's canonical redirect without Whitelisting it. `docs/firefox-stabilization.md` owns the scope and evidence. Saved scopes never widen on reload.
+
+D27 shows committed temporary access on Home and seeds the user's approved 51-host Whitelist only in genuinely empty development installations. `docs/ui-design.md` and `docs/managed-policy.md` own presentation and first-run behavior. Existing or damaged authority is never replaced by defaults.
 
 D24 simplifies Firefox navigation to Home/Settings with native disclosures and a saved minimized sidebar; `docs/ui-design.md` owns the presentation contract. Sidebar/pin preferences remain separate from authoritative storage.
 

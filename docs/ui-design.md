@@ -40,6 +40,12 @@ The reference's palette, hierarchy and spacing guide the implementation. Existin
 
 Pins are local to this Firefox extension profile and can be lost with its presentation storage. They are not part of policy backups. Category expansion is page-local and resets on a policy redraw/reload. Cross-document pin sync is implemented; broader multi-window and assistive-technology coverage remains future validation. Full authenticated website compatibility remains outside this UI evidence.
 
+## Temporary access overview (D27)
+
+Home includes a **Temporary access** section showing confirmed Greylist grants across all tabs. Each grant appears once with its currently authorized exact hosts and original expiry countdown. Alias scopes stay together; pending waits and Journeys do not appear as grants. Expired, stale, denied or Whitelisted hosts are excluded by Core planning over the latest verified snapshot and managed list. The projection is display information only: it never releases navigation, writes state, renews a grant, or changes classification. Unavailable authority shows an unavailable message. Verified content stays stable through ordinary controller housekeeping; rows are retained while their identity/scope/deadline stay unchanged and only countdown text changes each second.
+
+Native Firefox verifies countdown/focus stability, unavailable presentation, original expiry across reload and page removal on expiry. Inspected previews: [Home](evidence/atlas-temporary-access-d27.png) and [small screen](evidence/atlas-temporary-access-small-d27.png). [Sanitized results](evidence/firefox-friend-prototype-d27.json) use a fresh profile and synthetic local sites. A hostname is shown once when its label and single-host scope are identical.
+
 ## Online website icons
 
 Icon discovery uses the destination's exact hostname and works for user-added destinations as well as curated services. The UI first tries Firefox's observed tab favicon, then the website's declared icon links and `/favicon.ico`. A public-host fallback uses Google's online favicon cache (`www.google.com/s2/favicons`), sending only the hostname and requested image size. Single-label names, IP addresses and reserved/internal hostname suffixes do not use that cache. An unavailable or invalid image leaves the bundled globe visible.

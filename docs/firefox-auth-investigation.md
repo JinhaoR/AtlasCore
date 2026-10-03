@@ -108,6 +108,8 @@ The exact event sequence is stored per case, including lifecycle/error events an
 
 ## 3. Real public flows
 
+The observations below retain their original D18 date. D22 later permits the first loaded-root departure; D25 now permits bounded intermediate POST continuations. The current synthetic `H_SAML_POST` expectation is therefore successful return. This change does not turn the historical credential-free entries into evidence of a complete authenticated real-account flow. See the [current Journey contract](firefox-journey-polish.md#bounded-post-continuations-d25).
+
 All observations below are credential-free **entry** observations on 2026-10-01. Public policy explicitly lists the roots, plus `www.overleaf.com`; it does not whitelist provider hosts. The observer-only comparison includes Microsoft/Outlook's blocked portion. No authenticating account was used. Same-host hops are recorded individually in the trace but collapsed below when explaining host transitions.
 
 | Service | Observed top-level transition and mechanism | Root document before cross-host navigation? | Current result / exact reason | Is the block desirable? |

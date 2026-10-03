@@ -1,5 +1,15 @@
 # Firefox behavior stabilization
 
+## D26: Greylist canonical entry aliases (2026-10-03)
+
+The Amazon report reproduces D18's hostname mismatch: a credential-free public HEAD request to `amazon.se` returned HTTP 301 to `www.amazon.se`. The existing alias lookup only describes curated Whitelist services, so Amazon's first grant covered the apex alone. The canonical redirect therefore required another full Greylist cycle. A regression test reproduced the missing second hostname before the fix.
+
+Keep explicit alias metadata separate from classification. `extension/src/presets/access-aliases.ts` owns temporary-access scope lookup, reusing curated equivalent aliases and adding an explicit Amazon Sweden pair. Amazon remains Greylist; neither hostname is added to the preset policy. UI preview and trusted Start use the same lookup. No global apex/`www` inference, live discovery, redirect-based expansion, subdomain scope, or supporting-domain catalog is introduced. This applies the user's existing approval of declared equivalents to a service outside the Whitelist preset.
+
+New requests list both exact hosts before waiting and freeze them into one pending request and one grant. Saved singleton requests and grants retain their old terms. Cancel an old pending request and start again, or let an old grant expire, to use updated scope; reload never silently widens authorization. Undeclared equivalent pairs remain separate until explicitly reviewed.
+
+Native Firefox 157.0 exercised both public entry hostnames through the actual scope preview, Request button, countdown and Confirm button. Each reached `www.amazon.se` with one saved grant and `ACTIVE_GRANT`, no remaining pending request, unchanged policy, and no Journey. Premature and duplicate confirmation were rejected. [Sanitized evidence](evidence/firefox-greylist-alias-d26.json) and [acceptance results](acceptance-tests.md#greylist-canonical-alias-evidence-d26) separate this navigation check from authenticated or shopping compatibility.
+
 **D22 update (2026-10-02):** The user approved one browser-attested departure from a loaded Pure Whitelist root after the Canvas Login report. Subsequent unfamiliar steps retain HTTP redirect requirements. The [Journey polishing report](firefox-journey-polish.md) owns the current contract and tests; the D18 results below describe the previous strict first-departure behavior.
 
 **D19 update:** Protected timing configuration is now implemented in the aggregate snapshot and shared Vault workflow. See [productization.md](productization.md) for current semantics and evidence; the recommendations below describe the earlier stabilization pass.

@@ -58,6 +58,12 @@
             <div class="search-field"><svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg><input id="destination-search" type="search" placeholder="Search your destinations…" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="search-results" aria-expanded="false"><span class="search-hint"><kbd>/</kbd> to search</span></div>
             <div id="search-results" role="listbox" aria-label="Matching destinations" hidden></div><p id="search-empty" class="note" role="status" hidden>No matching allowed destinations. Try another name or hostname.</p>
           </form>
+          <section id="temporary-section" class="destination-section temporary-section" aria-labelledby="temporary-title">
+            <div class="section-heading"><h2 id="temporary-title">Temporary access</h2><span id="temporary-count" class="section-meta"></span></div>
+            <ul id="temporary-list" class="temporary-list"></ul>
+            <p id="temporary-empty" class="note">No temporary access is active.</p>
+            <p id="temporary-unavailable" class="note" hidden>Temporary access cannot be verified right now.</p>
+          </section>
           <section id="pinned-section" class="destination-section" aria-labelledby="pinned-title"><div class="section-heading"><h2 id="pinned-title">Pinned</h2></div><div id="pinned-list" class="destination-grid"></div><p id="pinned-empty" class="empty-pins">Pin a destination below to keep it close.</p></section>
           <div id="destination-list" class="destination-list"></div>
           <p id="empty-destinations" class="note">Your destination list is empty. Add destinations through Settings and Vault.</p>

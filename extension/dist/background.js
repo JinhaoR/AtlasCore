@@ -484,7 +484,7 @@
     return value === "RETURNED" || value === "EXPIRED" || value === "CANCELLED" || value === "CONTEXT_CLOSED" || value === "POLICY_CHANGED" || value === "INVALID_POLICY" || value === "ROOT_NOT_WHITELISTED" || value === "HOP_LIMIT" || value === "REACHED" || value === "UNRELATED_NAVIGATION" || value === "DESTINATION_CHANGED";
   }
   function readJourneyContinuation(value) {
-    if (!hasJourneyFields(value, ["kind", "sourceHostname"]) || !canonicalHostname(value.sourceHostname) || !["HTTP_REDIRECT", "SAME_HOST", "RETAINED", "ARRIVAL", "ROOT_DEPARTURE"].includes(value.kind))
+    if (!hasJourneyFields(value, ["kind", "sourceHostname"]) || !canonicalHostname(value.sourceHostname) || !["HTTP_REDIRECT", "SAME_HOST", "RETAINED", "ARRIVAL", "ROOT_DEPARTURE", "FORM_POST"].includes(value.kind))
       return null;
     return { kind: value.kind, sourceHostname: value.sourceHostname };
   }
@@ -494,6 +494,8 @@
     if (evidence.kind === "ROOT_DEPARTURE") {
       return journey.phase === "STARTED" && journey.currentHostname === journey.rootHostname && target !== journey.rootHostname;
     }
+    if (evidence.kind === "FORM_POST")
+      return journey.phase === "IN_TRANSIT";
     return evidence.kind === "HTTP_REDIRECT" || target === journey.currentHostname || evidence.kind === "ARRIVAL" && target === journey.rootHostname;
   }
   function readJourney(value) {
@@ -1962,13 +1964,6 @@
     }
     return hostname;
   }
-  function equivalentServiceHostnames(hostname) {
-    for (const group of curatedWhitelist) for (const service of group.services) {
-      const aliases = [service.hostname, ...service.aliases ?? []];
-      if (aliases.includes(hostname)) return aliases;
-    }
-    return [hostname];
-  }
   function compileCuratedWhitelist(groups = curatedWhitelist) {
     const hostnames = /* @__PURE__ */ new Set();
     for (const group of groups) for (const service of group.services) for (const hostname of serviceHostnames(service)) {
@@ -1976,6 +1971,22 @@
       hostnames.add(hostname);
     }
     return { whitelist: [...hostnames], blacklist: [] };
+  }
+
+  // src/presets/access-aliases.ts
+  var greylistAliases = [
+    { hostname: "amazon.se", aliases: ["www.amazon.se"] }
+  ];
+  function equivalentServiceHostnames(hostname) {
+    for (const group of curatedWhitelist) for (const service of group.services) {
+      const aliases = [service.hostname, ...service.aliases ?? []];
+      if (aliases.includes(hostname)) return aliases;
+    }
+    for (const service of greylistAliases) {
+      const aliases = [service.hostname, ...service.aliases];
+      if (aliases.includes(hostname)) return aliases;
+    }
+    return [hostname];
   }
 
   // src/ui/presentation.ts
@@ -1998,7 +2009,33 @@ ${countdown(display.expiresAt, now2)} remaining`;
   function journeyRetry(view, journey) {
     journey = view?.snapshot?.journeyState.journeys.find((entry) => entry.id === journey?.id && entry.contextId === journey?.contextId) ?? null;
     if (view?.status !== "READY" && view?.status !== "COMMITTING" || !view.snapshot || journey === null || journey.phase !== "ENDED" || ["REACHED", "RETURNED", "DESTINATION_CHANGED", "CONTEXT_CLOSED"].includes(journey.endReason) || evaluate(journey.rootHostname, view.snapshot.policy).reason !== "WHITELISTED") return null;
-    return { journeyId: journey.id, rootHostname: journey.rootHostname, destinationLabel: serviceLabel(journey.rootHostname) };
+    return { journeyId: journey.id, rootHostname: journey.rootHostname, destinationLabel: serviceLabel(journey.rootHostname), endReason: journey.endReason };
+  }
+
+  // src/adapter/temporary-access.ts
+  function temporaryAccessView(view, now2, managedBlacklist) {
+    if (view === null || view.snapshot === null || !["READY", "LOADING", "COMMITTING"].includes(view.status)) return null;
+    const snapshot = view.snapshot;
+    const input = {
+      snapshot,
+      now: now2,
+      configuration: snapshot.configuration,
+      ...managedBlacklist === void 0 ? {} : { managedBlacklist }
+    };
+    if (planAtlasOperation({ kind: "OBSERVE_TIME" }, input).result.type !== "OBSERVED") return null;
+    const grants = [];
+    for (const grant of snapshot.accessState.grants) {
+      const hostnames = (grant.scopeHostnames ?? [grant.hostname]).filter((hostname) => {
+        const { result } = planAtlasOperation({
+          kind: "CHECK_NAVIGATION",
+          target: { hostname },
+          context: { contextId: "temporary-access-display", journeyId: null }
+        }, input);
+        return result.type === "ASSESSMENT" && result.decision.outcome === "ALLOW" && result.decision.reason === "ACTIVE_GRANT" && result.decision.requestId === grant.requestId;
+      });
+      if (hostnames.length > 0) grants.push({ requestId: grant.requestId, hostnames, expiresAt: grant.expiresAt });
+    }
+    return grants.sort((a, b) => a.expiresAt - b.expiresAt || a.requestId - b.requestId);
   }
 
   // src/adapter/firefox-adapter.ts
@@ -2129,6 +2166,9 @@ ${countdown(display.expiresAt, now2)} remaining`;
           hostname,
           outcome: result?.type === "ASSESSMENT" ? result.decision.outcome : result?.type ?? null,
           reason: result?.type === "ASSESSMENT" ? result.decision.reason : result !== null && "reason" in result ? result.reason : null,
+          method: context.flight?.method ?? null,
+          sourceHostname: context.flight?.sourceHostname ?? null,
+          continuationKind: context.flight?.continuationKind ?? null,
           journey: journey === null ? null : {
             id: journey.id,
             phase: journey.phase,
@@ -2240,7 +2280,10 @@ ${countdown(display.expiresAt, now2)} remaining`;
         released: false,
         journeyId: null,
         authority: null,
-        redirectUrl: null
+        redirectUrl: null,
+        method: details.method === "GET" || details.method === "POST" ? details.method : "OTHER",
+        sourceHostname: initiator?.target.hostname ?? null,
+        continuationKind: null
       };
       context.flight = flight;
       context.requested = flight.destination;
@@ -2248,9 +2291,10 @@ ${countdown(display.expiresAt, now2)} remaining`;
       return this.run(async () => {
         if (!this.live(context, generation)) return { cancel: true };
         const active = this.journey(context);
-        const existingContinuation = active !== null && active.phase !== "ENDED" ? correlated && previous.journeyId === active.id ? { kind: "HTTP_REDIRECT", sourceHostname: active.currentHostname } : initiator?.target.hostname === context.displayed?.target.hostname && initiator?.target.hostname === active.currentHostname && flight.destination?.target.hostname === active.currentHostname ? { kind: "SAME_HOST", sourceHostname: active.currentHostname } : void 0 : void 0;
+        const existingContinuation = active !== null && active.phase !== "ENDED" ? correlated && previous.journeyId === active.id ? { kind: "HTTP_REDIRECT", sourceHostname: active.currentHostname } : initiator?.target.hostname === context.displayed?.target.hostname && initiator?.target.hostname === active.currentHostname && flight.destination?.target.hostname === active.currentHostname ? { kind: "SAME_HOST", sourceHostname: active.currentHostname } : active.phase === "IN_TRANSIT" && details.method === "POST" && context.displayed?.target.hostname === active.currentHostname && initiator?.origin === context.displayed?.origin && context.displayedDecision !== null && allowed(context.displayedDecision) ? { kind: "FORM_POST", sourceHostname: active.currentHostname } : void 0 : void 0;
         const rootDeparture = sourceDocument !== null && context.displayed === sourceDocument && sourceAuthority !== null && allowed(sourceAuthority) && sourceAuthority.decision.reason === "WHITELISTED" && initiator?.origin === sourceDocument.origin && flight.destination !== null && flight.destination.target.hostname !== sourceDocument.target.hostname && (active === null || active.phase === "ENDED" || active.phase === "STARTED" && active.rootHostname === sourceDocument.target.hostname);
         const continuation = existingContinuation ?? (rootDeparture ? { kind: "ROOT_DEPARTURE", sourceHostname: sourceDocument.target.hostname } : void 0);
+        flight.continuationKind = continuation?.kind ?? null;
         let result = flight.destination === null ? error("INVALID_TARGET") : await this.check(context, flight.destination.target, false, continuation, true);
         const journey = this.journey(context);
         flight.journeyId = journey?.id ?? null;
@@ -2540,6 +2584,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
       return {
         controller,
         managed: this.host?.managed?.getView(controller?.snapshot?.policy.whitelist) ?? null,
+        temporaryAccess: temporaryAccessView(controller, this.now(), this.host?.managed?.getBlacklist()),
         contexts: [...this.contexts.values()].map((context) => ({
           tabId: context.tabId,
           contextId: context.id,
@@ -2976,6 +3021,12 @@ ${countdown(display.expiresAt, now2)} remaining`;
     }
   };
 
+  // src/background/bootstrap.ts
+  async function initializeDevelopmentPolicy(repository) {
+    const loaded = await repository.load();
+    if (loaded.type === "UNINITIALIZED") await repository.initialize(compileCuratedWhitelist());
+  }
+
   // src/storage/managed-cache.ts
   function openManagedCache(factory, name = "atlas-managed-blacklist-v1") {
     return new Promise((resolve, reject5) => {
@@ -3260,17 +3311,20 @@ ${countdown(display.expiresAt, now2)} remaining`;
       void adapter.refresh();
     }
   }));
-  var host = Promise.all([openRepository(indexedDB, () => crypto.randomUUID()), managedPromise]).then(([repository, managed]) => ({
-    repository,
-    managed,
-    controller: createAtlasController({
+  var host = Promise.all([openRepository(indexedDB, () => crypto.randomUUID()), managedPromise]).then(async ([repository, managed]) => {
+    await initializeDevelopmentPolicy(repository);
+    return {
       repository,
-      clock: { now },
-      configuration,
-      ownerId: crypto.randomUUID(),
-      managedBlacklist: managed.getBlacklist
-    })
-  }));
+      managed,
+      controller: createAtlasController({
+        repository,
+        clock: { now },
+        configuration,
+        ownerId: crypto.randomUUID(),
+        managedBlacklist: managed.getBlacklist
+      })
+    };
+  });
   var adapter = new FirefoxAdapter(browser, host, () => crypto.randomUUID(), now);
   void adapter.ready.then(async () => {
     await adapter.refresh();

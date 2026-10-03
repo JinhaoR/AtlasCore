@@ -1,0 +1,27 @@
+{
+  "firefox": "157.0",
+  "extensionVersion": "0.1.7",
+  "freshInstallWhitelistCount": 51,
+  "freshInstallBlacklistEmpty": true,
+  "setupRequired": false,
+  "freshRevision": 0,
+  "noCopiedRuntimeState": true,
+  "pendingAndReadyRequestsHidden": true,
+  "savedGrantVisible": true,
+  "countdownAdvances": true,
+  "rowAndFocusStable": true,
+  "smallScreenFits": true,
+  "unavailableStateHidesGrants": true,
+  "restartPreservesGrantAndPolicy": true,
+  "expiryRemovesRowAndPage": true,
+  "fixedExpiry": true,
+  "noRenewal": true,
+  "date": "2026-10-03",
+  "scope": "Fresh isolated Firefox profile and synthetic local sites; no accounts or credentials",
+  "tests": {
+    "corePassed": 191,
+    "extensionPassed": 150,
+    "typechecksPassed": true,
+    "buildPassed": true
+  }
+}

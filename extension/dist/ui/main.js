@@ -202,13 +202,6 @@
     }
     return hostname;
   }
-  function equivalentServiceHostnames(hostname) {
-    for (const group of curatedWhitelist) for (const service of group.services) {
-      const aliases = [service.hostname, ...service.aliases ?? []];
-      if (aliases.includes(hostname)) return aliases;
-    }
-    return [hostname];
-  }
   function compileCuratedWhitelist(groups = curatedWhitelist) {
     const hostnames = /* @__PURE__ */ new Set();
     for (const group of groups) for (const service of group.services) for (const hostname of serviceHostnames(service)) {
@@ -397,6 +390,31 @@
   }
 
   // src/ui/presentation.ts
+  function journeyEndCopy(reason) {
+    switch (reason) {
+      case "UNRELATED_NAVIGATION":
+        return "The next navigation could not be linked to your active Journey.";
+      case "EXPIRED":
+        return "Your Journey reached its fixed time limit.";
+      case "HOP_LIMIT":
+        return "Your Journey reached its navigation limit.";
+      case "CANCELLED":
+        return "You ended this Journey.";
+      case "POLICY_CHANGED":
+      case "INVALID_POLICY":
+      case "ROOT_NOT_WHITELISTED":
+        return "The policy changed or could no longer authorize this Journey.";
+      case "CONTEXT_CLOSED":
+        return "The browsing context closed.";
+      case "REACHED":
+      case "RETURNED":
+        return "You reached your destination.";
+      case "DESTINATION_CHANGED":
+        return "You reached another Whitelisted destination.";
+      default:
+        return "Your Journey ended.";
+    }
+  }
   function canQueueOperation(view2) {
     return view2?.status === "READY" || view2?.snapshot != null && (view2.status === "LOADING" || view2.status === "COMMITTING");
   }
@@ -499,6 +517,22 @@
     });
   }
 
+  // src/presets/access-aliases.ts
+  var greylistAliases = [
+    { hostname: "amazon.se", aliases: ["www.amazon.se"] }
+  ];
+  function equivalentServiceHostnames(hostname) {
+    for (const group of curatedWhitelist) for (const service of group.services) {
+      const aliases = [service.hostname, ...service.aliases ?? []];
+      if (aliases.includes(hostname)) return aliases;
+    }
+    for (const service of greylistAliases) {
+      const aliases = [service.hostname, ...service.aliases];
+      if (aliases.includes(hostname)) return aliases;
+    }
+    return [hostname];
+  }
+
   // src/ui/main.ts
   var element = (id) => document.getElementById(id);
   var text = (id, value) => {
@@ -533,6 +567,7 @@
   var savingPins = false;
   var pinnedKey = "";
   var reviewKey = "";
+  var temporaryKey = "";
   var searchInput = element("destination-search");
   var websiteIcons = /* @__PURE__ */ new Map();
   var observedIcons = /* @__PURE__ */ new Map();
@@ -679,7 +714,7 @@ Journey ${context.journey.id}: ${context.journey.endReason}` : ""}` : "");
     const retry = context?.retry;
     const showRetry = retry != null && decision?.outcome !== "ALLOW" && ready;
     element("ended-journey").hidden = !showRetry;
-    text("ended-journey-copy", showRetry ? context?.effect === "REMOVING" ? `Atlas is closing the previous page. You can restart your journey to ${retry.destinationLabel} in a moment.` : `Your journey to ${retry.destinationLabel} ended. Start again from ${retry.rootHostname}.` : "");
+    text("ended-journey-copy", showRetry ? context?.effect === "REMOVING" ? `Atlas is closing the previous page. You can restart your journey to ${retry.destinationLabel} in a moment.` : `${journeyEndCopy(retry.endReason)} Start again from ${retry.rootHostname}.` : "");
     action("restart-journey", showRetry);
     if (context?.effect === "REMOVING") element("restart-journey").disabled = true;
     element("home-note").hidden = decision?.outcome !== "REQUIRE_CONFIRMATION" && decision?.outcome !== "ALLOW";
@@ -692,8 +727,46 @@ Journey ${context.journey.id}: ${context.journey.endReason}` : ""}` : "");
     if (activeJourney) progress.value = Math.max(0, (journey.expiresAt - now) / (journey.expiresAt - journey.startedAt));
     renderSettings(controller, ready, now);
     renderHome(controller?.snapshot?.policy, ready);
+    renderTemporaryAccess(now);
     if (focused instanceof HTMLButtonElement && focused.closest("#access-panel") && (focused.disabled || focused.closest("[hidden]")) && accessFocused && section === "home") element("access-title").focus({ preventScroll: true });
     if (focused instanceof HTMLButtonElement && focused.closest("#vault-section") && (focused.disabled || focused.closest("[hidden]")) && section === "settings") element("vault-heading").focus({ preventScroll: true });
+  }
+  function renderTemporaryAccess(now) {
+    const available = view?.temporaryAccess != null;
+    const grants = (view?.temporaryAccess ?? []).filter((grant) => grant.expiresAt > now);
+    const key = JSON.stringify(grants);
+    const list = element("temporary-list");
+    if (temporaryKey !== key) {
+      temporaryKey = key;
+      list.replaceChildren(...grants.map((grant) => {
+        const row = document.createElement("li");
+        row.className = "temporary-row";
+        const copy = document.createElement("span");
+        copy.className = "temporary-copy";
+        const name = document.createElement("strong");
+        name.className = "temporary-name";
+        name.textContent = serviceLabel(grant.hostnames[0]);
+        const scope = document.createElement("span");
+        scope.className = "temporary-scope";
+        scope.textContent = grant.hostnames.join(", ");
+        scope.hidden = grant.hostnames.length === 1 && name.textContent === grant.hostnames[0];
+        copy.append(name, scope);
+        const time = document.createElement("span");
+        time.className = "temporary-time";
+        time.dataset.expiresAt = String(grant.expiresAt);
+        time.title = `Expires at ${new Date(grant.expiresAt).toLocaleTimeString()}`;
+        row.append(copy, time);
+        return row;
+      }));
+    }
+    for (const time of list.querySelectorAll(".temporary-time")) {
+      const label = `${countdown(Number(time.dataset.expiresAt), now)} remaining`;
+      if (time.textContent !== label) time.textContent = label;
+    }
+    list.hidden = !available || grants.length === 0;
+    element("temporary-empty").hidden = !available || grants.length > 0;
+    element("temporary-unavailable").hidden = available;
+    text("temporary-count", available && grants.length > 0 ? `${grants.length} active` : "");
   }
   function renderSettings(controller, ready, now) {
     const status = controller?.status;
@@ -1101,13 +1174,15 @@ State: ${status}${controller.reason ? ` \xB7 ${controller.reason}` : ""}` : "No 
       diagnosticKey = key;
       element("diagnostic-rows").replaceChildren(...[...entries2].reverse().map((entry) => {
         const row = document.createElement("tr");
+        const request = entry.method ? `
+${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7 no source origin"}${entry.continuationKind ? ` \xB7 ${entry.continuationKind}` : ""}` : "";
         for (const value of [
           String(entry.sequence),
-          entry.event,
+          `${entry.event}${request}`,
           `${entry.tabId} / ${entry.navigationId}`,
           entry.hostname ?? "\u2014",
           `${entry.outcome ?? "\u2014"}${entry.reason ? ` \xB7 ${entry.reason}` : ""}`,
-          entry.journey ? `${entry.journey.id} \xB7 ${entry.journey.phase} \xB7 ${entry.journey.hopCount}/${entry.journey.maxHops}` : "\u2014"
+          entry.journey ? `${entry.journey.id} \xB7 ${entry.journey.phase} \xB7 ${entry.journey.hopCount}/${entry.journey.maxHops}${entry.journey.endReason ? ` \xB7 ${entry.journey.endReason}` : ""}` : "\u2014"
         ]) {
           const cell = document.createElement("td");
           cell.textContent = value;

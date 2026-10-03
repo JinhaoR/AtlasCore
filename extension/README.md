@@ -4,7 +4,7 @@ A Firefox WebExtension consuming `@atlas/core`. Core decides policy, Greylist, V
 
 ## Build and load
 
-Current build: **0.1.4**, including the [Firefox interface cleanup](../docs/ui-design.md#firefox-interface-cleanup-d24). Reload the built manifest and verify **Atlas extension 0.1.4** under **Settings → Diagnostics**. Reload preserves saved authority; it does not replace policy.
+Current build: **0.1.7**, with a [temporary-access overview](../docs/ui-design.md#temporary-access-overview-d27) and automatic first-run development policy for friend testing. It includes [the Amazon Greylist alias fix](../docs/firefox-stabilization.md#d26-greylist-canonical-entry-aliases-2026-10-03) and [bounded Journey POST continuations](../docs/firefox-journey-polish.md#bounded-post-continuations-d25). Reload the built manifest and verify **Atlas extension 0.1.7** under **Settings → Diagnostics**. Reload preserves saved authority; it does not replace policy. Older singleton Greylist scopes remain frozen until cancelled or expired.
 
 Use Node.js 24, npm, and Firefox 140 or newer. Firefox 157.0 on Windows is the native runtime exercised so far.
 
@@ -18,17 +18,20 @@ npm --prefix extension run build
 
 Open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `extension/dist/manifest.json`. Click the Atlas toolbar button (or its entry in the Extensions menu) to open the control page. Repeated toolbar clicks reuse that page. Temporary installation is a development workflow; Firefox removes temporary add-ons on exit. This is not a signed distribution.
 
-1. Save the curated Whitelist offered during first setup. It includes AI, Mail, Video, Scholar / Research, Writing, University, and Development groups. Additional exact hostnames can be entered under **Additional hostnames and manual Blacklist**; the preset checkbox can be cleared. Setup is available only in an empty repository and cannot replace active policy.
+For friend testing, download or clone the repository and load the committed `extension/dist/manifest.json`. Keep the complete `extension/dist/` folder together. Node.js and a local build are needed only when changing source; the committed development build is ready to load with all 51 approved Whitelist entries.
+
+1. New development installations automatically save the user's approved 51-host Whitelist and empty manual Blacklist. It includes AI, Mail, Video, Scholar / Research, Writing, University, and Development groups; no setup or manual site entry is needed. Existing saved policies are preserved. Friends with an older saved empty policy can use **Settings → Vault → Add curated destinations**, wait and confirm. Policy edits use Settings and Vault.
 2. Open an ordinary Whitelist URL to exercise the request gate.
 3. Select a destination card, a search result, or use **Open a specific address**. The new tab enters the ordinary navigation gate. Whitelist navigation, including bookmarks, typed addresses, links and new tabs, starts the same Core Journey automatically. Actual root arrival ends it. Later login can start a fresh Journey through a root request or one browser-originated cross-host departure from that loaded trusted page.
 4. An unknown destination opens the access panel for that tab. Choose **Request temporary access**, wait, then explicitly **Confirm and open**. The saved confirmation is followed by a fresh GET of the homepage. Blocked forms and login URLs are not replayed. Readiness alone never opens a page. The exact request scope is listed before confirmation: primary host plus declared equivalent aliases, with no global www/subdomain rule. Existing requests/grants keep their old scope until consumed, cancelled or expired.
 5. Use **End Journey** to stop an attempt. The Journey panel shows its intended service and original deadline; diagnostics retain hop details. After the attempt ends, intermediate domains return to their ordinary Core assessment.
+6. Home's **Temporary access** section lists confirmed Greylist grants across tabs, including exact alias scope and remaining time. It excludes waits and Journeys and removes expired entries. Reload preserves each grant's original deadline.
 
-Journey intermediate destinations have one deadline and one context. A loaded Pure Whitelist page may make one direct cross-host departure; later unfamiliar links/forms use normal policy, while correlated HTTP redirects preserve the attempt's fixed terms. Unrelated typed targets remain blocked. Same-host document actions may continue to an HTTP redirect. Browser origin establishes provenance, not login necessity. Manual Blacklist still wins; managed denial cannot be bypassed by a Journey or grant. Opening a popup or duplicating a tab does not copy a Journey. Pure Whitelist matching remains exact. The curated preset represents each service once with explicit equivalent aliases and distinct entry points; it never infers `www` equivalence.
+Journey intermediate destinations have one deadline and one context. A loaded Pure Whitelist page may make one direct cross-host departure. Later unfamiliar steps need correlated HTTP redirects or browser-attested POSTs from the loaded current intermediate. Both keep the same fixed terms. Later unfamiliar GET links and typed targets use normal policy. Same-host document actions may continue to an HTTP redirect. Browser provenance does not prove login necessity. Manual Blacklist still wins; managed denial cannot be bypassed by a Journey or grant. Opening a popup or duplicating a tab does not copy a Journey. Pure Whitelist matching remains exact. The curated preset represents each service once with explicit equivalent aliases and distinct entry points; it never infers `www` equivalence.
 
 Home shows local search, explicitly pinned destinations and service categories. `/` focuses search outside editable controls. Pin controls save local presentation preferences; blocked/removed destinations cannot return through pins. Longer categories have Show all / Show fewer. A compact Journey strip opens the selected context's focused access view. The sidebar has Home and Settings; its arrow minimizes it to an icon rail and remembers your choice. Settings contains timing, Vault, managed lists, recovery and Diagnostics. A pending-change marker opens the frozen Vault review. Toolbar badges show `J`, `WAIT`, `GO` (confirmation available), or `!`. A closed selected tab stays selected as unavailable; actions never switch silently to another tab. Policy and timing edits use protected forms in Settings. Adding the current curated preset to an existing policy uses the protected action below. See [the interface refinement](../docs/ui-design.md) for the visual design and presentation boundary.
 
-**Navigation diagnostics** shows the latest 200 events, for one tab or all tabs: sequence, context/navigation identity, hostname, Core reason, and Journey summary. Export JSON or clear explicitly. The buffer is memory-only and clears on restart. No paths, queries, fragments, headers, cookies, bodies, or page content enter the log. Exported hostnames still reveal browsing interests; review an export before sharing.
+**Navigation diagnostics** shows the latest 200 events, for one tab or all tabs: sequence, context/navigation identity, target/source hostname, coarse request method, continuation kind, Core reason, and Journey summary with its end reason. Export JSON or clear explicitly. The buffer is memory-only and clears on restart. No paths, queries, fragments, headers, cookies, bodies, or page content enter the log. Exported hostnames still reveal browsing interests; review an export before sharing.
 
 Destination cards discover website icons online, including custom hosts: Firefox favicon metadata, the site's own icon declarations, then a public-host favicon-cache fallback. Missing images show a globe. These presentation requests omit credentials/referrers and create no authorization or policy changes; details are in [the interface refinement](../docs/ui-design.md#online-website-icons).
 
@@ -44,7 +47,7 @@ extension/
 │   ├── background/      # one controller, clock, configuration, startup
 │   ├── adapter/         # Firefox events, contexts, messages, effects
 │   ├── managed/         # defensive feed parsing, verified cache/refresh lifecycle
-│   ├── presets/         # single curated service definition with explicit aliases
+│   ├── presets/         # curated policy and separate explicit temporary-access aliases
 │   ├── storage/         # transactional AtlasRepository implementation
 │   └── ui/              # control interface, presentation, static assets
 ├── tests/               # real Core + fake time, Firefox API, IndexedDB
@@ -55,11 +58,20 @@ extension/
 
 ## Curated defaults and managed Blacklist
 
-Edit [curated-whitelist.ts](src/presets/curated-whitelist.ts) to change the initial preset. Its 31 services expand to 50 exact hostnames. Google Search and login infrastructure are excluded. Canvas includes only `canvas.kth.se`, `canvas.instructure.com`, and `learn.canvas.net`; other institution roots must be added explicitly. Login continuations use Journey, with no wildcard or authentication database.
+Explicit temporary-access aliases also exist outside the Whitelist preset in `src/presets/access-aliases.ts`. Amazon Sweden declares `amazon.se` and `www.amazon.se`; both remain Greylist and require one full wait and explicit confirmation. No other Amazon domain, subdomain or apex/`www` pair is inferred. The UI and adapter use the same scope lookup. An optional public native check uses fresh profiles and no accounts:
+
+```sh
+python extension/scripts/firefox-greylist-alias.py
+python extension/scripts/firefox-greylist-alias.py --hostname www.amazon.se
+```
+
+Run these from the repository root after building, serially. They verify Atlas authorization through the public canonical redirect; Amazon may still present a bot challenge. See [D26 evidence](../docs/evidence/firefox-greylist-alias-d26.json).
+
+Edit [curated-whitelist.ts](src/presets/curated-whitelist.ts) to change the initial preset. Its 32 services expand to the user's approved 51 exact hostnames. Google Search and login infrastructure are excluded. Canvas includes only `canvas.kth.se`, `canvas.instructure.com`, and `learn.canvas.net`; other institution roots must be added explicitly. Login continuations use Journey, with no wildcard or authentication database.
 
 The official [StevenBlack combined variant](https://github.com/StevenBlack/hosts) enables base + fakenews + gambling + porn + social. The bundled snapshot supplies 163,850 usable exact domains (six unsupported upstream names are skipped). A separate IndexedDB cache holds the verified last good feed, digest, source/version, and last refresh attempt. Startup checks staleness; at most one attempt occurs per 24 hours, including failures across restart. Empty, malformed, truncated, greatly reduced, or failed updates retain the good dataset. Navigation performs no dataset download or full scan.
 
-Core decides manual Blacklist → explicit Whitelist → managed Blacklist → Access Grant / Journey → Greylist. **Managed Blacklist** shows count, categories, origin, upstream date/version, update time, and status. Diagnostics show exact Whitelist conflicts. Defaults are offered on first setup only; loading this version never overwrites existing user policy.
+Core decides manual Blacklist → explicit Whitelist → managed Blacklist → Access Grant / Journey → Greylist. **Managed Blacklist** shows count, categories, origin, upstream date/version, update time, and status. Diagnostics show exact Whitelist conflicts. Defaults initialize genuinely empty development installs only; loading this version never overwrites existing user policy.
 
 ### Updating an existing development installation
 
@@ -91,7 +103,9 @@ The native command needs Python 3 and an installed Firefox. Set `FIREFOX_BINARY`
 
 After building, `python extension/scripts/firefox-e2e.py --existing-policy` also exercises an older saved policy across real reload, then the preset's Vault review/wait/confirmation UI before running the ordinary browsing/restart scenario.
 
-The native scenario exercises curated setup, native managed denial and blocked Access request, managed cache restart, root → login → redirect through root → identity → root, ordinary/new-tab and actual address-bar Whitelist redirects, unrelated typed navigation denial, the fixed deadline, unchanged policy, absence of grants, later intermediate denial, actual Greylist buttons/countdowns, focus retention, diagnostics, closed-tab selection, and background reload. A local HTTP server checks that the denied post-Journey request never arrived and that confirmation opens only the homepage. Reports, UI screenshots, and the isolated synthetic profile stay under ignored `.tools/firefox-e2e-*` for inspection.
+The native scenario exercises first-run policy, native managed denial and blocked Access request, managed cache restart, root → login → redirect through root → identity → root, ordinary/new-tab and actual address-bar Whitelist redirects, unrelated typed navigation denial, the fixed deadline, unchanged policy, absence of grants, later intermediate denial, actual Greylist buttons/countdowns, focus retention, diagnostics, closed-tab selection, and background reload. Native fixtures use real Vault wait/confirmation to configure synthetic policy after automatic seeding; historical builds retain explicit setup. A local HTTP server checks that the denied post-Journey request never arrived and that confirmation opens only the homepage. Reports, UI screenshots, and the isolated synthetic profile stay under ignored `.tools/firefox-e2e-*` for inspection.
+
+`python extension/scripts/firefox-e2e.py --friend-prototype-only` checks a fresh 51-host seed without setup, the temporary-access overview, actual wait/confirmation, stable countdown/keyboard focus, a 500-pixel window, unavailable presentation, background reload and real grant expiry. Run native scenarios serially.
 
 Optional live checks make external requests:
 
@@ -128,7 +142,7 @@ After building, `python extension/scripts/firefox-e2e.py --productization` runs 
 
 The current build retains the [D22 arrival/retry corrections and approved first-departure rule](../docs/firefox-journey-polish.md), introduced in **0.1.2**. Rebuild and reload `extension/dist/manifest.json` in `about:debugging`. Existing saved policy and timing stay in place. Login from a loaded Pure Whitelist page can start a fresh Journey through a same-host request or one direct cross-host departure. Subsequent unfamiliar steps require correlated HTTP redirects. This covers the reported Canvas-to-`app.kth.se` shape without permanently authorizing that host.
 
-After building, `python extension/scripts/firefox-e2e.py --journey-polish-only` exercises loaded-root Login through links, POSTs and JavaScript, automatic same-host POST, later unfamiliar-link denial, repeated same-tab interruption/re-entry, cancellation/restart, isolated tabs and a slow root document. `--addon-dir` can select another built add-on directory for an isolated comparison. `--root-departure-probe` checks the old strict model's Greylist result against that earlier build. Public-path investigation can use `python extension/scripts/firefox-auth-investigation.py --mode enforcing --public --case "Canvas" --public-url https://canvas.kth.se/your-public-path`; omit all query parameters, fragments and credentials. These probes do not add authentication infrastructure to real saved policy.
+After building, `python extension/scripts/firefox-e2e.py --journey-polish-only` exercises loaded-root Login through links, POSTs and JavaScript, automatic same-host POST, cross-domain confirmation and auto-POST return, later unfamiliar-link denial, repeated same-tab interruption/re-entry, cancellation/restart, isolated tabs and a slow root document. `--addon-dir` can select another built add-on directory for an isolated comparison. `--root-departure-probe` checks the old strict model's Greylist result against that earlier build. Public-path investigation can use `python extension/scripts/firefox-auth-investigation.py --mode enforcing --public --case "Canvas" --public-url https://canvas.kth.se/your-public-path`; omit all query parameters, fragments and credentials. These probes do not add authentication infrastructure to real saved policy.
 
 `python extension/scripts/firefox-e2e.py --coherence-only` checks draft preservation through unavailable state/reconnect, disabled commands, exact timing validation, keyboard focus, clearing stale feedback, responsive Home, internal-page source retirement, and Greylist waiting. Run native scenarios serially in their isolated profiles. The [cleanup report](../docs/code-review.md) records current test totals and screenshots.
 

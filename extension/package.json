@@ -1,6 +1,6 @@
 {
   "name": "@atlas/firefox",
-  "version": "0.1.4",
+  "version": "0.1.7",
   "private": true,
   "type": "module",
   "description": "Firefox prototype adapter for AtlasCore",

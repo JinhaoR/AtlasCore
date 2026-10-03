@@ -344,7 +344,7 @@ def _run_journey_polish(client, ui_handle, ui_url, port, wait_for, hits, run, ro
         transit = begin_departure(handle, arrived, identity, path, f'loaded-root {name} starts fresh bounded Journey')
         arrived = finish(handle, transit, f'{name} HTTP chain returns to original root')
     report['checks'] += ['actual direct GET, cross-host POST and root script departures start fresh Journeys',
-        'first departure consumes hop one; subsequent unfamiliar hosts use correlated HTTP only',
+                        'first departure consumes hop one; subsequent redirects retain HTTP correlation',
         'all direct-departure returns end the same Journey without renewed deadline']
 
     # A provider is not a new trusted root. An unrelated page link from the
@@ -380,6 +380,27 @@ def _run_journey_polish(client, ui_handle, ui_url, port, wait_for, hits, run, ro
     report['checks'] += ['uncorrelated intermediate link stays Greylist and its destination request is withheld',
         'typed Google stays Greylist during direct-departure Journey',
         'same-tab root re-entry and legitimate direct Login succeed after each ended attempt']
+
+    # A real cross-domain form POST, followed by an immediate auto-submit POST,
+    # models the transport after phone approval without credentials or request bodies.
+    transit = begin_departure(handle, arrived, 'polish-direct-login', '/polish-app',
+        'loaded root enters synthetic phone authentication')
+    approval = transit['journey']
+    wait_for(lambda: document(handle, 'polish-mfa-confirm'), 'synthetic phone confirmation button is loaded')
+    button = client.call('WebDriver:FindElement', using='css selector', value='#polish-mfa-confirm')
+    client.call('WebDriver:ElementClick', id=button['element-6066-11e4-a52e-4f735466cecf'])
+    arrived = root_arrived(tab_id, expected_end='RETURNED')
+    assert arrived['journey']['id'] == approval['id']
+    assert arrived['journey']['expiresAt'] == approval['expiresAt']
+    assert arrived['journey']['hopCount'] == approval['hopCount'] + 2
+    assert ('login.localhost', '/polish-mfa-approved') in hits
+    assert ('app.localhost', '/polish-mfa-callback') in hits
+    post_entries = [entry for entry in diagnostics(tab_id) if entry['event'] == 'RELEASED'
+        and entry.get('continuationKind') == 'FORM_POST' and entry['journey']['id'] == approval['id']]
+    assert [(entry['method'], entry['sourceHostname'], entry['hostname']) for entry in post_entries] == \
+        [('POST', 'identity.localhost', 'login.localhost'), ('POST', 'login.localhost', 'app.localhost')], post_entries
+    record('synthetic phone confirmation returned through POSTs', arrived)
+    report['checks'].append('cross-domain confirmation POST and immediate auto-POST return with unchanged Journey ID/deadline')
 
     current_snapshot = view()['controller']['snapshot']
     assert current_snapshot['policy'] == policy
