@@ -159,7 +159,7 @@ test('Greylist and temporary-granted source documents cannot establish Pure Whit
       assert.deepEqual(await firefox.visit(tab.id, 'https://unknown.example/'), {});
       assert.equal(current(adapter, tab.id).latest.decision.reason, 'ACTIVE_GRANT');
     }
-    assert.equal((await firefox.request(tab.id, 'https://auth.example/', { originUrl: 'https://unknown.example/' })).cancel, true);
+    assert.equal((await firefox.visit(tab.id, 'https://auth.example/', { originUrl: 'https://unknown.example/' })).cancel, true);
     assert.deepEqual(controller.getView().snapshot.journeyState.journeys, []);
     assert.equal(controller.getView().snapshot.accessState.grants.length, granted ? 1 : 0);
   }

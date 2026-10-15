@@ -329,6 +329,9 @@ export function createAtlasController(options) {
             && "expiresAt" in plan.result.decision && finalTime >= plan.result.decision.expiresAt) {
             return blocked("REEVALUATION_REQUIRED");
         }
+        if (plan.result.type === 'DOWNLOAD' && plan.result.outcome !== 'DENY'
+            && finalTime >= plan.result.intent.expiresAt)
+            return blocked('REEVALUATION_REQUIRED');
         return publish(plan.result, now);
     }
     return Object.freeze({

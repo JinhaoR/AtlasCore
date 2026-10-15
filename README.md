@@ -2,6 +2,24 @@
 
 An independent decision library for intentional web access. Core implements pure domain workflows and a framework-independent controller that coordinates commits through injected interfaces.
 
+The development [UI stability pass](docs/ui-stability.md) removes unchanged DOM
+writes and preference-loading cycles, retains native controls, and adds matched
+60-second Firefox rendering regressions. The **0.1.16 unsigned release candidate**
+packages these fixes; [release notes](docs/release-0.1.16.md) describe verification.
+
+[Milestone B destination editing](docs/destination-polish.md#milestone-b-destination-batch-drafts)
+is implemented in the development build: persistent editable batches, one existing
+Vault cycle, explicit stale-draft reconciliation and reusable custom categories.
+[Milestone A reliability](docs/ui-reliability.md) remains covered. **0.1.15** adds
+[bounded Download Intents](docs/firefox-downloads.md) through the
+existing planner/controller. [Milestone C Home organization](docs/home-organization.md)
+and [Milestone D visual polish](docs/visual-polish.md) are preserved, with
+**204 Core and 374 extension tests** passing in this development pass.
+Signed **0.1.13**, **0.1.14** and **0.1.15** release assets remain frozen.
+The [release guide](docs/firefox-private-release.md) describes their packaging and
+verification. Version 0.1.16 is prepared for separate unlisted signing; no submission
+or installed Firefox update is performed by preparation.
+
 Atlas Core is a decision engine for intentional access to the web. The user chooses an ordinary set of accessible destinations, requests temporary access to other destinations through deliberate friction, and changes long-term commitments through a protected workflow.
 
 Atlas Core is not a browser, a firewall, an authentication system, or an ad blocker. Browser interfaces render pages and enforce its decisions. The browser engine and websites continue handling ordinary web security and authentication.
@@ -25,7 +43,7 @@ Supporting domains are **hidden from the normal site list, but may be displayed 
 
 ## Implementation
 
-One TypeScript Core package in `packages/core`, with no runtime dependencies. Policy evaluation returns `ALLOW`, `DENY`, or `GREYLIST`. The access workflow adds pending requests, waits, confirmation windows, explicit confirmation, cancellation, and expiring grants. Vault adds frozen proposals, review, and commit preparation for policy changes. Journeys authorize bounded intermediate navigation toward a Whitelisted root. The controller serializes these operations and coordinates saves through repository/clock interfaces. Core contains no concrete clocks, timers, storage backends, or browser APIs. The separate `extension/` package supplies those Firefox adapters under D15.
+One TypeScript Core package in `packages/core`, with no runtime dependencies. Policy evaluation returns `ALLOW`, `DENY`, or `GREYLIST`. The access workflow adds pending requests, waits, confirmation windows, explicit confirmation, cancellation, and expiring grants. Vault adds frozen proposals, review, and commit preparation for policy changes. Journeys authorize bounded intermediate navigation toward a Whitelisted root. Download Intents authorize a separate short-lived file operation without granting destination browsing. The controller serializes these operations and coordinates saves through repository/clock interfaces. Core contains no concrete clocks, timers, storage backends, or browser APIs. The separate `extension/` package supplies those Firefox adapters under D15.
 
 The original `SiteTarget`, `Policy`, `Decision`, `normalizeTarget`, and `evaluate` API is unchanged. Invalid input returns `DENY` with `INVALID_TARGET` or `INVALID_POLICY`; invalid normalization returns `null`. `evaluate` examines policy classification only: a temporary grant never makes a Greylist hostname Whitelisted.
 
@@ -171,6 +189,12 @@ D13 implements aggregate validation/planning; D14 adds the controller and reposi
 
 ## Firefox prototype
 
+[Milestone C](docs/home-organization.md) adds saved Home category order, visibility
+and complete collapse, current access links and retained Sites navigation context.
+Layout is presentation-only; pins, exact search, existing drafts and Core access
+rules retain their roles. [Milestone D](docs/visual-polish.md) refines the existing
+visual system and interactions while preserving those workflows.
+
 The [extension guide](extension/README.md) covers build/load instructions, UI controls, repository behavior, and tests. Architecture choices were recorded in [Firefox adapter architecture](docs/firefox-adapter.md) before implementation. D17 adds compiled managed-deny data to Core planning/controller inputs; the two-list Policy and existing workflows remain unchanged.
 
 ```sh
@@ -188,6 +212,10 @@ For an existing profile, open **Settings → Vault → Add curated destinations*
 The extension uses a persistent background page, top-level HTTP(S) request interception, a transactional IndexedDB repository, and a private control interface with Journey visibility and bounded hostname diagnostics. Resource requests are outside its gate. Native tests cover synthetic workflows and real UI actions; separate [public-site checks](docs/firefox-real-sites.md) document sign-in entry points and remaining account-dependent gaps.
 
 ## Development
+
+Permanent Firefox installation and private friend distribution use the
+[unlisted release guide](docs/firefox-private-release.md). Build and validation are
+local; signing requires Mozilla credentials and an explicit submission.
 
 Use Node.js 24 and npm. TypeScript 6.0.3 is Core's only development dependency; tests use Node's built-in runner against compiled JavaScript. From the repository root:
 
@@ -210,6 +238,12 @@ Read `AGENTS.md` and the foundation first. Follow the small milestones in [first
 
 ## Reading guide
 
+For local updates to an existing enterprise-managed Windows Firefox installation,
+see [Windows deployment](docs/windows-deployment.md). After signing separately,
+`scripts/deploy-atlas.ps1 -Version <version>` verifies, backs up and atomically
+replaces the managed package. `-WhatIf` is read-only; deployment does not touch
+Atlas data or create Firefox policies.
+
 | File | Role |
 | --- | --- |
 | [AGENTS.md](AGENTS.md) | Instructions for future agents working in the new project. |
@@ -221,6 +255,13 @@ Read `AGENTS.md` and the foundation first. Follow the small milestones in [first
 
 ## Status and evidence
 
-Current extension **0.1.10** fixes a [distribution and startup defect](docs/managed-policy.md#distribution-and-startup-recovery-d29): Windows Git checkout could change the pinned Blacklist bytes, abort first-run initialization and misleadingly report `STORAGE_UNAVAILABLE`. Git attributes and build checks preserve the verified bundle; startup now has safe stage diagnostics and explicit retry. **191 Core and 190 extension tests pass**, with builds and both TypeScript checks. Native Firefox 157.0 verifies a fresh Windows-style package checkout receiving all 51 approved Whitelist hosts, and repaired-bundle recovery without a policy reset. [Older checkout repair instructions](extension/README.md#repairing-an-older-windows-checkout) preserve Firefox storage. Core is unchanged. The [canonical Greylist request preparation](docs/firefox-stabilization.md#d28-results), temporary-access overview and bounded Journey POST continuation remain included; previous public-site checks retain their stated limits. [Acceptance scenarios](docs/acceptance-tests.md) distinguish domain, adapter and native evidence from remaining real-account integration work.
+Extension **0.1.13** adds [private release tooling](docs/firefox-private-release.md)
+without Core/runtime changes. **191 Core and 226 extension tests pass** with both
+typechecks. Mozilla lint has zero errors and one Android warning. After the user's
+Mozilla signing approval, offline verification accepts the formatting-only manifest
+change; the existing signed XPI passes permanent install/restart checks in isolated
+Firefox 157.0.1 with signature enforcement enabled. No resubmission was made.
+
+D30/D31 in extension **0.1.12** introduced [destination and Journey polishing](docs/destination-polish.md): read-only Sites & Access with Vault proposals, optional exact apex/www terms, compact launchers, local ranking, a permanent 60px sidebar and guarded timeout returns. Category previews fit one row of up to five cards and adapt to window width. **191 Core and 203 extension tests pass**, with builds and both TypeScript checks. Core authorization is unchanged. [Verified shipment and startup recovery](docs/managed-policy.md#distribution-and-startup-recovery-d29), the approved 51-host first-run seed, canonical Greylist request preparation and bounded Journey POST continuation remain included. Native Firefox 157.0 exercises the new controls, fixed expiry and HTTP/JavaScript renewal vetoes using synthetic sites; real-account checks retain their stated limits. [Acceptance scenarios](docs/acceptance-tests.md) distinguish domain, adapter and native evidence.
 
 D18 brings the extension suite to 56 passing tests, including the follow-up protected preset upgrade for existing profiles. Native Firefox 157.0 checks curated setup, managed denial/cache restart, Journey, confirmation, and existing UI/lifecycle behavior; the upgrade scenario also covers reload and the actual Vault controls. The [managed policy evidence](docs/acceptance-tests.md#curated-defaults-and-managed-blacklist-evidence-d17) and [prototype evidence](docs/acceptance-tests.md#firefox-prototype-evidence-d16) distinguish mocked APIs, emulated storage, native checks, and incomplete authenticated flows. Exhaustive event coverage and physical power-loss durability remain untested. Zenith's historical results are not Atlas validation.

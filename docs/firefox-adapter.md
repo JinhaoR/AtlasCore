@@ -2,11 +2,18 @@
 
 Architecture recorded before implementation on 2026-09-30. This is a development WebExtension for ordinary top-level HTTP(S) navigation. AtlasCore remains the decision engine. Electron, Context Whitelist, provider databases, authentication handling, and resource filtering remain excluded.
 
+Development toward **0.1.15** adds the separate [Download Intent boundary](firefox-downloads.md).
+Firefox correlates activated top-level GETs and response headers; Core validates
+operation scope, current source authority, deny precedence, revision and limits.
+No opener Journey is shared and no unfamiliar response gains document permission.
+
 D17 adds [curated defaults and managed deny data](managed-policy.md). Core receives a compiled immutable managed set separately from the snapshot and applies manual Blacklist, explicit Whitelist, managed Blacklist, then grants/Journey. The adapter owns feed/cache/refresh, service presentation, and ordered publication. It never implements managed denial itself. Publication joins the existing request/effect queue after download and validation.
 
 The D17 follow-up introduced a narrow existing-profile preset proposal/review/confirmation/cancellation interface over Core's Vault operations. Reload retains authority; only an explicit successfully saved Vault commit applies the additions. D19/D20 extend the interface to general policy and timing edits. The [preset upgrade contract](managed-policy.md#applying-defaults-to-an-existing-profile) owns curated additions.
 
 ## Architecture and API choices
+
+D30 adds an optional `basePolicyRevision` to the trusted UI's `PROPOSE_POLICY` message. Before forwarding a complete destination draft, the adapter observes current Core authority and rejects a mismatched revision as `POLICY_DRAFT_STALE`. This is a veto against stale UI edits; Vault still owns freezing, waiting, confirmation and commit. Usage callbacks are presentation-only. [Destination polishing](destination-polish.md) owns the browser timeout-return effect and its renewal guard.
 
 D29 adds a retriable background host factory and closed `GET_VIEW.startup` projection (`LOADING`, `READY`, or `FAILED` with safe stage/reason). Startup readiness describes host construction; the controller still owns whether authority is READY, unavailable, or reconciling. Explicit `RECOVER` retries construction only when there is no host; otherwise it calls the existing controller. Failed attempts close their repository. Policy initialization and all permission publication retain their existing persistence guards. See [distribution and startup recovery](managed-policy.md#distribution-and-startup-recovery-d29).
 
@@ -22,7 +29,7 @@ Use Manifest V2 with a persistent background page for this Firefox-only slice. F
 | Repository | Extension-origin IndexedDB transactions implementing `AtlasRepository`; atomic initialization, compare-and-swap, complete snapshots, and commit receipts. |
 | UI | Initial setup, destination launchers, selected-tab access controls, deadlines, Journey status, and diagnostics. No authorization rules or direct writes to authoritative state. Pins and sidebar layout use separate local presentation preferences. |
 
-Use asynchronous blocking `webRequest.onBeforeRequest`, filtered to `main_frame` and HTTP(S), with a frame-zero check. Each redirect target goes through the same gate. No request bodies, cookies, headers, iframe requests, images, scripts, or analytics are inspected. Use `webNavigation.onCommitted` for actual document arrival, error events for failed execution, and tab removal for binding loss. `tabs` provides native handles and replacement of denied content. [Blocking API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/onBeforeRequest), [arrival event](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webNavigation/onCommitted).
+Use asynchronous blocking `webRequest.onBeforeRequest`, filtered to `main_frame` and HTTP(S), with a frame-zero check. Each redirect target goes through the same gate. Download checks additionally use blocking `onBeforeSendHeaders` for the browser's `Sec-Fetch-User` evidence and `onHeadersReceived` for status, `Content-Disposition` and redirect `Location`. Only those fields are interpreted transiently; no headers or filenames enter diagnostics. Request bodies, cookies, iframe requests, images, scripts and analytics remain outside inspection. Use `webNavigation.onCommitted` for actual document arrival, error events for failed execution, and tab removal for binding loss. `tabs` provides native handles and replacement of denied content. [Blocking API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/onBeforeRequest), [arrival event](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webNavigation/onCommitted).
 
 The UI uses `runtime.sendMessage`. Only the extension's own UI URL and extension ID may call the bridge. Messages have closed shapes; no content scripts, external-message listener, or web-accessible UI is provided. Browser events never become policy commands. [Message sender](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/MessageSender).
 
@@ -52,7 +59,7 @@ The UI uses `runtime.sendMessage`. Only the extension's own UI URL and extension
 
 ## Coverage and limits
 
-HTTP(S) top-level requests exposed to `webRequest` are the pre-request enforcement boundary. `webNavigation` and periodic tab checks also reconcile visible history/cache restoration and already-open tabs, but those observations occur after display. Internal Firefox pages, protected Mozilla origins, other extensions, private browsing, downloads, non-HTTP schemes, and iframe content are not claimed as governed entry points. This is not universal navigation lockdown or zero network egress. Background failure/removal is a browser lifecycle limit, not a permissive Core decision.
+HTTP(S) top-level requests exposed to `webRequest` are the pre-request enforcement boundary. The [0.1.15 download contract](firefox-downloads.md) adds only activated, correlated GET chains and successful attachment responses. `webNavigation` and periodic tab checks also reconcile visible history/cache restoration and already-open tabs, but those observations occur after display. Internal Firefox pages, protected Mozilla origins, other extensions, private browsing, other download mechanisms, non-HTTP schemes, and iframe content are not claimed as governed entry points. This is not universal navigation lockdown or zero network egress. Background failure/removal is a browser lifecycle limit, not a permissive Core decision.
 
 Firefox does not provide a common request ID in `webRequest` and `webNavigation`; the initial mapping uses the latest held URL, event ordering, and live context/Journey identity. Ambiguity fails conservatively. Native tests must exercise redirects and late/failed callbacks. Other extensions may interfere with requests. Browser scheduling can delay content removal; the UI must not claim success before arrival/closure is observed.
 
@@ -71,7 +78,7 @@ Use an isolated native Firefox profile and synthetic local hostnames for root â†
 Authorized on 2026-09-30: improve the Firefox interface, browsing flow, diagnostics, and real-site investigation. Core's source, rules, configuration semantics, and public API stay unchanged. Existing short timing values remain clearly labelled prototype settings; this task does not select production durations.
 
 - The control page presents Whitelist destination launchers, one selected tab's access state, a Journey summary, and secondary diagnostics/recovery panels. Blocked navigation opens the same private page focused on that tab. Context selection never silently switches to another tab after closure.
-- Opening a Whitelist destination joins the same Core BEGIN_NAVIGATION gate as ordinary Whitelist browsing. A rejected start closes the temporary blank tab. The toolbar reuses a control page instead of accumulating duplicate control tabs.
+- Opening a Whitelist destination joins the same Core BEGIN_NAVIGATION gate as ordinary Whitelist browsing. A rejected start closes the temporary blank tab. The toolbar activates an existing control page without replacing its URL, route, selection or editor, instead of accumulating duplicate control tabs.
 - Countdown text is presentation only. Confirm is shown only for Core's REQUIRE_CONFIRMATION result. An explicitly labelled **Confirm and open** command may combine a saved Core confirmation with a fresh homepage navigation in the same still-bound tab. Failed saves, stale request/tab correlation, and changed destinations never navigate. This is an explicit user action, not automatic permission at readiness. No blocked POST or provider URL is replayed.
 - Read-only views and diagnostics can be inspected while a commit is pending. They expose only the controller's last verified snapshot and current owner status. Mutating commands remain serialized. Toolbar indicators show the current Core result and bound Journey without deriving new access rules.
 - Diagnostics retain at most 200 entries in background memory. Entries contain local sequence/navigation IDs, time, opaque context/tab identity, normalized hostnames, event type, Core outcome/reason, and a compact Journey summary. Never include paths, queries, fragments, request bodies, headers, cookies, page text, browser error messages, or credentials. Clear/export are explicit UI actions; restart clears the buffer. Diagnostics are observations, never a trust graph, provider registry, or authorization input.
@@ -82,6 +89,14 @@ New evidence and any concrete event-handling fixes are recorded with the prototy
 `GET_VIEW` and `GET_DIAGNOSTICS` are read-only private-UI messages and do not join the mutating queue. The former exposes the last verified snapshot, including a COMMITTING or RECONCILING status when applicable. UI can queue explicit intents from the last verified snapshot during transient LOADING/COMMITTING housekeeping; initial loading, failures and uncertainty remain disabled. This never executes a cached permission: the current controller must validate and commit every operation. `CLEAR_DIAGNOSTICS` clears only memory. Redirect diagnostics use informational `onBeforeRedirect`; the following target still needs its own blocking Core check. [Firefox redirect event](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/onBeforeRedirect).
 
 The toolbar reuses a control tab while preserving blocked-site tabs. Its per-tab badge shows `J` for a currently allowed Journey, `WAIT`, `GO` for a Core confirmation result, or `!` for other blocked/unavailable states. These are observations of Core responses. [Firefox badges](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/browserAction/setBadgeText).
+
+The [UI stability pass](ui-stability.md) keeps acknowledged collections, frozen
+review text and passive Journey presentation visible during ordinary
+LOADING/COMMITTING housekeeping. Initial loading without a snapshot, unavailable
+authority, uncertain commits and expired records remain distinct. No presentation
+record authorizes navigation or confirmation; each command still reaches Core.
+Polling has one owner per visible control page, and unchanged presentation reads
+do not announce loading or rebuild native controls.
 
 ## D19 productization
 

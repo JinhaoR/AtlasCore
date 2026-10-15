@@ -60,7 +60,7 @@ def open_ui(client):
         });
     """, smoke.UI_URL)
     client.call('Marionette:SetContext', value='content')
-    smoke.wait_for(lambda: client.script("return location.href === arguments[0] && document.readyState === 'complete';",
+    smoke.wait_for(lambda: client.script("return location.href.split(/#/,1)[0] === arguments[0] && document.readyState === 'complete';",
                                         smoke.UI_URL), 'extension UI')
 
 

@@ -1,17 +1,59 @@
 {
   "manifest_version": 2,
   "name": "Atlas",
-  "version": "0.1.10",
+  "version": "0.1.16",
   "description": "Intentional top-level web access, decided by AtlasCore.",
   "browser_specific_settings": {
-    "gecko": { "id": "atlas-development@atlas.invalid", "strict_min_version": "140.0" }
+    "gecko": {
+      "id": "atlas-development@atlas.invalid",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": [
+          "browsingActivity"
+        ]
+      }
+    }
   },
-  "permissions": ["tabs", "webNavigation", "webRequest", "webRequestBlocking", "http://*/*", "https://*/*"],
-  "background": { "scripts": ["background.js"], "persistent": true },
-  "icons": { "48": "ui/atlas.svg", "96": "ui/atlas.svg" },
-  "browser_action": { "default_title": "Open Atlas", "default_icon": "ui/atlas.svg", "default_area": "navbar" },
-  "content_scripts": [{ "matches": ["http://*/*", "https://*/*"], "js": ["journey-indicator.js"], "run_at": "document_start", "all_frames": false }],
-  "options_ui": { "page": "ui/index.html", "open_in_tab": true },
+  "permissions": [
+    "tabs",
+    "webNavigation",
+    "webRequest",
+    "webRequestBlocking",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": true
+  },
+  "icons": {
+    "48": "ui/atlas.svg",
+    "96": "ui/atlas.svg"
+  },
+  "browser_action": {
+    "default_title": "Open Atlas",
+    "default_icon": "ui/atlas.svg",
+    "default_area": "navbar"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "journey-indicator.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "options_ui": {
+    "page": "ui/index.html",
+    "open_in_tab": true
+  },
   "incognito": "not_allowed",
   "content_security_policy": "script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
 }

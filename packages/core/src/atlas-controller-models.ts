@@ -2,6 +2,7 @@ import type { AtlasConfiguration, AtlasError, AtlasNavigationDecision, AtlasOper
 import type { AtlasClock, AtlasRepository } from "./atlas-ports.js";
 import type { PolicyReview } from "./vault-models.js";
 import type { ManagedBlacklist } from "./managed-blacklist.js";
+import type { DownloadResult } from './download.js';
 
 export type AtlasControllerStatus =
   | "UNINITIALIZED" | "LOADING" | "READY" | "COMMITTING" | "RECONCILING" | "UNAVAILABLE";
@@ -31,6 +32,7 @@ export type AtlasControllerResponse =
   | { readonly type: "BLOCKED"; readonly reason: AtlasControllerError;
     readonly status: AtlasControllerStatus; readonly pendingCommitId: string | null }
   | (ResultVersion & (
+    | DownloadResult
     | { readonly type: "COMMITTED"; readonly operation: AtlasOperation["kind"]; readonly referenceId: number }
     | { readonly type: "ASSESSMENT"; readonly decision: AtlasNavigationDecision }
     | { readonly type: "REJECTED"; readonly reason: AtlasError }

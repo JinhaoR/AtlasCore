@@ -4,8 +4,8 @@ import { countdown } from '../ui/presentation.js';
 /** A display of verified authority. Never an authorization input. */
 export function journeyPresentation(view, journey, now) {
     journey = view?.snapshot?.journeyState.journeys.find((entry) => entry.id === journey?.id && entry.contextId === journey?.contextId) ?? null;
-    // COMMITTING retains the last verified saved snapshot; it is not a candidate permission.
-    if ((view?.status !== 'READY' && view?.status !== 'COMMITTING') || journey === null || journey.phase === 'ENDED'
+    // Reads and commits retain the acknowledged snapshot, never a candidate permission.
+    if (!view?.snapshot || !['READY', 'LOADING', 'COMMITTING'].includes(view.status) || journey === null || journey.phase === 'ENDED'
         || journey.policyRevision !== view.snapshot?.policyRevision
         || !Number.isSafeInteger(now) || now < journey.startedAt || now >= journey.expiresAt)
         return null;
@@ -18,7 +18,7 @@ export function journeyIndicator(view, journey, now) {
 /** Retry copy comes from the latest saved ended record, never from a page's hostname. */
 export function journeyRetry(view, journey) {
     journey = view?.snapshot?.journeyState.journeys.find((entry) => entry.id === journey?.id && entry.contextId === journey?.contextId) ?? null;
-    if ((view?.status !== 'READY' && view?.status !== 'COMMITTING') || !view.snapshot || journey === null || journey.phase !== 'ENDED'
+    if (!['READY', 'LOADING', 'COMMITTING'].includes(view?.status ?? '') || !view?.snapshot || journey === null || journey.phase !== 'ENDED'
         || ['REACHED', 'RETURNED', 'DESTINATION_CHANGED', 'CONTEXT_CLOSED'].includes(journey.endReason)
         || evaluate(journey.rootHostname, view.snapshot.policy).reason !== 'WHITELISTED')
         return null;

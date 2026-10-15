@@ -48,7 +48,66 @@ D29 protects pinned managed-feed bytes across Git checkout and verifies source/s
 
 D24 simplifies Firefox navigation to Home/Settings with native disclosures and a saved minimized sidebar; `docs/ui-design.md` owns the presentation contract. Sidebar/pin preferences remain separate from authoritative storage.
 
+D30 adds Sites & Access, compact Home launchers, local service usage ranking and a 60px sidebar rail. Exact permission changes still use Vault; display-only edits use local preferences. Optional apex/www pairs use a Public Suffix List in the extension, never fuzzy Core matching or migration broadening. Saved Journey expiry returns the owning tab to its recorded trusted origin, with an automatic-return renewal veto. `docs/destination-polish.md` owns these boundaries and evidence.
+
+D31 removes sidebar expansion and sizes Home preview rows to available width, up to five fixed-height cards. Legacy sidebar preferences are ignored; policy and pins are preserved. `docs/ui-design.md` owns the presentation and evidence.
+
+Development toward 0.1.15 adds a separate ephemeral Download Intent through the
+planner/controller; `docs/firefox-downloads.md` owns the scope and evidence. Keep
+browser correlation in the adapter, fixed deadlines and deny precedence in Core,
+and unfamiliar HTML under normal navigation authorization. Preserve signed 0.1.14
+assets; this milestone does not authorize signing or publication.
+
+Milestone C adds saved Home category order, visibility and complete collapse in a
+separate revision-checked presentation repository, plus links to existing access
+workflows and per-page Sites navigation context. `docs/home-organization.md` owns
+the contract and evidence. Pins/search keep their complete index; layout is never
+an authorization input. Milestone D's user-authorized visual consistency pass is
+owned by `docs/visual-polish.md`; it preserves all A/B/C behavior and release boundaries.
+
+The user subsequently authorizes preparing the 0.1.15 unsigned release candidate.
+`docs/firefox-private-release.md` owns packaging, reviewer-source reproduction and
+in-place update instructions. Keep signed 0.1.14 frozen; preparation does not
+authorize Mozilla signing/submission or changes to installed Firefox.
+
 ## Open questions and authority
+
+Milestone A's focused UI reliability repairs are owned by `docs/ui-reliability.md`.
+Presentation saves publish only acknowledged values; failed/uncertain saves retain
+drafts and explicit display-only retries. Cached collections carry no authority.
+Preserve the frozen signed 0.1.13 release. Milestone B adds extension-local,
+versioned destination drafts and separate frozen batch/display receipts through
+the existing Vault commands. `docs/destination-polish.md` owns draft persistence,
+reconciliation, category identity and display-only recovery. Categories remain
+presentation; Home organization is owned by Milestone C and visual polish is now
+authorized by Milestone D without changing functionality or authority.
+
+D32 adds private Firefox release tooling; `docs/firefox-private-release.md` owns
+identity, privacy declarations, source archives and unlisted signing. Preserve
+`atlas-development@atlas.invalid`. Build/validation never submit; signing requires
+credentials and explicit user authorization. Release tooling stays outside Core.
+`docs/firefox-backup.md` owns temporary-to-signed migration instructions.
+After signing, use `release:verify-signed` to check preserved artifacts offline;
+never rebuild/resubmit a signed version to fix verifier code. D32 permits only
+manifest whitespace changes outside strings, known signature files, and local
+`.amo-upload-uuid` in post-sign staging. All runtime hashes remain enforced.
+
+Local Windows deployment tooling is separate in `scripts/`; its contract and
+isolated tests are in `docs/windows-deployment.md`. It reuses signed-release
+verification, validates existing policy without editing it, and atomically replaces
+only the managed XPI after UAC and hash checks. Development never authorizes live
+deployment, profile changes, or signing.
+
+The development UI stability pass is owned by `docs/ui-stability.md`. Keep one
+visible-page refresh loop, silent unchanged presentation reads and stable DOM
+identity. Retained UI data only queues intent through the ordinary Core gate;
+initial loading, failure and uncertainty remain conservative. Signed 0.1.15 stays
+frozen and no release/deployment operation is authorized by this pass.
+
+The user subsequently authorizes unsigned 0.1.16 release preparation containing
+the UI stability fixes. `docs/firefox-private-release.md` owns packaging and
+verification. Keep signed 0.1.13–0.1.15 frozen; signing, submission and installed
+Firefox changes remain separate user operations.
 
 Current user instructions take precedence over this packet. Requirements and settled decisions are distinguished from proposals in the foundation. Historical Zenith behavior is not authority for Atlas.
 

@@ -64,12 +64,12 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
         client.script('gBrowser.selectedBrowser.loadURI(Services.io.newURI(arguments[0]), {triggeringPrincipal:Services.scriptSecurityManager.getSystemPrincipal()});', ui_url)
         client.call('Marionette:SetContext', value='content')
         try:
-            wait_for(lambda: client.script('return location.href === arguments[0] && document.readyState === "complete";', ui_url), 'productization UI returns')
+            wait_for(lambda: client.script('return location.href.split(/#/,1)[0] === arguments[0] && document.readyState === "complete";', ui_url), 'productization UI returns')
         except AssertionError:
             print('Isolated reload probe:', client.script('return {protocol:location.protocol,hostname:location.hostname,path:location.pathname,title:document.title,ready:document.readyState,extensionAPI:typeof browser};'), flush=True)
             raise
         ui_handle = client.call('WebDriver:GetWindowHandle')
-        wait_for(lambda: view()['controller']['status'] == 'READY', 'productization authority reconciles')
+        wait_for(lambda: (view()['controller'] or {}).get('status') == 'READY', 'productization authority reconciles')
 
     def open_url(path='/begin-login'):
         view()
@@ -90,93 +90,20 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     assert client.script('return !document.getElementById("destination-search").hidden;')
     wait_for(lambda: client.script('return document.querySelectorAll("#destination-list .destination-card").length > 0;'), 'destination cards')
     sidebar_authority = snapshot()
-    assert client.script('return [...document.querySelectorAll(".sidebar-nav button")].map(button => button.id);') == ['show-home', 'show-settings']
-    assert client.script('return document.getElementById("sidebar-toggle").getAttribute("aria-controls") === "atlas-sidebar";')
-    expanded = client.script('''
-      return {state:document.body.dataset.sidebar,
-        width:document.getElementById('atlas-sidebar').getBoundingClientRect().width,
-        mainLeft:document.getElementById('main-content').getBoundingClientRect().left,
-        named:[...document.querySelectorAll('.sidebar-nav button')].every(button => button.getAttribute('aria-label') === button.title && ['Home','Settings'].includes(button.title)),
-        labels:[...document.querySelectorAll('.nav-label')].every(label => label.getBoundingClientRect().width > 0)};
-    ''')
-    assert expanded['state'] == 'expanded' and abs(expanded['width'] - 216) < 1 and expanded['named'] and expanded['labels'], expanded
-    client.script('document.getElementById("sidebar-toggle").focus(); document.getElementById("sidebar-toggle").click();')
-    wait_for(lambda: client.script('return Math.abs(document.getElementById("atlas-sidebar").getBoundingClientRect().width - 80) < 1;'), 'collapsed sidebar finishes layout transition')
-    collapsed = client.script('''
-      return {state:document.body.dataset.sidebar,
-        width:document.getElementById('atlas-sidebar').getBoundingClientRect().width,
-        mainLeft:document.getElementById('main-content').getBoundingClientRect().left,
-        expanded:document.getElementById('sidebar-toggle').getAttribute('aria-expanded'),
-        label:document.getElementById('sidebar-toggle').getAttribute('aria-label'),
-        labelsHidden:[...document.querySelectorAll('.nav-label')].every(label => label.getBoundingClientRect().width === 0),
-        current:document.getElementById('show-home').getAttribute('aria-current')};
-    ''')
-    assert collapsed['state'] == 'collapsed' and abs(collapsed['width'] - 80) < 1, collapsed
-    assert collapsed['mainLeft'] < expanded['mainLeft'] and collapsed['expanded'] == 'false' and collapsed['label'] == 'Expand sidebar', collapsed
-    assert collapsed['labelsHidden'] and collapsed['current'] == 'page', collapsed
-    for key, expected in [(' ', 'expanded'), ('\ue007', 'collapsed')]:
-        client.call('WebDriver:PerformActions', actions=[{'type':'key', 'id':'atlas-sidebar', 'actions':[{'type':'keyDown', 'value':key}, {'type':'keyUp', 'value':key}]}])
-        assert client.script('return document.body.dataset.sidebar === arguments[0] && document.activeElement.id === "sidebar-toggle";', expected)
-    assert client.script('return localStorage.getItem("atlas-sidebar-v1");') == 'collapsed'
-    wait_for(lambda: client.script('return Math.abs(document.getElementById("atlas-sidebar").getBoundingClientRect().width - 80) < 1;'), 'keyboard collapse finishes layout transition')
-    capture('home-collapsed')
-    client.call('WebDriver:Refresh')
-    wait_for(lambda: client.script('return document.readyState === "complete" && document.getElementById("status").dataset.ready === "true";'), 'collapsed UI reload')
-    assert client.script('return document.body.dataset.sidebar === "collapsed" && document.getElementById("sidebar-toggle").getAttribute("aria-expanded") === "false";')
-    failed_sidebar = client.script('''
-      window.__atlasSidebarSend = browser.runtime.sendMessage; window.__atlasSidebarPolls = 0;
-      browser.runtime.sendMessage = function(message, ...rest) {
-        if (message?.kind === 'GET_VIEW') ++window.__atlasSidebarPolls;
-        return window.__atlasSidebarSend.call(browser.runtime, message, ...rest);
-      };
-      const before = localStorage.getItem('atlas-sidebar-v1'); const original = Storage.prototype.setItem;
-      Storage.prototype.setItem = function(key, value) {
-        if (key === 'atlas-sidebar-v1') throw new Error('synthetic unavailable presentation storage');
-        return original.call(this, key, value);
-      };
-      try { document.getElementById('sidebar-toggle').click(); }
-      finally { Storage.prototype.setItem = original; }
-      return {stored:localStorage.getItem('atlas-sidebar-v1'), before,
-        state:document.body.dataset.sidebar, expanded:document.getElementById('sidebar-toggle').getAttribute('aria-expanded')};
-    ''')
-    assert failed_sidebar == {'stored':'collapsed', 'before':'collapsed', 'state':'expanded', 'expanded':'true'}, failed_sidebar
-    try:
-        wait_for(lambda: client.script('return window.__atlasSidebarPolls > 0 && document.getElementById("status").dataset.ready === "true";'), 'UI keeps polling after sidebar preference save failure')
-    finally:
-        client.script('browser.runtime.sendMessage = window.__atlasSidebarSend; delete window.__atlasSidebarSend; delete window.__atlasSidebarPolls;')
-    assert snapshot()['policy'] == sidebar_authority['policy'] and snapshot()['configuration'] == sidebar_authority['configuration']
-    assert client.script('return document.getElementById("status").dataset.ready === "true";')
-    client.call('WebDriver:Refresh')
-    wait_for(lambda: client.script('return document.getElementById("status").dataset.ready === "true" && document.body.dataset.sidebar === "collapsed";'), 'failed sidebar save retains previous preference on reload')
-    client.script('localStorage.setItem("atlas-sidebar-v1", "invalid preference");')
-    client.call('WebDriver:Refresh')
-    wait_for(lambda: client.script('return document.getElementById("status").dataset.ready === "true";'), 'corrupt sidebar preference reload')
-    assert client.script('return document.body.dataset.sidebar === "expanded" && document.getElementById("sidebar-toggle").getAttribute("aria-expanded") === "true";')
-    client.script('document.getElementById("sidebar-toggle").click();')
-    assert client.script('return localStorage.getItem("atlas-sidebar-v1") === "collapsed";')
-    # A second same-origin document writes the preference; the parent receives
-    # native storage events rather than a synthetic event dispatched by the test.
-    client.script('''
-      const done = arguments[0]; window.__atlasSidebarStorageEvents = [];
-      window.__atlasSidebarStorageObserver = event => {
-        if (event.key === 'atlas-sidebar-v1') window.__atlasSidebarStorageEvents.push({trusted:event.isTrusted, value:event.newValue});
-      };
-      window.addEventListener('storage', window.__atlasSidebarStorageObserver);
-      const frame = document.createElement('iframe'); frame.id = 'atlas-sidebar-storage-fixture'; frame.hidden = true;
-      frame.onload = () => done(true); frame.src = 'about:blank'; document.body.append(frame);
-    ''', asynchronous=True)
-    try:
-        for preference in ['expanded', 'collapsed']:
-            client.script('document.getElementById("atlas-sidebar-storage-fixture").contentWindow.localStorage.setItem("atlas-sidebar-v1", arguments[0]);', preference)
-            wait_for(lambda: client.script('return document.body.dataset.sidebar === arguments[0] && document.getElementById("sidebar-toggle").getAttribute("aria-expanded") === String(arguments[0] === "expanded");', preference), 'native cross-document sidebar preference sync')
-        assert client.script('return window.__atlasSidebarStorageEvents;') == [{'trusted':True, 'value':'expanded'}, {'trusted':True, 'value':'collapsed'}]
-    finally:
-        client.script('document.getElementById("atlas-sidebar-storage-fixture").remove(); window.removeEventListener("storage", window.__atlasSidebarStorageObserver); delete window.__atlasSidebarStorageObserver; delete window.__atlasSidebarStorageEvents;')
+    assert client.script('return [...document.querySelectorAll(".sidebar-nav button")].map(button => button.id);') == ['show-home', 'show-sites', 'show-settings']
+    assert client.script('return !document.getElementById("sidebar-toggle") && document.getElementById("atlas-sidebar").getBoundingClientRect().width === 60;')
+    assert client.script('return [...document.querySelectorAll(".sidebar-nav button")].every(b => b.title === b.getAttribute("aria-label"));')
+    # Legacy presentation preferences cannot restore the removed expanded layout.
+    for preference in ['expanded', 'invalid preference', 'collapsed']:
+        client.script('localStorage.setItem("atlas-sidebar-v1", arguments[0]);', preference)
+        client.call('WebDriver:Refresh')
+        wait_for(lambda: client.script('return document.getElementById("status").dataset.ready === "true";'), 'permanent rail reload')
+        assert client.script('return !document.getElementById("sidebar-toggle") && document.getElementById("atlas-sidebar").getBoundingClientRect().width === 60;')
     sidebar_after = snapshot()
     assert sidebar_after['policy'] == sidebar_authority['policy'] and sidebar_after['configuration'] == sidebar_authority['configuration']
     assert sidebar_after['policyRevision'] == sidebar_authority['policyRevision'] and sidebar_after['configurationRevision'] == sidebar_authority['configurationRevision']
-    checks.append('native sidebar width, accessible icon controls, Space/Enter focus, UI reload, native cross-document storage sync, corrupt preference fallback and ephemeral layout after failed preference save')
-    print('PASS native sidebar: collapse, keyboard, persisted reload and unavailable presentation writes', flush=True)
+    checks.append('permanent 60px accessible rail, no expand control, legacy preference ignored across reload, unchanged authority')
+    print('PASS native sidebar: permanent rail, accessible controls and legacy preference compatibility', flush=True)
     wait_for(lambda: client.script('return document.querySelectorAll("#destination-list .destination-card").length > 0;'), 'destination cards after sidebar reload')
     assert client.script('return [...document.querySelectorAll(".service-mark")].every(mark => mark.textContent === "" && mark.querySelector("img.site-icon"));')
     icon_policy = snapshot()['policy']
@@ -212,11 +139,11 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     assert len(snapshot()['accessState']['grants']) == len(authority_before_pins['accessState']['grants'])
     assert client.script('return document.getElementById("access-panel").hidden;')
     assert client.script('return document.querySelector("#destination-list .service-group").dataset.category === "University";')
-    assert client.script('return document.querySelector(".category-toggle").getAttribute("aria-expanded") === "false";')
-    assert client.script('return document.querySelector(".category-toggle").closest("section").querySelectorAll(".destination-card:not([hidden])").length === 4;')
-    client.script('document.querySelector(".category-toggle").click();')
-    assert client.script('return document.querySelector(".category-toggle").getAttribute("aria-expanded") === "true" && document.querySelector(".category-toggle").closest("section").querySelectorAll(".destination-card:not([hidden])").length > 4;')
-    client.script('document.querySelector(".category-toggle").click();')
+    assert client.script('return document.querySelector(".category-toggle:not([hidden])").getAttribute("aria-expanded") === "false";')
+    assert client.script('return document.querySelector(".category-toggle:not([hidden])").closest("section").querySelectorAll(".destination-card:not([hidden])").length === Number(document.getElementById("destinations").dataset.columns);')
+    client.script('document.querySelector(".category-toggle:not([hidden])").click();')
+    assert client.script('return document.querySelector(".category-toggle:not([hidden])").getAttribute("aria-expanded") === "true" && document.querySelector(".category-toggle:not([hidden])").closest("section").querySelectorAll(".destination-card:not([hidden])").length > Number(document.getElementById("destinations").dataset.columns);')
+    client.script('document.querySelector(".category-toggle:not([hidden])").click();')
     # Presentation-storage failure cannot change pins or stop the authority UI.
     failed_pin = client.script('''
       const before = localStorage.getItem('atlas-home-pins-v1'); const original = Storage.prototype.setItem;
@@ -228,7 +155,7 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     ''')
     assert failed_pin['unchanged'] and failed_pin['count'] == 3 and 'could not be saved' in failed_pin['feedback'], failed_pin
     client.script('const pin = document.querySelector("#destination-list [data-pin-id=" + CSS.escape(arguments[0]) + "]"); pin.click(); pin.click();', 'service:webmail.kth.se')
-    assert client.script('return document.getElementById("feedback").hidden && document.querySelectorAll("#pinned-list .destination-card").length === 3;')
+    assert client.script('return !document.getElementById("feedback").hidden && document.getElementById("feedback").dataset.tone==="success" && document.getElementById("feedback").getAttribute("role")==="status" && document.querySelectorAll("#pinned-list .destination-card").length === 3;')
     # Unpin focus can scroll down to its category. Bring Pinned back into view so
     # these newly rebuilt cards enter the normal lazy icon-loading path.
     client.script('document.getElementById("show-home").click(); document.getElementById("pinned-section").scrollIntoView({block:"nearest"});')
@@ -242,9 +169,9 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     print('Curated icon presentation:', client.script('return [...document.querySelectorAll("#pinned-list .site-icon")].map(image => ({hostname:image.dataset.hostname, websiteIcon:image.src.startsWith("blob:"), decoded:image.complete && image.naturalWidth > 0}));'), flush=True)
     client.script('document.getElementById("show-settings").click();')
     capture('settings-overview')
-    client.script('document.getElementById("policy-whitelist").focus();')
-    client.script('document.getElementById("policy-whitelist").dispatchEvent(new KeyboardEvent("keydown", {key:"/", bubbles:true}));')
-    assert client.script('return !document.getElementById("settings").hidden && document.activeElement.id === "policy-whitelist";')
+    client.script('document.getElementById("journey-lifetime").focus();')
+    client.script('document.getElementById("journey-lifetime").dispatchEvent(new KeyboardEvent("keydown", {key:"/", bubbles:true}));')
+    assert client.script('return !document.getElementById("settings").hidden && document.activeElement.id === "journey-lifetime";')
     client.script('document.getElementById("show-home").click(); document.dispatchEvent(new KeyboardEvent("keydown", {key:"/", bubbles:true}));')
     assert client.script('return document.activeElement.id === "destination-search";')
     stable = client.script('''
@@ -261,6 +188,9 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     client.script('document.getElementById("show-settings").click();')
     assert client.script('return !document.getElementById("settings").hidden && document.getElementById("show-settings").getAttribute("aria-current") === "page";')
     for target, content in [('timing-settings', 'settings-form'), ('vault-section', 'vault-empty'), ('managed-section', 'managed-status'), ('diagnostics', 'diagnostic-scope')]:
+        if target == 'timing-settings':
+            assert client.script('return document.getElementById(arguments[0]).open;', target)
+            client.script('document.getElementById(arguments[0]).querySelector(":scope > summary").click();', target)
         assert client.script('return document.getElementById(arguments[0]).tagName === "DETAILS" && !document.getElementById(arguments[0]).open;', target)
         client.script('const summary = document.getElementById(arguments[0]).querySelector(":scope > summary"); summary.scrollIntoView({block:"center"}); summary.click();', target)
         assert client.script('''
@@ -276,7 +206,7 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     client.call('WebDriver:SetWindowRect', width=500, height=900)
     assert client.script('return document.documentElement.scrollWidth <= document.documentElement.clientWidth;'), 'small screen overflow'
     assert client.script('return getComputedStyle(document.querySelector(".sidebar")).position === "static";'), 'small screen navigation'
-    assert client.script('return getComputedStyle(document.getElementById("sidebar-toggle")).display === "none" && document.body.dataset.sidebar === "collapsed";'), 'small screen keeps desktop preference while hiding its toggle'
+    assert client.script('return !document.getElementById("sidebar-toggle");'), 'no expand control on small screens'
     assert client.script('return [...document.querySelectorAll(".nav-label")].every(label => label.getBoundingClientRect().width > 0);'), 'small screen keeps Home and Settings labels visible'
     capture('home-small-screen')
     client.call('WebDriver:SetWindowRect', width=350, height=900)
@@ -290,12 +220,12 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     ''')
     print('Native narrow viewport:', narrow, flush=True)
     assert narrow['scrollWidth'] <= narrow['clientWidth'], narrow
-    assert [label['text'] for label in narrow['labels']] == ['Home', 'Settings'], narrow
+    assert [label['text'] for label in narrow['labels']] == ['Home', 'Sites & Access', 'Settings'], narrow
     assert all(label['width'] > 0 and label['left'] >= 0 and label['right'] <= narrow['innerWidth'] and label['visibility'] == 'visible' for label in narrow['labels']), narrow
     checks.append(f'native narrow layout: requested 350px outer width, actual {narrow["innerWidth"]}px viewport, no horizontal overflow and fully visible Home/Settings labels')
     capture('home-narrow-screen')
     client.call('WebDriver:SetWindowRect', width=1280, height=1100)
-    wait_for(lambda: client.script('return Math.abs(document.getElementById("atlas-sidebar").getBoundingClientRect().width - 80) < 1 && document.body.dataset.sidebar === "collapsed";'), 'desktop restores collapsed sidebar after compact layout')
+    wait_for(lambda: client.script('return Math.abs(document.getElementById("atlas-sidebar").getBoundingClientRect().width - 60) < 1;'), 'desktop restores collapsed sidebar after compact layout')
     checks.append('native Home/Settings navigation and actual settings disclosures, local pin persistence, ordinary cards, search shortcut, stable DOM and small-screen layout')
     print('PASS native UI polish: sidebar, saved pins, keyboard shortcut, stable cards and small-screen layout', flush=True)
     client.script('''
@@ -379,7 +309,7 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     ''', asynchronous=True)
     restart()
     after = snapshot()
-    assert client.script('return document.body.dataset.sidebar === "collapsed" && document.getElementById("sidebar-toggle").getAttribute("aria-expanded") === "false";'), 'collapsed sidebar survives extension restart'
+    assert client.script('return !document.getElementById("sidebar-toggle") && document.getElementById("atlas-sidebar").getBoundingClientRect().width === 60;'), 'permanent rail survives extension restart'
     wait_for(lambda: client.script('return document.querySelectorAll("#pinned-list .destination-card").length === 3;'), 'pins survive extension restart')
     assert after['configuration'] == before['configuration']
     assert after['policy'] == before['policy'] and after['policyRevision'] == before['policyRevision']
@@ -396,7 +326,7 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     assert client.script('return !document.getElementById("settings").hidden && document.getElementById("workspace").hidden;')
     assert client.script('return document.getElementById("page-title").textContent === "Settings";')
     assert client.script('return document.getElementById("diagnostics") && document.getElementById("recover") && document.getElementById("propose-defaults");')
-    client.script('document.querySelector("#timing-settings > summary").click();')
+    client.script('document.getElementById("timing-settings").open=true;')
     assert client.script('return document.getElementById("timing-settings").open;')
     wait_for(lambda: client.script('return document.getElementById("vault-wait").value === "30";'), 'active settings in form')
     client.script('''
@@ -430,7 +360,10 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     unknown_id = unknown['tabId']
     unknown_handle = wait_for(lambda: next((h for h in client.call('WebDriver:GetWindowHandles') if h not in known_handles), None), 'focused access tab')
     wait_for(lambda: any(c['tabId'] == unknown_id and c['effect'] == 'REMOVED' for c in view()['contexts']), 'old-term Greylist page')
-    assert client.message({'kind':'START_ACCESS','tabId':unknown_id})['result']['type'] == 'COMMITTED'
+    prepared = client.message({'kind':'PREPARE_ACCESS','tabId':unknown_id})
+    scope = next(c for c in prepared['view']['contexts'] if c['tabId'] == unknown_id)['accessScope']
+    assert scope['status'] == 'READY' and scope['hostnames'] == ['settings-grey.localhost']
+    assert client.message({'kind':'START_ACCESS','tabId':unknown_id,'scopeId':scope['id']})['result']['type'] == 'COMMITTED'
     old_request = next(r for r in snapshot()['accessState']['pendingRequests'] if r['hostname'] == 'settings-grey.localhost')
     client.call('WebDriver:SwitchToWindow', handle=unknown_handle)
     wait_for(lambda: client.script('return document.getElementById("show-home");'), 'focused access UI')

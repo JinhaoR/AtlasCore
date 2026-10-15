@@ -195,7 +195,7 @@ def run_journey_retry(client, ui_handle, ui_url, port, wait_for, hits, artifacts
         client.call('Marionette:SetContext', value='content')
         ui_handle = client.call('WebDriver:GetWindowHandles')[-1]
         client.call('WebDriver:SwitchToWindow', handle=ui_handle)
-        wait_for(lambda: client.script('return location.href === arguments[0] && document.readyState === "complete";',ui_url), 'new UI')
+        wait_for(lambda: client.script('return location.href.split(/#/,1)[0] === arguments[0] && document.readyState === "complete";',ui_url), 'new UI')
         wait_for(lambda: view()['controller']['status'] == 'READY','recovered authority')
         ended = next(j for j in view()['controller']['snapshot']['journeyState']['journeys'] if j['id'] == old_id)
         assert ended['phase'] == 'ENDED' and ended['endReason'] == 'CONTEXT_CLOSED'

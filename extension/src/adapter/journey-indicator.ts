@@ -6,8 +6,8 @@ import { countdown } from '../ui/presentation.js';
 export function journeyPresentation(view: AtlasControllerView | null, journey: Journey | null, now: number):
   { journeyId: number; destinationLabel: string; expiresAt: number } | null {
   journey = view?.snapshot?.journeyState.journeys.find((entry) => entry.id === journey?.id && entry.contextId === journey?.contextId) ?? null;
-  // COMMITTING retains the last verified saved snapshot; it is not a candidate permission.
-  if ((view?.status !== 'READY' && view?.status !== 'COMMITTING') || journey === null || journey.phase === 'ENDED'
+  // Reads and commits retain the acknowledged snapshot, never a candidate permission.
+  if (!view?.snapshot || !['READY', 'LOADING', 'COMMITTING'].includes(view.status) || journey === null || journey.phase === 'ENDED'
     || journey.policyRevision !== view.snapshot?.policyRevision
     || !Number.isSafeInteger(now) || now < journey.startedAt || now >= journey.expiresAt) return null;
   return { journeyId: journey.id, destinationLabel: serviceLabel(journey.rootHostname), expiresAt: journey.expiresAt };
@@ -22,7 +22,7 @@ export function journeyIndicator(view: AtlasControllerView | null, journey: Jour
 export function journeyRetry(view: AtlasControllerView | null, journey: Journey | null):
   { journeyId: number; rootHostname: string; destinationLabel: string; endReason: Journey['endReason'] } | null {
   journey = view?.snapshot?.journeyState.journeys.find((entry) => entry.id === journey?.id && entry.contextId === journey?.contextId) ?? null;
-  if ((view?.status !== 'READY' && view?.status !== 'COMMITTING') || !view.snapshot || journey === null || journey.phase !== 'ENDED'
+  if (!['READY', 'LOADING', 'COMMITTING'].includes(view?.status ?? '') || !view?.snapshot || journey === null || journey.phase !== 'ENDED'
     || ['REACHED', 'RETURNED', 'DESTINATION_CHANGED', 'CONTEXT_CLOSED'].includes(journey.endReason!)
     || evaluate(journey.rootHostname, view.snapshot.policy).reason !== 'WHITELISTED') return null;
   return { journeyId: journey.id, rootHostname: journey.rootHostname, destinationLabel: serviceLabel(journey.rootHostname), endReason: journey.endReason };

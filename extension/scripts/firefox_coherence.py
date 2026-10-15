@@ -20,15 +20,14 @@ def run_coherence(client, ui_handle, ui_url, port, wait_for, artifacts):
     baseline = snapshot()
     client.script('document.getElementById("show-settings").click();')
     capture('coherence-settings-overview')
-    assert client.script('return !document.getElementById("timing-settings").open;')
-    client.script('document.querySelector("#timing-settings > summary").click();')
     assert client.script('return document.getElementById("timing-settings").open && document.getElementById("show-settings").getAttribute("aria-current") === "page";')
+    client.script('document.getElementById("show-sites").click(); document.getElementById("add-site").click();')
     drafts = client.script('''
-      const white = document.getElementById('policy-whitelist');
-      const black = document.getElementById('policy-blacklist');
-      white.value += '\\ndraft.localhost'; black.value += '\\ndraft-deny.localhost';
+      const host = document.getElementById('site-hostname');
+      const name = document.getElementById('site-name');
+      host.value = 'draft.localhost'; name.value = 'Unsaved draft';
       document.getElementById('access-wait').value = '1.001';
-      return {white:white.value, black:black.value, wait:document.getElementById('access-wait').value};
+      return {host:host.value, name:name.value, wait:document.getElementById('access-wait').value};
     ''')
     # Fail this UI page's transport only. Background authority and IndexedDB stay intact.
     client.script('''
@@ -45,17 +44,18 @@ def run_coherence(client, ui_handle, ui_url, port, wait_for, artifacts):
     try:
         wait_for(lambda: client.script('return window.__atlasUiFailedPolls > 0 && document.getElementById("status").textContent === "Atlas is unavailable";'), 'UI observes unavailable authority')
         unavailable = client.script('''
-          return {white:document.getElementById('policy-whitelist').value,
-            black:document.getElementById('policy-blacklist').value,
+          return {host:document.getElementById('site-hostname').value,
+            name:document.getElementById('site-name').value,
             wait:document.getElementById('access-wait').value,
-            disabled:['propose-policy','propose-settings','confirm-policy'].every(id => document.getElementById(id).disabled)};
+            disabled:['propose-site','propose-settings','confirm-policy'].every(id => document.getElementById(id).disabled)};
         ''')
         assert {key: unavailable[key] for key in drafts} == drafts, unavailable
         assert unavailable['disabled'], unavailable
     finally:
         client.script('browser.runtime.sendMessage = window.__atlasUiTransport; delete window.__atlasUiTransport; delete window.__atlasUiFailedPolls;')
     wait_for(lambda: client.script('return document.getElementById("status").dataset.ready === "true";'), 'UI authority reconnects')
-    assert client.script('return {white:document.getElementById("policy-whitelist").value, black:document.getElementById("policy-blacklist").value, wait:document.getElementById("access-wait").value};') == drafts
+    assert client.script('return {host:document.getElementById("site-hostname").value, name:document.getElementById("site-name").value, wait:document.getElementById("access-wait").value};') == drafts
+    client.script('document.getElementById("cancel-site-draft").click(); document.getElementById("show-settings").click();')
     assert snapshot()['policy'] == baseline['policy']
     assert snapshot()['configuration'] == baseline['configuration']
     checks.append('unsaved policy/timing drafts survive unavailable authority and reconnect; commands stay disabled')

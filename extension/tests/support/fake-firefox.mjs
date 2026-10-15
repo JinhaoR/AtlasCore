@@ -18,8 +18,9 @@ export class FakeFirefox {
   failRemove = false;
   autoArriveUI = true;
   runtime = { id: 'atlas-test', getURL: (path) => `moz-extension://atlas-test/${path}`, onMessage: new Event() };
-  webRequest = { onBeforeRequest: new Event(), onErrorOccurred: new Event(), onBeforeRedirect: new Event() };
-  webNavigation = { onCommitted: new Event(), onHistoryStateUpdated: new Event(), onReferenceFragmentUpdated: new Event() };
+  webRequest = { onBeforeRequest: new Event(), onErrorOccurred: new Event(), onBeforeRedirect: new Event(),
+    onBeforeSendHeaders: new Event(), onHeadersReceived: new Event(), onCompleted: new Event() };
+  webNavigation = { onCommitted: new Event(), onHistoryStateUpdated: new Event(), onReferenceFragmentUpdated: new Event(), onCreatedNavigationTarget: new Event() };
   badges = new Map();
   titles = new Map();
   badgeUpdates = [];
@@ -93,7 +94,11 @@ export class FakeFirefox {
     this.webNavigation.onCommitted.emit({ tabId: id, frameId: 0, url, timeStamp: this.eventTime++, ...options });
   }
   async visit(id, url, options = {}) {
-    const result = await this.request(id, url, options);
+    let result = await this.request(id, url, options);
+    const details = this.requests.get(id);
+    if (!result.cancel) result = await this.webRequest.onBeforeSendHeaders.emit({ ...details, requestHeaders: [] })[0];
+    if (!result.cancel) result = await this.webRequest.onHeadersReceived.emit({ ...details, statusCode: 200,
+      responseHeaders: [{ name: 'Content-Type', value: 'text/html' }] })[0];
     if (!result.cancel) this.arrive(id, url);
     await this.flush();
     return result;

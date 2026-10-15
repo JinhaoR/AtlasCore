@@ -4,7 +4,8 @@ export interface DiagnosticEntry {
   readonly sequence: number;
   readonly at: number | null;
   readonly event: 'REQUEST' | 'REDIRECT' | 'DECISION' | 'RELEASED' | 'ARRIVED' | 'SUPERSEDED'
-    | 'FAILED' | 'CONTEXT_CLOSED' | 'COMMAND' | 'CONTENT_REMOVED';
+    | 'FAILED' | 'CONTEXT_CLOSED' | 'COMMAND' | 'CONTENT_REMOVED'
+    | 'DOWNLOAD_PREPARED' | 'DOWNLOAD_FETCH' | 'DOWNLOAD_FILE' | 'DOWNLOAD_BLOCKED' | 'DOWNLOAD_FINISHED';
   readonly tabId: number;
   readonly contextId: string;
   readonly navigationId: number;

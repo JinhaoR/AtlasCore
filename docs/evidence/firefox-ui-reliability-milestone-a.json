@@ -1,0 +1,217 @@
+{
+  "date": "2026-10-11",
+  "version": "0.1.13",
+  "coreTests": {
+    "passed": 191,
+    "failed": 0
+  },
+  "extensionTests": {
+    "passed": 245,
+    "failed": 0,
+    "newUiRegressions": 19
+  },
+  "typechecks": "Core and extension pass",
+  "developmentBuild": "pass",
+  "distributionVerification": "pass",
+  "native": {
+    "milestoneA": {
+      "artifacts": ".tools/firefox-e2e-pyt03ub3",
+      "result": {
+        "firefox": "157.0.1",
+        "checks": [
+          "failed authority query retains labelled stale cards, hides fake empty messages, disables openings and recovers",
+          "rendered exact-host click goes through adapter/Core, aliases stay exact, service names default and ambiguous entry points are separate",
+          "failed rendered display save preserves draft, no false saved values, explicit retry, focus return and reload persistence",
+          "saved proposal and waiting/ready/committed states, pending Sites explanation and link, routine status semantics",
+          "actual Core commit with failed accompanying display write reports partial success and retries display without another proposal",
+          "genuine empty collection is distinct from unavailable and recovers through ordinary protected policy changes"
+        ],
+        "profile": "isolated synthetic fixture",
+        "signedReleaseModified": false
+      }
+    },
+    "coherence": {
+      "artifacts": ".tools/firefox-e2e-o8is63e0",
+      "result": {
+        "firefox": "157.0.1",
+        "extensionVersion": "0.1.13",
+        "checks": [
+          "unsaved policy/timing drafts survive unavailable authority and reconnect; commands stay disabled",
+          "fractional millisecond draft cannot create a Vault proposal or change active settings",
+          "explicit navigation clears stale feedback; search/Escape retain focus; responsive Home has no horizontal overflow",
+          "current destination and Home move focus to their visible content",
+          "native internal replacement clears root evidence; next unknown site gets no Journey or grant",
+          "Greylist request preserves wait; hidden action transfers focus to access heading"
+        ]
+      }
+    },
+    "destinationPolish": {
+      "artifacts": ".tools/firefox-e2e-q1uv18jp",
+      "result": {
+        "firefox": "157.0.1",
+        "checks": [
+          "54px launchers, one responsive preview row, two to five columns in tested windows, maximum five per row, stable cards and permanent 60px accessible rail",
+          "Journey lifetime visible, old-term Vault wait, no early application, saved explicit confirmation",
+          "Sites search/details, explicit PSL www pair, freeze/cancel/commit, presentation-only edit, Blacklist and removal through Vault",
+          "native timeout returns recorded origin; HTTP, immediate JS and same-origin meta-refresh cannot renew; explicit Restart and real address-bar document arrival allow subsequent attempts without grants",
+          "real IndexedDB settings restart, metadata/ranking reload, failed presentation write without permission changes and 500px Home/Sites without horizontal overflow"
+        ],
+        "metrics": {
+          "rail": 60,
+          "card": 54,
+          "names": true,
+          "hiddenHosts": true
+        },
+        "layouts": [
+          {
+            "width": 500,
+            "columns": 2,
+            "expected": 2,
+            "counts": [
+              2,
+              2,
+              1,
+              1,
+              2,
+              2,
+              1
+            ],
+            "singleRow": true,
+            "maxRow": 2,
+            "fixedHeight": true,
+            "sameCard": true,
+            "overflow": false
+          },
+          {
+            "width": 800,
+            "columns": 3,
+            "expected": 3,
+            "counts": [
+              2,
+              3,
+              1,
+              1,
+              3,
+              2,
+              1
+            ],
+            "singleRow": true,
+            "maxRow": 3,
+            "fixedHeight": true,
+            "sameCard": true,
+            "overflow": false
+          },
+          {
+            "width": 1000,
+            "columns": 4,
+            "expected": 4,
+            "counts": [
+              2,
+              4,
+              1,
+              1,
+              4,
+              2,
+              1
+            ],
+            "singleRow": true,
+            "maxRow": 4,
+            "fixedHeight": true,
+            "sameCard": true,
+            "overflow": false
+          },
+          {
+            "width": 1440,
+            "columns": 5,
+            "expected": 5,
+            "counts": [
+              2,
+              5,
+              1,
+              1,
+              4,
+              2,
+              1
+            ],
+            "singleRow": true,
+            "maxRow": 5,
+            "fixedHeight": true,
+            "sameCard": true,
+            "overflow": false
+          },
+          {
+            "width": 2100,
+            "columns": 5,
+            "expected": 5,
+            "counts": [
+              2,
+              5,
+              1,
+              1,
+              4,
+              2,
+              1
+            ],
+            "singleRow": true,
+            "maxRow": 5,
+            "fixedHeight": true,
+            "sameCard": true,
+            "overflow": false
+          }
+        ]
+      }
+    },
+    "productization": {
+      "artifacts": ".tools/firefox-e2e-r87k8jox",
+      "result": {
+        "firefox": "157.0.1",
+        "productization": {
+          "checks": [
+            "permanent 60px accessible rail, no expand control, legacy preference ignored across reload, unchanged authority",
+            "native online website icons, observed favicon on a custom host, decoded image rendering and no letter tiles",
+            "unpinning a focused Pinned card moves focus to its visible destination pin",
+            "native narrow layout: requested 350px outer width, actual 500px viewport, no horizontal overflow and fully visible Home/Settings labels",
+            "native Home/Settings navigation and actual settings disclosures, local pin persistence, ordinary cards, search shortcut, stable DOM and small-screen layout",
+            "native local search, aliases, blacklist exclusion, keyboard selection and ordinary gate",
+            "native atomic schema-1 migration, unchanged policy/runtime terms and frozen pending policy wait",
+            "native per-tab badge/title, cancellation, expiry and restart clearing",
+            "native old-term settings wait, explicit confirmation, atomic activation and frozen Access/Journey terms",
+            "native committed settings and pending proposal restart",
+            "Home/Settings preserve policy, managed list, Vault, diagnostics and recovery tools"
+          ],
+          "configurationRevision": 1
+        }
+      }
+    }
+  },
+  "signedRelease": {
+    "offlineVerification": "pass",
+    "sha256": "8eaa4607fec0931f3ddd66cea732a0831750404bdbb36b11eaa7b878c6fbada0",
+    "exactRuntimeHashes": 13,
+    "totalRuntimeFiles": 14,
+    "manifest": "Original JSON tokens; permitted whitespace changes only",
+    "artifactsModified": false,
+    "mozillaSubmission": false
+  },
+  "compatibility": {
+    "coreSourceChanged": false,
+    "storageMigrationChanged": false,
+    "extensionIdentity": "atlas-development@atlas.invalid",
+    "releaseVersionChanged": false,
+    "normalProfileModified": false,
+    "enterprisePoliciesModified": false,
+    "installedXpiReplaced": false
+  },
+  "verificationCorrections": [
+    "Initial page-local storage failure injection could be completed by a second Atlas page; the focused fixture closes additional pages before injection. Cross-page retry recovery is separately tested.",
+    "Restart integration test now waits for the rendered verified Sites list.",
+    "Pin-save integration assertion now checks the new polite success feedback.",
+    "Productization caught rejection of partial www.github search; fixed using the existing Public Suffix List, with a regression assertion."
+  ],
+  "limitations": [
+    "Initial unavailable collection state is covered by model/Sites handler tests; native Home failure is injected after a verified load.",
+    "No full screen-reader or physical disk-failure validation.",
+    "Remote search target passes through Core; real authenticated remote website completion is not asserted.",
+    "Unsaved draft fields remain page-local until a write succeeds; batch and persistent draft workflows remain deferred."
+  ]
+}

@@ -2,6 +2,10 @@
 
 Status: Milestones 1 through 3, D11 Journeys, and D13 aggregate planning implement pure domain logic. D14 adds a controller with repository/clock ports. D15 authorizes the first Firefox adapter and transactional repository; its scope and evidence are tracked in the adapter document. Context Whitelist and broader models remain deferred.
 
+**D30 settled direction (2026-10-04):** Firefox presents destinations/services while Core keeps exact-host authority. Sites policy changes use existing Vault; display metadata and local ranking carry no permissions. Journey timeout returns the owning tab to its recorded trusted origin under current policy, without automatic Journey renewal. Optional apex/www terms are disclosed in new/edit drafts and never migrate into saved policy silently. See [destination-polish.md](destination-polish.md) for the contract and evidence.
+
+**D31 settled direction (2026-10-04):** The user removes desktop sidebar expansion and requests a permanent icon rail. Home category previews adapt to available width, stay one row tall and show at most five destinations; explicit Show all may reveal more rows. Cards keep their height. This changes presentation only; policy, ranking and pins retain their existing rules. [ui-design.md](ui-design.md) owns the behavior and browser evidence.
+
 ## How to read status labels
 
 **Requirements** describe the user's requested product and its essential correctness properties. **Decisions already made** record explicit direction or clarification. **Proposed architecture** records recommendations that still need adoption. **Open questions** identify behavior that must not be guessed during implementation.
@@ -65,6 +69,64 @@ The interface needs stable decision reasons and the relevant deadlines. Presenta
 Build a fresh application-independent core using Zenith as a source of lessons. Do not migrate its implementation directly. Additional systems must solve an agreed Atlas requirement rather than reproduce historical machinery.
 
 ## Decisions already made
+
+**0.1.16 release preparation (2026-10-13):** The user authorizes packaging the
+completed UI stability fixes for a future signed update. The
+[release guide](firefox-private-release.md#0116-release-candidate) owns validation
+and in-place update instructions. Core semantics, permissions, storage formats,
+installed profiles and signed 0.1.13–0.1.15 assets remain unchanged. This authorizes
+unsigned preparation; Mozilla submission and installation are separate actions.
+
+**Local Windows deployment (2026-10-12):** The user authorizes reusable deployment
+tooling and isolated testing, with no live installation changes. The
+[deployment contract](windows-deployment.md) reuses offline signed-release
+verification, preserves identity/data/policy, and requires hash-checked atomic
+replacement after standard UAC. Signing and actual deployment remain separate
+explicit user operations.
+
+**Release preparation (2026-10-12):** After Milestone D, the user authorizes
+packaging the existing 0.1.15 version for signing and a future in-place update.
+The [release guide](firefox-private-release.md#0115-release-candidate) owns source/
+runtime verification and update instructions. This lifts the packaging deferral
+for 0.1.15 only. Signed 0.1.14, installed profiles and enterprise policies remain
+unchanged; signing and submission are separate user actions.
+
+**Milestone D (2026-10-12):** The user authorizes visual consistency and targeted
+accessibility repairs through the existing Firefox UI. The
+[visual contract](visual-polish.md) owns tokens, rendered comparisons and evidence.
+All A/B/C workflows, storage formats, Core semantics and release boundaries remain.
+This supersedes the prior visual-polish deferral; signing and packaging are deferred.
+
+**Milestone C (2026-10-12):** The user authorizes Home category order, visibility,
+collapse, current access links and targeted Sites navigation improvements. The
+[Home contract](home-organization.md) owns presentation storage/migration and
+concurrency. This supersedes the Home deferral in Milestone B; visual redesign
+remains deferred. Core, releases and browser enterprise policies are unchanged.
+
+**Downloads (2026-10-12):** The user authorizes a narrowly bounded Download Intent
+from an authorized page, including correlated new-tab and HTTP redirect paths.
+The [download contract](firefox-downloads.md) owns response-before-display checks,
+fixed lifetime, replay/restart invalidation and unsupported mechanisms. This
+extends Q12's download coverage only as documented; Journey is not inherited.
+
+**Milestone A (2026-10-11):** The user authorizes focused UI reliability repairs,
+with no authorization or release changes. [The reliability contract](ui-reliability.md)
+owns presentation acknowledgment/retry, exact search intent, unavailable versus empty
+state and trustworthy feedback. Batch drafts and category redesign remain deferred.
+
+**Milestone B (2026-10-11):** The user now authorizes unified destination editing,
+persistent local batch drafts, one existing Vault proposal for a complete candidate,
+destination-oriented review, explicit stale-draft reconciliation and consistent
+category identity. [The destination contract](destination-polish.md#milestone-b-destination-batch-drafts)
+owns these extension-only changes. This supersedes the earlier batch deferral,
+preserves Milestone A's reliability, and changes no authorization semantics or
+installed/signed artifacts. Milestone C subsequently authorizes Home organization;
+general visual redesign remains deferred.
+
+D32 adds [private Firefox release packaging](firefox-private-release.md) around the
+existing adapter. Identity is retained; unlisted signing is separately authorized.
+Packaging changes no access semantics, protected settings or storage migrations.
+Portable restores use existing Vault confirmation, not imported runtime authority.
 
 | ID | Decision | Basis |
 | --- | --- | --- |
@@ -200,7 +262,7 @@ The [aggregate planner contract](architecture.md#aggregate-planner-d13) owns D13
 | Q9 | D15 injects the host wall clock and persists Core checkpoints. Clock rollback fails closed. Trusted-time recovery and detection of whole-state rollback remain open; there is no time server. | Stronger production clock/recovery requirements. |
 | Q10 | D15 adopts explicit one-time setup in an empty repository and blocks corrupt/missing initialized records. D19 explicitly migrates known valid schema-1 snapshots atomically. Broader backup/recovery and future migrations remain open; no destructive reset UI is provided. | Recovery or schema evolution. |
 | Q11 | Which audit events are useful, how long are they retained, and how can they be removed without resetting policy? | Persisted history. |
-| Q12 | D15 selects Firefox and exposed top-level HTTP(S) navigation, with later observation of retained/restored content. Protected/internal pages, private browsing, downloads, non-HTTP schemes, and embedded content are outside the slice. | Broader browser coverage or another frontend. |
+| Q12 | D15 selects Firefox and exposed top-level HTTP(S) navigation, with later observation of retained/restored content. The 0.1.15 [Download Intent contract](firefox-downloads.md) adds only correlated activated top-level GET/file responses. Protected/internal pages, private browsing, other download mechanisms, non-HTTP schemes and embedded content remain outside the slice. | Broader browser coverage or another frontend. |
 | Q13 | Resolved by D19/D22/D25: bounded HTTP redirects and destination-arrival completion, one browser-attested loaded-root departure, and bounded intermediate POST continuations. Later unfamiliar GETs stay under ordinary policy. | Revisit only for a reproducible failure or practical bypass during actual use. |
 
 Resolve the questions that block the current small milestone, document the answer and test it. Optional future features remain deferred.

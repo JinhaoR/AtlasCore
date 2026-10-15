@@ -3,6 +3,7 @@ import { FirefoxAdapter } from '../adapter/firefox-adapter.js';
 import { openRepository } from '../storage/indexeddb-repository.js';
 import { configuration } from './configuration.js';
 import { createAdapterHost } from './startup.js';
+import { saveDestinationLaunch } from './destination-usage.js';
 import { createCanonicalEntryDiscovery } from '../adapter/canonical-entry.js';
 import { openManagedCache } from '../storage/managed-cache.js';
 import { createManagedBlacklist, downloadStevenBlack, sha256 } from '../managed/manager.js';
@@ -37,7 +38,11 @@ const host = async () => {
     managed = value.managed;
     return value;
 };
-const adapter = new FirefoxAdapter(browser, host, () => crypto.randomUUID(), now, undefined, undefined, createCanonicalEntryDiscovery(browser));
+const adapter = new FirefoxAdapter(browser, host, () => crypto.randomUUID(), now, undefined, undefined, createCanonicalEntryDiscovery(browser), (hostname, at) => {
+    const policy = adapter.view().controller?.snapshot?.policy;
+    if (policy)
+        saveDestinationLaunch(localStorage, policy, hostname, at);
+});
 void adapter.ready.then(async () => {
     await adapter.refresh();
     void managed?.refresh().catch(() => undefined);

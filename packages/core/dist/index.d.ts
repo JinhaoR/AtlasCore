@@ -19,3 +19,5 @@ export type { AtlasClock, AtlasEnvelope, AtlasLoadResult, AtlasCommitRequest, At
 export type { AtlasControllerStatus, AtlasControllerError, AtlasControllerView, AtlasControllerResponse, AtlasControllerOptions, AtlasController, } from "./atlas-controller-models.js";
 export { createAtlasController } from "./atlas-controller.js";
 export { readConfiguration } from "./configuration.js";
+export type { DownloadIntent, DownloadOperation, DownloadResult } from './download.js';
+export { DOWNLOAD_LIFETIME_MS, DOWNLOAD_MAX_REDIRECTS } from './download.js';

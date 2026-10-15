@@ -3,9 +3,10 @@ import { Diagnostics } from './diagnostics.js';
 import { compileCuratedWhitelist } from '../presets/curated-whitelist.js';
 import { equivalentServiceHostnames } from '../presets/access-aliases.js';
 import { journeyIndicator, journeyPresentation, journeyRetry } from './journey-indicator.js';
-import { temporaryAccessView } from './temporary-access.js';
+import { temporaryAccessView, pendingAccessView } from './temporary-access.js';
 import { canonicalDiscoveryOrigin, canonicalEntryCounterpart } from './canonical-entry.js';
 import { startupFailure, StartupError } from './startup-status.js';
+import { downloadRedirectUrl, hasUserActivation, isAttachment, isHttpRedirect } from './download-response.js';
 function destination(url) {
     if (!/^https?:\/\//i.test(url))
         return null;
@@ -26,6 +27,7 @@ export class FirefoxAdapter {
     schedule;
     unschedule;
     discoverCanonicalEntry;
+    onDestinationLaunch;
     contexts = new Map();
     queue = Promise.resolve();
     host = null;
@@ -35,9 +37,10 @@ export class FirefoxAdapter {
     nextNavigation = 0;
     nextAccessScope = 0;
     diagnostics = new Diagnostics();
+    downloadTargets = new Map();
     ready;
     uiUrl;
-    constructor(api, hostSource, newContextId, now, schedule = (callback, delay) => setTimeout(callback, delay), unschedule = (id) => clearTimeout(id), discoverCanonicalEntry) {
+    constructor(api, hostSource, newContextId, now, schedule = (callback, delay) => setTimeout(callback, delay), unschedule = (id) => clearTimeout(id), discoverCanonicalEntry, onDestinationLaunch) {
         this.api = api;
         this.hostSource = hostSource;
         this.newContextId = newContextId;
@@ -45,11 +48,16 @@ export class FirefoxAdapter {
         this.schedule = schedule;
         this.unschedule = unschedule;
         this.discoverCanonicalEntry = discoverCanonicalEntry;
+        this.onDestinationLaunch = onDestinationLaunch;
         this.uiUrl = api.runtime.getURL('ui/index.html');
         // Listeners are installed synchronously, before loading authority.
         api.webRequest.onBeforeRequest.addListener(this.beforeRequest, { urls: ['http://*/*', 'https://*/*'], types: ['main_frame'] }, ['blocking']);
         api.webRequest.onErrorOccurred.addListener(this.requestFailed, { urls: ['http://*/*', 'https://*/*'], types: ['main_frame'] });
         api.webRequest.onBeforeRedirect.addListener(this.redirected, { urls: ['http://*/*', 'https://*/*'], types: ['main_frame'] });
+        api.webRequest.onBeforeSendHeaders.addListener(this.downloadSending, { urls: ['http://*/*', 'https://*/*'], types: ['main_frame'] }, ['blocking', 'requestHeaders']);
+        api.webRequest.onHeadersReceived.addListener(this.downloadResponse, { urls: ['http://*/*', 'https://*/*'], types: ['main_frame'] }, ['blocking', 'responseHeaders']);
+        api.webRequest.onCompleted.addListener(this.downloadFinished, { urls: ['http://*/*', 'https://*/*'], types: ['main_frame'] });
+        api.webNavigation.onCreatedNavigationTarget.addListener(this.downloadTargetCreated);
         api.webNavigation.onCommitted.addListener(this.arrived);
         api.webNavigation.onHistoryStateUpdated.addListener(this.changed);
         api.webNavigation.onReferenceFragmentUpdated.addListener(this.changed);
@@ -119,8 +127,8 @@ export class FirefoxAdapter {
         if (context === undefined) {
             context = { tabId, id: this.newContextId(), generation: 0, flight: null, launching: false,
                 requested: null, displayed: null, displayedDecision: null, latest: null,
-                effect: 'NONE', removalTimer: null, lastArrival: -1, navigationId: 0, badge: '', pill: '', rootOrigin: null,
-                accessScope: null };
+                effect: 'NONE', removalTimer: null, lastArrival: -1, navigationId: 0, badge: '', pill: '', pillSentAt: null, rootOrigin: null,
+                accessScope: null, launchIntent: false, timeoutReturn: null };
             this.contexts.set(tabId, context);
         }
         return context;
@@ -193,9 +201,13 @@ export class FirefoxAdapter {
     publishJourney(context) {
         const presentation = this.pageJourney(context);
         const key = JSON.stringify([context.generation, presentation]);
-        if (context.pill === key)
+        const now = this.now();
+        // Active display receives a heartbeat from the existing Core recheck, rather
+        // than a second content-script polling loop. Its original deadline never moves.
+        if (context.pill === key && (presentation === null || context.pillSentAt !== null && now - context.pillSentAt < 1000))
             return;
         context.pill = key;
+        context.pillSentAt = now;
         // Passive display only. Content scripts have no privileged command channel.
         void this.api.tabs.sendMessage(context.tabId, { kind: 'ATLAS_JOURNEY_DISPLAY', presentation }, { frameId: 0 })
             .catch(() => { if (context.pill === key)
@@ -243,14 +255,22 @@ export class FirefoxAdapter {
             return Promise.resolve({ cancel: true });
         const context = this.context(details.tabId);
         const previous = context.flight;
-        const correlated = previous !== null && previous.released && previous.requestId === details.requestId
+        const correlated = previous !== null && (previous.released || previous.download?.intent?.phase === 'REQUESTING') && previous.requestId === details.requestId
             && previous.redirectUrl === withoutFragment(details.url) && previous.timeStamp <= details.timeStamp;
         const initiator = details.originUrl === undefined ? null : destination(details.originUrl);
+        const targetEvidence = this.downloadTargets.get(details.tabId);
+        this.downloadTargets.delete(details.tabId); // First request consumes lineage, even if it does not match.
+        const downloadSource = targetEvidence && targetEvidence.url === withoutFragment(details.url)
+            && targetEvidence.timeStamp <= details.timeStamp && this.now() >= targetEvidence.at && this.now() - targetEvidence.at < 3000
+            && targetEvidence.source.document.origin === initiator?.origin ? targetEvidence.source
+            : previous === null && initiator?.origin === context.displayed?.origin ? this.captureDownloadSource(context) : null;
         const sourceDocument = context.displayed;
         const sourceAuthority = context.displayedDecision;
         if (context.flight !== null && (!context.flight.released || context.flight.requestId !== details.requestId))
             this.trace('SUPERSEDED', context);
         const generation = ++context.generation;
+        const launchIntent = context.launchIntent;
+        context.launchIntent = false;
         context.navigationId = ++this.nextNavigation;
         context.launching = false;
         this.clearRemoval(context);
@@ -258,8 +278,14 @@ export class FirefoxAdapter {
         const flight = { requestId: details.requestId, url: withoutFragment(details.url),
             timeStamp: details.timeStamp, destination: destination(details.url), released: false, journeyId: null, authority: null, redirectUrl: null,
             method: details.method === 'GET' || details.method === 'POST' ? details.method : 'OTHER',
-            sourceHostname: initiator?.target.hostname ?? null, continuationKind: null };
+            sourceHostname: initiator?.target.hostname ?? null, continuationKind: null, launchRecorded: false, syntheticReturn: false,
+            download: correlated && previous.download !== null && !previous.download.consumed ? previous.download
+                : downloadSource && details.method === 'GET' ? { source: downloadSource, operationId: this.newContextId(),
+                    intent: null, exceptional: false, redirectResponse: null, consumed: false } : null,
+            fileResponse: false, downloadAuthorityFailed: false };
         context.flight = flight;
+        if (flight.download)
+            flight.download.redirectResponse = null;
         context.requested = flight.destination;
         this.trace('REQUEST', context, null);
         // Invalidate earlier work before joining the queue, including a result waiting on a save.
@@ -267,6 +293,14 @@ export class FirefoxAdapter {
             if (!this.live(context, generation))
                 return { cancel: true };
             const active = this.journey(context);
+            const timeout = context.timeoutReturn;
+            // A browser HTTPS upgrade may change scheme/port before the first request event.
+            const syntheticReturn = timeout !== null && timeout.awaitingRequest && flight.destination?.target.hostname === timeout.hostname;
+            flight.syntheticReturn = syntheticReturn && !launchIntent;
+            if (syntheticReturn)
+                timeout.awaitingRequest = false;
+            if (launchIntent)
+                context.timeoutReturn = null;
             // Attest the authorization cursor, including a root traversed without document arrival.
             // Request ID alone never proves a redirect: the expected target must also match.
             const existingContinuation = active !== null && active.phase !== 'ENDED'
@@ -284,7 +318,7 @@ export class FirefoxAdapter {
                 : undefined;
             // Browser provenance establishes one departure from the actual loaded root,
             // never authentication purpose. Core revalidates its current Whitelist status.
-            const rootDeparture = sourceDocument !== null && context.displayed === sourceDocument
+            const rootDeparture = context.timeoutReturn === null && sourceDocument !== null && context.displayed === sourceDocument
                 && sourceAuthority !== null && allowed(sourceAuthority) && sourceAuthority.decision.reason === 'WHITELISTED'
                 && initiator?.origin === sourceDocument.origin
                 && flight.destination !== null && flight.destination.target.hostname !== sourceDocument.target.hostname
@@ -294,7 +328,7 @@ export class FirefoxAdapter {
                 ?? (rootDeparture ? { kind: 'ROOT_DEPARTURE', sourceHostname: sourceDocument.target.hostname } : undefined);
             flight.continuationKind = continuation?.kind ?? null; // Diagnostic projection only.
             let result = flight.destination === null ? error('INVALID_TARGET')
-                : await this.check(context, flight.destination.target, false, continuation, true);
+                : await this.check(context, flight.destination.target, false, continuation, context.timeoutReturn === null);
             const journey = this.journey(context);
             flight.journeyId = journey?.id ?? null;
             if (!this.live(context, generation)) {
@@ -321,10 +355,39 @@ export class FirefoxAdapter {
             if (allowed(result) && 'expiresAt' in result.decision && this.now() >= result.decision.expiresAt) {
                 result = error('RECHECK_REQUIRED');
             }
+            // The exception is distinct from navigation ALLOW. Its held response must pass
+            // the attachment gate before any file is delivered; HTML still uses Core.
+            if (result.type === 'ASSESSMENT' && result.decision.outcome !== 'ALLOW' && result.decision.outcome !== 'DENY'
+                && flight.destination !== null && flight.method === 'GET' && flight.download !== null) {
+                flight.download.exceptional = true;
+                const stage = correlated && flight.download.intent?.phase === 'REQUESTING' ? 'REDIRECT' : 'PREPARE';
+                if (stage === 'PREPARE' && flight.download.intent !== null)
+                    flight.download.consumed = true;
+                if (await this.advanceDownload(context, flight, stage)) {
+                    this.trace(stage === 'PREPARE' ? 'DOWNLOAD_PREPARED' : 'DOWNLOAD_FETCH', context, error('DOWNLOAD_RESPONSE_PENDING'));
+                    return {};
+                }
+                if (!this.live(context, generation))
+                    return { cancel: true };
+            }
+            else if (correlated && flight.download?.intent?.phase === 'REQUESTING') {
+                // Ordinary permission still wins; an optional download chain cannot renew.
+                if (!await this.advanceDownload(context, flight, 'REDIRECT'))
+                    flight.download = null;
+            }
+            if (allowed(result) && (flight.downloadAuthorityFailed || this.host?.controller.getView().status !== 'READY'
+                || result.policyRevision !== this.host.controller.getView().snapshot?.policyRevision))
+                result = error('RECHECK_REQUIRED');
+            if (!this.live(context, generation))
+                return { cancel: true };
             this.publish(context, result);
             if (allowed(result)) {
                 flight.released = true;
                 flight.authority = result;
+                if (launchIntent && result.decision.reason === 'WHITELISTED') {
+                    this.recordLaunch(flight.destination.target.hostname);
+                    flight.launchRecorded = true;
+                }
                 this.trace('RELEASED', context, result);
                 return {};
             }
@@ -339,7 +402,186 @@ export class FirefoxAdapter {
             return { cancel: true };
         });
     };
+    captureDownloadSource(context) {
+        if (context.displayed === null || context.displayedDecision === null || !allowed(context.displayedDecision)
+            || context.flight !== null || context.effect !== 'NONE' || context.launching)
+            return null;
+        return { context, document: context.displayed, generation: context.generation, arrival: context.lastArrival,
+            binding: { target: context.displayed.target, context: { contextId: context.id, journeyId: this.journey(context)?.id ?? null } } };
+    }
+    downloadTargetCreated = (details) => {
+        if (this.stopped || details.sourceFrameId !== 0 || details.tabId === details.sourceTabId
+            || destination(details.url) === null || this.contexts.get(details.tabId)?.flight)
+            return;
+        const source = this.contexts.get(details.sourceTabId);
+        const captured = source === undefined ? null : this.captureDownloadSource(source);
+        if (captured !== null)
+            this.downloadTargets.set(details.tabId, { source: captured, url: withoutFragment(details.url), at: this.now(), timeStamp: details.timeStamp });
+        // Bound even if Firefox never delivers a request/closure for a target.
+        if (this.downloadTargets.size > 100)
+            this.downloadTargets.delete(this.downloadTargets.keys().next().value);
+    };
+    downloadLive(context, flight) {
+        const download = flight.download;
+        if (this.stopped || context.flight !== flight || this.contexts.get(context.tabId) !== context
+            || download === null || download.consumed || flight.destination === null || flight.method !== 'GET')
+            return false;
+        const source = download.source;
+        return this.contexts.get(source.context.tabId) === source.context
+            && (source.context === context || source.context.generation === source.generation && source.context.flight === null)
+            && source.context.lastArrival === source.arrival && source.context.effect === 'NONE'
+            && source.context.displayed?.origin === source.document.origin
+            && source.context.displayed.target.hostname === source.document.target.hostname;
+    }
+    async advanceDownload(context, flight, stage) {
+        if (!this.downloadLive(context, flight))
+            return false;
+        const download = flight.download;
+        const result = await this.host?.controller.handle({ kind: 'CHECK_DOWNLOAD', stage, source: download.source.binding,
+            binding: { operationId: download.operationId, contextId: context.id }, target: flight.destination.target,
+            intent: download.intent });
+        const now = this.now();
+        if (!this.downloadLive(context, flight) || result?.type !== 'DOWNLOAD' || result.outcome === 'DENY'
+            || this.host?.controller.getView().status !== 'READY'
+            || result.intent.policyRevision !== this.host.controller.getView().snapshot?.policyRevision
+            || !Number.isSafeInteger(now) || now < result.observedAt || now >= result.intent.expiresAt) {
+            if (result?.type !== 'DOWNLOAD' || result.outcome === 'DENY' && result.reason !== 'DOWNLOAD_SOURCE_UNAUTHORIZED')
+                flight.downloadAuthorityFailed = true;
+            download.consumed = true;
+            this.trace('DOWNLOAD_BLOCKED', context, result ?? error(this.startupReason()));
+            return false;
+        }
+        download.intent = result.intent;
+        return true;
+    }
+    matchingFlight(details) {
+        const context = this.contexts.get(details.tabId);
+        const flight = context?.flight;
+        return details.type === 'main_frame' && details.frameId === 0 && context !== undefined && flight != null
+            && flight.requestId === details.requestId && flight.url === withoutFragment(details.url)
+            && details.timeStamp >= flight.timeStamp ? { context, flight } : null;
+    }
+    blockDownload(context, flight, reason) {
+        if (flight.download)
+            flight.download.consumed = true;
+        if (context.flight === flight) {
+            const generation = context.generation;
+            this.trace('DOWNLOAD_BLOCKED', context, error(reason));
+            this.schedule(() => {
+                void this.run(async () => {
+                    if (!this.live(context, generation) || context.flight !== flight)
+                        return;
+                    const result = flight.destination === null ? error('INVALID_TARGET') : await this.check(context, flight.destination.target);
+                    if (!this.live(context, generation) || context.flight !== flight)
+                        return;
+                    this.publish(context, allowed(result) ? error(reason) : result);
+                    await this.removeContent(context, generation);
+                });
+            }, 0);
+        }
+        return { cancel: true };
+    }
+    downloadSending = (details) => {
+        const match = this.matchingFlight(details);
+        if (match === null)
+            return Promise.resolve({ cancel: true });
+        const { context, flight } = match;
+        if (flight.download === null)
+            return Promise.resolve(flight.released ? {} : { cancel: true });
+        return this.run(async () => {
+            const download = flight.download;
+            if (context.flight !== flight)
+                return { cancel: true };
+            if (download.intent?.phase === 'REQUESTING') {
+                if (await this.advanceDownload(context, flight, 'CHECK'))
+                    return {};
+            }
+            else if (hasUserActivation(details.requestHeaders)) {
+                const prepared = download.intent !== null || await this.advanceDownload(context, flight, 'PREPARE');
+                if (prepared && await this.advanceDownload(context, flight, 'REQUEST')) {
+                    this.trace('DOWNLOAD_FETCH', context, error('DOWNLOAD_RESPONSE_PENDING'));
+                    return {};
+                }
+            }
+            if (!download.exceptional && flight.released && !flight.downloadAuthorityFailed
+                && this.host?.controller.getView().status === 'READY'
+                && flight.authority?.policyRevision === this.host.controller.getView().snapshot?.policyRevision) {
+                flight.download = null;
+                return {};
+            }
+            return this.blockDownload(context, flight, 'DOWNLOAD_ACTIVATION_OR_AUTHORITY_MISSING');
+        }).catch(() => this.blockDownload(context, flight, 'DOWNLOAD_CHECK_FAILED'));
+    };
+    downloadResponse = (details) => {
+        const match = this.matchingFlight(details);
+        if (match === null)
+            return Promise.resolve({ cancel: true });
+        const { context, flight } = match;
+        return this.run(async () => {
+            if (context.flight !== flight || this.stopped)
+                return { cancel: true };
+            const file = isAttachment(details.statusCode, details.responseHeaders);
+            if (!flight.download?.exceptional) {
+                if (!flight.released)
+                    return { cancel: true };
+                flight.fileResponse = file;
+                if (isHttpRedirect(details.statusCode) && flight.download)
+                    flight.download.redirectResponse = downloadRedirectUrl(details.url, details.responseHeaders);
+                return {};
+            }
+            if (flight.download.intent?.phase !== 'REQUESTING')
+                return this.blockDownload(context, flight, 'DOWNLOAD_NOT_STARTED');
+            if (isHttpRedirect(details.statusCode)) {
+                const redirect = downloadRedirectUrl(details.url, details.responseHeaders);
+                if (redirect === null)
+                    return this.blockDownload(context, flight, 'DOWNLOAD_UNSUPPORTED_REDIRECT');
+                if (!await this.advanceDownload(context, flight, 'CHECK'))
+                    return this.blockDownload(context, flight, 'DOWNLOAD_INVALIDATED');
+                flight.download.redirectResponse = redirect;
+                return {};
+            }
+            if (file) {
+                if (!await this.advanceDownload(context, flight, 'ATTACHMENT'))
+                    return this.blockDownload(context, flight, 'DOWNLOAD_INVALIDATED');
+                flight.fileResponse = true;
+                flight.download.consumed = true;
+                this.trace('DOWNLOAD_FILE', context, error('DOWNLOAD_ATTACHMENT_ACCEPTED'));
+                return {};
+            }
+            flight.download.consumed = true;
+            const result = flight.destination === null ? error('INVALID_TARGET') : await this.check(context, flight.destination.target);
+            if (context.flight !== flight || this.stopped)
+                return { cancel: true };
+            if (!allowed(result)) {
+                this.publish(context, result);
+                return this.blockDownload(context, flight, 'DOWNLOAD_DOCUMENT_REQUIRES_ACCESS');
+            }
+            // Independent current authorization only. The intent cannot render a document.
+            flight.download = null;
+            flight.released = true;
+            flight.authority = result;
+            this.publish(context, result);
+            return {};
+        }).catch(() => this.blockDownload(context, flight, 'DOWNLOAD_CHECK_FAILED'));
+    };
+    downloadFinished = (details) => {
+        const match = this.matchingFlight(details);
+        if (match === null || !match.flight.fileResponse)
+            return;
+        const { context, flight } = match;
+        if (flight.download)
+            flight.download.consumed = true;
+        context.flight = null;
+        context.requested = context.displayed;
+        this.trace('DOWNLOAD_FINISHED', context, error('DOWNLOAD_HANDED_TO_FIREFOX'), flight.destination?.target.hostname ?? null);
+        // Attachments do not commit a new page. Reconcile the retained document normally.
+        void this.refresh();
+    };
     async removeContent(context, generation) {
+        if (!this.live(context, generation))
+            return;
+        if (await this.returnExpiredJourney(context, generation))
+            return;
         if (!this.live(context, generation))
             return;
         context.flight = null;
@@ -358,6 +600,37 @@ export class FirefoxAdapter {
             if (this.live(context, generation))
                 await this.closeUncontrolled(context);
         }
+    }
+    /** Browser effect after saved expiry and a fresh Core Whitelist assessment. */
+    async returnExpiredJourney(context, generation) {
+        const journey = this.journey(context);
+        const origin = context.rootOrigin;
+        if (context.timeoutReturn !== null || journey?.phase !== 'ENDED' || journey.endReason !== 'EXPIRED'
+            || origin?.journeyId !== journey.id || this.host?.controller.getView().status !== 'READY')
+            return false;
+        // A newer unrelated request owns this tab now; an older excursion cannot redirect it.
+        if (context.requested?.target.hostname !== journey.currentHostname)
+            return false;
+        const root = destination(`${origin.origin}/`);
+        if (root === null || root.target.hostname !== journey.rootHostname)
+            return false;
+        const result = await this.check(context, root.target);
+        if (!this.live(context, generation) || !allowed(result) || result.decision.reason !== 'WHITELISTED')
+            return false;
+        context.timeoutReturn = { journeyId: journey.id, hostname: root.target.hostname, awaitingRequest: true };
+        context.displayed = null;
+        context.displayedDecision = null;
+        context.requested = root;
+        context.effect = 'NONE';
+        this.publish(context, result);
+        this.navigate(context, `${origin.origin}/`);
+        return true;
+    }
+    recordLaunch(hostname) {
+        try {
+            this.onDestinationLaunch?.(hostname, this.now());
+        }
+        catch { /* Local popularity never affects browser authorization. */ }
     }
     async closeUncontrolled(context) {
         this.clearRemoval(context);
@@ -492,6 +765,15 @@ export class FirefoxAdapter {
                 context.effect = 'NONE';
             this.publishJourney(context);
             this.trace('ARRIVED', context, result, observed.target.hostname);
+            const userArrival = matched && !flight.syntheticReturn && flight.continuationKind !== 'HTTP_REDIRECT'
+                && (details.transitionType === 'typed' || details.transitionType === 'auto_bookmark');
+            // Missing origin metadata is not evidence of user intent. Only a real committed
+            // browser-attested destination can clear the guard outside explicit Atlas commands.
+            if (allowed(result) && result.decision.reason === 'WHITELISTED' && userArrival)
+                context.timeoutReturn = null;
+            if (allowed(result) && result.decision.reason === 'WHITELISTED' && matched && !flight.launchRecorded
+                && context.timeoutReturn === null && userArrival)
+                this.recordLaunch(observed.target.hostname);
             if (!allowed(result))
                 await this.removeContent(context, generation);
         }).catch(() => {
@@ -502,6 +784,16 @@ export class FirefoxAdapter {
         });
     };
     requestFailed = (details) => {
+        if (this.matchingFlight(details)?.flight.fileResponse) {
+            this.downloadFinished(details);
+            return;
+        }
+        const downloadMatch = this.matchingFlight(details);
+        if (downloadMatch?.flight.download?.exceptional) {
+            if (!downloadMatch.flight.download.consumed)
+                this.blockDownload(downloadMatch.context, downloadMatch.flight, 'DOWNLOAD_NETWORK_FAILED');
+            return;
+        }
         if (details.type !== 'main_frame' || details.frameId !== 0)
             return;
         const context = this.contexts.get(details.tabId);
@@ -521,14 +813,18 @@ export class FirefoxAdapter {
         const context = this.contexts.get(details.tabId);
         if (details.type !== 'main_frame' || details.frameId !== 0 || context?.flight === null
             || context?.flight === undefined || context.flight.requestId !== details.requestId
-            || !context.flight.released || context.flight.timeStamp > details.timeStamp
+            || (!context.flight.released && !(context.flight.download?.redirectResponse && context.flight.download.intent?.phase === 'REQUESTING'))
+            || context.flight.timeStamp > details.timeStamp
             || context.flight.url !== withoutFragment(details.url))
+            return;
+        if (context.flight.download?.exceptional && context.flight.download.redirectResponse !== withoutFragment(details.redirectUrl))
             return;
         context.flight.redirectUrl = withoutFragment(details.redirectUrl);
         this.trace('REDIRECT', context, null, destination(details.redirectUrl)?.target.hostname ?? null);
         // Correlation is evidence for the next held request; Core still decides permission.
     };
     closed = (tabId) => {
+        this.downloadTargets.delete(tabId);
         const context = this.contexts.get(tabId);
         if (context === undefined)
             return;
@@ -548,7 +844,7 @@ export class FirefoxAdapter {
             const url = `${this.uiUrl}?view=control${tab.id === undefined ? '' : `&tab=${tab.id}`}`;
             const existing = (await this.api.tabs.query({})).find((candidate) => candidate.url?.split(/[?#]/, 1)[0] === this.uiUrl && new URL(candidate.url).searchParams.get('view') !== 'access');
             if (existing?.id !== undefined)
-                await this.api.tabs.update(existing.id, { url, active: true });
+                await this.api.tabs.update(existing.id, { active: true });
             else
                 await this.api.tabs.create({ url, active: true });
         }).catch(() => undefined);
@@ -567,7 +863,27 @@ export class FirefoxAdapter {
         return this.refreshPending;
     }
     async recheck() {
+        const generations = new Map([...this.contexts.values()].map(context => [context.tabId, context.generation]));
         const observation = await this.host?.controller.handle({ kind: 'OBSERVE_TIME' });
+        for (const [tabId, target] of this.downloadTargets)
+            if (this.now() - target.at >= 3000 || this.contexts.get(target.source.context.tabId) !== target.source.context)
+                this.downloadTargets.delete(tabId);
+        for (const context of this.contexts.values()) {
+            const flight = context.flight;
+            const intent = flight?.download?.intent;
+            if (flight && intent && flight.download?.exceptional && !flight.fileResponse
+                && (observation?.type !== 'OBSERVED' || !this.downloadLive(context, flight)
+                    || intent.policyRevision !== this.host?.controller.getView().snapshot?.policyRevision || this.now() >= intent.expiresAt)) {
+                this.blockDownload(context, flight, 'DOWNLOAD_INVALIDATED');
+            }
+        }
+        const returned = new Set();
+        if (observation?.type === 'OBSERVED')
+            for (const context of this.contexts.values()) {
+                const generation = generations.get(context.tabId);
+                if (generation !== undefined && this.live(context, generation) && await this.returnExpiredJourney(context, generation))
+                    returned.add(context.tabId);
+            }
         for (const context of this.contexts.values()) {
             if (context.latest !== null)
                 this.publish(context, context.latest);
@@ -576,8 +892,12 @@ export class FirefoxAdapter {
         for (const tab of tabs) {
             if (tab.id === undefined || tab.url === undefined || tab.incognito)
                 continue;
+            if (returned.has(tab.id))
+                continue;
             const observed = destination(tab.url);
             const previous = this.contexts.get(tab.id);
+            if (previous !== undefined && generations.has(tab.id) && previous.generation !== generations.get(tab.id))
+                continue;
             if (withoutFragment(tab.url).split('?', 1)[0] === this.uiUrl) {
                 if (previous !== undefined && previous.flight === null && !previous.launching) {
                     this.acknowledgeRemoval(previous);
@@ -710,6 +1030,7 @@ export class FirefoxAdapter {
         const controller = this.host?.controller.getView() ?? null;
         return { startup: this.startup, controller, managed: this.host?.managed?.getView(controller?.snapshot?.policy.whitelist) ?? null,
             temporaryAccess: temporaryAccessView(controller, this.now(), this.host?.managed?.getBlacklist()),
+            pendingAccess: pendingAccessView(controller, this.now(), this.host?.managed?.getBlacklist()),
             contexts: [...this.contexts.values()].map((context) => ({ tabId: context.tabId,
                 contextId: context.id, navigationId: context.navigationId,
                 hostname: context.requested?.target.hostname ?? null,
@@ -748,7 +1069,8 @@ export class FirefoxAdapter {
             PROPOSE_SETTINGS: ['candidateConfiguration'], PROPOSE_POLICY: ['candidatePolicy'],
         };
         const fields = command.kind === 'START_ACCESS' && Object.hasOwn(command, 'scopeId')
-            ? ['tabId', 'scopeId'] : Object.hasOwn(keys, command.kind) ? keys[command.kind] : undefined;
+            ? ['tabId', 'scopeId'] : command.kind === 'PROPOSE_POLICY' && Object.hasOwn(command, 'basePolicyRevision')
+            ? ['candidatePolicy', 'basePolicyRevision'] : Object.hasOwn(keys, command.kind) ? keys[command.kind] : undefined;
         if (fields === undefined || Object.keys(command).length !== fields.length + 1
             || fields.some((field) => !Object.hasOwn(command, field)))
             return Promise.resolve({ error: 'INVALID_COMMAND' });
@@ -807,7 +1129,17 @@ export class FirefoxAdapter {
             return { result, view: this.view() };
         }
         if (command.kind === 'PROPOSE_SETTINGS' || command.kind === 'PROPOSE_POLICY') {
-            const result = await controller.handle(command);
+            if (command.kind === 'PROPOSE_POLICY' && Object.hasOwn(command, 'basePolicyRevision')) {
+                if (!Number.isSafeInteger(command.basePolicyRevision) || command.basePolicyRevision < 0)
+                    return { error: 'INVALID_COMMAND', view: this.view() };
+                const observed = await controller.handle({ kind: 'OBSERVE_TIME' });
+                if (observed.type !== 'OBSERVED')
+                    return { result: observed, view: this.view() };
+                if (controller.getView().snapshot?.policyRevision !== command.basePolicyRevision)
+                    return { error: 'POLICY_DRAFT_STALE', view: this.view() };
+            }
+            const result = await controller.handle(command.kind === 'PROPOSE_POLICY'
+                ? { kind: 'PROPOSE_POLICY', candidatePolicy: command.candidatePolicy } : command);
             return { result, view: this.view() };
         }
         let result;
@@ -823,6 +1155,7 @@ export class FirefoxAdapter {
                 return { error: 'CONTEXT_UNAVAILABLE' };
             const context = this.context(tab.id);
             context.requested = selected;
+            context.launchIntent = true;
             this.navigate(context, url);
             void this.api.tabs.update(tab.id, { active: true }).catch(() => undefined);
             return { opened: true, tabId: tab.id, view: this.view() };
@@ -839,6 +1172,7 @@ export class FirefoxAdapter {
                 return { error: 'CONTEXT_UNAVAILABLE' };
             const context = this.context(tab.id);
             context.requested = selected;
+            context.launchIntent = true;
             result = await controller.handle({ kind: 'START_JOURNEY', root: selected.target, contextId: context.id });
             this.trace('COMMAND', context, result);
             this.publish(context, result);
@@ -876,6 +1210,8 @@ export class FirefoxAdapter {
                 return { result, opened: false, view: this.view() };
             const origin = context.rootOrigin?.journeyId === retry.journeyId ? context.rootOrigin.origin : `https://${retry.rootHostname}`;
             context.requested = destination(`${origin}/`);
+            context.launchIntent = true;
+            context.timeoutReturn = null;
             this.publish(context, result);
             this.navigate(context, `${origin}/`);
             return { opened: true, view: this.view() };
@@ -980,6 +1316,11 @@ export class FirefoxAdapter {
         this.api.webRequest.onBeforeRequest.removeListener(this.beforeRequest);
         this.api.webRequest.onErrorOccurred.removeListener(this.requestFailed);
         this.api.webRequest.onBeforeRedirect.removeListener(this.redirected);
+        this.api.webRequest.onBeforeSendHeaders.removeListener(this.downloadSending);
+        this.api.webRequest.onHeadersReceived.removeListener(this.downloadResponse);
+        this.api.webRequest.onCompleted.removeListener(this.downloadFinished);
+        this.api.webNavigation.onCreatedNavigationTarget.removeListener(this.downloadTargetCreated);
+        this.downloadTargets.clear();
         this.api.webNavigation.onCommitted.removeListener(this.arrived);
         this.api.webNavigation.onHistoryStateUpdated.removeListener(this.changed);
         this.api.webNavigation.onReferenceFragmentUpdated.removeListener(this.changed);

@@ -1,5 +1,7 @@
 # Firefox productization and dogfooding (D19)
 
+**D30 presentation and timeout update:** [Destination polishing](destination-polish.md) adds Sites & Access, compact launchers, local usage, and guarded return to the trusted origin on saved Journey expiry. Existing protected Journey lifetime remains in this configuration workflow. The authoritative repository schema stays at 2; display preferences never supply timing or permissions.
+
 **D22 update:** The reported Canvas Login failure led to explicit approval of one departure from a loaded Whitelisted root. Later unfamiliar steps remain strict. The [polishing report](firefox-journey-polish.md) owns that narrow update; D19's timing, Vault and presentation decisions below remain in force.
 
 The user accepted D18's bounded genuine HTTP redirect exception on 2026-10-01. A deliberately Whitelisted destination is trusted to select those redirects, subject to manual Blacklist and existing context, lifetime, revision and hop bounds. Redirect provenance does not prove authentication necessity. Atlas aims to prevent easy impulsive escape through a Ulysses contract; it does not promise a hostile-web sandbox or resistance to a determined owner. Journey authorization and destination-arrival completion remain unchanged.

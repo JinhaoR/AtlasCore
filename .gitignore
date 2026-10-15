@@ -1,3 +1,8 @@
 node_modules/
 .tools/
 __pycache__/
+extension/release/
+web-ext-artifacts/
+.env
+.env.*
+*.xpi

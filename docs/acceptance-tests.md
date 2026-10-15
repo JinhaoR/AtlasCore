@@ -1,6 +1,246 @@
 # Atlas Core acceptance scenarios
 
+## Release candidate evidence (0.1.16)
+
+Prepared 2026-10-13 following user authorization. The
+[release notes](release-0.1.16.md) and [package evidence](evidence/firefox-release-0.1.16.json)
+record the final artifacts, exact-source reproduction and staged-runtime checks.
+Core **204/204** and extension **374/374** tests pass without skips, including
+23 release regressions and the UI stability tests. Both TypeScript checks and
+the development/release builds pass. Manifest semantics change only the version;
+identity, permissions, Core source and storage formats stay unchanged. All 57
+preserved 0.1.13–0.1.15 files retain their hashes and all three signed XPIs pass
+read-only offline verification. No signing, submission, installation or live
+Firefox configuration change is performed.
+
+The 14-file runtime and 148-file reviewer archive validate. A fresh source-only
+extraction with locked offline installs reproduces both archive hashes exactly.
+Native Firefox 157.0.1 passes nine interaction groups against staged 0.1.16,
+including one-timer retry, retained drafts/entry points, real toolbar reuse and
+a 60-second passive Journey display with unchanged deadline. Lint reports zero
+errors, zero notices and the existing Android warning. Earlier Home/batch/restart
+and five-window idle evidence belongs to the separate development stability pass.
+
+## Development UI stability evidence
+
+The [rendering report](ui-stability.md) owns the before/after native measurements,
+idle and interactive regressions, timer ownership and conservative failure cases.
+Its probes use disposable profiles and synthetic sites; signed release artifacts
+and installed Firefox configuration are outside this development pass.
+
 Status: Milestones 1 through 3 and D11 Journeys have pure domain evidence; D13/D14 add planner/controller evidence. D15 adds mocked Firefox, emulated IndexedDB, and an isolated native browser scenario. The tables distinguish these levels from remaining coverage and durability questions.
+
+## Isolated Windows deployment evidence
+
+[The deployment guide](windows-deployment.md#tests) records 35 native PowerShell
+regressions against isolated installation directories and preserved signed
+releases. They cover policy/identity/version refusal, UAC handoff and cancellation,
+backups, hashing, atomic replacement, failure recovery, actual process interruption
+and read-only `-WhatIf`. All 204 Core and 352 extension tests remain passing.
+Interactive UAC, the live protected installation, PowerShell 7 and Firefox
+activation are separate checks; no live deployment was performed.
+
+## Release candidate evidence (0.1.15)
+
+Prepared 2026-10-12 following user authorization to package the completed work.
+The [release notes](release-0.1.15.md) and [package evidence](evidence/firefox-release-0.1.15.json)
+record the unsigned/runtime/source hashes and supported limits. Core 204 and
+extension 352 tests pass, including 23 packaging/signing-verifier regressions;
+both TypeScript checks and build/integrity validation pass. The 14-file runtime
+and 142-file reviewer archive validate, and an isolated extraction with locked
+offline installs reproduces both archive hashes exactly.
+
+Native Firefox 157.0.1 tests the actual staged `extension/release/0.1.15/addon`:
+Home organization/migration/restart 14 groups, persistent batch/Vault/restart
+9 groups and download completion/withholding 17 scenarios all pass. The download
+fixture selects a staged runtime and adds observation instrumentation only to a
+disposable copy. A setup race was fixed by retaining the same READY observation
+instead of issuing another query during normal housekeeping; no production
+authorization check or wait/confirmation assertion changed.
+
+Only the manifest version differs semantically from 0.1.14. ID, permissions,
+authority schema and saved policy/settings/destination/draft compatibility remain.
+All 19 preserved 0.1.14 files retain their original hashes and its signed XPI
+verifies offline. No Mozilla submission/signing, installed-profile or enterprise-
+policy change occurred. The candidate is ready for unlisted signing; permanent
+0.1.15 installation and daily real-account upgrade checks await the signed XPI.
+
+## Visual consistency evidence (Milestone D)
+
+Verified 2026-10-12: the [visual report](visual-polish.md) owns the shared tokens,
+rendered assessment, implementation files and exact before/after screenshot paths.
+Core **204/204** and extension **352/352** tests pass without skips, including
+[ten visual/interaction regressions](../extension/tests/visual-polish.test.mjs).
+Both TypeScript checks, the development build, bundle integrity and read-only
+offline verification of signed 0.1.14 pass.
+
+Native Firefox **157.0.1** passes eight visual check groups with 43 baseline and
+56 final screenshots and 69 final layout observations. Matching captures cover
+Home, customization, Sites, editor, ten-item batch review, frozen Vault, Settings,
+Greylist, grants, Journey/recovery, errors and unavailable authority. Widths
+500/768/1080/1440/1800px and actual 125/150/200% zoom have no page overflow;
+launchers retain fixed height, no overlapping pin/entry-point controls and the
+five-column maximum. Five/fifteen/thirty categories and long labels/scopes are
+included. Sampled operational text is at least 13px and 5.18:1 contrast; compact
+targets are at least 24×24px; sampled enabled control boundaries exceed 3:1.
+Keyboard focus, inline error associations, retained work and reduced motion pass.
+[Final visual evidence](evidence/milestone-d/after/result.json).
+
+Retained native A/B/C, coherence, destination, Journey/authentication, Journey retry,
+navigation and download suites pass 99 groups/scenarios using disposable profiles.
+[Regression summary](evidence/milestone-d/regressions.json) records each suite.
+Core authorization, adapter gating, draft/Vault semantics, storage schemas,
+Milestone C organization and all access deadlines remain unchanged. There is no
+extension ID/version change, installed-profile or enterprise-policy access,
+signing or submission. Signed 0.1.14 retains its original verified hash.
+
+These observations support the named workflows and sampled accessibility
+improvements. Dedicated screen-reader, physical high-density display, OS forced
+colors, every Firefox version and physical power-loss tests remain unverified;
+full WCAG conformance is not claimed. Long launcher labels intentionally truncate
+with accessible names; large reviews scroll vertically at high zoom.
+
+## Home organization evidence (Milestone C)
+
+Verified 2026-10-12: the [Home contract](home-organization.md) owns persistent order,
+visibility, complete collapse, migration, presentation-only CAS writes and navigation.
+The focused [Home tests](../extension/tests/home-organization.test.mjs) complement
+the retained pin/search, UI reliability, batch, grant and Journey regressions.
+The final development build passes **204 Core tests and 342 extension tests**,
+including **34 new Home/navigation regressions**, with no skips. Both TypeScript
+checks and distribution integrity verification pass.
+
+| Required coverage | Automated and native evidence |
+| --- | --- |
+| 1–4: migration, order, reload/restart | Legacy visible ordering and stored revision/model tests; real UI reload and complete Firefox restart |
+| 5–10: hide/restore, complete collapse, search/pins | Hidden categories retain Sites/search/exact targets and pin order; distinct persisted visibility/collapse; real Home controls |
+| 11–15: empty, rename/edit, new and canonical categories | Retained unused records, safe complete-membership rename, partial-move isolation, case/spacing normalization, deterministic visible additions and usage rerenders |
+| 16–21: save, failure, retry, concurrency, authority | Emulated and native transactional CAS, definite/uncertain failures, read reconciliation, two live pages racing writes, explicit conflict recovery and unchanged Core snapshots |
+| 22–28: pins, targeting, rerenders and Sites/Vault | Existing pin order/exact entry-point tests plus native stable headings/cards, selected row/scroll, existing persistent editor, sidebar/Back/reload/Vault return and committed display metadata |
+| 29–34: pending/grant/Journey and unavailable states | Core-derived WAIT/readiness projection, expired/invalid omission, unchanged grant deadlines and owning contexts; real pending request → existing explicit confirmation → saved grant and Journey links; no Home-created permission |
+
+Native Firefox **157.0.1** passes **14 Milestone C check groups** with synthetic
+sites in a disposable profile. Populated Home scales from five to fifteen to thirty
+categories. Four actual widths (500/800/1280/1800 px) and actual 125/150/200% zoom
+have no horizontal overflow, at most five columns and fixed-height cards. Keyboard
+Move up works and retains category focus through persistence. A failed transaction
+leaves the acknowledged Home unchanged and preserves an explicitly retryable local
+arrangement. Competing Atlas pages cannot silently overwrite each other's revisions.
+The retained native suites also pass: UI reliability (6 groups), destination batch
+(9), coherence (6), destination polish (5), Journey/authentication (16), baseline
+browsing (12), and downloads (17 scenarios). All runs use disposable profiles.
+
+[Sanitized evidence](evidence/firefox-home-organization-milestone-c.json) records the
+final test totals and retained native regressions. The signed 0.1.14 XPI verifies
+offline with unchanged SHA-256
+`88b699c0b23542228cee490f3cc046abeebf326ef94e3fe4560bb21cf79f5ff1`.
+No installed profile, enterprise policy, extension identity/version, signing,
+submission or publication change occurs in this milestone. Core semantics, batch
+draft/Vault rules and all existing access deadlines/scope remain intact.
+
+These tests establish the named synthetic workflows, not physical power-loss
+durability, every Firefox version, complete screen-reader conformance or viewports
+below the tested 500px width. Unsaved presentation arrangements remain at risk if
+their page is lost before persistence succeeds. Milestone D was outside this
+milestone; its subsequent evidence is recorded above.
+
+## Bounded download evidence (development 0.1.15)
+
+Verified 2026-10-12: **204 Core and 308 extension tests pass**, both typechecks and
+the development build. The [Download Intent contract](firefox-downloads.md) owns
+the models, browser evidence, security tradeoff and supported mechanisms. Intents
+create no policy changes, Access Grants or shared Journeys; snapshot schema remains
+unchanged. [13 Core regressions](../packages/core/tests/download.test.mjs) and
+[21 adapter regressions](../extension/tests/download.test.mjs) cover allow/deny,
+expiry, nonrenewal, consumed/replayed stages, context isolation, stale/foreign
+correlation, source/revision changes, restart and definite/conflicted/unknown writes.
+
+Native Firefox **157.0.1** completes direct, new-tab redirected, delayed and activated
+JavaScript file responses. Blob behavior remains unchanged. Downloaded HTML
+attachments execute no remote scripts. Unfamiliar webpages/interstitials and
+claimed-download HTML cannot commit or execute; MIME-only files lack sufficient
+proof. Explicit Blacklist blocks server contact; five redirects exhaust the budget.
+Pending downloads are withheld after expiry, policy change, source closure and
+background restart. Native completion and synthetic file bytes are checked.
+
+The preserved 0.1.14 staging reproduces the new-tab failure without altering its
+release files. Existing native Greylist/Vault/restart, authentication Journey,
+Milestone A and Milestone B tests remain passing. [Sanitized evidence](evidence/firefox-downloads-0.1.15.json)
+separates those runs from the observer-only signal investigation. Signed 0.1.14
+still verifies offline; development 0.1.15 is neither signed nor published.
+This evidence does not establish universal download coverage, zero network contact,
+file safety, every Firefox version or post-handoff transfer revocation.
+
+## Destination batch evidence (Milestone B)
+
+Verified 2026-10-11: **191 Core and 287 extension tests pass**, with **42 new batch
+regressions** and all 19 Milestone A UI regressions retained. Both TypeScript checks,
+the development build, bundle verification and offline verification of the original
+signed 0.1.13 package pass. Core source and authority semantics remain unchanged.
+
+The [batch contract](destination-polish.md#milestone-b-destination-batch-drafts)
+owns the models, persistence, submission protocol, category compatibility and
+failure handling. [Executable tests](../extension/tests/destination-batch.test.mjs)
+cover desired-state edits, exact counterpart scopes, ownership conflicts, invalid
+baselines, draft persistence and CAS conflicts, stale reconciliation, one complete
+Vault cycle, early/expired/replayed confirmation, pending-proposal preservation,
+unknown submission outcomes and explicit local discard of uncorrelated history
+after verified recovery, display-only saves, partial metadata/pin/receipt
+failures, legacy receipts and categories, and managed-denial precedence. A delayed
+shared refresh was reproduced restoring discarded work or reporting a false
+conflict after its own write; its regression now preserves the newer local state.
+
+Native Firefox **157.0.1** passes nine batch check groups, six Milestone A check
+groups and five destination-polish check groups in disposable profiles.
+[Sanitized results](evidence/firefox-destination-batch-milestone-b.json) separate
+these runs. The batch scenario stages three Whitelist additions, two Blacklist
+additions, one removal and a name/category/pin edit before one unchanged Vault
+wait. It checks UI close/reopen, three full Firefox process restarts, frozen review,
+whole-policy commit and replay rejection, failed display recovery without another
+policy command, stale reconciliation, two-page shared-draft conflict and an actual
+failed draft transaction. The final restart retains committed metadata/pins and a
+separate unsubmitted draft. An injected lost response followed by another proposal
+ID advancement is explicitly discarded after verified Recovery, with no repeated
+policy command or confirmation. Existing narrow Home/Sites and Journey renewal guards
+remain passing.
+
+[Local draft preview](evidence/atlas-draft-milestone-b.png) and
+[frozen review preview](evidence/atlas-vault-review-milestone-b.png) contain synthetic
+destinations. No failing or skipped automated tests remain. These scenarios do not
+establish physical power-loss durability, full assistive-technology coverage or
+authenticated remote-site compatibility. Unsaved work remains at risk if storage
+fails and its page is then lost. The normal profile, installed extension, enterprise
+policies, signed artifacts, identity and version were preserved; no Mozilla signing
+or submission occurred.
+
+## UI reliability evidence (Milestone A)
+
+Verified 2026-10-11: **191 Core tests and 245 extension tests pass**, including
+19 new focused UI regressions. Both TypeScript checks, the normal development build,
+distribution verification and offline verification of the unchanged signed 0.1.13
+XPI pass. Core source and authorization expectations are unchanged.
+
+The [reliability contract](ui-reliability.md) records the confirmed F03/F06/F07/F09
+causes, repaired files, compatibility and remaining limits.
+[Sanitized results](evidence/firefox-ui-reliability-milestone-a.json) record Firefox
+157.0.1: six Milestone A, six coherence, five destination and eleven productization
+check groups pass in disposable profiles. They cover rendered storage failures and
+explicit retry, policy/display partial success, exact and partial search through the
+ordinary adapter gate, stale/unavailable versus verified empty collections, proposal
+and commit feedback, focus, saved preferences, migration and restart. Existing
+Journey expiry and renewal guards remain passing.
+
+The browser tests caught and corrected a partial-host search regression. The pin
+success assertion now checks polite acknowledgment; the restart test waits for the
+rendered verified list. Page-local write-failure injection is isolated from other
+Atlas pages, with cross-page recovery separately covered by automated handler tests.
+There are no remaining failed or skipped tests in these final runs.
+
+Inspected previews: [unavailable Home](evidence/atlas-ui-unavailable-milestone-a.png)
+and [preserved failed draft](evidence/atlas-ui-draft-milestone-a.png). These use fixture
+data. Initial Home failure is tested by the pure presentation model; native Home
+failure occurs after a verified load. Physical disk failure, complete screen-reader
+testing and authenticated remote website completion remain unverified.
 
 ## Requirements
 
@@ -293,6 +533,53 @@ The [D24 interface cleanup](ui-design.md#firefox-interface-cleanup-d24) adds nat
 The user approved [D25 bounded POST continuations](firefox-journey-polish.md#bounded-post-continuations-d25) after Ladok's post-phone-authentication block reported `UNRELATED_NAVIGATION`. Required evidence covers exact origin/context/current-document scope, initial and ended attempts, fixed deadlines, hop limits, current policy, denial precedence, commit failure/conflict/uncertainty, immediate auto-submission and unchanged policy/grants. Later unfamiliar GETs remain blocked. Native fixtures use no account or credentials; real Ladok return remains a separate manual compatibility check.
 
 The [D22 report](firefox-journey-polish.md) records deterministic and native failure evidence separately. Sixteen `extension/tests/journey-polish.test.mjs` scenarios cover delayed/immediate arrival, root completion before Login, restored arrivals, stale callbacks, failed/unknown saves, expiry, removal-before-retry, cached root watchdogs, same-tab retry and retention of the blocked destination during removal. Fourteen `extension/tests/root-departure.test.mjs` scenarios and sixteen new Core tests cover the approved ROOT_DEPARTURE exception, origin/context/current-policy scope, fixed terms, one consumed hop, persistence-before-release and safe supersession. Final totals: **185 Core and 114 extension tests passed**, with builds and type checks. Native `firefox-e2e.py --journey-polish-only` also passes direct GET/POST/script Login chains, immediate same-host POST, repeated typed Google/re-entry, cancellation/restart, context isolation, later unrelated-link withholding and a slow root arrival. D22 narrowly supersedes D18 for the first departure; later unfamiliar hops retain strict HTTP evidence.
+
+## Responsive Home and permanent rail evidence (D31)
+
+Extension **0.1.12** passes typecheck/build and **203 extension tests**. Native Firefox 157.0 passes the destination-polish and productization scenarios with permanent rail reload/restart checks, ignored old preferences, accessible navigation, resizing without rebuilding cards, fixed height and one preview row capped at five. Actual viewport samples range from 500px/two cards to 2100px/five cards. Pin focus, search, migration, settings and authority checks remain active. [The owning UI report](ui-design.md#permanent-rail-and-responsive-rows-d31) records commands and limits; [sanitized evidence](evidence/firefox-responsive-home-d31.json) records measurements. Core semantics and authority schemas are unchanged.
+
+## Destination and timeout polishing evidence (D30)
+
+Extension **0.1.11** passes **191 Core and 203 extension tests**, both builds and typechecks. Core authorization semantics are unchanged. `extension/tests/destination-polish.test.mjs` covers explicit PSL-aware apex/www terms, exact policy candidates, frozen/malformed metadata, unchanged-policy display edits, stable alias/pin identity, decay and excluded launches. `extension/tests/journey-timeout.test.mjs` covers persisted expiry, origin return, no synthetic renewal, current denial, failed/conflicting/unknown saves, stale or closed contexts, browser-attested fresh arrival and stale policy drafts.
+
+Native Firefox 157.0 passes `firefox-e2e.py --destination-polish-only`: real Sites controls, Vault wait/freeze/cancel/commit, Journey lifetime persistence, display-write failure, restart, HTTP/JavaScript/meta-refresh renewal denial, genuine address-bar arrival, compact cards, saved rail and focused narrow-screen details. Baseline, productization, Journey-polish and coherence native regressions also pass. [The owning report](destination-polish.md#validation-results) records exact commands and limits; [sanitized evidence](evidence/firefox-destination-polish-d30.json) records observations. No real-account authentication was performed.
+
+## Private release evidence (D32)
+
+**2026-10-10 follow-up:** **191 Core and 226 extension tests pass**, including 23
+release regressions. The existing Mozilla-signed 0.1.13 XPI passes read-only offline
+verification against preserved unsigned/source archives, receipt and staged files.
+Thirteen runtime files match exact SHA-256; manifest JSON tokens match after removing
+only whitespace outside strings. Tests reject altered manifest values/string spaces,
+duplicate keys, ordinary runtime edits/removals/additions, unknown/incomplete signing
+metadata, unsafe/duplicate ZIP names, directory payloads and changed original hashes.
+Only web-ext's `.amo-upload-uuid` is tolerated in post-sign staging, never in packages
+or pre-sign validation. [Comparison evidence](evidence/firefox-signed-verification-d32.json)
+records every entry's uncompressed hash. No actual signing was rerun.
+
+Ordinary Firefox 157.0.1 rejects the unsigned package and accepts that same downloaded
+XPI as permanently installed with signature enforcement enabled, then retains its
+enabled signed state across a full process restart. The isolated test uses automated
+Addon installation; it does not exercise the manual Add-ons menu, the user's profile
+or real-account browsing. [Sanitized result](evidence/firefox-signed-install-d32.json).
+
+D32: **191 Core and 215 extension tests pass** with both typechecks. Twelve release tests
+cover identity/privacy, versions/paths, package/lock alignment, credential-free
+registry URLs, runtime assets, deterministic archives and
+tamper rejection, signed metadata boundaries, fixed unlisted channel, disabled
+config/environment overrides, missing credentials, failed validation and duplicate
+submission. Signing tests use fake executors; none contact Mozilla. Local lint has
+zero errors and one Android warning. Native desktop Firefox 157.0.1 temporarily
+loads the release and passes existing friend-prototype checks: 51-host setup, real
+IndexedDB, confirmed grant/countdown, failure, background reload and fixed expiry.
+Signing and permanent installation remain untested. See the
+[release guide](firefox-private-release.md).
+
+The reviewer archive is rebuilt from a fresh extraction and lockfile installs;
+source and unsigned archive SHA-256 hashes match. Reversible CLI fixtures confirm
+rejection of changed runtime bytes and an unexpected `.env` entry, followed by
+successful restored validation. [Native result](evidence/firefox-private-release-d32.json)
+contains only synthetic test observations.
 
 ## Distribution and startup recovery evidence (D29)
 

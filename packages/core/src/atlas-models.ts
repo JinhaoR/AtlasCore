@@ -3,6 +3,7 @@ import type { JourneyContinuation, JourneyDecision, JourneyError, JourneyLimits,
 import type { Policy, SiteTarget } from "./models.js";
 import type { PolicyReview, VaultError, VaultState, VaultTiming } from "./vault-models.js";
 import type { ManagedBlacklist } from "./managed-blacklist.js";
+import type { DownloadOperation, DownloadResult } from './download.js';
 
 /** Complete domain data; neither a storage envelope nor an acknowledgement of authority. */
 export interface AtlasSnapshot {
@@ -47,6 +48,7 @@ export interface AtlasPlannerContext {
 }
 
 export type AtlasOperation =
+  | DownloadOperation
   | { readonly kind: "BEGIN_NAVIGATION" | "CHECK_NAVIGATION" | "RECORD_JOURNEY_NAVIGATION";
     readonly target: SiteTarget; readonly context: AtlasNavigationContext }
   | { readonly kind: "START_ACCESS"; readonly target: SiteTarget; readonly scopeHostnames?: readonly string[] }
@@ -66,6 +68,7 @@ export type AtlasNavigationDecision = AccessDecision | JourneyDecision
   | { readonly outcome: "DENY"; readonly reason: "MANAGED_BLACKLISTED"; readonly target: SiteTarget };
 
 export type AtlasPlanResult =
+  | DownloadResult
   | { readonly type: "REJECTED"; readonly reason: AtlasError }
   | { readonly type: "ASSESSMENT"; readonly decision: AtlasNavigationDecision }
   | { readonly type: "TRANSITION_PREPARED"; readonly operation: AtlasOperation["kind"];

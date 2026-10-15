@@ -1,0 +1,35 @@
+{
+  "firefox": "157.0.1",
+  "extensionVersion": "0.1.13",
+  "signedSha256": "8eaa4607fec0931f3ddd66cea732a0831750404bdbb36b11eaa7b878c6fbada0",
+  "signatureEnforcement": true,
+  "unsignedPermanentInstallRejected": true,
+  "signedPermanentInstallAccepted": true,
+  "restartRetainsEnabledSignedAddon": true,
+  "downloadedXpiUnchanged": true,
+  "scope": "Fresh isolated profile; automated Addon install, not manual about:addons UI",
+  "installed": {
+    "signatureRequired": true,
+    "addon": {
+      "id": "atlas-development@atlas.invalid",
+      "version": "0.1.13",
+      "isActive": true,
+      "appDisabled": false,
+      "userDisabled": false,
+      "temporarilyInstalled": false,
+      "signedState": 2
+    }
+  },
+  "restarted": {
+    "signatureRequired": true,
+    "addon": {
+      "id": "atlas-development@atlas.invalid",
+      "version": "0.1.13",
+      "isActive": true,
+      "appDisabled": false,
+      "userDisabled": false,
+      "temporarilyInstalled": false,
+      "signedState": 2
+    }
+  }
+}

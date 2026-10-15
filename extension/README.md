@@ -4,7 +4,80 @@ A Firefox WebExtension consuming `@atlas/core`. Core decides policy, Greylist, V
 
 ## Build and load
 
-Current build: **0.1.10**, with [verified distribution and startup recovery](../docs/managed-policy.md#distribution-and-startup-recovery-d29). Windows Git checkouts preserve the pinned Blacklist's exact bytes, first-run installations receive the approved 51-host Whitelist, and failed startup has a specific diagnostic and explicit retry. The [canonical scope preparation](../docs/firefox-stabilization.md#d28-greylist-request-time-scope-preparation-2026-10-03), temporary-access overview and bounded Journey POST continuations remain included. Verify **Atlas extension 0.1.10** under **Settings → Diagnostics**. Reload preserves saved authority; older Greylist scopes remain frozen.
+Development includes [Milestone D visual polish](../docs/visual-polish.md): shared
+parchment/olive surfaces and controls, readable scope/timing text, compact empty
+drafts, desktop field grouping, inline validation, and distinct access/Vault states.
+No presentation storage migration is needed. The report links matching isolated
+Firefox screenshots and records the width, zoom, focus and regression evidence.
+
+For permanent desktop installation and private distribution, follow the
+[unlisted release guide](../docs/firefox-private-release.md). It covers validated
+packages, reviewer source, credentials, signing, updates and safe migration. The
+temporary development workflow below remains available.
+
+Current development build: **0.1.16**, with [UI stability fixes](../docs/ui-stability.md), [bounded file-operation authorization](../docs/firefox-downloads.md) and preserved [destination and Journey polishing](../docs/destination-polish.md): Sites & Access, compact launchers, local category ranking, a 60px sidebar rail, and guarded timeout returns. Permission edits use Vault; display details remain local preferences. Journey lifetime is visible in protected timing settings. [Verified distribution and startup recovery](../docs/managed-policy.md#distribution-and-startup-recovery-d29) still preserves bundled bytes and seeds 51 approved Whitelist hosts only on empty installations. Verify **Atlas extension 0.1.16** under **Settings → Diagnostics**. Reload preserves saved authority; older Greylist scopes remain frozen.
+
+The archived [0.1.15 release](../docs/firefox-private-release.md#0115-release-preserved)
+packages downloads and Milestones C/D into staged runtime, unsigned ZIP, reviewer
+source, integrity receipt and a signed XPI. Its files remain frozen. Current
+[UI stability work](../docs/ui-stability.md) is included in the
+[unsigned 0.1.16 candidate](../docs/release-0.1.16.md). Signing and the installed
+extension update remain separate steps.
+
+After building, run `python extension/scripts/firefox-e2e.py --ui-stability-only`
+for five 60-second idle probes, and `--ui-stability-interactions-only` for native
+controls, delayed/failed messages, storage retry, toolbar reuse and the passive
+Journey indicator. `--ui-stability-indicator-only` isolates that last probe.
+For matching pre-fix evidence, pass `--ui-stability-baseline --addon-dir PATH`
+to a preserved development bundle. Tests use disposable profiles and synthetic
+sites. Run native suites serially; counters and screenshots stay in `.tools/`.
+
+The preserved signed **0.1.14** release includes **Milestones A and B**, retained in
+**0.1.15** and **0.1.16**. Unsigned development builds are not permanent installers.
+In **Sites & Access**, add or
+edit destinations, **Add to draft**, continue editing, then **Review draft** and
+**Submit complete batch to Vault**. One existing wait and explicit confirmation
+commits the whole policy. Names, categories and pins alone use **Save display details**
+or a display-only batch save, without a Vault wait. The local draft retains staged
+items and incomplete fields across UI closure and Firefox restart. A newer shared
+draft or changed committed baseline requires explicit reload or reconciliation;
+saved work never submits automatically. Failed saves expose local or display-only
+retry, including recovery after a policy commit. See [the batch contract](../docs/destination-polish.md#milestone-b-destination-batch-drafts).
+
+After building, `python extension/scripts/firefox-e2e.py --destination-batch-only`
+tests the complete batch in a disposable profile, including three full process
+restarts, two Atlas pages, stale reconciliation and injected storage failures.
+It uses the existing signed package read-only to retain the isolated extension
+origin across restarts, with the development build loaded temporarily over it.
+It does not use your normal profile or update your installed extension. Run native
+scenarios serially; current totals are recorded in the
+[acceptance report](../docs/acceptance-tests.md#home-organization-evidence-milestone-c).
+
+Milestone C makes Home a personal launcher. **Customize Home** reorders category
+sections and chooses which are visible; a category heading completely collapses
+its cards. Order, visibility and collapse survive reload/restart. Pins retain
+their own order and hidden-category destinations remain searchable and manageable
+in Sites & Access. **Access in progress** links pending requests, temporary grants
+and Journeys to their existing workflows without creating or renewing access.
+Sites retains selected rows, search/filter and scroll while Milestone B continues
+owning persistent editor fields. **Back to Sites & Access** and browser Back preserve
+context; the toolbar activates the existing page without reloading it.
+
+Home preferences are local presentation state, separate from policy and Vault.
+Failed saves retain the requested arrangement with **Retry Home preferences**;
+conflicts require **Load saved layout**. Home uses acknowledged layout until a
+write succeeds. See [the Home contract](../docs/home-organization.md) for migration,
+limits and recovery. After building,
+`python extension/scripts/firefox-e2e.py --home-organization-only` exercises native
+customization, failure/conflict recovery, full restart, access links, narrow windows
+and real Firefox zoom in an isolated profile. Development is now 0.1.16; that
+candidate has not been signed or published.
+
+After building, `python extension/scripts/firefox-downloads.py` tests real top-level
+download requests and denied HTML in a disposable profile with a local server.
+`--probe` observes native browser signals without Atlas; `--baseline` uses a
+disposable copy of preserved 0.1.14 staging. The test observer alone has downloads
+permission; the shipped adapter does not. See [supported mechanisms and limits](../docs/firefox-downloads.md).
 
 Use Node.js 24, npm, and Firefox 140 or newer. Firefox 157.0 on Windows is the native runtime exercised so far.
 
@@ -29,7 +102,7 @@ git pull
 git restore --source=HEAD --worktree -- extension/data/stevenblack/hosts extension/dist/data/stevenblack/hosts
 ```
 
-Then reload `extension/dist/manifest.json`. If startup still shows a failure, **Settings → Policy & recovery → Retry startup** retries initialization. The startup diagnostic distinguishes bundled-list verification from unavailable storage. Saved Firefox policy stays in IndexedDB and is preserved; do not delete your profile to update the build. A new clone at 0.1.10 needs no asset repair or manual setup.
+Then reload `extension/dist/manifest.json`. If startup still shows a failure, **Settings → Policy & recovery → Retry startup** retries initialization. The startup diagnostic distinguishes bundled-list verification from unavailable storage. Saved Firefox policy stays in IndexedDB and is preserved; do not delete your profile to update the build. A new clone at 0.1.12 needs no asset repair or manual setup.
 
 ### Browsing
 
@@ -42,7 +115,7 @@ Then reload `extension/dist/manifest.json`. If startup still shows a failure, **
 
 Journey intermediate destinations have one deadline and one context. A loaded Pure Whitelist page may make one direct cross-host departure. Later unfamiliar steps need correlated HTTP redirects or browser-attested POSTs from the loaded current intermediate. Both keep the same fixed terms. Later unfamiliar GET links and typed targets use normal policy. Same-host document actions may continue to an HTTP redirect. Browser provenance does not prove login necessity. Manual Blacklist still wins; managed denial cannot be bypassed by a Journey or grant. Opening a popup or duplicating a tab does not copy a Journey. Pure Whitelist matching remains exact. The curated preset represents each service once with explicit equivalent aliases and distinct entry points; it never infers `www` equivalence.
 
-Home shows local search, explicitly pinned destinations and service categories. `/` focuses search outside editable controls. Pin controls save local presentation preferences; blocked/removed destinations cannot return through pins. Longer categories have Show all / Show fewer. A compact Journey strip opens the selected context's focused access view. The sidebar has Home and Settings; its arrow minimizes it to an icon rail and remembers your choice. Settings contains timing, Vault, managed lists, recovery and Diagnostics. A pending-change marker opens the frozen Vault review. Toolbar badges show `J`, `WAIT`, `GO` (confirmation available), or `!`. A closed selected tab stays selected as unavailable; actions never switch silently to another tab. Policy and timing edits use protected forms in Settings. Adding the current curated preset to an existing policy uses the protected action below. See [the interface refinement](../docs/ui-design.md) for the visual design and presentation boundary.
+Home shows local search, explicitly pinned destinations and compact icon/name launchers. `/` focuses search outside editable controls. Each category shows one row of destinations ranked by local recent use, fitting the available width up to five cards, with Show all / Show fewer. Pins retain their explicit order; blocked/removed destinations cannot return through pins. A compact Journey strip opens the selected context's focused access view. The sidebar has Home, Sites & Access and Settings; it is permanently a 60px icon rail with no expand control. Old sidebar preferences are ignored. Sites shows committed exact rules, search, details and add/edit/removal drafts. Permission changes go through Vault; name/category/pin-only edits use **Save display details**. Settings contains protected timing, Vault, managed lists, recovery and Diagnostics. A pending-change marker opens the frozen Vault review. Toolbar badges show `J`, `WAIT`, `GO` (confirmation available), or `!`. A closed selected tab stays selected as unavailable; actions never switch silently to another tab. Adding the current curated preset to an existing policy uses the protected action below. See [the interface refinement](../docs/ui-design.md) for presentation and [D30](../docs/destination-polish.md) for timeout returns and destination scope.
 
 **Navigation diagnostics** shows the latest 200 events, for one tab or all tabs: sequence, context/navigation identity, target/source hostname, coarse request method, continuation kind, Core reason, and Journey summary with its end reason. Export JSON or clear explicitly. The buffer is memory-only and clears on restart. No paths, queries, fragments, headers, cookies, bodies, or page content enter the log. Exported hostnames still reveal browsing interests; review an export before sharing.
 
@@ -120,6 +193,8 @@ The native scenario exercises first-run policy, native managed denial and blocke
 
 `python extension/scripts/firefox-e2e.py --friend-prototype-only` checks a fresh 51-host seed without setup, the temporary-access overview, actual wait/confirmation, stable countdown/keyboard focus, a 500-pixel window, unavailable presentation, background reload and real grant expiry. Run native scenarios serially.
 
+`python extension/scripts/firefox-e2e.py --destination-polish-only` checks responsive Home previews at multiple widths, the permanent icon rail, Sites/Vault changes, protected Journey lifetime, timeout return without HTTP/JavaScript/meta-refresh renewal, genuine address-bar arrival, preference failures and restart. It uses the same isolated synthetic environment. See [D30 validation and limits](../docs/destination-polish.md#validation-results).
+
 Optional live checks make external requests:
 
 ```sh
@@ -136,7 +211,7 @@ For event-level navigation/authentication evidence, see the [focused investigati
 
 - Pre-request gating covers exposed top-level HTTP(S) requests. Iframes and page resources are left to the browser.
 - History/cache restoration and already displayed pages are checked after observation; there may be a visible interval before removal. Initial `about:blank` events cannot discard a newer held root request.
-- Firefox internal/protected pages, private browsing, downloads, non-HTTP schemes, and other extensions are outside this slice. Disabling the extension removes its enforcement.
+- Firefox internal/protected pages, private browsing, non-HTTP schemes, other extensions and download mechanisms outside the [bounded GET/attachment contract](../docs/firefox-downloads.md) remain outside this slice. Disabling the extension removes its enforcement.
 - Public sign-in checks are separate from authenticated compatibility. No complete real-account login or authenticated return has been tested.
 
 Native test success establishes the tested events and backend operations. It does not establish exhaustive browser coverage or power-loss durability.
@@ -145,7 +220,7 @@ D18 verification and remaining strict-flow limitations are in [Firefox stabiliza
 
 ## Productization (D19)
 
-Home leads with entirely local destination search and existing service categories. Search includes effective White entries, service labels and active explicit aliases; manual Blacklist removes an entry. Arrows select results and Enter opens a unique/highlighted result through ordinary held-request navigation. There is no external search or precreated homepage Journey. Settings retains policy management, timing controls, Vault, managed lists, recovery and diagnostics. KTH Mail uses the observed `webmail.kth.se`; saved policy gains it only through explicit Vault review/commit.
+Home leads with entirely local destination search and existing service categories. Search includes effective White entries, service labels and active explicit aliases; manual Blacklist removes an entry. Arrows select results and Enter opens a unique/highlighted result through ordinary held-request navigation. There is no external search or precreated homepage Journey. D30 moves policy drafts to Sites & Access; Settings retains timing controls, Vault, managed lists, recovery and diagnostics. KTH Mail uses the observed `webmail.kth.se`; saved policy gains it only through explicit Vault review/commit.
 
 The toolbar displays **J** per owning tab with a service/root label and approximate remaining time in its tooltip. Firefox resets tab-specific badge text on document navigation, so the adapter reapplies it once after arrival and deduplicates unchanged timer displays. Expiry, completion, cancellation and uncertain authority clear Journey presentation. The badge creates no authority. See [Mozilla's badge API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/browserAction/setBadgeText).
 

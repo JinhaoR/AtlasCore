@@ -1,5 +1,33 @@
 # Atlas Core architecture
 
+The [UI stability pass](ui-stability.md) retains acknowledged DOM and presentation
+state during unchanged reads and housekeeping saves. It separates rendering from
+presentation synchronization and owns one visible-page polling loop. Core authority,
+adapter commands, persisted schemas and signed releases are unchanged.
+
+Milestone D is an extension presentation pass. The [visual contract](visual-polish.md)
+changes shared CSS and narrowly scoped error/focus/status rendering. Core, adapter
+authorization, persisted schemas and A/B/C workflow transitions are unchanged.
+
+Milestone C's [Home organization contract](home-organization.md) adds separate
+versioned presentation preferences and small per-page navigation state. Existing
+destination drafts and authorization operations retain their contracts.
+
+Development toward 0.1.15 adds a separate ephemeral [Download Intent](firefox-downloads.md)
+through the existing planner/controller. Its operation scope never becomes a
+navigation ALLOW, Access Grant or shared Journey. Snapshot schema remains unchanged.
+
+Milestone B's [destination batch contract](destination-polish.md#milestone-b-destination-batch-drafts)
+adds an extension-owned local draft repository and frozen submission/display receipts.
+UI candidate previews reuse `planAtlasOperation`; one existing `PROPOSE_POLICY`
+submits the whole policy, and existing confirmation/commit applies it. Drafts and
+presentation storage never enter navigation authority. Core and its persistence
+ports are unchanged.
+
+D31's [interface update](ui-design.md) makes the Firefox icon rail permanent and adapts category previews to one row with at most five cards. This has no Core or authority-schema changes.
+
+D30's [destination polishing contract](destination-polish.md) evolves Firefox service presentation, local ranking and protected policy editing, and adds a guarded timeout return. Core authorization and authoritative persistence schemas remain unchanged.
+
 D29's [distribution and startup recovery](managed-policy.md#distribution-and-startup-recovery-d29) protects pinned bundle bytes through Git checkout and distinguishes retriable adapter startup failures from unavailable Core authority. Core and repository contracts remain unchanged.
 
 D19's [productization contract](productization.md) adds protected configuration to the authoritative snapshot and existing Vault flow. Journey authorization follows D18 and D22, with the redirect and first-departure risks explicitly accepted for the Ulysses-contract threat model. Require a reproducible real-use failure or practical bypass before increasing authorization complexity.
@@ -36,6 +64,7 @@ D24's [Firefox interface cleanup](ui-design.md#firefox-interface-cleanup-d24) si
 | `journey-models.ts` | Bounded Journey records, context, limits, decisions, and transitions. |
 | `journey-state.ts` | Initialize, validate/copy/freeze state, and observe expiry or policy invalidation. |
 | `journey.ts` | Start attempts, evaluate/record navigation, cancel, and close contexts. |
+| `download.ts` | Validate and transition ephemeral operation-bound Download Intents; never create browsing permission or modify policy. |
 | `atlas-models.ts` | Aggregate snapshot, configuration, closed operations, assessments, and candidate plans. |
 | `atlas-state.ts` | Validate/copy/freeze complete snapshots and explicitly convert known valid legacy snapshots. |
 | `configuration.ts` | Closed validation of the seven protected configuration values. |
@@ -307,6 +336,7 @@ Implemented under the scope authorized on 2026-09-29: `AtlasSnapshot`, complete 
 | --- | --- |
 | `BEGIN_NAVIGATION` | Assess a held navigation and create a committed Journey for a Whitelisted root when no active continuation applies. All navigation origins use this operation; never call it for timer housekeeping. |
 | `CHECK_NAVIGATION` | Assess a target in `{ contextId, journeyId, continuation? }`, where `journeyId: null` means no bound Journey. No hop is recorded and no root return is completed. |
+| `CHECK_DOWNLOAD` | Prepare, start, advance or consume one ephemeral file operation using explicit source, context binding and prior intent. Return a distinct `DOWNLOAD` result; no candidate policy, grant or Journey. See [the download contract](firefox-downloads.md). |
 | `RECORD_JOURNEY_NAVIGATION` | Compose the existing trusted Journey-record operation with common authorization. An intermediate records adoption; a root records actual arrival. This primitive is not the future ADOPT/event protocol. The owner must establish which fact occurred. |
 | `START_ACCESS`, `CONFIRM_ACCESS`, `CANCEL_ACCESS` | Existing explicit Greylist transitions. |
 | `PROPOSE_POLICY`, `PROPOSE_SETTINGS`, `REVIEW_POLICY`, `CONFIRM_POLICY`, `CANCEL_POLICY` | Shared frozen Vault workflow; confirmation prepares a complete aggregate candidate. |
@@ -341,9 +371,15 @@ The stored envelope is `{ schemaVersion: 2, storageVersion, lastCommitId, snapsh
 
 One promise queue serializes open, recovery, and handle calls. The controller reloads and validates current authority before each operation, obtains explicit time, and calls D13. It keeps an in-memory time floor, including failed-operation and post-save observations, so retry cannot rewind a known deadline. Whole-snapshot rollback across a new process still depends on the repository/clock contracts.
 
-For each plan, commit its complete candidate when present; otherwise commit changed observation state. Read-only review writes nothing. After a verified save, reload and verify the expected authoritative envelope before publication. Return COMMITTED only for a confirmed workflow transition; return ASSESSMENT, REVIEW, OBSERVED, or domain REJECTED with current revision/version for other results. No raw candidate is exposed through controller responses or views before its save is verified. Even COMMITTED grant creation requires a fresh navigation assessment.
+For each plan, commit its complete candidate when present; otherwise commit changed observation state. Read-only review writes nothing. After a verified save, reload and verify the expected authoritative envelope before publication. Return COMMITTED only for a confirmed workflow transition; return ASSESSMENT, DOWNLOAD, REVIEW, OBSERVED, or domain REJECTED with current revision/version for other results. No raw candidate is exposed through controller responses or views before its save is verified. Even COMMITTED grant creation requires a fresh navigation assessment.
 
 After asynchronous work, sample time again. An ALLOW assessment whose selected grant/Journey expired is withheld with `REEVALUATION_REQUIRED`; a fresh handle call observes expiry. This final guard only vetoes and does not replay a confirmation, renew time, or start an unbounded checkpoint loop. A successfully saved command can still report the historical commit if its resulting window has since expired; that response is not permission. Views are immutable descriptions of the last verified snapshot, labelled with owner status, never authorization.
+
+The same final expiry veto applies to `DOWNLOAD` responses. `PREPARED` permits no
+network send; `FETCH` permits a bounded correlated request, and `FILE` accepts an
+attachment response once. The trusted adapter owns the intent's linear progression
+and native evidence, discards it on restart, and never exposes it to website/UI
+commands. Intents stay outside `AtlasSnapshot` and its unchanged repository schema.
 
 ### Failure and restart rules
 
@@ -615,6 +651,16 @@ UTC checkpoints and monotonic comparisons are possible local safeguards, but mon
 Audit should explain user commitments and state changes rather than record browsing traffic. Prefer reason codes, normalized hostnames when necessary, IDs, revisions and bounded retention. A redacted error is enough; raw provider redirects can contain secrets.
 
 ## Direct reuse and remaining boundaries
+
+D32 adds [private Firefox release packaging](firefox-private-release.md) around the
+existing build. The release tool is outside Core and runtime authorization. Stable
+identity, unlisted-only signing and reviewer source verification do not change
+policy, persistence contracts or adapter navigation semantics.
+
+The separate [Windows deployment tool](windows-deployment.md) consumes frozen
+signed releases through that same verifier. It validates existing enterprise
+policy, backs up and atomically replaces the managed XPI; it never reads or writes
+Atlas domain storage. File deployment and Firefox activation are separate results.
 
 The TypeScript package is consumed directly by D15's trusted Firefox background owner. Electron's main process remains a future consumer. No Core HTTP server, Python process or C# IPC service is needed; the optional Python native test script only drives an isolated test browser.
 

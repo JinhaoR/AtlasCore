@@ -1,0 +1,247 @@
+{
+  "version": "0.1.15",
+  "date": "2026-10-12",
+  "status": "READY_FOR_UNLISTED_SIGNING",
+  "addonId": "atlas-development@atlas.invalid",
+  "coreVersion": "0.1.0",
+  "authoritySchema": 2,
+  "manifestOnlySemanticChange": "version",
+  "artifacts": {
+    "atlas-0.1.15-unsigned.zip": {
+      "path": "extension/release/0.1.15/atlas-0.1.15-unsigned.zip",
+      "bytes": 1293803,
+      "sha256": "2a1552e7ae4357415dffee6b5b509d717112262b846f713b8e65ee0e29ae48a5"
+    },
+    "atlas-0.1.15-source.zip": {
+      "path": "extension/release/0.1.15/atlas-0.1.15-source.zip",
+      "bytes": 1465961,
+      "sha256": "57262bc669918fb6625acdd43a1560a00b429fc92df39c4c3041797188cb964e"
+    }
+  },
+  "runtimeFiles": 14,
+  "reviewerSourceFiles": 142,
+  "checks": {
+    "coreTests": 204,
+    "extensionTests": 352,
+    "releaseTests": 23,
+    "failed": 0,
+    "skipped": 0,
+    "coreTypecheck": true,
+    "extensionTypecheck": true,
+    "developmentBuild": true,
+    "releaseValidated": true,
+    "preservedSigned014VerifiedOffline": true
+  },
+  "lint": {
+    "errors": 0,
+    "notices": 0,
+    "warnings": 1
+  },
+  "lintWarnings": [
+    "KEY_FIREFOX_ANDROID_UNSUPPORTED_BY_MIN_VERSION"
+  ],
+  "reproduction": {
+    "version": "0.1.15",
+    "sourceFiles": 142,
+    "unsignedSha256": "2a1552e7ae4357415dffee6b5b509d717112262b846f713b8e65ee0e29ae48a5",
+    "sourceSha256": "57262bc669918fb6625acdd43a1560a00b429fc92df39c4c3041797188cb964e",
+    "sourceArchiveOnly": true,
+    "lockfileInstalls": true,
+    "offlineCachedPackages": true,
+    "identicalRuntimeArchive": true,
+    "identicalSourceArchive": true,
+    "mozillaSubmitted": false,
+    "rebuildDirectory": ".tools/reviewer-0.1.15-RSPysY"
+  },
+  "nativePackagedRuntime": {
+    "addonDirectory": "extension/release/0.1.15/addon",
+    "firefox": "157.0.1",
+    "passingGroups": 40,
+    "isolatedProfiles": true,
+    "home": {
+      "artifact": ".tools/firefox-e2e-ilwtq7dk/result.json",
+      "checks": [
+        "five populated legacy metadata categories migrate visibly without policy or metadata changes",
+        "reorder, hide, true collapse and pin order survive Home reload; hidden destinations retain exact search",
+        "full Firefox restart retains layout, metadata, pins and authoritative policy",
+        "fifteen and thirty category growth preserves custom order; new categories append visibly",
+        "unambiguous complete rename migrates collapse and order; long category labels remain usable",
+        "failed presentation save retains requested draft, shows no false saved success, and explicit retry succeeds without policy commands",
+        "keyboard Move up works and retains focus on the same category control",
+        "two live Atlas pages race native CAS writes; stale writer retains its draft, explicitly reconciles, and both layouts converge",
+        "usage ranking and repeated Home timer rerenders retain category order, header identity and search focus",
+        "crowded thirty-category Home, long labels, four window sizes and real 125/150/200 percent Firefox zoom have no horizontal overflow and at most five columns",
+        "Sites keeps complete hidden destinations, long-list selection/scroll, persistent B editor, browser Back and reload; close/save/Vault return restore selected-row context without authority changes",
+        "Home pending WAIT and confirmation-ready links select the existing workflow; only its explicit confirmation creates a grant, and access-details links retain the exact deadline",
+        "Home Journey link uses only its live owning tab/context and preserves its ID, deadline, policy and grant separation",
+        "unavailable authority labels retained catalog stale and removes access claims/actions; recovery retains layout and policy"
+      ],
+      "fullProcessRestart": true,
+      "layouts": [
+        {
+          "width": 500,
+          "columns": 2,
+          "overflow": false,
+          "heights": [
+            56
+          ],
+          "visible": 52
+        },
+        {
+          "width": 800,
+          "columns": 3,
+          "overflow": false,
+          "heights": [
+            56
+          ],
+          "visible": 78
+        },
+        {
+          "width": 1280,
+          "columns": 5,
+          "overflow": false,
+          "heights": [
+            56
+          ],
+          "visible": 130
+        },
+        {
+          "width": 1800,
+          "columns": 5,
+          "overflow": false,
+          "heights": [
+            56
+          ],
+          "visible": 130
+        },
+        {
+          "zoom": 1.25,
+          "width": 1024,
+          "columns": 5,
+          "overflow": false
+        },
+        {
+          "zoom": 1.5,
+          "width": 853,
+          "columns": 4,
+          "overflow": false
+        },
+        {
+          "zoom": 2,
+          "width": 640,
+          "columns": 3,
+          "overflow": false
+        }
+      ]
+    },
+    "batch": {
+      "artifact": ".tools/firefox-e2e-wz4jpxu5/result.json",
+      "checks": [
+        "three Whitelist additions, two Blacklist additions, explicit removal and name/category/pin edit staged together without policy or waiting",
+        "editable draft survives closing UI and a full Firefox process restart; complete destination review and unchanged old-term Vault wait",
+        "one explicit confirmation commits entire candidate once; replay rejected; post-commit display failure survives full restart and retries only presentation",
+        "unrelated commit stales preserved draft; explicit reconciliation preview and acceptance do not create permission or submit automatically",
+        "custom Books category reused across editor and committed Home grouping without rewriting legacy records or changing category ordering controls",
+        "two native Atlas pages detect a changed shared draft, retain local work and explicitly reload without overwriting the other page",
+        "real draft transaction failure retains raw inputs and blocks submission; explicit local retry saves work without policy commands",
+        "final full process restart retains completed policy/display/pins and separately preserves the next editable unsubmitted draft",
+        "lost response plus unrelated proposal ID advancement has an explicit local discard after Core recovery; saved policy retained and no repeat proposal or confirmation"
+      ],
+      "fullFirefoxRestarts": 3
+    },
+    "downloads": {
+      "artifact": ".tools/firefox-downloads-2rf15mwz/result.json",
+      "checks": [
+        {
+          "mechanism": "direct",
+          "files": 1,
+          "completedDownloads": 1
+        },
+        {
+          "mechanism": "new",
+          "files": 1,
+          "completedDownloads": 2
+        },
+        {
+          "mechanism": "delay",
+          "files": 1,
+          "completedDownloads": 3
+        },
+        {
+          "mechanism": "html",
+          "files": 0
+        },
+        {
+          "mechanism": "js",
+          "files": 1,
+          "completedDownloads": 4
+        },
+        {
+          "mechanism": "claimed",
+          "files": 0
+        },
+        {
+          "mechanism": "blob",
+          "files": 1,
+          "completedDownloads": 5
+        },
+        {
+          "mechanism": "interstitial",
+          "files": 0
+        },
+        {
+          "mechanism": "blacklist",
+          "files": 0
+        },
+        {
+          "mechanism": "loop",
+          "files": 0
+        },
+        {
+          "mechanism": "attachment-html",
+          "files": 1,
+          "completedDownloads": 6
+        },
+        {
+          "mechanism": "mime-only",
+          "files": 0
+        },
+        {
+          "mechanism": "unactivated",
+          "files": 0
+        },
+        {
+          "mechanism": "expired",
+          "files": 0
+        },
+        {
+          "mechanism": "policy",
+          "files": 0
+        },
+        {
+          "mechanism": "closed",
+          "files": 0
+        },
+        {
+          "mechanism": "restart",
+          "files": 0
+        }
+      ]
+    }
+  },
+  "priorDevelopmentEvidence": "docs/evidence/milestone-d/regressions.json",
+  "priorNativeRegressionGroups": 99,
+  "preserved014FileCount": 19,
+  "preservedSigned014Sha256": "88b699c0b23542228cee490f3cc046abeebf326ef94e3fe4560bb21cf79f5ff1",
+  "existingPolicyAccessVaultJourneySemanticsPreserved": true,
+  "newOperationBoundDownloadIntents": true,
+  "testHarnessCorrections": [
+    "retain READY observation rather than querying again during housekeeping",
+    "download fixtures can select a staged add-on directory and modify only its disposable copy"
+  ],
+  "mozillaSubmitted": false,
+  "mozillaSigned": false,
+  "installedExtensionModified": false,
+  "normalProfileModified": false,
+  "enterprisePoliciesModified": false
+}

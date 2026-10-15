@@ -1,0 +1,305 @@
+{
+    "date":  "2026-10-12",
+    "scope":  "Milestone D visual polish",
+    "coreTests":  204,
+    "extensionTests":  352,
+    "addedExtensionTests":  10,
+    "typechecks":  "passed",
+    "developmentBuild":  "passed",
+    "distributionIntegrity":  "passed",
+    "signedVersion":  "0.1.14",
+    "signedXpiSha256":  "88b699c0b23542228cee490f3cc046abeebf326ef94e3fe4560bb21cf79f5ff1",
+    "signedArtifactModified":  false,
+    "extensionId":  "atlas-development@atlas.invalid",
+    "dependenciesAdded":  false,
+    "storageSchemaChanged":  false,
+    "coreSemanticsChanged":  false,
+    "submissions":  false,
+    "normalProfileAccess":  false,
+    "suites":  [
+                   {
+                       "name":  "ui-reliability",
+                       "artifact":  ".tools/firefox-e2e-psyxd_q9/result.json",
+                       "firefox":  "157.0.1",
+                       "passingGroups":  6,
+                       "checks":  [
+                                      "failed authority query retains labelled stale cards, hides fake empty messages, disables openings and recovers",
+                                      "rendered exact-host click goes through adapter/Core, aliases stay exact, service names default and ambiguous entry points are separate",
+                                      "failed rendered display save preserves draft, no false saved values, explicit retry, focus return and reload persistence",
+                                      "saved proposal and waiting/ready/committed states, pending Sites explanation and link, routine status semantics",
+                                      "actual Core commit with failed accompanying display write reports partial success and retries display without another proposal",
+                                      "genuine empty collection is distinct from unavailable and recovers through ordinary protected policy changes"
+                                  ]
+                   },
+                   {
+                       "name":  "destination-batch",
+                       "artifact":  ".tools/firefox-e2e-_36s2gv4/result.json",
+                       "firefox":  "157.0.1",
+                       "passingGroups":  9,
+                       "checks":  [
+                                      "three Whitelist additions, two Blacklist additions, explicit removal and name/category/pin edit staged together without policy or waiting",
+                                      "editable draft survives closing UI and a full Firefox process restart; complete destination review and unchanged old-term Vault wait",
+                                      "one explicit confirmation commits entire candidate once; replay rejected; post-commit display failure survives full restart and retries only presentation",
+                                      "unrelated commit stales preserved draft; explicit reconciliation preview and acceptance do not create permission or submit automatically",
+                                      "custom Books category reused across editor and committed Home grouping without rewriting legacy records or changing category ordering controls",
+                                      "two native Atlas pages detect a changed shared draft, retain local work and explicitly reload without overwriting the other page",
+                                      "real draft transaction failure retains raw inputs and blocks submission; explicit local retry saves work without policy commands",
+                                      "final full process restart retains completed policy/display/pins and separately preserves the next editable unsubmitted draft",
+                                      "lost response plus unrelated proposal ID advancement has an explicit local discard after Core recovery; saved policy retained and no repeat proposal or confirmation"
+                                  ]
+                   },
+                   {
+                       "name":  "home-organization",
+                       "artifact":  ".tools/firefox-e2e-gfwib0n0/result.json",
+                       "firefox":  "157.0.1",
+                       "passingGroups":  14,
+                       "checks":  [
+                                      "five populated legacy metadata categories migrate visibly without policy or metadata changes",
+                                      "reorder, hide, true collapse and pin order survive Home reload; hidden destinations retain exact search",
+                                      "full Firefox restart retains layout, metadata, pins and authoritative policy",
+                                      "fifteen and thirty category growth preserves custom order; new categories append visibly",
+                                      "unambiguous complete rename migrates collapse and order; long category labels remain usable",
+                                      "failed presentation save retains requested draft, shows no false saved success, and explicit retry succeeds without policy commands",
+                                      "keyboard Move up works and retains focus on the same category control",
+                                      "two live Atlas pages race native CAS writes; stale writer retains its draft, explicitly reconciles, and both layouts converge",
+                                      "usage ranking and repeated Home timer rerenders retain category order, header identity and search focus",
+                                      "crowded thirty-category Home, long labels, four window sizes and real 125/150/200 percent Firefox zoom have no horizontal overflow and at most five columns",
+                                      "Sites keeps complete hidden destinations, long-list selection/scroll, persistent B editor, browser Back and reload; close/save/Vault return restore selected-row context without authority changes",
+                                      "Home pending WAIT and confirmation-ready links select the existing workflow; only its explicit confirmation creates a grant, and access-details links retain the exact deadline",
+                                      "Home Journey link uses only its live owning tab/context and preserves its ID, deadline, policy and grant separation",
+                                      "unavailable authority labels retained catalog stale and removes access claims/actions; recovery retains layout and policy"
+                                  ]
+                   },
+                   {
+                       "name":  "coherence",
+                       "artifact":  ".tools/firefox-e2e-3pfohgxn/result.json",
+                       "firefox":  "157.0.1",
+                       "passingGroups":  6,
+                       "checks":  [
+                                      "unsaved policy/timing drafts survive unavailable authority and reconnect; commands stay disabled",
+                                      "fractional millisecond draft cannot create a Vault proposal or change active settings",
+                                      "explicit navigation clears stale feedback; search/Escape retain focus; responsive Home has no horizontal overflow",
+                                      "current destination and Home move focus to their visible content",
+                                      "native internal replacement clears root evidence; next unknown site gets no Journey or grant",
+                                      "Greylist request preserves wait; hidden action transfers focus to access heading"
+                                  ]
+                   },
+                   {
+                       "name":  "destination-polish",
+                       "artifact":  ".tools/firefox-e2e-v38voyeb/result.json",
+                       "firefox":  "157.0.1",
+                       "passingGroups":  5,
+                       "checks":  [
+                                      "54px launchers, one responsive preview row, two to five columns in tested windows, maximum five per row, stable cards and permanent 60px accessible rail",
+                                      "Journey lifetime visible, old-term Vault wait, no early application, saved explicit confirmation",
+                                      "Sites search/details, explicit PSL www pair, freeze/cancel/commit, presentation-only edit, Blacklist and removal through Vault",
+                                      "native timeout returns recorded origin; HTTP, immediate JS and same-origin meta-refresh cannot renew; explicit Restart and real address-bar document arrival allow subsequent attempts without grants",
+                                      "real IndexedDB settings restart, metadata/ranking reload, failed presentation write without permission changes and 500px Home/Sites without horizontal overflow"
+                                  ]
+                   },
+                   {
+                       "name":  "journey-authentication",
+                       "artifact":  ".tools/firefox-e2e-4a7srniy/result.json",
+                       "firefox":  "157.0.1",
+                       "passingGroups":  16,
+                       "checks":  [
+                                      "loaded root ends REACHED; actual Login starts a new Journey",
+                                      "immediate same-host auto-POST survives document/request ordering",
+                                      "same-host POST does not consume a hop or extend the fixed deadline",
+                                      "four same-tab Google denial/root re-entry/Login/return cycles",
+                                      "explicit cancellation and Restart action reach fresh root and fresh Login",
+                                      "two tabs keep independent authorization and indicators; denied synthetic request withheld",
+                                      "four-second root document delay survives timer checkpoints without losing permission",
+                                      "actual direct GET, cross-host POST and root script departures start fresh Journeys",
+                                      "first departure consumes hop one; subsequent redirects retain HTTP correlation",
+                                      "all direct-departure returns end the same Journey without renewed deadline",
+                                      "uncorrelated intermediate link stays Greylist and its destination request is withheld",
+                                      "typed Google stays Greylist during direct-departure Journey",
+                                      "same-tab root re-entry and legitimate direct Login succeed after each ended attempt",
+                                      "cross-domain confirmation POST and immediate auto-POST return with unchanged Journey ID/deadline",
+                                      "policy/configuration unchanged",
+                                      "no permanent trust, pending Access request or temporary grant created"
+                                  ]
+                   },
+                   {
+                       "name":  "journey-retry",
+                       "artifact":  ".tools/firefox-e2e-mhvcdda2/result.json",
+                       "firefox":  "157.0.1",
+                       "passingGroups":  14,
+                       "checks":  [
+                                      "visible destination/decreasing countdown without node churn or form overlap",
+                                      "toolbar arrival reset and new navbar placement",
+                                      "actual Google address entry blocked",
+                                      "actual Home card and search start fresh roots",
+                                      "Restart button restarts root and fresh terms",
+                                      "auth reload uses ordinary policy",
+                                      "second tab has no inherited indicator",
+                                      "second intermediate recreates indicator",
+                                      "return clears indicator",
+                                      "extension reload ends authority and clears indicator",
+                                      "unrelated typed destination withheld",
+                                      "ended UNRELATED_NAVIGATION",
+                                      "Back does not resurrect Journey",
+                                      "explicit Home root retry creates fresh Journey and succeeds"
+                                  ]
+                   },
+                   {
+                       "name":  "navigation-baseline",
+                       "artifact":  ".tools/firefox-e2e-gyi05y1o/result.json",
+                       "firefox":  "157.0.1",
+                       "passingGroups":  12,
+                       "checks":  [
+                                      "curated initialization UI",
+                                      "managed denial",
+                                      "managed cache restart",
+                                      "journey",
+                                      "redirect",
+                                      "greylist",
+                                      "confirmation UI",
+                                      "focus retention",
+                                      "diagnostics UI",
+                                      "closed-tab selection",
+                                      "request withholding",
+                                      "background restart"
+                                  ]
+                   },
+                   {
+                       "name":  "downloads",
+                       "artifact":  ".tools/firefox-downloads-d94krdmy/result.json",
+                       "firefox":  "157.0.1",
+                       "passingGroups":  17,
+                       "checks":  [
+                                      "direct",
+                                      "new",
+                                      "delay",
+                                      "html",
+                                      "js",
+                                      "claimed",
+                                      "blob",
+                                      "interstitial",
+                                      "blacklist",
+                                      "loop",
+                                      "attachment-html",
+                                      "mime-only",
+                                      "unactivated",
+                                      "expired",
+                                      "policy",
+                                      "closed",
+                                      "restart"
+                                  ],
+                       "cases":  [
+                                     {
+                                         "mechanism":  "direct",
+                                         "files":  1,
+                                         "completedDownloads":  1
+                                     },
+                                     {
+                                         "mechanism":  "new",
+                                         "files":  1,
+                                         "completedDownloads":  2
+                                     },
+                                     {
+                                         "mechanism":  "delay",
+                                         "files":  1,
+                                         "completedDownloads":  3
+                                     },
+                                     {
+                                         "mechanism":  "html",
+                                         "files":  0,
+                                         "completedDownloads":  null
+                                     },
+                                     {
+                                         "mechanism":  "js",
+                                         "files":  1,
+                                         "completedDownloads":  4
+                                     },
+                                     {
+                                         "mechanism":  "claimed",
+                                         "files":  0,
+                                         "completedDownloads":  null
+                                     },
+                                     {
+                                         "mechanism":  "blob",
+                                         "files":  1,
+                                         "completedDownloads":  5
+                                     },
+                                     {
+                                         "mechanism":  "interstitial",
+                                         "files":  0,
+                                         "completedDownloads":  null
+                                     },
+                                     {
+                                         "mechanism":  "blacklist",
+                                         "files":  0,
+                                         "completedDownloads":  null
+                                     },
+                                     {
+                                         "mechanism":  "loop",
+                                         "files":  0,
+                                         "completedDownloads":  null
+                                     },
+                                     {
+                                         "mechanism":  "attachment-html",
+                                         "files":  1,
+                                         "completedDownloads":  6
+                                     },
+                                     {
+                                         "mechanism":  "mime-only",
+                                         "files":  0,
+                                         "completedDownloads":  null
+                                     },
+                                     {
+                                         "mechanism":  "unactivated",
+                                         "files":  0,
+                                         "completedDownloads":  null
+                                     },
+                                     {
+                                         "mechanism":  "expired",
+                                         "files":  0,
+                                         "completedDownloads":  null
+                                     },
+                                     {
+                                         "mechanism":  "policy",
+                                         "files":  0,
+                                         "completedDownloads":  null
+                                     },
+                                     {
+                                         "mechanism":  "closed",
+                                         "files":  0,
+                                         "completedDownloads":  null
+                                     },
+                                     {
+                                         "mechanism":  "restart",
+                                         "files":  0,
+                                         "completedDownloads":  null
+                                     }
+                                 ]
+                   }
+               ],
+    "nativeRegressionGroups":  99,
+    "visual":  {
+                   "firefox":  "157.0.1",
+                   "artifact":  ".tools/firefox-e2e-n6imtb2o/result.json",
+                   "retainedResult":  "docs/evidence/milestone-d/after/result.json",
+                   "beforeCaptures":  43,
+                   "afterCaptures":  56,
+                   "responsiveObservations":  69,
+                   "passingGroups":  8,
+                   "minimumSampledOperationalFontPx":  13,
+                   "minimumSampledTextContrast":  5.1825216999164017,
+                   "minimumSampledTargetWidth":  24,
+                   "minimumSampledTargetHeight":  24,
+                   "minimumSampledControlBoundaryContrast":  3.2983806966051992,
+                   "pageOverflows":  0,
+                   "checks":  [
+                                  "native keyboard focus within customization has a visible 2px outline",
+                                  "real five/fifteen/thirty-category Home, pins, search and customization captured",
+                                  "invalid hostname receives associated error and focus; correction retains and stages the existing draft",
+                                  "rendered stale ten-item draft is explicitly reconciled without changing policy",
+                                  "long Sites list, real editor and ten-item mixed batch/frozen review captured without premature policy changes",
+                                  "actual blocked/wait/confirmation/grant/Journey/recovery states use existing Core workflows",
+                                  "all requested viewport widths, actual Firefox zoom and stable fixed-height five-column launchers",
+                                  "actual reduced-motion preference disables control transitions"
+                              ]
+               }
+}

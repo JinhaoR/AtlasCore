@@ -46,3 +46,5 @@ export type {
 export { createAtlasController } from "./atlas-controller.js";
 
 export { readConfiguration } from "./configuration.js";
+export type { DownloadIntent, DownloadOperation, DownloadResult } from './download.js';
+export { DOWNLOAD_LIFETIME_MS, DOWNLOAD_MAX_REDIRECTS } from './download.js';

@@ -12,6 +12,61 @@ async function transit(firefox) {
 const current = (adapter, tabId) => adapter.view().contexts.find(c => c.tabId === tabId);
 const pageSender = (firefox, tabId, url = 'https://auth.example/') => ({ id: firefox.runtime.id, tab: { id: tabId }, url, frameId: 0 });
 
+test('passive Journey display survives a housekeeping read without gaining authority or extending its deadline', async t => {
+  const { firefox, controller, repository } = await fixture(t);
+  const tabId = await transit(firefox), sender = pageSender(firefox, tabId);
+  const before = (await firefox.send({ kind: 'GET_JOURNEY_DISPLAY' }, sender)).presentation;
+  const saved = structuredClone(controller.getView().snapshot);
+  const loading = deferred(), release = deferred(), load = repository.load.bind(repository);
+  repository.load = async () => { loading.resolve(); await release.promise; return load(); };
+  const observation = controller.handle({ kind: 'OBSERVE_TIME' });
+  await loading.promise;
+  try {
+    assert.equal(controller.getView().status, 'LOADING');
+    assert.deepEqual((await firefox.send({ kind: 'GET_JOURNEY_DISPLAY' }, sender)).presentation, before);
+    assert.deepEqual(controller.getView().snapshot, saved);
+    assert.equal((await firefox.send({ kind: 'GET_JOURNEY_DISPLAY' }, { ...sender, url: 'https://stale.example/' })).presentation, null);
+  } finally { release.resolve(); await observation; }
+  assert.deepEqual((await firefox.send({ kind: 'GET_JOURNEY_DISPLAY' }, sender)).presentation, before);
+});
+
+test('saved Journey retry copy stays stable during housekeeping but remains unavailable for failed or uncertain authority', async t => {
+  const { firefox, controller, adapter } = await fixture(t);
+  const tabId = await transit(firefox);
+  await firefox.visit(tabId, 'https://google.com/');
+  const ended = current(adapter, tabId).journey, view = controller.getView(), saved = structuredClone(view.snapshot);
+  const retry = journeyRetry(view, ended);
+  assert.ok(retry);
+  for (const status of ['LOADING', 'COMMITTING']) assert.deepEqual(journeyRetry({ ...view, status }, ended), retry);
+  for (const status of ['UNAVAILABLE', 'RECONCILING', 'UNINITIALIZED']) assert.equal(journeyRetry({ ...view, status }, ended), null);
+  assert.equal(journeyRetry({ ...view, status: 'LOADING', snapshot: null }, ended), null);
+  assert.deepEqual(controller.getView().snapshot, saved);
+});
+
+test('Core rechecks publish one active display heartbeat per second without extending authority or repeating ended messages', async t => {
+  const { firefox, controller, adapter, clock } = await fixture(t);
+  const proposed = await firefox.send({ kind: 'PROPOSE_SETTINGS', candidateConfiguration: { ...configuration,
+    journeyLimits: { lifetimeMs: 5000, maxHops: 3 } } });
+  const proposal = proposed.view.controller.snapshot.vaultState.pendingProposal;
+  clock.time = proposal.readyAt;
+  assert.equal((await firefox.send({ kind: 'CONFIRM_POLICY', proposalId: proposal.id })).result.type, 'COMMITTED');
+  const tabId = await transit(firefox);
+  const messages = () => firefox.pageMessages.filter(message => message.tabId === tabId);
+  const before = messages().at(-1).message, snapshot = structuredClone(controller.getView().snapshot);
+  const count = messages().length;
+  await adapter.refresh(); await adapter.refresh(); assert.equal(messages().length, count);
+  clock.time += 1000; await adapter.refresh();
+  assert.equal(messages().length, count + 1); assert.deepEqual(messages().at(-1).message, before);
+  assert.equal(controller.getView().snapshot.journeyState.journeys[0].expiresAt, snapshot.journeyState.journeys[0].expiresAt);
+  assert.deepEqual(controller.getView().snapshot.policy, snapshot.policy);
+  assert.deepEqual(controller.getView().snapshot.accessState.grants, snapshot.accessState.grants);
+  await firefox.send({ kind: 'CANCEL_JOURNEY', tabId });
+  await firefox.flush(); clock.time += 1000; await adapter.refresh();
+  const endedCount = messages().length; assert.equal(messages().at(-1).message.presentation, null);
+  clock.time += 1000; await adapter.refresh(); await adapter.refresh();
+  assert.equal(messages().length, endedCount);
+});
+
 test('committed intermediate displays its root, stays tab-scoped and clears on interruption/history without reviving authority', async t => {
   const { firefox, adapter, controller } = await fixture(t);
   const tabId = await transit(firefox); const other = await firefox.tabs.create({});

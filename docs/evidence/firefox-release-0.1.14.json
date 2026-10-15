@@ -1,0 +1,67 @@
+{
+  "version": "0.1.14",
+  "date": "2026-10-11",
+  "status": "READY_FOR_UNLISTED_SIGNING",
+  "addonId": "atlas-development@atlas.invalid",
+  "coreVersion": "0.1.0",
+  "manifestOnlySemanticChange": "version",
+  "authoritySchema": 2,
+  "artifacts": {
+    "atlas-0.1.14-unsigned.zip": {
+      "path": "extension/release/0.1.14/atlas-0.1.14-unsigned.zip",
+      "bytes": 1277537,
+      "sha256": "8c77cfbb090d4b16c02dc623d114de659aead070662b97d9f81048e8891bedff"
+    },
+    "atlas-0.1.14-source.zip": {
+      "path": "extension/release/0.1.14/atlas-0.1.14-source.zip",
+      "bytes": 1411131,
+      "sha256": "9e7d276171542f6d9a6bd78521a645b053fa6adc93218741386d6f2cca47e120"
+    }
+  },
+  "runtimeFiles": 14,
+  "reviewerSourceFiles": 126,
+  "checks": {
+    "coreTests": 191,
+    "extensionTests": 287,
+    "failed": 0,
+    "skipped": 0,
+    "coreTypecheck": true,
+    "extensionTypecheck": true,
+    "developmentDistributionVerified": true,
+    "releaseValidated": true,
+    "preservedSigned013VerifiedOffline": true
+  },
+  "lint": {
+    "errors": 0,
+    "notices": 0,
+    "warnings": 1
+  },
+  "lintWarnings": [
+    "KEY_FIREFOX_ANDROID_UNSUPPORTED_BY_MIN_VERSION"
+  ],
+  "nativePackagedRuntime": {
+    "addonDirectory": "extension/release/0.1.14/addon",
+    "firefox": "157.0.1",
+    "checks": [
+      "three Whitelist additions, two Blacklist additions, explicit removal and name/category/pin edit staged together without policy or waiting",
+      "editable draft survives closing UI and a full Firefox process restart; complete destination review and unchanged old-term Vault wait",
+      "one explicit confirmation commits entire candidate once; replay rejected; post-commit display failure survives full restart and retries only presentation",
+      "unrelated commit stales preserved draft; explicit reconciliation preview and acceptance do not create permission or submit automatically",
+      "custom Books category reused across editor and committed Home grouping without rewriting legacy records or changing category ordering controls",
+      "two native Atlas pages detect a changed shared draft, retain local work and explicitly reload without overwriting the other page",
+      "real draft transaction failure retains raw inputs and blocks submission; explicit local retry saves work without policy commands",
+      "final full process restart retains completed policy/display/pins and separately preserves the next editable unsubmitted draft",
+      "lost response plus unrelated proposal ID advancement has an explicit local discard after Core recovery; saved policy retained and no repeat proposal or confirmation"
+    ],
+    "fullFirefoxRestarts": 3,
+    "isolatedProfile": true,
+    "signedReleaseModified": false,
+    "coreSemanticsChanged": false
+  },
+  "preservedSigned013Sha256": "8eaa4607fec0931f3ddd66cea732a0831750404bdbb36b11eaa7b878c6fbada0",
+  "mozillaSubmitted": false,
+  "mozillaSigned": false,
+  "installedExtensionModified": false,
+  "normalProfileModified": false,
+  "enterprisePoliciesModified": false
+}

@@ -1,0 +1,151 @@
+{
+  "date": "2026-10-04",
+  "extension": "0.1.12",
+  "firefox": "157.0",
+  "coreAuthorizationChanged": false,
+  "extensionTests": 203,
+  "typecheckAndBuild": "PASS",
+  "checks": [
+    "permanent 60px rail without an expand control",
+    "old expanded or malformed sidebar preferences do not change layout across reload and restart",
+    "one preview row adapts to content width, up to five cards",
+    "54px launcher height, long labels truncate, no horizontal overflow",
+    "card nodes remain stable through resize and explicit Show all remains available",
+    "policy, protected settings and pins preserved"
+  ],
+  "measurements": {
+    "rail": 60,
+    "card": 54,
+    "names": true,
+    "hiddenHosts": true
+  },
+  "layouts": [
+    {
+      "width": 500,
+      "columns": 2,
+      "expected": 2,
+      "counts": [
+        2,
+        2,
+        1,
+        1,
+        2,
+        2,
+        1
+      ],
+      "singleRow": true,
+      "maxRow": 2,
+      "fixedHeight": true,
+      "sameCard": true,
+      "overflow": false
+    },
+    {
+      "width": 800,
+      "columns": 3,
+      "expected": 3,
+      "counts": [
+        2,
+        3,
+        1,
+        1,
+        3,
+        2,
+        1
+      ],
+      "singleRow": true,
+      "maxRow": 3,
+      "fixedHeight": true,
+      "sameCard": true,
+      "overflow": false
+    },
+    {
+      "width": 1000,
+      "columns": 4,
+      "expected": 4,
+      "counts": [
+        2,
+        4,
+        1,
+        1,
+        4,
+        2,
+        1
+      ],
+      "singleRow": true,
+      "maxRow": 4,
+      "fixedHeight": true,
+      "sameCard": true,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "columns": 5,
+      "expected": 5,
+      "counts": [
+        2,
+        5,
+        1,
+        1,
+        4,
+        2,
+        1
+      ],
+      "singleRow": true,
+      "maxRow": 5,
+      "fixedHeight": true,
+      "sameCard": true,
+      "overflow": false
+    },
+    {
+      "width": 2100,
+      "columns": 5,
+      "expected": 5,
+      "counts": [
+        2,
+        5,
+        1,
+        1,
+        4,
+        2,
+        1
+      ],
+      "singleRow": true,
+      "maxRow": 5,
+      "fixedHeight": true,
+      "sameCard": true,
+      "overflow": false
+    }
+  ],
+  "nativeRegressions": {
+    "--destination-polish-only": {
+      "result": "PASS",
+      "checks": [
+        "54px launchers, one responsive preview row, two to five columns in tested windows, maximum five per row, stable cards and permanent 60px accessible rail",
+        "Journey lifetime visible, old-term Vault wait, no early application, saved explicit confirmation",
+        "Sites search/details, explicit PSL www pair, freeze/cancel/commit, presentation-only edit, Blacklist and removal through Vault",
+        "native timeout returns recorded origin; HTTP, immediate JS and same-origin meta-refresh cannot renew; explicit Restart and real address-bar document arrival allow subsequent attempts without grants",
+        "real IndexedDB settings restart, metadata/ranking reload, failed presentation write without permission changes and 500px Home/Sites without horizontal overflow"
+      ]
+    },
+    "--productization-only": {
+      "result": "PASS",
+      "checks": [
+        "permanent 60px accessible rail, no expand control, legacy preference ignored across reload, unchanged authority",
+        "native online website icons, observed favicon on a custom host, decoded image rendering and no letter tiles",
+        "unpinning a focused Pinned card moves focus to its visible destination pin",
+        "native narrow layout: requested 350px outer width, actual 500px viewport, no horizontal overflow and fully visible Home/Settings labels",
+        "native Home/Settings navigation and actual settings disclosures, local pin persistence, ordinary cards, search shortcut, stable DOM and small-screen layout",
+        "native local search, aliases, blacklist exclusion, keyboard selection and ordinary gate",
+        "native atomic schema-1 migration, unchanged policy/runtime terms and frozen pending policy wait",
+        "native per-tab badge/title, cancellation, expiry and restart clearing",
+        "native old-term settings wait, explicit confirmation, atomic activation and frozen Access/Journey terms",
+        "native committed settings and pending proposal restart",
+        "Home/Settings preserve policy, managed list, Vault, diagnostics and recovery tools"
+      ]
+    }
+  },
+  "limits": [
+    "native Firefox minimum viewport was 500px; smaller widths not established",
+    "isolated synthetic profiles without account credentials"
+  ]
+}

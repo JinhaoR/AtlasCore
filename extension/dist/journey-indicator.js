@@ -10,16 +10,15 @@
   var host = null;
   var label = null;
   var time = null;
-  var timer;
   var lease;
   var epoch = 0;
+  var refreshing = null;
+  var requested = false;
   function clear() {
     host?.remove();
     host = null;
     label = null;
     time = null;
-    clearTimeout(timer);
-    timer = void 0;
     clearTimeout(lease);
     lease = void 0;
   }
@@ -34,7 +33,7 @@
       host.style.cssText = "all:initial!important;position:fixed!important;right:12px!important;bottom:12px!important;z-index:2147483647!important;pointer-events:none!important;max-width:calc(100vw - 24px)!important;";
       const shadow = host.attachShadow({ mode: "open" });
       const style = document.createElement("style");
-      style.textContent = ":host{color-scheme:light}div{display:flex;gap:8px;align-items:center;max-width:320px;padding:7px 11px;border:1px solid #d7d0c3;border-radius:20px;background:#faf7f0;color:#405b46;box-shadow:0 1px 5px #0001;font:12px/1.4 system-ui,sans-serif}span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}span:last-child{flex-shrink:0;font-variant-numeric:tabular-nums}";
+      style.textContent = ":host{color-scheme:light}div{display:flex;gap:8px;align-items:center;max-width:320px;padding:8px 12px;border:1px solid #d0c8b8;border-radius:6px;background:#faf7f0;color:#505b3e;font:13px/1.5 system-ui,sans-serif}span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}span:last-child{flex-shrink:0;font-variant-numeric:tabular-nums}";
       const pill = document.createElement("div");
       pill.setAttribute("aria-label", "Atlas Journey");
       label = document.createElement("span");
@@ -43,22 +42,33 @@
       shadow.append(style, pill);
       document.documentElement.append(host);
     }
-    host.dataset.journeyId = String(input.journeyId);
+    if (host.dataset.journeyId !== String(input.journeyId)) host.dataset.journeyId = String(input.journeyId);
     const copy = `Atlas Journey \xB7 ${input.destinationLabel}`;
     if (label.textContent !== copy) label.textContent = copy;
     const remaining = countdown(input.expiresAt, Date.now());
     if (time.textContent !== remaining) time.textContent = remaining;
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      void refresh();
-    }, 1e3);
     clearTimeout(lease);
     lease = setTimeout(() => {
       ++epoch;
       clear();
+      if (refreshing) requested = true;
     }, Math.min(2e3, input.expiresAt - Date.now()));
   }
-  async function refresh() {
+  function refresh() {
+    if (refreshing) {
+      requested = true;
+      return refreshing;
+    }
+    refreshing = read().finally(() => {
+      refreshing = null;
+      if (requested) {
+        requested = false;
+        void refresh();
+      }
+    });
+    return refreshing;
+  }
+  async function read() {
     const observed = ++epoch;
     try {
       const response = await browser.runtime.sendMessage({ kind: "GET_JOURNEY_DISPLAY" });
@@ -74,6 +84,7 @@
   });
   window.addEventListener("pagehide", () => {
     ++epoch;
+    requested = false;
     clear();
   });
   window.addEventListener("pageshow", () => {

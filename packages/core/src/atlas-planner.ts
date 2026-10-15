@@ -22,6 +22,7 @@ import {
 import { freezeVaultData } from "./vault-state.js";
 
 import { readConfiguration } from "./configuration.js";
+import { evaluateDownload, readDownloadOperation } from './download.js';
 export { readConfiguration } from "./configuration.js";
 
 function makePlan(
@@ -52,6 +53,10 @@ function readOperation(value: unknown): ParsedOperation {
   const input = value as Record<string, unknown>;
   const kind = input.kind;
   switch (kind) {
+    case 'CHECK_DOWNLOAD': {
+      const operation = readDownloadOperation(value);
+      return operation === null ? invalid() : valid(operation);
+    }
     case "BEGIN_NAVIGATION":
     case "CHECK_NAVIGATION":
     case "RECORD_JOURNEY_NAVIGATION": {
@@ -290,6 +295,17 @@ export function planAtlasOperation(operationInput: unknown, contextInput: unknow
     : pending === undefined ? [] : accessScope(pending);
   if (guardedHosts.some((host) => managedDenies(observation, host, managedList))) return reject("MANAGED_BLACKLISTED", observation);
   switch (operation.kind) {
+    case 'CHECK_DOWNLOAD': {
+      const source = navigationPlan({ kind: 'CHECK_NAVIGATION', target: operation.source.target,
+        context: { ...operation.source.context, ...(operation.source.context.journeyId === null ? {} : {
+          continuation: { kind: 'RETAINED' as const, sourceHostname: operation.source.target.hostname },
+        }) } }, observation, now, managedList);
+      const access = evaluateAccess(operation.target, accessContext(observation, now)).decision;
+      const target = managedDenies(observation, operation.target.hostname, managedList)
+        ? { outcome: 'DENY' as const, reason: 'MANAGED_BLACKLISTED' as const, target: operation.target } : access;
+      return makePlan(evaluateDownload(operation,
+        source.result.type === 'ASSESSMENT' ? source.result.decision : null, target, observation.policyRevision, now), observation);
+    }
     case "BEGIN_NAVIGATION":
       return beginNavigation(operation, observation, now, managedList, configuration);
     case "CHECK_NAVIGATION":

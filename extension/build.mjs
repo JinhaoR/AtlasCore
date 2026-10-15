@@ -1,16 +1,22 @@
 import { build } from 'esbuild';
-import { mkdir, copyFile, cp } from 'node:fs/promises';
+import { mkdir, copyFile, cp, readFile } from 'node:fs/promises';
 import { verifyBundledFeed, verifyDistribution } from './scripts/verify-bundle.mjs';
 
+const release = process.argv.slice(2);
+if (release.length > 1 || (release.length === 1 && release[0] !== '--release')) throw new Error('Unknown build option');
+const { version } = JSON.parse(await readFile('manifest.json', 'utf8'));
+if (!/^\d+\.\d+\.\d+$/.test(version)) throw new Error('Invalid release version');
+const outdir = release.length ? `release/${version}/addon` : 'dist';
 await verifyBundledFeed('.');
-await mkdir('dist', { recursive: true });
+await mkdir(outdir, { recursive: true });
 await build({
   entryPoints: { background: 'src/background/main.ts', 'ui/main': 'src/ui/main.ts', 'journey-indicator': 'src/content/journey-indicator.ts' },
-  outdir: 'dist', bundle: true, platform: 'browser', format: 'iife', target: 'firefox140',
+  outdir, bundle: true, platform: 'browser', format: 'iife', target: 'firefox140',
   // Maps are local development artifacts; neither maps nor bundles contain user data.
-  sourcemap: true,
+  sourcemap: !release.length,
 });
-await copyFile('manifest.json', 'dist/manifest.json');
-await cp('src/ui/assets', 'dist/ui', { recursive: true });
-await cp('data', 'dist/data', { recursive: true });
-await verifyDistribution('dist');
+await copyFile('manifest.json', `${outdir}/manifest.json`);
+await copyFile('THIRD-PARTY-NOTICES.txt', `${outdir}/THIRD-PARTY-NOTICES.txt`);
+await cp('src/ui/assets', `${outdir}/ui`, { recursive: true });
+await cp('data', `${outdir}/data`, { recursive: true });
+await verifyDistribution(outdir);

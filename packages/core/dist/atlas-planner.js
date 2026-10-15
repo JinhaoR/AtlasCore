@@ -9,6 +9,7 @@ import { isManagedBlacklist, managedBlacklistContains } from "./managed-blacklis
 import { cancelPolicyProposal, createPolicyProposal, createSettingsProposal, prepareVaultCommit, reviewPolicyProposal, } from "./vault.js";
 import { freezeVaultData } from "./vault-state.js";
 import { readConfiguration } from "./configuration.js";
+import { evaluateDownload, readDownloadOperation } from './download.js';
 export { readConfiguration } from "./configuration.js";
 function makePlan(result, observationSnapshot = null, candidateSnapshot = null) {
     // Only copied/validated data or module-owned results reach this helper.
@@ -29,6 +30,10 @@ function readOperation(value) {
     const input = value;
     const kind = input.kind;
     switch (kind) {
+        case 'CHECK_DOWNLOAD': {
+            const operation = readDownloadOperation(value);
+            return operation === null ? invalid() : valid(operation);
+        }
         case "BEGIN_NAVIGATION":
         case "CHECK_NAVIGATION":
         case "RECORD_JOURNEY_NAVIGATION": {
@@ -285,6 +290,16 @@ export function planAtlasOperation(operationInput, contextInput) {
     if (guardedHosts.some((host) => managedDenies(observation, host, managedList)))
         return reject("MANAGED_BLACKLISTED", observation);
     switch (operation.kind) {
+        case 'CHECK_DOWNLOAD': {
+            const source = navigationPlan({ kind: 'CHECK_NAVIGATION', target: operation.source.target,
+                context: { ...operation.source.context, ...(operation.source.context.journeyId === null ? {} : {
+                        continuation: { kind: 'RETAINED', sourceHostname: operation.source.target.hostname },
+                    }) } }, observation, now, managedList);
+            const access = evaluateAccess(operation.target, accessContext(observation, now)).decision;
+            const target = managedDenies(observation, operation.target.hostname, managedList)
+                ? { outcome: 'DENY', reason: 'MANAGED_BLACKLISTED', target: operation.target } : access;
+            return makePlan(evaluateDownload(operation, source.result.type === 'ASSESSMENT' ? source.result.decision : null, target, observation.policyRevision, now), observation);
+        }
         case "BEGIN_NAVIGATION":
             return beginNavigation(operation, observation, now, managedList, configuration);
         case "CHECK_NAVIGATION":

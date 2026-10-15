@@ -7,25 +7,25 @@
     const value = input.trim();
     if (!/^[a-z0-9.-]+$/i.test(value))
       return null;
-    const hostname = value.toLowerCase().replace(/\.$/, "");
-    if (hostname.length === 0 || hostname.length > 253)
+    const hostname2 = value.toLowerCase().replace(/\.$/, "");
+    if (hostname2.length === 0 || hostname2.length > 253)
       return null;
-    const labels = hostname.split(".");
+    const labels = hostname2.split(".");
     if (labels.some((label) => !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label))) {
       return null;
     }
-    if (/^[0-9.]+$/.test(hostname))
+    if (/^[0-9.]+$/.test(hostname2))
       return null;
     try {
-      if (new URL(`https://${hostname}`).hostname !== hostname)
+      if (new URL(`https://${hostname2}`).hostname !== hostname2)
         return null;
     } catch {
       return null;
     }
-    return hostname;
+    return hostname2;
   }
   function normalizeTarget(input) {
-    let hostname;
+    let hostname2;
     if (typeof input === "string") {
       const value = input.trim();
       if (/^https?:\/\//i.test(value)) {
@@ -34,19 +34,19 @@
           return null;
         }
         try {
-          hostname = normalizeHostname(new URL(value).hostname);
+          hostname2 = normalizeHostname(new URL(value).hostname);
         } catch {
           return null;
         }
       } else {
-        hostname = normalizeHostname(value);
+        hostname2 = normalizeHostname(value);
       }
     } else if (input !== null && typeof input === "object" && !Array.isArray(input) && Object.keys(input).length === 1 && Object.hasOwn(input, "hostname") && "hostname" in input) {
-      hostname = normalizeHostname(input.hostname);
+      hostname2 = normalizeHostname(input.hostname);
     } else {
       return null;
     }
-    return hostname === null ? null : { hostname };
+    return hostname2 === null ? null : { hostname: hostname2 };
   }
 
   // ../packages/core/dist/managed-blacklist.js
@@ -56,10 +56,10 @@
       return null;
     const domains = /* @__PURE__ */ new Set();
     for (const entry of input) {
-      const hostname = normalizeHostname(entry);
-      if (hostname === null)
+      const hostname2 = normalizeHostname(entry);
+      if (hostname2 === null)
         return null;
-      domains.add(hostname);
+      domains.add(hostname2);
     }
     const compiled = Object.freeze({ size: domains.size });
     contents.set(compiled, domains);
@@ -68,8 +68,8 @@
   function isManagedBlacklist(input) {
     return input !== null && typeof input === "object" && contents.has(input);
   }
-  function managedBlacklistContains(input, hostname) {
-    return isManagedBlacklist(input) ? contents.get(input).has(hostname) : null;
+  function managedBlacklistContains(input, hostname2) {
+    return isManagedBlacklist(input) ? contents.get(input).has(hostname2) : null;
   }
 
   // ../packages/core/dist/policy.js
@@ -78,10 +78,10 @@
       return null;
     const entries = [];
     for (const entry of input) {
-      const hostname = normalizeHostname(entry);
-      if (hostname === null)
+      const hostname2 = normalizeHostname(entry);
+      if (hostname2 === null)
         return null;
-      entries.push(hostname);
+      entries.push(hostname2);
     }
     return entries;
   }
@@ -128,8 +128,8 @@
   function normalizedHostname(value) {
     return typeof value === "string" && normalizeHostname(value) === value;
   }
-  function readAccessScope(value, hostname) {
-    if (!Array.isArray(value) || value.length === 0 || ![...value].every(normalizedHostname) || !value.includes(hostname) || new Set(value).size !== value.length)
+  function readAccessScope(value, hostname2) {
+    if (!Array.isArray(value) || value.length === 0 || ![...value].every(normalizedHostname) || !value.includes(hostname2) || new Set(value).size !== value.length)
       return null;
     return Object.freeze([...value].sort());
   }
@@ -222,18 +222,18 @@
     const hosts = /* @__PURE__ */ new Set();
     for (const entry of value.pendingRequests) {
       const request = readPending(entry);
-      if (request === null || request.id >= value.nextRequestId || request.startedAt > value.lastObservedAt || request.policyRevision > value.policyRevision || ids.has(request.id) || accessScope(request).some((host2) => hosts.has(host2)))
+      if (request === null || request.id >= value.nextRequestId || request.startedAt > value.lastObservedAt || request.policyRevision > value.policyRevision || ids.has(request.id) || accessScope(request).some((host3) => hosts.has(host3)))
         return null;
       ids.add(request.id);
-      accessScope(request).forEach((host2) => hosts.add(host2));
+      accessScope(request).forEach((host3) => hosts.add(host3));
       pendingRequests.push(request);
     }
     for (const entry of value.grants) {
       const grant = readGrant(entry);
-      if (grant === null || grant.requestId >= value.nextRequestId || grant.issuedAt > value.lastObservedAt || grant.policyRevision > value.policyRevision || ids.has(grant.requestId) || accessScope(grant).some((host2) => hosts.has(host2)))
+      if (grant === null || grant.requestId >= value.nextRequestId || grant.issuedAt > value.lastObservedAt || grant.policyRevision > value.policyRevision || ids.has(grant.requestId) || accessScope(grant).some((host3) => hosts.has(host3)))
         return null;
       ids.add(grant.requestId);
-      accessScope(grant).forEach((host2) => hosts.add(host2));
+      accessScope(grant).forEach((host3) => hosts.add(host3));
       grants.push(grant);
     }
     return {
@@ -344,21 +344,21 @@
     const timing = readTiming(timingInput);
     if (timing === null)
       return reject("INVALID_TIMING", state);
-    const hostname = decision.target.hostname;
-    const scope = scopeInput === void 0 ? [hostname] : readAccessScope(scopeInput, hostname);
+    const hostname2 = decision.target.hostname;
+    const scope = scopeInput === void 0 ? [hostname2] : readAccessScope(scopeInput, hostname2);
     if (scope === null)
       return reject("INVALID_SCOPE", state);
-    if (scope.some((host2) => evaluate(host2, policy).outcome !== "GREYLIST"))
+    if (scope.some((host3) => evaluate(host3, policy).outcome !== "GREYLIST"))
       return reject("NOT_GREYLIST", state);
-    const existing = state.pendingRequests.find((entry) => accessScope(entry).includes(hostname));
+    const existing = state.pendingRequests.find((entry) => accessScope(entry).includes(hostname2));
     if (existing !== void 0 && existing.policyRevision === policyRevision && now2 < existing.confirmBy) {
       return { ok: true, type: "EXISTING_REQUEST", request: existing, nextState: state };
     }
-    const grant = state.grants.find((entry) => accessScope(entry).includes(hostname));
+    const grant = state.grants.find((entry) => accessScope(entry).includes(hostname2));
     if (grant !== void 0 && grant.policyRevision === policyRevision && now2 < grant.expiresAt) {
       return reject("GRANT_ACTIVE", state);
     }
-    const overlaps = (entry) => accessScope(entry).some((host2) => scope.includes(host2));
+    const overlaps = (entry) => accessScope(entry).some((host3) => scope.includes(host3));
     if (state.pendingRequests.some((entry) => overlaps(entry) && entry.policyRevision === policyRevision && now2 < entry.confirmBy) || state.grants.some((entry) => overlaps(entry) && entry.policyRevision === policyRevision && now2 < entry.expiresAt))
       return reject("SCOPE_CONFLICT", state);
     if (!positiveInteger(state.nextRequestId + 1))
@@ -370,7 +370,7 @@
     }
     const request = {
       id: state.nextRequestId,
-      hostname,
+      hostname: hostname2,
       startedAt: now2,
       readyAt,
       confirmBy,
@@ -411,7 +411,7 @@
     const request = findRequest(requestId, context);
     if (typeof request === "string")
       return reject(request, state);
-    if (accessScope(request).some((host2) => evaluate(host2, policy).outcome !== "GREYLIST")) {
+    if (accessScope(request).some((host3) => evaluate(host3, policy).outcome !== "GREYLIST")) {
       return reject("NOT_GREYLIST", state);
     }
     if (now2 < request.readyAt)
@@ -670,7 +670,7 @@
     };
   }
   function sameEntries(left, right) {
-    return left.length === right.length && left.every((host2, index) => host2 === right[index]);
+    return left.length === right.length && left.every((host3, index) => host3 === right[index]);
   }
   function samePolicy(left, right) {
     return sameEntries(left.whitelist, right.whitelist) && sameEntries(left.blacklist, right.blacklist);
@@ -882,12 +882,12 @@
     const beforeSet = new Set(before);
     const afterSet = new Set(after);
     return {
-      added: after.filter((host2) => !beforeSet.has(host2)),
-      removed: before.filter((host2) => !afterSet.has(host2))
+      added: after.filter((host3) => !beforeSet.has(host3)),
+      removed: before.filter((host3) => !afterSet.has(host3))
     };
   }
-  function classification(hostname, policy) {
-    const decision = evaluate(hostname, policy);
+  function classification(hostname2, policy) {
+    const decision = evaluate(hostname2, policy);
     return decision.outcome === "ALLOW" ? "WHITELIST" : decision.outcome === "DENY" ? "BLACKLIST" : "GREYLIST";
   }
   function reviewPolicyProposal(proposalId, input) {
@@ -910,11 +910,11 @@
       ...candidate.blacklist
     ])].sort();
     const classifications = [];
-    for (const hostname of hosts) {
-      const before = classification(hostname, policy);
-      const after = classification(hostname, candidate);
+    for (const hostname2 of hosts) {
+      const before = classification(hostname2, policy);
+      const after = classification(hostname2, candidate);
       if (before !== after)
-        classifications.push({ hostname, before, after });
+        classifications.push({ hostname: hostname2, before, after });
     }
     return freezeVaultData({
       ok: true,
@@ -1230,6 +1230,95 @@
     } });
   }
 
+  // ../packages/core/dist/download.js
+  var DOWNLOAD_LIFETIME_MS = 3e4;
+  var DOWNLOAD_MAX_REDIRECTS = 5;
+  var host = (input) => typeof input === "string" && normalizeTarget({ hostname: input })?.hostname === input;
+  var journeyId = (input) => input === null || nonnegativeInteger(input) && input > 0;
+  function readDownloadIntent(value) {
+    if (!hasJourneyFields(value, [
+      "operationId",
+      "contextId",
+      "sourceContextId",
+      "sourceJourneyId",
+      "sourceHostname",
+      "currentHostname",
+      "policyRevision",
+      "startedAt",
+      "expiresAt",
+      "lastObservedAt",
+      "redirects",
+      "phase"
+    ]) || !validContextId(value.operationId) || !validContextId(value.contextId) || !validContextId(value.sourceContextId) || !journeyId(value.sourceJourneyId) || !host(value.sourceHostname) || !host(value.currentHostname) || !nonnegativeInteger(value.policyRevision) || !nonnegativeInteger(value.startedAt) || !nonnegativeInteger(value.expiresAt) || !nonnegativeInteger(value.lastObservedAt) || value.expiresAt <= value.startedAt || value.expiresAt - value.startedAt > DOWNLOAD_LIFETIME_MS || value.lastObservedAt < value.startedAt || value.lastObservedAt >= value.expiresAt || !nonnegativeInteger(value.redirects) || value.redirects > DOWNLOAD_MAX_REDIRECTS || !["PREPARED", "REQUESTING", "FINISHED"].includes(value.phase) || value.phase === "PREPARED" && value.redirects !== 0)
+      return null;
+    return { ...value };
+  }
+  function readDownloadOperation(value) {
+    if (!hasJourneyFields(value, ["kind", "stage", "source", "target", "binding", "intent"]) || value.kind !== "CHECK_DOWNLOAD" || !["PREPARE", "REQUEST", "REDIRECT", "CHECK", "ATTACHMENT"].includes(value.stage) || !hasJourneyFields(value.source, ["target", "context"]) || !hasJourneyFields(value.source.target, ["hostname"]) || !host(value.source.target.hostname) || !hasJourneyFields(value.source.context, ["contextId", "journeyId"]) || !validContextId(value.source.context.contextId) || !journeyId(value.source.context.journeyId) || !hasJourneyFields(value.target, ["hostname"]) || !host(value.target.hostname) || !hasJourneyFields(value.binding, ["operationId", "contextId"]) || !validContextId(value.binding.operationId) || !validContextId(value.binding.contextId))
+      return null;
+    const intent = value.intent === null ? null : readDownloadIntent(value.intent);
+    if (value.intent !== null && intent === null || value.stage === "PREPARE" !== (intent === null))
+      return null;
+    return {
+      kind: "CHECK_DOWNLOAD",
+      stage: value.stage,
+      source: {
+        target: { hostname: value.source.target.hostname },
+        context: { contextId: value.source.context.contextId, journeyId: value.source.context.journeyId }
+      },
+      target: { hostname: value.target.hostname },
+      binding: { operationId: value.binding.operationId, contextId: value.binding.contextId },
+      intent
+    };
+  }
+  function evaluateDownload(operation, source, target, revision, now2) {
+    const deny2 = (reason) => ({ type: "DOWNLOAD", outcome: "DENY", reason });
+    if (target.outcome === "DENY")
+      return deny2(target.reason === "BLACKLISTED" || target.reason === "MANAGED_BLACKLISTED" ? target.reason : "INVALID_DOWNLOAD");
+    if (source?.outcome !== "ALLOW")
+      return deny2("DOWNLOAD_SOURCE_UNAUTHORIZED");
+    const prior = operation.intent;
+    if (prior === null) {
+      const expiresAt = Math.min(now2 + DOWNLOAD_LIFETIME_MS, "expiresAt" in source ? source.expiresAt : Infinity);
+      if (!nonnegativeInteger(expiresAt) || expiresAt <= now2)
+        return deny2("INVALID_DOWNLOAD");
+      return { type: "DOWNLOAD", outcome: "PREPARED", intent: {
+        ...operation.binding,
+        sourceContextId: operation.source.context.contextId,
+        sourceJourneyId: operation.source.context.journeyId,
+        sourceHostname: operation.source.target.hostname,
+        currentHostname: operation.target.hostname,
+        policyRevision: revision,
+        startedAt: now2,
+        expiresAt,
+        lastObservedAt: now2,
+        redirects: 0,
+        phase: "PREPARED"
+      } };
+    }
+    if (prior.policyRevision !== revision)
+      return deny2("DOWNLOAD_POLICY_CHANGED");
+    if (now2 < prior.lastObservedAt)
+      return deny2("INVALID_DOWNLOAD");
+    if (now2 >= prior.expiresAt)
+      return deny2("DOWNLOAD_EXPIRED");
+    if (prior.operationId !== operation.binding.operationId || prior.contextId !== operation.binding.contextId || prior.sourceContextId !== operation.source.context.contextId || prior.sourceJourneyId !== operation.source.context.journeyId || prior.sourceHostname !== operation.source.target.hostname || operation.stage !== "REDIRECT" && prior.currentHostname !== operation.target.hostname)
+      return deny2("DOWNLOAD_SCOPE_MISMATCH");
+    if (prior.phase === "FINISHED")
+      return deny2("DOWNLOAD_CONSUMED");
+    if (operation.stage === "REQUEST" ? prior.phase !== "PREPARED" : prior.phase !== "REQUESTING")
+      return deny2("INVALID_DOWNLOAD");
+    if (operation.stage === "REDIRECT" && prior.redirects >= DOWNLOAD_MAX_REDIRECTS)
+      return deny2("DOWNLOAD_REDIRECT_LIMIT");
+    return { type: "DOWNLOAD", outcome: operation.stage === "ATTACHMENT" ? "FILE" : "FETCH", intent: {
+      ...prior,
+      currentHostname: operation.target.hostname,
+      lastObservedAt: now2,
+      redirects: prior.redirects + (operation.stage === "REDIRECT" ? 1 : 0),
+      phase: operation.stage === "ATTACHMENT" ? "FINISHED" : "REQUESTING"
+    } };
+  }
+
   // ../packages/core/dist/atlas-planner.js
   function makePlan(result, observationSnapshot = null, candidateSnapshot = null) {
     return freezeVaultData({ result, observationSnapshot, candidateSnapshot });
@@ -1248,6 +1337,10 @@
     const input = value;
     const kind = input.kind;
     switch (kind) {
+      case "CHECK_DOWNLOAD": {
+        const operation = readDownloadOperation(value);
+        return operation === null ? invalid() : valid(operation);
+      }
       case "BEGIN_NAVIGATION":
       case "CHECK_NAVIGATION":
       case "RECORD_JOURNEY_NAVIGATION": {
@@ -1259,15 +1352,15 @@
         const target = readTarget(input.target);
         if (target === null)
           return invalid("INVALID_TARGET");
-        const { contextId, journeyId } = input.context;
+        const { contextId, journeyId: journeyId2 } = input.context;
         if (!validContextId(contextId))
           return invalid("INVALID_CONTEXT_ID");
-        if (journeyId !== null && !positiveInteger(journeyId))
+        if (journeyId2 !== null && !positiveInteger(journeyId2))
           return invalid("INVALID_JOURNEY_ID");
         const continuation = Object.hasOwn(input.context, "continuation") ? readJourneyContinuation(input.context.continuation) : void 0;
         if (continuation === null)
           return invalid("INVALID_NAVIGATION");
-        return valid({ kind, target, context: { contextId, journeyId, ...continuation === void 0 ? {} : { continuation } } });
+        return valid({ kind, target, context: { contextId, journeyId: journeyId2, ...continuation === void 0 ? {} : { continuation } } });
       }
       case "START_ACCESS": {
         const scoped = Object.hasOwn(input, "scopeHostnames");
@@ -1449,8 +1542,8 @@
     const plan = navigationPlan({ ...operation, context: { contextId: operation.context.contextId, journeyId: started.journey.id } }, candidate, now2, managed2);
     return makePlan(plan.result, snapshot, plan.observationSnapshot ?? candidate);
   }
-  function managedDenies(snapshot, hostname, managed2) {
-    return managed2 !== void 0 && !snapshot.policy.blacklist.includes(hostname) && !snapshot.policy.whitelist.includes(hostname) && managedBlacklistContains(managed2, hostname) === true;
+  function managedDenies(snapshot, hostname2, managed2) {
+    return managed2 !== void 0 && !snapshot.policy.blacklist.includes(hostname2) && !snapshot.policy.whitelist.includes(hostname2) && managedBlacklistContains(managed2, hostname2) === true;
   }
   function planAtlasOperation(operationInput, contextInput) {
     const fields = ["snapshot", "now", "configuration"];
@@ -1490,9 +1583,21 @@
     const operation = parsed.operation;
     const pending = operation.kind === "CONFIRM_ACCESS" ? observation.accessState.pendingRequests.find((r) => r.id === operation.requestId) : void 0;
     const guardedHosts = operation.kind === "START_ACCESS" ? operation.scopeHostnames ?? [operation.target.hostname] : pending === void 0 ? [] : accessScope(pending);
-    if (guardedHosts.some((host2) => managedDenies(observation, host2, managedList)))
+    if (guardedHosts.some((host3) => managedDenies(observation, host3, managedList)))
       return reject4("MANAGED_BLACKLISTED", observation);
     switch (operation.kind) {
+      case "CHECK_DOWNLOAD": {
+        const source = navigationPlan({
+          kind: "CHECK_NAVIGATION",
+          target: operation.source.target,
+          context: { ...operation.source.context, ...operation.source.context.journeyId === null ? {} : {
+            continuation: { kind: "RETAINED", sourceHostname: operation.source.target.hostname }
+          } }
+        }, observation, now2, managedList);
+        const access = evaluateAccess(operation.target, accessContext(observation, now2)).decision;
+        const target = managedDenies(observation, operation.target.hostname, managedList) ? { outcome: "DENY", reason: "MANAGED_BLACKLISTED", target: operation.target } : access;
+        return makePlan(evaluateDownload(operation, source.result.type === "ASSESSMENT" ? source.result.decision : null, target, observation.policyRevision, now2), observation);
+      }
       case "BEGIN_NAVIGATION":
         return beginNavigation(operation, observation, now2, managedList, configuration2);
       case "CHECK_NAVIGATION":
@@ -1868,6 +1973,8 @@
       if (plan.result.type === "ASSESSMENT" && plan.result.decision.outcome === "ALLOW" && "expiresAt" in plan.result.decision && finalTime >= plan.result.decision.expiresAt) {
         return blocked("REEVALUATION_REQUIRED");
       }
+      if (plan.result.type === "DOWNLOAD" && plan.result.outcome !== "DENY" && finalTime >= plan.result.intent.expiresAt)
+        return blocked("REEVALUATION_REQUIRED");
       return publish(plan.result, now2);
     }
     return Object.freeze({
@@ -1958,17 +2065,17 @@
   function serviceHostnames(service) {
     return [service.hostname, ...service.aliases ?? [], ...service.destinations ?? []];
   }
-  function serviceLabel(hostname) {
+  function serviceLabel(hostname2) {
     for (const group of curatedWhitelist) for (const service of group.services) {
-      if (serviceHostnames(service).includes(hostname)) return service.label;
+      if (serviceHostnames(service).includes(hostname2)) return service.label;
     }
-    return hostname;
+    return hostname2;
   }
   function compileCuratedWhitelist(groups = curatedWhitelist) {
     const hostnames = /* @__PURE__ */ new Set();
-    for (const group of groups) for (const service of group.services) for (const hostname of serviceHostnames(service)) {
-      if (normalizeTarget({ hostname })?.hostname !== hostname) throw new TypeError("Invalid curated hostname");
-      hostnames.add(hostname);
+    for (const group of groups) for (const service of group.services) for (const hostname2 of serviceHostnames(service)) {
+      if (normalizeTarget({ hostname: hostname2 })?.hostname !== hostname2) throw new TypeError("Invalid curated hostname");
+      hostnames.add(hostname2);
     }
     return { whitelist: [...hostnames], blacklist: [] };
   }
@@ -1977,16 +2084,16 @@
   var greylistAliases = [
     { hostname: "amazon.se", aliases: ["www.amazon.se"] }
   ];
-  function equivalentServiceHostnames(hostname) {
+  function equivalentServiceHostnames(hostname2) {
     for (const group of curatedWhitelist) for (const service of group.services) {
       const aliases = [service.hostname, ...service.aliases ?? []];
-      if (aliases.includes(hostname)) return aliases;
+      if (aliases.includes(hostname2)) return aliases;
     }
     for (const service of greylistAliases) {
       const aliases = [service.hostname, ...service.aliases];
-      if (aliases.includes(hostname)) return aliases;
+      if (aliases.includes(hostname2)) return aliases;
     }
-    return [hostname];
+    return [hostname2];
   }
 
   // src/ui/presentation.ts
@@ -1998,7 +2105,7 @@
   // src/adapter/journey-indicator.ts
   function journeyPresentation(view, journey, now2) {
     journey = view?.snapshot?.journeyState.journeys.find((entry) => entry.id === journey?.id && entry.contextId === journey?.contextId) ?? null;
-    if (view?.status !== "READY" && view?.status !== "COMMITTING" || journey === null || journey.phase === "ENDED" || journey.policyRevision !== view.snapshot?.policyRevision || !Number.isSafeInteger(now2) || now2 < journey.startedAt || now2 >= journey.expiresAt) return null;
+    if (!view?.snapshot || !["READY", "LOADING", "COMMITTING"].includes(view.status) || journey === null || journey.phase === "ENDED" || journey.policyRevision !== view.snapshot?.policyRevision || !Number.isSafeInteger(now2) || now2 < journey.startedAt || now2 >= journey.expiresAt) return null;
     return { journeyId: journey.id, destinationLabel: serviceLabel(journey.rootHostname), expiresAt: journey.expiresAt };
   }
   function journeyIndicator(view, journey, now2) {
@@ -2008,11 +2115,36 @@ ${countdown(display.expiresAt, now2)} remaining`;
   }
   function journeyRetry(view, journey) {
     journey = view?.snapshot?.journeyState.journeys.find((entry) => entry.id === journey?.id && entry.contextId === journey?.contextId) ?? null;
-    if (view?.status !== "READY" && view?.status !== "COMMITTING" || !view.snapshot || journey === null || journey.phase !== "ENDED" || ["REACHED", "RETURNED", "DESTINATION_CHANGED", "CONTEXT_CLOSED"].includes(journey.endReason) || evaluate(journey.rootHostname, view.snapshot.policy).reason !== "WHITELISTED") return null;
+    if (!["READY", "LOADING", "COMMITTING"].includes(view?.status ?? "") || !view?.snapshot || journey === null || journey.phase !== "ENDED" || ["REACHED", "RETURNED", "DESTINATION_CHANGED", "CONTEXT_CLOSED"].includes(journey.endReason) || evaluate(journey.rootHostname, view.snapshot.policy).reason !== "WHITELISTED") return null;
     return { journeyId: journey.id, rootHostname: journey.rootHostname, destinationLabel: serviceLabel(journey.rootHostname), endReason: journey.endReason };
   }
 
   // src/adapter/temporary-access.ts
+  function pendingAccessView(view, now2, managedBlacklist) {
+    if (view?.snapshot == null || !["READY", "LOADING", "COMMITTING"].includes(view.status)) return null;
+    const snapshot = view.snapshot, input = {
+      snapshot,
+      now: now2,
+      configuration: snapshot.configuration,
+      ...managedBlacklist === void 0 ? {} : { managedBlacklist }
+    };
+    if (planAtlasOperation({ kind: "OBSERVE_TIME" }, input).result.type !== "OBSERVED") return null;
+    return snapshot.accessState.pendingRequests.flatMap((request) => {
+      const hostnames = request.scopeHostnames ?? [request.hostname];
+      const { result } = planAtlasOperation({
+        kind: "CHECK_NAVIGATION",
+        target: { hostname: request.hostname },
+        context: { contextId: "pending-access-display", journeyId: null }
+      }, input);
+      return result.type === "ASSESSMENT" && (result.decision.outcome === "WAIT" || result.decision.outcome === "REQUIRE_CONFIRMATION") && result.decision.requestId === request.id ? [{
+        requestId: request.id,
+        hostnames: [...hostnames],
+        readyAt: request.readyAt,
+        confirmBy: request.confirmBy,
+        outcome: result.decision.outcome
+      }] : [];
+    }).sort((a, b) => a.readyAt - b.readyAt || a.requestId - b.requestId);
+  }
   function temporaryAccessView(view, now2, managedBlacklist) {
     if (view === null || view.snapshot === null || !["READY", "LOADING", "COMMITTING"].includes(view.status)) return null;
     const snapshot = view.snapshot;
@@ -2025,10 +2157,10 @@ ${countdown(display.expiresAt, now2)} remaining`;
     if (planAtlasOperation({ kind: "OBSERVE_TIME" }, input).result.type !== "OBSERVED") return null;
     const grants = [];
     for (const grant of snapshot.accessState.grants) {
-      const hostnames = (grant.scopeHostnames ?? [grant.hostname]).filter((hostname) => {
+      const hostnames = (grant.scopeHostnames ?? [grant.hostname]).filter((hostname2) => {
         const { result } = planAtlasOperation({
           kind: "CHECK_NAVIGATION",
-          target: { hostname },
+          target: { hostname: hostname2 },
           context: { contextId: "temporary-access-display", journeyId: null }
         }, input);
         return result.type === "ASSESSMENT" && result.decision.outcome === "ALLOW" && result.decision.reason === "ACTIVE_GRANT" && result.decision.requestId === grant.requestId;
@@ -2058,9 +2190,9 @@ ${countdown(display.expiresAt, now2)} remaining`;
     "example.net",
     "example.org"
   ];
-  function publicHostname(hostname) {
-    const labels = hostname.split(".");
-    return hostname.length <= 253 && labels.length >= 2 && labels.every((label) => label.length <= 63 && /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label)) && /[a-z]/.test(labels.at(-1) ?? "") && !reservedEndings.some((ending) => hostname === ending || hostname.endsWith(`.${ending}`));
+  function publicHostname(hostname2) {
+    const labels = hostname2.split(".");
+    return hostname2.length <= 253 && labels.length >= 2 && labels.every((label) => label.length <= 63 && /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label)) && /[a-z]/.test(labels.at(-1) ?? "") && !reservedEndings.some((ending) => hostname2 === ending || hostname2.endsWith(`.${ending}`));
   }
   function publicRoot(origin) {
     try {
@@ -2119,7 +2251,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
             }
           });
         };
-        const finish = (hostname) => {
+        const finish = (hostname2) => {
           if (finished) return;
           finished = true;
           if (timer !== void 0) clearTimeout(timer);
@@ -2132,7 +2264,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
           } catch {
           }
           abort.abort();
-          resolve(hostname);
+          resolve(hostname2);
         };
         const before = (details) => {
           if (!finished && requestId === null && ownRequest(details)) requestId = details.requestId;
@@ -2189,6 +2321,29 @@ ${countdown(display.expiresAt, now2)} remaining`;
     return error2 instanceof StartupError ? { status: "FAILED", stage: error2.stage, reason: error2.reason } : { status: "FAILED", stage: "STARTUP", reason: "STARTUP_FAILED" };
   }
 
+  // src/adapter/download-response.ts
+  function isAttachment(status, headers) {
+    const values = headers?.filter((header) => header.name.toLowerCase() === "content-disposition");
+    return status >= 200 && status < 300 && values?.length === 1 && typeof values[0].value === "string" && !/[\r\n\0]/.test(values[0].value) && /^attachment(?:\s*;|\s*$)/i.test(values[0].value.trim());
+  }
+  function hasUserActivation(headers) {
+    const values = headers?.filter((header) => header.name.toLowerCase() === "sec-fetch-user");
+    return values?.length === 1 && values[0].value === "?1";
+  }
+  var isHttpRedirect = (status) => [301, 302, 303, 307, 308].includes(status);
+  function downloadRedirectUrl(url, headers) {
+    const values = headers?.filter((header) => header.name.toLowerCase() === "location");
+    if (values?.length !== 1 || typeof values[0].value !== "string" || /[\r\n\0]/.test(values[0].value)) return null;
+    try {
+      const target = new URL(values[0].value, url);
+      if (normalizeTarget(target.href) === null) return null;
+      target.hash = "";
+      return target.href;
+    } catch {
+      return null;
+    }
+  }
+
   // src/adapter/firefox-adapter.ts
   function destination(url) {
     if (!/^https?:\/\//i.test(url)) return null;
@@ -2200,7 +2355,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
   var allowed = (result) => result.type === "ASSESSMENT" && result.decision.outcome === "ALLOW";
   var error = (reason) => ({ type: "ADAPTER_ERROR", reason });
   var FirefoxAdapter = class {
-    constructor(api, hostSource, newContextId, now2, schedule = (callback, delay) => setTimeout(callback, delay), unschedule = (id) => clearTimeout(id), discoverCanonicalEntry) {
+    constructor(api, hostSource, newContextId, now2, schedule = (callback, delay) => setTimeout(callback, delay), unschedule = (id) => clearTimeout(id), discoverCanonicalEntry, onDestinationLaunch) {
       this.api = api;
       this.hostSource = hostSource;
       this.newContextId = newContextId;
@@ -2208,6 +2363,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
       this.schedule = schedule;
       this.unschedule = unschedule;
       this.discoverCanonicalEntry = discoverCanonicalEntry;
+      this.onDestinationLaunch = onDestinationLaunch;
       this.uiUrl = api.runtime.getURL("ui/index.html");
       api.webRequest.onBeforeRequest.addListener(
         this.beforeRequest,
@@ -2222,6 +2378,21 @@ ${countdown(display.expiresAt, now2)} remaining`;
         this.redirected,
         { urls: ["http://*/*", "https://*/*"], types: ["main_frame"] }
       );
+      api.webRequest.onBeforeSendHeaders.addListener(
+        this.downloadSending,
+        { urls: ["http://*/*", "https://*/*"], types: ["main_frame"] },
+        ["blocking", "requestHeaders"]
+      );
+      api.webRequest.onHeadersReceived.addListener(
+        this.downloadResponse,
+        { urls: ["http://*/*", "https://*/*"], types: ["main_frame"] },
+        ["blocking", "responseHeaders"]
+      );
+      api.webRequest.onCompleted.addListener(
+        this.downloadFinished,
+        { urls: ["http://*/*", "https://*/*"], types: ["main_frame"] }
+      );
+      api.webNavigation.onCreatedNavigationTarget.addListener(this.downloadTargetCreated);
       api.webNavigation.onCommitted.addListener(this.arrived);
       api.webNavigation.onHistoryStateUpdated.addListener(this.changed);
       api.webNavigation.onReferenceFragmentUpdated.addListener(this.changed);
@@ -2240,6 +2411,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
     nextNavigation = 0;
     nextAccessScope = 0;
     diagnostics = new Diagnostics();
+    downloadTargets = /* @__PURE__ */ new Map();
     ready;
     uiUrl;
     async loadHost() {
@@ -2313,8 +2485,11 @@ ${countdown(display.expiresAt, now2)} remaining`;
           navigationId: 0,
           badge: "",
           pill: "",
+          pillSentAt: null,
           rootOrigin: null,
-          accessScope: null
+          accessScope: null,
+          launchIntent: false,
+          timeoutReturn: null
         };
         this.contexts.set(tabId, context);
       }
@@ -2333,7 +2508,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         ...continuation === void 0 ? {} : { continuation }
       };
     }
-    trace(event, context, result = context.latest, hostname = context.requested?.target.hostname ?? null) {
+    trace(event, context, result = context.latest, hostname2 = context.requested?.target.hostname ?? null) {
       try {
         const journey = this.journey(context);
         const at = this.now();
@@ -2343,7 +2518,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
           tabId: context.tabId,
           contextId: context.id,
           navigationId: context.navigationId,
-          hostname,
+          hostname: hostname2,
           outcome: result?.type === "ASSESSMENT" ? result.decision.outcome : result?.type ?? null,
           reason: result?.type === "ASSESSMENT" ? result.decision.reason : result !== null && "reason" in result ? result.reason : null,
           method: context.flight?.method ?? null,
@@ -2394,8 +2569,10 @@ ${countdown(display.expiresAt, now2)} remaining`;
     publishJourney(context) {
       const presentation = this.pageJourney(context);
       const key = JSON.stringify([context.generation, presentation]);
-      if (context.pill === key) return;
+      const now2 = this.now();
+      if (context.pill === key && (presentation === null || context.pillSentAt !== null && now2 - context.pillSentAt < 1e3)) return;
       context.pill = key;
+      context.pillSentAt = now2;
       void this.api.tabs.sendMessage(context.tabId, { kind: "ATLAS_JOURNEY_DISPLAY", presentation }, { frameId: 0 }).catch(() => {
         if (context.pill === key) context.pill = "";
       });
@@ -2441,13 +2618,18 @@ ${countdown(display.expiresAt, now2)} remaining`;
       if (details.tabId < 0 || this.stopped) return Promise.resolve({ cancel: true });
       const context = this.context(details.tabId);
       const previous = context.flight;
-      const correlated = previous !== null && previous.released && previous.requestId === details.requestId && previous.redirectUrl === withoutFragment(details.url) && previous.timeStamp <= details.timeStamp;
+      const correlated = previous !== null && (previous.released || previous.download?.intent?.phase === "REQUESTING") && previous.requestId === details.requestId && previous.redirectUrl === withoutFragment(details.url) && previous.timeStamp <= details.timeStamp;
       const initiator = details.originUrl === void 0 ? null : destination(details.originUrl);
+      const targetEvidence = this.downloadTargets.get(details.tabId);
+      this.downloadTargets.delete(details.tabId);
+      const downloadSource = targetEvidence && targetEvidence.url === withoutFragment(details.url) && targetEvidence.timeStamp <= details.timeStamp && this.now() >= targetEvidence.at && this.now() - targetEvidence.at < 3e3 && targetEvidence.source.document.origin === initiator?.origin ? targetEvidence.source : previous === null && initiator?.origin === context.displayed?.origin ? this.captureDownloadSource(context) : null;
       const sourceDocument = context.displayed;
       const sourceAuthority = context.displayedDecision;
       if (context.flight !== null && (!context.flight.released || context.flight.requestId !== details.requestId))
         this.trace("SUPERSEDED", context);
       const generation = ++context.generation;
+      const launchIntent = context.launchIntent;
+      context.launchIntent = false;
       context.navigationId = ++this.nextNavigation;
       context.launching = false;
       this.clearRemoval(context);
@@ -2463,19 +2645,37 @@ ${countdown(display.expiresAt, now2)} remaining`;
         redirectUrl: null,
         method: details.method === "GET" || details.method === "POST" ? details.method : "OTHER",
         sourceHostname: initiator?.target.hostname ?? null,
-        continuationKind: null
+        continuationKind: null,
+        launchRecorded: false,
+        syntheticReturn: false,
+        download: correlated && previous.download !== null && !previous.download.consumed ? previous.download : downloadSource && details.method === "GET" ? {
+          source: downloadSource,
+          operationId: this.newContextId(),
+          intent: null,
+          exceptional: false,
+          redirectResponse: null,
+          consumed: false
+        } : null,
+        fileResponse: false,
+        downloadAuthorityFailed: false
       };
       context.flight = flight;
+      if (flight.download) flight.download.redirectResponse = null;
       context.requested = flight.destination;
       this.trace("REQUEST", context, null);
       return this.run(async () => {
         if (!this.live(context, generation)) return { cancel: true };
         const active = this.journey(context);
+        const timeout = context.timeoutReturn;
+        const syntheticReturn = timeout !== null && timeout.awaitingRequest && flight.destination?.target.hostname === timeout.hostname;
+        flight.syntheticReturn = syntheticReturn && !launchIntent;
+        if (syntheticReturn) timeout.awaitingRequest = false;
+        if (launchIntent) context.timeoutReturn = null;
         const existingContinuation = active !== null && active.phase !== "ENDED" ? correlated && previous.journeyId === active.id ? { kind: "HTTP_REDIRECT", sourceHostname: active.currentHostname } : initiator?.target.hostname === context.displayed?.target.hostname && initiator?.target.hostname === active.currentHostname && flight.destination?.target.hostname === active.currentHostname ? { kind: "SAME_HOST", sourceHostname: active.currentHostname } : active.phase === "IN_TRANSIT" && details.method === "POST" && context.displayed?.target.hostname === active.currentHostname && initiator?.origin === context.displayed?.origin && context.displayedDecision !== null && allowed(context.displayedDecision) ? { kind: "FORM_POST", sourceHostname: active.currentHostname } : void 0 : void 0;
-        const rootDeparture = sourceDocument !== null && context.displayed === sourceDocument && sourceAuthority !== null && allowed(sourceAuthority) && sourceAuthority.decision.reason === "WHITELISTED" && initiator?.origin === sourceDocument.origin && flight.destination !== null && flight.destination.target.hostname !== sourceDocument.target.hostname && (active === null || active.phase === "ENDED" || active.phase === "STARTED" && active.rootHostname === sourceDocument.target.hostname);
+        const rootDeparture = context.timeoutReturn === null && sourceDocument !== null && context.displayed === sourceDocument && sourceAuthority !== null && allowed(sourceAuthority) && sourceAuthority.decision.reason === "WHITELISTED" && initiator?.origin === sourceDocument.origin && flight.destination !== null && flight.destination.target.hostname !== sourceDocument.target.hostname && (active === null || active.phase === "ENDED" || active.phase === "STARTED" && active.rootHostname === sourceDocument.target.hostname);
         const continuation = existingContinuation ?? (rootDeparture ? { kind: "ROOT_DEPARTURE", sourceHostname: sourceDocument.target.hostname } : void 0);
         flight.continuationKind = continuation?.kind ?? null;
-        let result = flight.destination === null ? error("INVALID_TARGET") : await this.check(context, flight.destination.target, false, continuation, true);
+        let result = flight.destination === null ? error("INVALID_TARGET") : await this.check(context, flight.destination.target, false, continuation, context.timeoutReturn === null);
         const journey = this.journey(context);
         flight.journeyId = journey?.id ?? null;
         if (!this.live(context, generation)) {
@@ -2496,10 +2696,28 @@ ${countdown(display.expiresAt, now2)} remaining`;
         if (allowed(result) && "expiresAt" in result.decision && this.now() >= result.decision.expiresAt) {
           result = error("RECHECK_REQUIRED");
         }
+        if (result.type === "ASSESSMENT" && result.decision.outcome !== "ALLOW" && result.decision.outcome !== "DENY" && flight.destination !== null && flight.method === "GET" && flight.download !== null) {
+          flight.download.exceptional = true;
+          const stage = correlated && flight.download.intent?.phase === "REQUESTING" ? "REDIRECT" : "PREPARE";
+          if (stage === "PREPARE" && flight.download.intent !== null) flight.download.consumed = true;
+          if (await this.advanceDownload(context, flight, stage)) {
+            this.trace(stage === "PREPARE" ? "DOWNLOAD_PREPARED" : "DOWNLOAD_FETCH", context, error("DOWNLOAD_RESPONSE_PENDING"));
+            return {};
+          }
+          if (!this.live(context, generation)) return { cancel: true };
+        } else if (correlated && flight.download?.intent?.phase === "REQUESTING") {
+          if (!await this.advanceDownload(context, flight, "REDIRECT")) flight.download = null;
+        }
+        if (allowed(result) && (flight.downloadAuthorityFailed || this.host?.controller.getView().status !== "READY" || result.policyRevision !== this.host.controller.getView().snapshot?.policyRevision)) result = error("RECHECK_REQUIRED");
+        if (!this.live(context, generation)) return { cancel: true };
         this.publish(context, result);
         if (allowed(result)) {
           flight.released = true;
           flight.authority = result;
+          if (launchIntent && result.decision.reason === "WHITELISTED") {
+            this.recordLaunch(flight.destination.target.hostname);
+            flight.launchRecorded = true;
+          }
           this.trace("RELEASED", context, result);
           return {};
         }
@@ -2517,7 +2735,155 @@ ${countdown(display.expiresAt, now2)} remaining`;
         return { cancel: true };
       });
     };
+    captureDownloadSource(context) {
+      if (context.displayed === null || context.displayedDecision === null || !allowed(context.displayedDecision) || context.flight !== null || context.effect !== "NONE" || context.launching) return null;
+      return {
+        context,
+        document: context.displayed,
+        generation: context.generation,
+        arrival: context.lastArrival,
+        binding: { target: context.displayed.target, context: { contextId: context.id, journeyId: this.journey(context)?.id ?? null } }
+      };
+    }
+    downloadTargetCreated = (details) => {
+      if (this.stopped || details.sourceFrameId !== 0 || details.tabId === details.sourceTabId || destination(details.url) === null || this.contexts.get(details.tabId)?.flight) return;
+      const source = this.contexts.get(details.sourceTabId);
+      const captured = source === void 0 ? null : this.captureDownloadSource(source);
+      if (captured !== null) this.downloadTargets.set(
+        details.tabId,
+        { source: captured, url: withoutFragment(details.url), at: this.now(), timeStamp: details.timeStamp }
+      );
+      if (this.downloadTargets.size > 100) this.downloadTargets.delete(this.downloadTargets.keys().next().value);
+    };
+    downloadLive(context, flight) {
+      const download = flight.download;
+      if (this.stopped || context.flight !== flight || this.contexts.get(context.tabId) !== context || download === null || download.consumed || flight.destination === null || flight.method !== "GET") return false;
+      const source = download.source;
+      return this.contexts.get(source.context.tabId) === source.context && (source.context === context || source.context.generation === source.generation && source.context.flight === null) && source.context.lastArrival === source.arrival && source.context.effect === "NONE" && source.context.displayed?.origin === source.document.origin && source.context.displayed.target.hostname === source.document.target.hostname;
+    }
+    async advanceDownload(context, flight, stage) {
+      if (!this.downloadLive(context, flight)) return false;
+      const download = flight.download;
+      const result = await this.host?.controller.handle({
+        kind: "CHECK_DOWNLOAD",
+        stage,
+        source: download.source.binding,
+        binding: { operationId: download.operationId, contextId: context.id },
+        target: flight.destination.target,
+        intent: download.intent
+      });
+      const now2 = this.now();
+      if (!this.downloadLive(context, flight) || result?.type !== "DOWNLOAD" || result.outcome === "DENY" || this.host?.controller.getView().status !== "READY" || result.intent.policyRevision !== this.host.controller.getView().snapshot?.policyRevision || !Number.isSafeInteger(now2) || now2 < result.observedAt || now2 >= result.intent.expiresAt) {
+        if (result?.type !== "DOWNLOAD" || result.outcome === "DENY" && result.reason !== "DOWNLOAD_SOURCE_UNAUTHORIZED")
+          flight.downloadAuthorityFailed = true;
+        download.consumed = true;
+        this.trace("DOWNLOAD_BLOCKED", context, result ?? error(this.startupReason()));
+        return false;
+      }
+      download.intent = result.intent;
+      return true;
+    }
+    matchingFlight(details) {
+      const context = this.contexts.get(details.tabId);
+      const flight = context?.flight;
+      return details.type === "main_frame" && details.frameId === 0 && context !== void 0 && flight != null && flight.requestId === details.requestId && flight.url === withoutFragment(details.url) && details.timeStamp >= flight.timeStamp ? { context, flight } : null;
+    }
+    blockDownload(context, flight, reason) {
+      if (flight.download) flight.download.consumed = true;
+      if (context.flight === flight) {
+        const generation = context.generation;
+        this.trace("DOWNLOAD_BLOCKED", context, error(reason));
+        this.schedule(() => {
+          void this.run(async () => {
+            if (!this.live(context, generation) || context.flight !== flight) return;
+            const result = flight.destination === null ? error("INVALID_TARGET") : await this.check(context, flight.destination.target);
+            if (!this.live(context, generation) || context.flight !== flight) return;
+            this.publish(context, allowed(result) ? error(reason) : result);
+            await this.removeContent(context, generation);
+          });
+        }, 0);
+      }
+      return { cancel: true };
+    }
+    downloadSending = (details) => {
+      const match = this.matchingFlight(details);
+      if (match === null) return Promise.resolve({ cancel: true });
+      const { context, flight } = match;
+      if (flight.download === null) return Promise.resolve(flight.released ? {} : { cancel: true });
+      return this.run(async () => {
+        const download = flight.download;
+        if (context.flight !== flight) return { cancel: true };
+        if (download.intent?.phase === "REQUESTING") {
+          if (await this.advanceDownload(context, flight, "CHECK")) return {};
+        } else if (hasUserActivation(details.requestHeaders)) {
+          const prepared = download.intent !== null || await this.advanceDownload(context, flight, "PREPARE");
+          if (prepared && await this.advanceDownload(context, flight, "REQUEST")) {
+            this.trace("DOWNLOAD_FETCH", context, error("DOWNLOAD_RESPONSE_PENDING"));
+            return {};
+          }
+        }
+        if (!download.exceptional && flight.released && !flight.downloadAuthorityFailed && this.host?.controller.getView().status === "READY" && flight.authority?.policyRevision === this.host.controller.getView().snapshot?.policyRevision) {
+          flight.download = null;
+          return {};
+        }
+        return this.blockDownload(context, flight, "DOWNLOAD_ACTIVATION_OR_AUTHORITY_MISSING");
+      }).catch(() => this.blockDownload(context, flight, "DOWNLOAD_CHECK_FAILED"));
+    };
+    downloadResponse = (details) => {
+      const match = this.matchingFlight(details);
+      if (match === null) return Promise.resolve({ cancel: true });
+      const { context, flight } = match;
+      return this.run(async () => {
+        if (context.flight !== flight || this.stopped) return { cancel: true };
+        const file = isAttachment(details.statusCode, details.responseHeaders);
+        if (!flight.download?.exceptional) {
+          if (!flight.released) return { cancel: true };
+          flight.fileResponse = file;
+          if (isHttpRedirect(details.statusCode) && flight.download) flight.download.redirectResponse = downloadRedirectUrl(details.url, details.responseHeaders);
+          return {};
+        }
+        if (flight.download.intent?.phase !== "REQUESTING") return this.blockDownload(context, flight, "DOWNLOAD_NOT_STARTED");
+        if (isHttpRedirect(details.statusCode)) {
+          const redirect = downloadRedirectUrl(details.url, details.responseHeaders);
+          if (redirect === null) return this.blockDownload(context, flight, "DOWNLOAD_UNSUPPORTED_REDIRECT");
+          if (!await this.advanceDownload(context, flight, "CHECK")) return this.blockDownload(context, flight, "DOWNLOAD_INVALIDATED");
+          flight.download.redirectResponse = redirect;
+          return {};
+        }
+        if (file) {
+          if (!await this.advanceDownload(context, flight, "ATTACHMENT")) return this.blockDownload(context, flight, "DOWNLOAD_INVALIDATED");
+          flight.fileResponse = true;
+          flight.download.consumed = true;
+          this.trace("DOWNLOAD_FILE", context, error("DOWNLOAD_ATTACHMENT_ACCEPTED"));
+          return {};
+        }
+        flight.download.consumed = true;
+        const result = flight.destination === null ? error("INVALID_TARGET") : await this.check(context, flight.destination.target);
+        if (context.flight !== flight || this.stopped) return { cancel: true };
+        if (!allowed(result)) {
+          this.publish(context, result);
+          return this.blockDownload(context, flight, "DOWNLOAD_DOCUMENT_REQUIRES_ACCESS");
+        }
+        flight.download = null;
+        flight.released = true;
+        flight.authority = result;
+        this.publish(context, result);
+        return {};
+      }).catch(() => this.blockDownload(context, flight, "DOWNLOAD_CHECK_FAILED"));
+    };
+    downloadFinished = (details) => {
+      const match = this.matchingFlight(details);
+      if (match === null || !match.flight.fileResponse) return;
+      const { context, flight } = match;
+      if (flight.download) flight.download.consumed = true;
+      context.flight = null;
+      context.requested = context.displayed;
+      this.trace("DOWNLOAD_FINISHED", context, error("DOWNLOAD_HANDED_TO_FIREFOX"), flight.destination?.target.hostname ?? null);
+      void this.refresh();
+    };
     async removeContent(context, generation) {
+      if (!this.live(context, generation)) return;
+      if (await this.returnExpiredJourney(context, generation)) return;
       if (!this.live(context, generation)) return;
       context.flight = null;
       context.launching = false;
@@ -2530,6 +2896,31 @@ ${countdown(display.expiresAt, now2)} remaining`;
         await this.api.tabs.update(context.tabId, { url: `${this.uiUrl}?view=access&tab=${context.tabId}` });
       } catch {
         if (this.live(context, generation)) await this.closeUncontrolled(context);
+      }
+    }
+    /** Browser effect after saved expiry and a fresh Core Whitelist assessment. */
+    async returnExpiredJourney(context, generation) {
+      const journey = this.journey(context);
+      const origin = context.rootOrigin;
+      if (context.timeoutReturn !== null || journey?.phase !== "ENDED" || journey.endReason !== "EXPIRED" || origin?.journeyId !== journey.id || this.host?.controller.getView().status !== "READY") return false;
+      if (context.requested?.target.hostname !== journey.currentHostname) return false;
+      const root = destination(`${origin.origin}/`);
+      if (root === null || root.target.hostname !== journey.rootHostname) return false;
+      const result = await this.check(context, root.target);
+      if (!this.live(context, generation) || !allowed(result) || result.decision.reason !== "WHITELISTED") return false;
+      context.timeoutReturn = { journeyId: journey.id, hostname: root.target.hostname, awaitingRequest: true };
+      context.displayed = null;
+      context.displayedDecision = null;
+      context.requested = root;
+      context.effect = "NONE";
+      this.publish(context, result);
+      this.navigate(context, `${origin.origin}/`);
+      return true;
+    }
+    recordLaunch(hostname2) {
+      try {
+        this.onDestinationLaunch?.(hostname2, this.now());
+      } catch {
       }
     }
     async closeUncontrolled(context) {
@@ -2634,6 +3025,9 @@ ${countdown(display.expiresAt, now2)} remaining`;
         if (allowed(result)) context.effect = "NONE";
         this.publishJourney(context);
         this.trace("ARRIVED", context, result, observed.target.hostname);
+        const userArrival = matched && !flight.syntheticReturn && flight.continuationKind !== "HTTP_REDIRECT" && (details.transitionType === "typed" || details.transitionType === "auto_bookmark");
+        if (allowed(result) && result.decision.reason === "WHITELISTED" && userArrival) context.timeoutReturn = null;
+        if (allowed(result) && result.decision.reason === "WHITELISTED" && matched && !flight.launchRecorded && context.timeoutReturn === null && userArrival) this.recordLaunch(observed.target.hostname);
         if (!allowed(result)) await this.removeContent(context, generation);
       }).catch(() => {
         if (this.live(context, generation)) {
@@ -2643,6 +3037,15 @@ ${countdown(display.expiresAt, now2)} remaining`;
       });
     };
     requestFailed = (details) => {
+      if (this.matchingFlight(details)?.flight.fileResponse) {
+        this.downloadFinished(details);
+        return;
+      }
+      const downloadMatch = this.matchingFlight(details);
+      if (downloadMatch?.flight.download?.exceptional) {
+        if (!downloadMatch.flight.download.consumed) this.blockDownload(downloadMatch.context, downloadMatch.flight, "DOWNLOAD_NETWORK_FAILED");
+        return;
+      }
       if (details.type !== "main_frame" || details.frameId !== 0) return;
       const context = this.contexts.get(details.tabId);
       const flight = context?.flight;
@@ -2656,11 +3059,13 @@ ${countdown(display.expiresAt, now2)} remaining`;
     };
     redirected = (details) => {
       const context = this.contexts.get(details.tabId);
-      if (details.type !== "main_frame" || details.frameId !== 0 || context?.flight === null || context?.flight === void 0 || context.flight.requestId !== details.requestId || !context.flight.released || context.flight.timeStamp > details.timeStamp || context.flight.url !== withoutFragment(details.url)) return;
+      if (details.type !== "main_frame" || details.frameId !== 0 || context?.flight === null || context?.flight === void 0 || context.flight.requestId !== details.requestId || !context.flight.released && !(context.flight.download?.redirectResponse && context.flight.download.intent?.phase === "REQUESTING") || context.flight.timeStamp > details.timeStamp || context.flight.url !== withoutFragment(details.url)) return;
+      if (context.flight.download?.exceptional && context.flight.download.redirectResponse !== withoutFragment(details.redirectUrl)) return;
       context.flight.redirectUrl = withoutFragment(details.redirectUrl);
       this.trace("REDIRECT", context, null, destination(details.redirectUrl)?.target.hostname ?? null);
     };
     closed = (tabId) => {
+      this.downloadTargets.delete(tabId);
       const context = this.contexts.get(tabId);
       if (context === void 0) return;
       this.contexts.delete(tabId);
@@ -2679,7 +3084,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
       void this.run(async () => {
         const url = `${this.uiUrl}?view=control${tab.id === void 0 ? "" : `&tab=${tab.id}`}`;
         const existing = (await this.api.tabs.query({})).find((candidate) => candidate.url?.split(/[?#]/, 1)[0] === this.uiUrl && new URL(candidate.url).searchParams.get("view") !== "access");
-        if (existing?.id !== void 0) await this.api.tabs.update(existing.id, { url, active: true });
+        if (existing?.id !== void 0) await this.api.tabs.update(existing.id, { active: true });
         else await this.api.tabs.create({ url, active: true });
       }).catch(() => void 0);
     };
@@ -2697,15 +3102,32 @@ ${countdown(display.expiresAt, now2)} remaining`;
       return this.refreshPending;
     }
     async recheck() {
+      const generations = new Map([...this.contexts.values()].map((context) => [context.tabId, context.generation]));
       const observation = await this.host?.controller.handle({ kind: "OBSERVE_TIME" });
+      for (const [tabId, target] of this.downloadTargets) if (this.now() - target.at >= 3e3 || this.contexts.get(target.source.context.tabId) !== target.source.context)
+        this.downloadTargets.delete(tabId);
+      for (const context of this.contexts.values()) {
+        const flight = context.flight;
+        const intent = flight?.download?.intent;
+        if (flight && intent && flight.download?.exceptional && !flight.fileResponse && (observation?.type !== "OBSERVED" || !this.downloadLive(context, flight) || intent.policyRevision !== this.host?.controller.getView().snapshot?.policyRevision || this.now() >= intent.expiresAt)) {
+          this.blockDownload(context, flight, "DOWNLOAD_INVALIDATED");
+        }
+      }
+      const returned = /* @__PURE__ */ new Set();
+      if (observation?.type === "OBSERVED") for (const context of this.contexts.values()) {
+        const generation = generations.get(context.tabId);
+        if (generation !== void 0 && this.live(context, generation) && await this.returnExpiredJourney(context, generation)) returned.add(context.tabId);
+      }
       for (const context of this.contexts.values()) {
         if (context.latest !== null) this.publish(context, context.latest);
       }
       const tabs = await this.api.tabs.query({});
       for (const tab of tabs) {
         if (tab.id === void 0 || tab.url === void 0 || tab.incognito) continue;
+        if (returned.has(tab.id)) continue;
         const observed = destination(tab.url);
         const previous = this.contexts.get(tab.id);
+        if (previous !== void 0 && generations.has(tab.id) && previous.generation !== generations.get(tab.id)) continue;
         if (withoutFragment(tab.url).split("?", 1)[0] === this.uiUrl) {
           if (previous !== void 0 && previous.flight === null && !previous.launching) {
             this.acknowledgeRemoval(previous);
@@ -2783,7 +3205,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         const existing = this.preparedAccessScope(context);
         if (existing !== null) return { work: existing.work };
         const aliases = equivalentServiceHostnames(context.requested.target.hostname);
-        const hostnames = aliases.filter((host2) => !snapshot.policy.whitelist.includes(host2) || snapshot.policy.blacklist.includes(host2));
+        const hostnames = aliases.filter((host3) => !snapshot.policy.whitelist.includes(host3) || snapshot.policy.blacklist.includes(host3));
         const discoveryOrigin = canonicalDiscoveryOrigin(context.requested.origin);
         const discover = aliases.length === 1 && discoveryOrigin !== null && this.discoverCanonicalEntry !== void 0;
         const scope = {
@@ -2805,7 +3227,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
             const current = controller.getView().snapshot;
             const sanitized = typeof partner === "string" ? canonicalEntryCounterpart(discoveryOrigin, `https://${partner}/`) : null;
             const counterpart = sanitized === partner ? sanitized : null;
-            const members = counterpart === null ? hostnames : [...hostnames, counterpart].filter((host2) => !current.policy.whitelist.includes(host2) || current.policy.blacklist.includes(host2));
+            const members = counterpart === null ? hostnames : [...hostnames, counterpart].filter((host3) => !current.policy.whitelist.includes(host3) || current.policy.blacklist.includes(host3));
             scope.preview = Object.freeze({
               ...scope.preview,
               status: "READY",
@@ -2826,6 +3248,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         controller,
         managed: this.host?.managed?.getView(controller?.snapshot?.policy.whitelist) ?? null,
         temporaryAccess: temporaryAccessView(controller, this.now(), this.host?.managed?.getBlacklist()),
+        pendingAccess: pendingAccessView(controller, this.now(), this.host?.managed?.getBlacklist()),
         contexts: [...this.contexts.values()].map((context) => ({
           tabId: context.tabId,
           contextId: context.id,
@@ -2873,7 +3296,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         PROPOSE_SETTINGS: ["candidateConfiguration"],
         PROPOSE_POLICY: ["candidatePolicy"]
       };
-      const fields = command.kind === "START_ACCESS" && Object.hasOwn(command, "scopeId") ? ["tabId", "scopeId"] : Object.hasOwn(keys, command.kind) ? keys[command.kind] : void 0;
+      const fields = command.kind === "START_ACCESS" && Object.hasOwn(command, "scopeId") ? ["tabId", "scopeId"] : command.kind === "PROPOSE_POLICY" && Object.hasOwn(command, "basePolicyRevision") ? ["candidatePolicy", "basePolicyRevision"] : Object.hasOwn(keys, command.kind) ? keys[command.kind] : void 0;
       if (fields === void 0 || Object.keys(command).length !== fields.length + 1 || fields.some((field) => !Object.hasOwn(command, field))) return Promise.resolve({ error: "INVALID_COMMAND" });
       if (command.kind === "GET_VIEW") return Promise.resolve({ view: this.view() });
       if (command.kind === "GET_DIAGNOSTICS") return Promise.resolve(command.tabId === null || Number.isSafeInteger(command.tabId) ? { entries: this.diagnostics.read(command.tabId) } : { error: "INVALID_CONTEXT" });
@@ -2915,7 +3338,15 @@ ${countdown(display.expiresAt, now2)} remaining`;
         return { result: result2, view: this.view() };
       }
       if (command.kind === "PROPOSE_SETTINGS" || command.kind === "PROPOSE_POLICY") {
-        const result2 = await controller.handle(command);
+        if (command.kind === "PROPOSE_POLICY" && Object.hasOwn(command, "basePolicyRevision")) {
+          if (!Number.isSafeInteger(command.basePolicyRevision) || command.basePolicyRevision < 0)
+            return { error: "INVALID_COMMAND", view: this.view() };
+          const observed = await controller.handle({ kind: "OBSERVE_TIME" });
+          if (observed.type !== "OBSERVED") return { result: observed, view: this.view() };
+          if (controller.getView().snapshot?.policyRevision !== command.basePolicyRevision)
+            return { error: "POLICY_DRAFT_STALE", view: this.view() };
+        }
+        const result2 = await controller.handle(command.kind === "PROPOSE_POLICY" ? { kind: "PROPOSE_POLICY", candidatePolicy: command.candidatePolicy } : command);
         return { result: result2, view: this.view() };
       }
       let result;
@@ -2928,6 +3359,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         if (tab.id === void 0) return { error: "CONTEXT_UNAVAILABLE" };
         const context2 = this.context(tab.id);
         context2.requested = selected;
+        context2.launchIntent = true;
         this.navigate(context2, url);
         void this.api.tabs.update(tab.id, { active: true }).catch(() => void 0);
         return { opened: true, tabId: tab.id, view: this.view() };
@@ -2941,6 +3373,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         if (tab.id === void 0) return { error: "CONTEXT_UNAVAILABLE" };
         const context2 = this.context(tab.id);
         context2.requested = selected;
+        context2.launchIntent = true;
         result = await controller.handle({ kind: "START_JOURNEY", root: selected.target, contextId: context2.id });
         this.trace("COMMAND", context2, result);
         this.publish(context2, result);
@@ -2968,6 +3401,8 @@ ${countdown(display.expiresAt, now2)} remaining`;
           return { result, opened: false, view: this.view() };
         const origin = context.rootOrigin?.journeyId === retry.journeyId ? context.rootOrigin.origin : `https://${retry.rootHostname}`;
         context.requested = destination(`${origin}/`);
+        context.launchIntent = true;
+        context.timeoutReturn = null;
         this.publish(context, result);
         this.navigate(context, `${origin}/`);
         return { opened: true, view: this.view() };
@@ -2990,7 +3425,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
       if (command.kind === "START_ACCESS") {
         const policy = controller.getView().snapshot?.policy;
         const prepared = this.preparedAccessScope(context);
-        let scopeHostnames = prepared?.preview.hostnames ?? equivalentServiceHostnames(context.requested.target.hostname).filter((host2) => !policy?.whitelist.includes(host2) || policy.blacklist.includes(host2));
+        let scopeHostnames = prepared?.preview.hostnames ?? equivalentServiceHostnames(context.requested.target.hostname).filter((host3) => !policy?.whitelist.includes(host3) || policy.blacklist.includes(host3));
         if (this.discoverCanonicalEntry !== void 0 || Object.hasOwn(command, "scopeId")) {
           const generation = context.generation;
           const current = await this.check(context, context.requested.target);
@@ -3050,6 +3485,11 @@ ${countdown(display.expiresAt, now2)} remaining`;
       this.api.webRequest.onBeforeRequest.removeListener(this.beforeRequest);
       this.api.webRequest.onErrorOccurred.removeListener(this.requestFailed);
       this.api.webRequest.onBeforeRedirect.removeListener(this.redirected);
+      this.api.webRequest.onBeforeSendHeaders.removeListener(this.downloadSending);
+      this.api.webRequest.onHeadersReceived.removeListener(this.downloadResponse);
+      this.api.webRequest.onCompleted.removeListener(this.downloadFinished);
+      this.api.webNavigation.onCreatedNavigationTarget.removeListener(this.downloadTargetCreated);
+      this.downloadTargets.clear();
       this.api.webNavigation.onCommitted.removeListener(this.arrived);
       this.api.webNavigation.onHistoryStateUpdated.removeListener(this.changed);
       this.api.webNavigation.onReferenceFragmentUpdated.removeListener(this.changed);
@@ -3322,6 +3762,204 @@ ${countdown(display.expiresAt, now2)} remaining`;
     }
   }
 
+  // node_modules/tldts-core/dist/es6/src/options.js
+  function setDefaultsImpl({ allowIcannDomains = true, allowPrivateDomains = false, detectIp = true, detectSpecialUse = false, extractHostname: extractHostname2 = true, mixedInputs = true, validHosts = null, validateHostname = true }) {
+    return {
+      allowIcannDomains,
+      allowPrivateDomains,
+      detectIp,
+      detectSpecialUse,
+      extractHostname: extractHostname2,
+      mixedInputs,
+      validHosts,
+      validateHostname
+    };
+  }
+  var DEFAULT_OPTIONS = (
+    /*@__INLINE__*/
+    setDefaultsImpl({})
+  );
+
+  // node_modules/tldts-core/dist/es6/src/factory.js
+  function getEmptyResult() {
+    return {
+      domain: null,
+      domainWithoutSuffix: null,
+      hostname: null,
+      isIcann: null,
+      isIp: null,
+      isPrivate: null,
+      isSpecialUse: null,
+      publicSuffix: null,
+      subdomain: null
+    };
+  }
+
+  // node_modules/tldts/dist/es6/src/data/trie.js
+  var nodeFlags = /* @__PURE__ */ new Uint8Array([1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 2, 2, 2, 0, 2, 2, 0, 2, 0, 0, 1, 0, 0, 2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 2, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 2, 2, 0, 0, 0, 2, 0, 1, 1, 0, 2, 0, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 2, 2, 0, 2, 2, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 2, 2, 0, 2, 2, 2, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 2, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 2, 2, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 2, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0]);
+  var edgeStart = /* @__PURE__ */ new Uint16Array([0, 0, 0, 10, 11, 18, 106, 111, 117, 124, 130, 136, 145, 146, 147, 148, 149, 150, 151, 153, 154, 155, 157, 159, 227, 240, 242, 243, 244, 259, 266, 267, 270, 271, 272, 275, 277, 296, 297, 299, 308, 313, 330, 331, 334, 336, 337, 339, 373, 374, 376, 379, 380, 384, 386, 390, 393, 425, 428, 441, 442, 450, 451, 453, 463, 477, 478, 479, 480, 489, 490, 527, 532, 548, 568, 574, 616, 617, 644, 671, 672, 820, 826, 829, 830, 831, 836, 841, 850, 872, 873, 874, 875, 876, 877, 878, 896, 898, 899, 902, 904, 905, 907, 909, 924, 939, 944, 945, 947, 948, 949, 950, 951, 953, 956, 961, 962, 963, 965, 966, 969, 972, 973, 974, 987, 989, 1001, 1012, 1020, 1022, 1063, 1066, 1070, 1071, 1073, 1076, 1087, 1089, 1099, 1101, 1107, 1109, 1110, 1112, 1115, 1116, 1117, 1170, 1172, 1174, 1194, 1195, 1196, 1197, 1199, 1210, 1241, 1252, 1264, 1273, 1280, 1285, 1298, 1309, 1322, 1323, 1334, 1368, 1369, 1370, 1385, 1400, 1472, 1473, 1475, 1476, 1510, 1511, 1512, 1513, 1516, 1520, 1523, 1525, 1554, 1555, 1563, 1564, 1565, 1566, 1568, 1570, 1571, 1573, 1574, 1575, 1586, 1587, 1588, 1589, 1590, 1591, 1592, 1593, 1594, 1595, 1596, 1597, 1598, 1599, 1601, 1602, 1603, 2057, 2060, 2061, 2063, 2070, 2077, 2087, 2091, 2102, 2103, 2104, 2116, 2117, 2119, 2121, 2122, 2129, 2130, 2132, 2133, 2135, 2136, 2137, 2138, 2139, 2213, 2215, 2236, 2237, 2238, 2240, 2266, 2267, 2318, 2319, 2321, 2328, 2334, 2344, 2354, 2407, 2408, 2409, 2419, 2433, 2434, 2437, 2444, 2445, 2453, 2454, 2455, 2456, 2457, 2468, 2469, 2470, 2472, 2473, 2474, 2483, 2495, 2501, 2533, 2537, 2539, 2540, 2542, 2543, 2554, 2555, 2557, 2565, 2572, 2578, 2583, 2584, 2590, 2593, 2599, 2606, 2607, 2614, 2622, 2623, 2624, 2662, 2668, 2683, 2684, 2689, 2707, 2738, 2756, 2758, 2761, 2769, 2771, 2778, 2830, 2854, 2855, 2856, 2857, 2858, 2859, 2860, 2867, 2868, 2869, 2870, 2871, 2872, 2874, 2875, 2879, 2959, 2972, 2973, 3410, 3414, 3428, 3480, 3508, 3530, 3588, 3610, 3625, 3688, 3739, 3777, 3813, 3838, 3980, 4026, 4077, 4096, 4130, 4145, 4165, 4195, 4226, 4249, 4280, 4310, 4342, 4369, 4444, 4466, 4504, 4514, 4548, 4567, 4593, 4635, 4685, 4711, 4780, 4781, 4783, 4806, 4829, 4865, 4896, 4913, 4970, 4983, 5007, 5036, 5038, 5072, 5088, 5116, 5421, 5430, 5439, 5446, 5463, 5467, 5473, 5512, 5514, 5521, 5528, 5537, 5544, 5545, 5546, 5558, 5561, 5576, 5577, 5586, 5587, 5596, 5605, 5611, 5613, 5614, 5615, 5652, 5653, 5655, 5663, 5670, 5683, 5687, 5689, 5690, 5696, 5703, 5717, 5727, 5732, 5740, 5748, 5754, 5755, 5759, 5761, 5762, 5774, 5846, 5847, 5848, 5849, 5851, 5852, 5855, 5857, 5860, 5864, 5865, 5866, 5872, 5873, 5874, 5876, 5878, 5880, 5881, 5882, 5885, 5887, 5890, 5891, 5893, 6091, 6098, 6099, 6100, 6110, 6115, 6132, 6146, 6155, 6156, 6157, 6161, 6162, 6164, 6166, 6172, 6173, 6176, 6177, 6179, 6180, 6181, 7081, 7084, 7088, 7106, 7115, 7118, 7125, 7126, 7128, 7129, 7130, 7132, 7184, 7185, 7188, 7189, 7306, 7307, 7318, 7329, 7336, 7339, 7348, 7349, 7350, 7365, 7420, 7612, 7614, 7615, 7617, 7622, 7635, 7650, 7657, 7666, 7669, 7672, 7679, 7687, 7691, 7692, 7693, 7707, 7711, 7720, 7721, 7722, 7726, 7761, 7762, 7780, 7787, 7795, 7796, 7801, 7809, 7853, 7854, 7860, 7863, 7875, 7880, 7881, 7884, 7886, 7921, 7922, 7928, 7935, 7936, 7945, 7954, 7969, 7973, 7974, 8026, 8027, 8032, 8034, 8037, 8039, 8040, 8041, 8050, 8064, 8072, 8086, 8098, 8099, 8101, 8103, 8125, 8136, 8142, 8143, 8155, 8167, 8254, 8266, 8274, 8277, 8283, 8308, 8311, 8312, 8313, 8314, 8316, 8319, 8322, 8333, 8335, 8337, 8365, 8440, 8447, 8451, 8452, 8461, 8483, 8484, 8489, 8490, 8569, 8571, 8573, 8582, 8586, 8592, 8598, 8604, 8614, 8619, 8620, 8638, 8649, 8654, 8659, 8669, 8675, 8679, 8685, 8691, 10300, 10301, 10302, 10309, 10311]);
+  var edgeLength = /* @__PURE__ */ new Uint8Array([3, 3, 3, 3, 3, 3, 3, 3, 5, 8, 8, 2, 2, 3, 3, 3, 3, 3, 8, 5, 5, 5, 5, 5, 3, 3, 5, 5, 9, 12, 19, 8, 19, 8, 11, 9, 9, 8, 7, 7, 6, 8, 9, 16, 10, 7, 7, 11, 8, 6, 6, 9, 7, 11, 7, 14, 4, 4, 4, 4, 4, 4, 10, 7, 6, 6, 6, 6, 10, 10, 6, 10, 10, 22, 11, 9, 10, 10, 10, 9, 10, 8, 7, 7, 7, 8, 21, 13, 11, 11, 9, 10, 9, 13, 10, 8, 8, 9, 12, 9, 7, 10, 7, 7, 13, 7, 3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 8, 6, 3, 3, 3, 3, 3, 3, 2, 5, 3, 3, 3, 7, 2, 2, 2, 2, 2, 2, 3, 3, 3, 1, 1, 7, 8, 5, 2, 2, 7, 2, 2, 1, 4, 1, 11, 9, 9, 5, 5, 8, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 3, 3, 5, 11, 9, 9, 13, 7, 14, 7, 6, 6, 6, 7, 6, 6, 6, 6, 6, 10, 7, 11, 9, 4, 4, 4, 4, 4, 6, 6, 6, 6, 13, 6, 8, 7, 10, 9, 9, 7, 9, 8, 9, 8, 7, 10, 6, 9, 8, 10, 10, 7, 8, 1, 9, 10, 12, 12, 12, 10, 9, 9, 10, 10, 9, 9, 1, 1, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 6, 6, 6, 4, 3, 3, 3, 7, 4, 4, 4, 3, 3, 6, 7, 3, 4, 1, 2, 2, 2, 6, 1, 2, 2, 2, 2, 2, 12, 5, 3, 8, 9, 13, 4, 4, 13, 9, 9, 11, 7, 3, 12, 9, 2, 2, 2, 3, 3, 3, 3, 3, 8, 2, 2, 3, 3, 3, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 7, 10, 15, 7, 15, 15, 20, 15, 9, 10, 10, 12, 14, 14, 14, 12, 12, 12, 12, 12, 14, 14, 10, 10, 10, 10, 14, 9, 9, 9, 10, 14, 14, 14, 13, 13, 9, 9, 9, 9, 9, 9, 7, 8, 6, 8, 8, 6, 8, 13, 8, 8, 6, 13, 8, 11, 13, 8, 6, 13, 8, 6, 9, 10, 10, 12, 14, 14, 14, 12, 12, 12, 12, 14, 14, 10, 10, 10, 10, 9, 9, 9, 10, 14, 14, 11, 13, 13, 9, 9, 9, 9, 9, 9, 2, 6, 9, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 2, 3, 3, 3, 3, 3, 3, 7, 7, 2, 3, 2, 2, 5, 3, 3, 3, 3, 3, 3, 4, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 5, 7, 4, 2, 2, 12, 8, 10, 8, 10, 7, 18, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 2, 2, 3, 3, 3, 5, 5, 3, 8, 8, 6, 8, 6, 6, 4, 6, 7, 7, 7, 10, 11, 2, 5, 5, 3, 3, 3, 3, 3, 3, 5, 5, 6, 11, 10, 7, 7, 7, 4, 4, 4, 2, 3, 3, 3, 3, 3, 2, 2, 7, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 11, 7, 6, 9, 6, 6, 8, 10, 8, 6, 8, 13, 4, 4, 4, 4, 4, 10, 8, 11, 8, 8, 8, 10, 10, 7, 10, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 7, 10, 13, 7, 8, 7, 11, 8, 8, 6, 9, 8, 8, 6, 6, 6, 8, 8, 6, 6, 6, 6, 6, 9, 7, 6, 4, 4, 4, 4, 4, 4, 4, 6, 6, 6, 9, 7, 8, 10, 8, 8, 2, 3, 3, 3, 3, 3, 2, 8, 9, 9, 2, 2, 2, 3, 3, 3, 2, 3, 3, 3, 9, 2, 2, 3, 3, 3, 3, 3, 3, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 12, 5, 5, 3, 5, 4, 2, 3, 2, 4, 3, 9, 2, 2, 2, 2, 2, 5, 5, 3, 8, 8, 13, 6, 10, 9, 4, 7, 9, 11, 2, 3, 7, 3, 3, 4, 1, 3, 4, 2, 9, 3, 3, 12, 5, 3, 7, 10, 10, 7, 4, 4, 6, 14, 7, 9, 7, 13, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 8, 15, 4, 4, 2, 3, 3, 3, 7, 4, 9, 9, 2, 3, 3, 3, 5, 3, 2, 2, 7, 2, 7, 6, 6, 7, 2, 4, 2, 2, 2, 2, 2, 2, 8, 8, 8, 9, 5, 2, 3, 3, 3, 3, 3, 3, 10, 7, 4, 4, 4, 4, 3, 4, 2, 3, 3, 3, 3, 3, 10, 7, 4, 4, 4, 4, 2, 3, 3, 3, 3, 10, 7, 4, 4, 4, 4, 3, 9, 6, 6, 6, 9, 13, 9, 2, 2, 2, 8, 7, 9, 5, 3, 3, 3, 5, 5, 13, 12, 9, 10, 7, 8, 7, 6, 8, 6, 11, 12, 7, 9, 10, 4, 4, 7, 8, 11, 6, 7, 9, 8, 7, 10, 8, 9, 15, 7, 8, 5, 4, 7, 2, 3, 3, 3, 2, 14, 10, 2, 14, 10, 2, 14, 3, 9, 13, 13, 10, 14, 16, 17, 11, 2, 14, 2, 14, 3, 9, 13, 10, 14, 16, 17, 11, 14, 10, 14, 2, 7, 3, 10, 7, 14, 10, 2, 14, 10, 9, 9, 17, 6, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 10, 10, 10, 12, 9, 4, 10, 10, 11, 8, 8, 8, 7, 9, 5, 3, 3, 3, 3, 3, 3, 3, 3, 5, 8, 4, 4, 4, 4, 4, 4, 6, 16, 3, 3, 14, 3, 14, 2, 14, 9, 13, 10, 10, 14, 16, 17, 11, 6, 9, 10, 10, 12, 14, 14, 14, 12, 12, 12, 12, 14, 14, 10, 10, 10, 10, 14, 9, 9, 9, 10, 14, 14, 14, 9, 9, 9, 9, 9, 9, 2, 14, 9, 13, 10, 10, 14, 16, 17, 11, 6, 2, 14, 9, 17, 13, 10, 10, 14, 16, 17, 11, 6, 2, 14, 9, 13, 10, 14, 16, 17, 11, 2, 14, 9, 13, 10, 16, 11, 2, 14, 10, 19, 7, 2, 14, 9, 13, 10, 19, 10, 7, 14, 16, 17, 11, 6, 2, 14, 9, 13, 10, 19, 7, 14, 16, 17, 11, 2, 14, 9, 13, 17, 13, 10, 10, 14, 16, 17, 11, 6, 3, 2, 14, 9, 13, 10, 10, 14, 16, 17, 11, 6, 9, 10, 12, 14, 14, 14, 12, 12, 12, 12, 12, 14, 14, 14, 10, 10, 10, 14, 9, 9, 9, 9, 14, 14, 14, 13, 13, 14, 9, 9, 9, 9, 9, 9, 4, 11, 2, 14, 9, 13, 17, 13, 10, 19, 10, 7, 14, 16, 17, 11, 6, 2, 14, 9, 13, 17, 13, 10, 19, 10, 7, 14, 16, 17, 11, 6, 2, 9, 10, 10, 7, 17, 3, 3, 12, 12, 16, 15, 15, 12, 14, 14, 14, 20, 20, 13, 12, 12, 12, 12, 12, 12, 20, 25, 14, 14, 12, 12, 10, 10, 10, 10, 9, 9, 9, 25, 4, 9, 17, 10, 7, 14, 16, 21, 13, 13, 14, 20, 14, 13, 17, 24, 9, 12, 13, 25, 13, 21, 20, 17, 9, 9, 9, 9, 9, 9, 12, 17, 4, 4, 9, 9, 9, 10, 10, 12, 14, 14, 14, 12, 12, 12, 12, 12, 14, 14, 10, 10, 10, 10, 14, 9, 9, 9, 10, 14, 14, 14, 13, 13, 9, 9, 9, 9, 9, 9, 1, 5, 8, 7, 11, 11, 1, 3, 3, 3, 5, 3, 3, 4, 8, 9, 10, 14, 14, 12, 12, 12, 12, 14, 14, 10, 10, 10, 10, 14, 9, 9, 9, 10, 14, 14, 14, 13, 13, 9, 9, 9, 9, 9, 7, 4, 4, 4, 4, 4, 4, 4, 4, 4, 7, 4, 9, 12, 6, 14, 4, 12, 7, 2, 2, 1, 2, 7, 6, 4, 4, 4, 6, 8, 8, 7, 4, 5, 6, 3, 3, 3, 3, 4, 16, 8, 5, 4, 3, 3, 3, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 11, 12, 7, 7, 13, 9, 10, 17, 12, 8, 9, 7, 8, 5, 12, 10, 13, 14, 5, 5, 5, 13, 5, 5, 5, 3, 3, 3, 5, 16, 5, 5, 5, 5, 7, 12, 14, 8, 12, 8, 10, 12, 9, 11, 7, 9, 7, 10, 7, 13, 9, 7, 12, 8, 17, 7, 7, 16, 10, 13, 13, 8, 10, 10, 14, 17, 7, 16, 16, 15, 8, 10, 10, 12, 17, 17, 7, 17, 14, 7, 10, 17, 8, 7, 7, 7, 8, 15, 15, 7, 14, 10, 10, 10, 11, 11, 7, 7, 13, 8, 10, 7, 16, 7, 8, 7, 14, 17, 12, 10, 11, 21, 8, 9, 7, 13, 9, 8, 13, 6, 12, 7, 6, 13, 10, 10, 10, 8, 18, 9, 17, 13, 10, 12, 6, 13, 6, 11, 8, 13, 10, 13, 18, 13, 11, 13, 8, 16, 7, 10, 8, 16, 12, 10, 8, 8, 14, 11, 8, 15, 8, 8, 7, 7, 12, 7, 8, 9, 14, 15, 8, 9, 10, 9, 15, 7, 8, 8, 12, 13, 9, 10, 15, 13, 7, 10, 10, 20, 7, 6, 9, 6, 6, 14, 11, 14, 11, 12, 9, 10, 16, 16, 12, 7, 11, 28, 8, 11, 10, 7, 21, 8, 7, 9, 4, 4, 4, 17, 7, 8, 6, 9, 6, 6, 13, 6, 6, 6, 6, 18, 20, 14, 8, 11, 12, 9, 10, 13, 15, 15, 19, 8, 9, 12, 7, 10, 16, 12, 9, 9, 9, 14, 12, 11, 9, 12, 11, 18, 9, 9, 9, 10, 7, 7, 16, 8, 9, 7, 13, 12, 10, 14, 18, 7, 8, 11, 7, 7, 8, 8, 13, 7, 7, 7, 11, 15, 13, 11, 7, 8, 15, 11, 7, 8, 18, 14, 13, 18, 15, 10, 12, 12, 9, 7, 11, 11, 8, 7, 10, 8, 14, 12, 10, 18, 7, 10, 9, 7, 8, 13, 10, 14, 10, 8, 8, 23, 7, 7, 11, 12, 12, 17, 7, 7, 11, 11, 17, 16, 16, 7, 8, 11, 14, 14, 8, 10, 7, 7, 16, 16, 13, 9, 11, 9, 15, 15, 11, 11, 7, 7, 14, 7, 9, 7, 7, 16, 10, 13, 10, 11, 14, 7, 11, 10, 11, 7, 11, 10, 11, 15, 11, 15, 10, 12, 10, 14, 13, 11, 11, 12, 13, 10, 7, 13, 10, 16, 12, 21, 9, 10, 10, 7, 11, 14, 17, 7, 7, 8, 11, 12, 8, 15, 14, 14, 8, 17, 12, 10, 10, 7, 9, 11, 7, 10, 7, 11, 18, 7, 11, 7, 12, 11, 8, 8, 14, 12, 7, 8, 15, 3, 7, 7, 5, 2, 9, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 2, 5, 3, 3, 3, 3, 3, 3, 4, 4, 3, 3, 3, 3, 3, 3, 5, 11, 6, 4, 7, 10, 7, 7, 11, 1, 10, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 5, 7, 3, 5, 6, 3, 3, 5, 2, 2, 5, 3, 4, 13, 11, 3, 3, 6, 3, 5, 14, 2, 2, 3, 8, 2, 2, 12, 5, 18, 5, 3, 3, 3, 16, 5, 5, 5, 10, 7, 13, 12, 13, 9, 12, 14, 19, 9, 9, 21, 9, 9, 10, 6, 9, 6, 15, 10, 6, 12, 8, 6, 10, 15, 4, 4, 6, 6, 9, 9, 12, 16, 14, 23, 7, 7, 7, 14, 9, 7, 7, 11, 14, 10, 7, 10, 10, 10, 12, 6, 11, 10, 13, 11, 15, 11, 7, 12, 10, 3, 7, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 4, 3, 7, 2, 5, 5, 3, 3, 5, 5, 5, 5, 7, 6, 6, 6, 4, 4, 4, 4, 4, 4, 6, 6, 6, 6, 6, 7, 10, 2, 2, 2, 5, 5, 5, 5, 3, 3, 3, 3, 3, 5, 5, 10, 9, 11, 8, 7, 12, 8, 9, 7, 6, 13, 11, 6, 13, 7, 9, 9, 4, 4, 4, 4, 4, 6, 10, 7, 8, 13, 8, 8, 9, 14, 7, 8, 10, 7, 7, 7, 9, 6, 9, 7, 2, 12, 5, 3, 3, 13, 4, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 8, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 2, 2, 2, 5, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 1, 7, 6, 4, 12, 3, 3, 3, 3, 3, 8, 7, 3, 3, 3, 3, 3, 3, 4, 4, 11, 14, 2, 8, 3, 5, 5, 8, 10, 8, 6, 4, 7, 17, 7, 4, 5, 2, 6, 3, 2, 2, 12, 5, 5, 3, 15, 13, 8, 11, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 5, 3, 3, 3, 3, 4, 18, 2, 12, 5, 3, 3, 3, 3, 3, 5, 16, 8, 8, 9, 6, 6, 4, 4, 4, 4, 31, 6, 6, 10, 11, 21, 10, 9, 7, 10, 7, 7, 2, 4, 4, 4, 4, 6, 5, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 6, 6, 6, 2, 2, 2, 5, 3, 3, 3, 7, 7, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 8, 2, 3, 3, 3, 3, 3, 5, 9, 11, 3, 3, 3, 3, 4, 4, 3, 3, 3, 3, 3, 5, 10, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 11, 10, 10, 10, 10, 10, 11, 10, 11, 10, 11, 10, 9, 9, 11, 3, 3, 3, 3, 3, 3, 5, 3, 7, 8, 8, 7, 6, 6, 11, 4, 4, 4, 7, 8, 9, 9, 2, 3, 7, 4, 4, 2, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 2, 2, 5, 5, 5, 5, 5, 3, 3, 5, 5, 5, 7, 7, 6, 6, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 6, 6, 8, 8, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 6, 9, 12, 3, 7, 10, 7, 2, 2, 3, 3, 3, 3, 3, 4, 3, 3, 2, 2, 2, 2, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 8, 8, 6, 6, 8, 6, 7, 4, 4, 4, 4, 4, 4, 6, 7, 5, 5, 20, 19, 8, 10, 9, 7, 10, 6, 8, 11, 6, 6, 6, 6, 13, 12, 8, 6, 7, 14, 11, 9, 2, 5, 3, 6, 2, 3, 2, 2, 2, 2, 2, 2, 2, 5, 4, 3, 7, 6, 4, 7, 4, 3, 6, 4, 7, 2, 7, 7, 7, 5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 9, 10, 10, 11, 7, 8, 20, 7, 8, 9, 8, 12, 6, 6, 6, 8, 9, 8, 12, 6, 6, 8, 13, 10, 12, 6, 6, 7, 7, 9, 6, 4, 4, 4, 4, 4, 4, 10, 6, 6, 6, 7, 14, 11, 10, 7, 8, 10, 8, 11, 14, 11, 11, 9, 7, 9, 8, 11, 9, 17, 10, 9, 2, 2, 2, 9, 3, 3, 3, 3, 15, 14, 9, 5, 5, 2, 8, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 15, 12, 22, 19, 17, 18, 18, 19, 21, 7, 16, 16, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 9, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 7, 16, 11, 11, 7, 7, 7, 7, 17, 7, 8, 12, 15, 9, 19, 7, 19, 8, 21, 11, 12, 19, 14, 22, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 16, 16, 19, 24, 12, 7, 14, 7, 12, 7, 8, 10, 10, 13, 7, 12, 12, 7, 7, 10, 18, 15, 12, 16, 7, 14, 12, 17, 10, 16, 17, 12, 17, 25, 7, 7, 7, 13, 6, 9, 6, 9, 18, 6, 6, 11, 20, 10, 6, 6, 6, 6, 6, 6, 17, 6, 6, 6, 15, 6, 6, 6, 6, 6, 8, 14, 11, 12, 11, 15, 13, 19, 17, 21, 7, 18, 8, 13, 13, 8, 12, 8, 6, 6, 13, 6, 15, 15, 16, 6, 6, 16, 6, 6, 6, 14, 6, 18, 6, 6, 6, 17, 18, 9, 13, 15, 8, 19, 8, 15, 15, 18, 14, 16, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 6, 11, 10, 11, 6, 21, 23, 12, 17, 12, 11, 14, 13, 22, 15, 15, 11, 12, 14, 12, 7, 12, 8, 12, 14, 12, 18, 10, 8, 16, 19, 17, 12, 14, 15, 8, 19, 17, 12, 13, 13, 15, 18, 13, 23, 24, 23, 21, 17, 24, 8, 21, 8, 14, 14, 16, 20, 14, 8, 8, 15, 20, 8, 19, 21, 9, 8, 13, 12, 13, 15, 11, 8, 11, 9, 9, 8, 11, 8, 21, 14, 21, 15, 15, 13, 7, 19, 7, 7, 7, 7, 7, 7, 16, 12, 17, 18, 7, 7, 11, 11, 7, 9, 9, 2, 2, 3, 3, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 10, 10, 7, 9, 7, 7, 7, 6, 8, 6, 6, 6, 6, 6, 6, 6, 7, 6, 8, 6, 6, 9, 7, 7, 7, 4, 4, 4, 4, 4, 4, 4, 4, 8, 9, 8, 7, 8, 7, 8, 10, 7, 5, 5, 5, 5, 5, 5, 3, 9, 7, 7, 8, 6, 6, 6, 6, 6, 6, 6, 6, 9, 6, 6, 9, 11, 13, 7, 8, 9, 9, 5, 5, 5, 7, 8, 6, 6, 6, 6, 6, 6, 6, 7, 8, 9, 7, 10, 9, 10, 7, 8, 5, 5, 5, 5, 5, 5, 7, 7, 9, 8, 7, 7, 6, 6, 6, 6, 6, 6, 10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 9, 10, 4, 4, 4, 4, 8, 7, 7, 10, 10, 9, 8, 8, 15, 9, 8, 8, 8, 8, 8, 9, 10, 9, 10, 7, 8, 13, 5, 5, 5, 5, 5, 3, 3, 7, 7, 8, 6, 6, 6, 4, 4, 11, 9, 7, 8, 9, 10, 7, 5, 5, 5, 5, 5, 3, 3, 7, 6, 6, 13, 7, 9, 8, 7, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 3, 7, 8, 7, 8, 13, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 8, 8, 6, 6, 6, 6, 7, 6, 7, 6, 6, 9, 7, 4, 4, 4, 4, 4, 4, 4, 7, 8, 7, 8, 9, 8, 8, 8, 7, 10, 7, 8, 5, 5, 5, 5, 5, 5, 5, 5, 3, 7, 7, 7, 7, 9, 7, 10, 9, 6, 6, 6, 6, 6, 8, 8, 6, 6, 6, 7, 6, 6, 6, 9, 9, 4, 4, 13, 7, 10, 9, 9, 12, 7, 8, 8, 10, 8, 8, 8, 8, 8, 8, 5, 5, 5, 5, 3, 7, 7, 11, 7, 9, 8, 8, 6, 6, 10, 6, 8, 8, 8, 6, 7, 6, 6, 12, 4, 4, 4, 4, 4, 4, 4, 4, 4, 9, 8, 8, 16, 8, 9, 8, 7, 5, 5, 5, 5, 5, 3, 3, 7, 7, 7, 10, 15, 8, 9, 8, 9, 9, 6, 6, 6, 6, 6, 6, 7, 4, 8, 7, 8, 8, 7, 8, 11, 8, 5, 5, 5, 5, 5, 3, 7, 7, 6, 11, 16, 7, 6, 4, 4, 4, 4, 9, 9, 8, 8, 8, 13, 12, 8, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 11, 7, 8, 8, 9, 13, 7, 7, 7, 9, 8, 8, 9, 12, 7, 12, 7, 12, 8, 7, 10, 12, 9, 9, 6, 6, 8, 8, 6, 6, 6, 6, 6, 6, 6, 9, 8, 9, 11, 8, 6, 6, 6, 6, 6, 12, 7, 6, 6, 6, 9, 7, 7, 6, 6, 6, 6, 6, 11, 9, 6, 6, 6, 6, 6, 7, 9, 4, 4, 4, 4, 4, 4, 4, 4, 9, 9, 9, 9, 7, 7, 7, 7, 7, 11, 7, 7, 8, 8, 8, 8, 8, 8, 9, 8, 9, 9, 7, 7, 11, 11, 7, 12, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 13, 12, 8, 8, 8, 8, 7, 7, 7, 9, 5, 5, 5, 5, 5, 5, 5, 3, 3, 7, 7, 11, 7, 8, 8, 8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 10, 11, 6, 7, 9, 4, 4, 4, 4, 4, 4, 9, 9, 8, 9, 8, 8, 8, 7, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 11, 7, 7, 7, 9, 6, 6, 11, 8, 10, 6, 6, 6, 12, 8, 8, 7, 6, 6, 8, 7, 4, 4, 4, 4, 4, 4, 4, 4, 9, 10, 9, 9, 8, 10, 9, 11, 8, 5, 5, 5, 7, 6, 6, 8, 7, 4, 4, 4, 4, 8, 7, 7, 8, 7, 8, 8, 5, 5, 5, 5, 7, 7, 8, 8, 8, 6, 6, 6, 6, 6, 10, 8, 9, 13, 6, 7, 6, 6, 8, 7, 8, 4, 4, 4, 4, 11, 8, 8, 8, 10, 5, 5, 8, 7, 8, 13, 8, 7, 6, 8, 6, 9, 7, 8, 7, 5, 5, 5, 5, 5, 5, 3, 3, 7, 8, 9, 6, 4, 8, 10, 10, 8, 12, 9, 13, 2, 7, 5, 5, 5, 5, 5, 7, 7, 10, 6, 6, 6, 6, 6, 6, 6, 8, 4, 4, 9, 8, 8, 8, 14, 8, 8, 8, 9, 8, 5, 5, 5, 5, 5, 3, 3, 9, 6, 6, 6, 6, 10, 12, 6, 6, 6, 6, 6, 6, 6, 4, 4, 4, 4, 11, 8, 7, 8, 8, 8, 5, 5, 3, 3, 3, 3, 7, 7, 6, 8, 6, 8, 11, 7, 6, 6, 6, 7, 4, 8, 11, 9, 10, 5, 5, 5, 3, 3, 3, 7, 7, 8, 9, 8, 15, 9, 6, 6, 6, 6, 6, 6, 11, 11, 4, 4, 4, 4, 4, 7, 9, 9, 10, 8, 7, 5, 5, 5, 5, 5, 5, 3, 3, 8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 9, 7, 4, 4, 4, 4, 4, 9, 9, 8, 8, 10, 13, 5, 5, 5, 3, 17, 7, 7, 7, 7, 7, 8, 6, 8, 13, 6, 6, 6, 6, 6, 6, 6, 6, 4, 4, 4, 9, 10, 8, 8, 8, 5, 5, 5, 5, 3, 7, 7, 7, 8, 8, 6, 6, 6, 8, 8, 8, 9, 10, 8, 4, 8, 10, 9, 8, 8, 8, 9, 13, 10, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 7, 8, 9, 9, 7, 7, 7, 10, 9, 9, 8, 9, 8, 8, 8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 8, 12, 6, 6, 6, 6, 6, 6, 6, 6, 6, 12, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 11, 8, 8, 9, 9, 10, 8, 9, 7, 7, 5, 5, 5, 5, 5, 5, 3, 7, 8, 7, 6, 6, 8, 6, 6, 10, 4, 7, 8, 9, 12, 8, 7, 7, 5, 5, 5, 5, 5, 5, 3, 3, 7, 14, 7, 9, 8, 8, 6, 6, 8, 12, 12, 6, 6, 7, 7, 10, 4, 4, 4, 4, 4, 9, 9, 14, 9, 13, 8, 7, 5, 5, 5, 6, 6, 6, 7, 4, 8, 7, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 7, 7, 7, 8, 6, 6, 6, 6, 6, 6, 12, 6, 6, 6, 6, 4, 4, 9, 9, 8, 8, 11, 7, 7, 7, 5, 5, 5, 3, 9, 8, 6, 6, 7, 4, 4, 4, 4, 4, 4, 8, 8, 11, 5, 5, 5, 7, 7, 7, 9, 6, 6, 6, 6, 6, 6, 9, 8, 4, 4, 4, 4, 7, 12, 9, 8, 8, 8, 7, 10, 10, 5, 5, 5, 5, 5, 5, 5, 3, 11, 14, 8, 7, 8, 8, 6, 6, 6, 6, 6, 8, 7, 6, 6, 6, 7, 6, 8, 9, 4, 4, 4, 7, 8, 9, 7, 9, 7, 7, 9, 8, 5, 5, 5, 5, 5, 5, 5, 5, 5, 11, 3, 9, 7, 7, 12, 14, 8, 6, 6, 12, 11, 8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 15, 7, 4, 4, 4, 16, 9, 9, 9, 8, 9, 9, 9, 9, 9, 8, 8, 8, 13, 11, 8, 5, 5, 5, 5, 3, 7, 6, 6, 8, 8, 8, 6, 6, 7, 10, 7, 4, 4, 4, 4, 9, 7, 8, 7, 7, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 3, 7, 7, 7, 9, 6, 6, 6, 6, 6, 8, 8, 7, 7, 9, 6, 6, 6, 7, 6, 6, 6, 6, 6, 15, 4, 4, 4, 4, 4, 8, 8, 7, 8, 12, 9, 8, 8, 8, 8, 8, 9, 8, 8, 10, 8, 8, 8, 8, 16, 9, 10, 2, 5, 5, 5, 5, 5, 5, 5, 9, 7, 6, 8, 9, 4, 4, 4, 4, 4, 7, 8, 8, 8, 9, 8, 11, 10, 5, 5, 5, 5, 3, 7, 8, 6, 6, 6, 6, 6, 8, 6, 6, 6, 6, 4, 12, 10, 12, 7, 7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 3, 3, 7, 7, 10, 8, 9, 7, 6, 10, 7, 6, 6, 4, 4, 8, 9, 7, 9, 9, 9, 9, 8, 8, 8, 8, 10, 5, 5, 5, 5, 5, 5, 8, 7, 6, 6, 6, 10, 6, 7, 10, 7, 4, 4, 4, 4, 4, 4, 4, 12, 9, 10, 7, 7, 10, 8, 10, 5, 12, 9, 6, 6, 6, 6, 6, 7, 6, 4, 4, 4, 10, 9, 9, 8, 7, 7, 5, 5, 5, 5, 5, 5, 3, 3, 13, 7, 7, 9, 7, 7, 7, 8, 9, 9, 7, 8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 13, 9, 15, 15, 4, 4, 4, 4, 4, 10, 10, 9, 8, 9, 8, 8, 9, 7, 8, 7, 8, 5, 5, 7, 6, 6, 6, 4, 4, 4, 7, 8, 11, 8, 5, 5, 5, 5, 5, 5, 5, 7, 6, 6, 6, 6, 6, 6, 9, 11, 10, 7, 4, 4, 4, 9, 8, 8, 5, 5, 5, 5, 5, 9, 9, 6, 6, 6, 6, 6, 6, 6, 9, 9, 4, 4, 4, 4, 8, 8, 8, 9, 9, 8, 8, 8, 13, 2, 4, 2, 7, 5, 5, 5, 5, 5, 5, 9, 9, 6, 6, 6, 6, 10, 8, 8, 8, 6, 6, 6, 4, 4, 9, 8, 10, 8, 9, 8, 8, 8, 9, 8, 8, 5, 3, 3, 3, 11, 6, 6, 6, 7, 6, 6, 6, 4, 4, 9, 8, 5, 5, 5, 5, 5, 3, 11, 8, 6, 6, 6, 6, 6, 9, 7, 4, 4, 14, 10, 9, 8, 12, 8, 8, 8, 11, 15, 8, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 11, 11, 11, 10, 10, 7, 7, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 7, 11, 7, 7, 11, 11, 7, 8, 9, 10, 7, 7, 9, 9, 9, 9, 7, 7, 10, 8, 13, 8, 8, 8, 8, 11, 10, 6, 6, 8, 10, 11, 14, 14, 6, 6, 6, 6, 6, 6, 9, 11, 7, 7, 6, 8, 12, 11, 11, 6, 6, 10, 6, 6, 6, 6, 6, 10, 7, 7, 6, 6, 11, 6, 6, 6, 11, 8, 9, 7, 6, 10, 11, 9, 10, 11, 7, 11, 8, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 8, 6, 6, 8, 9, 10, 9, 6, 6, 6, 10, 6, 6, 6, 6, 11, 10, 11, 10, 9, 8, 7, 7, 7, 7, 11, 14, 8, 10, 9, 9, 8, 8, 7, 11, 8, 8, 8, 11, 11, 10, 10, 9, 10, 8, 11, 10, 8, 11, 9, 12, 8, 10, 8, 11, 8, 9, 9, 11, 11, 10, 11, 13, 8, 7, 8, 8, 9, 7, 8, 8, 8, 8, 7, 8, 2, 2, 2, 2, 2, 2, 2, 4, 4, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 2, 3, 3, 3, 3, 3, 3, 3, 3, 8, 6, 4, 4, 4, 11, 7, 11, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 3, 3, 3, 3, 8, 7, 7, 8, 8, 4, 8, 7, 7, 7, 9, 7, 8, 9, 8, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 6, 3, 3, 3, 3, 3, 3, 3, 3, 4, 2, 2, 3, 3, 3, 3, 3, 3, 4, 5, 5, 3, 3, 8, 8, 6, 9, 4, 4, 10, 7, 3, 3, 3, 2, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 2, 2, 2, 3, 3, 3, 3, 3, 4, 10, 2, 3, 3, 3, 3, 3, 3, 3, 4, 2, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 5, 2, 4, 2, 6, 2, 2, 9, 5, 5, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 9, 8, 7, 9, 6, 6, 11, 4, 4, 4, 4, 4, 4, 4, 4, 6, 6, 7, 7, 11, 8, 8, 6, 5, 11, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 2, 2, 3, 3, 3, 3, 3, 3, 6, 4, 4, 4, 4, 3, 3, 3, 3, 5, 7, 2, 3, 3, 3, 3, 3, 8, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 6, 4, 4, 4, 4, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 2, 2, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 6, 3, 3, 8, 10, 3, 4, 4, 1, 1, 1, 1, 1, 1, 1, 8, 9, 10, 7, 7, 1, 14, 18, 13, 18, 13, 10, 10, 16, 13, 18, 16, 13, 16, 18, 13, 22, 16, 16, 16, 14, 21, 16, 9, 14, 16, 9, 9, 14, 10, 10, 14, 12, 14, 19, 12, 11, 18, 13, 17, 15, 15, 15, 15, 16, 14, 13, 19, 18, 15, 19, 18, 12, 18, 12, 11, 20, 14, 15, 10, 17, 17, 16, 19, 20, 21, 15, 13, 16, 15, 15, 15, 1, 1, 3, 8, 7, 7, 8, 8, 8, 1, 6, 1, 1, 6, 3, 3, 4, 7, 3, 3, 5, 5, 4, 4, 4, 4, 4, 2, 7, 7, 8, 12, 3, 4, 5, 1, 3, 4, 4, 10, 4, 3, 3, 3, 8, 7, 7, 2, 2, 2, 2, 2, 2, 2, 2, 2, 12, 9, 20, 7, 5, 5, 5, 9, 13, 5, 5, 5, 5, 5, 3, 3, 3, 16, 5, 5, 5, 13, 7, 8, 8, 11, 8, 7, 9, 7, 11, 12, 9, 9, 8, 8, 11, 10, 14, 7, 12, 10, 11, 13, 7, 9, 11, 17, 17, 14, 13, 7, 8, 7, 10, 10, 7, 16, 13, 7, 8, 17, 12, 9, 8, 6, 7, 10, 6, 6, 12, 6, 8, 10, 8, 8, 8, 6, 8, 6, 14, 6, 6, 6, 13, 6, 10, 6, 6, 7, 14, 8, 6, 6, 10, 11, 10, 9, 9, 7, 7, 6, 6, 6, 9, 9, 7, 9, 10, 9, 13, 12, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 6, 6, 6, 8, 8, 6, 8, 9, 10, 9, 7, 10, 10, 8, 7, 8, 7, 10, 12, 9, 8, 15, 8, 7, 8, 8, 7, 7, 15, 13, 7, 10, 9, 14, 18, 16, 7, 24, 7, 8, 10, 11, 16, 8, 14, 7, 9, 9, 9, 13, 19, 14, 15, 14, 11, 7, 13, 9, 10, 7, 13, 9, 10, 11, 12, 8, 9, 2, 3, 5, 8, 7, 4, 4, 15, 10, 5, 3, 3, 3, 3, 3, 5, 4, 4, 4, 2, 2, 2, 2, 2, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 2, 12, 5, 3, 8, 10, 15, 6, 7, 2, 3, 2, 5, 5, 12, 2, 5, 5, 5, 5, 2, 2, 5, 5, 12, 9, 5, 2, 2, 9, 5, 5, 12, 12, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 9, 12, 5, 8, 8, 9, 5, 5, 5, 8, 19, 7, 16, 15, 14, 9, 9, 9, 9, 7, 11, 11, 11, 7, 14, 10, 10, 5, 5, 5, 5, 5, 5, 5, 5, 5, 15, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 9, 9, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 14, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 15, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 12, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 9, 9, 12, 9, 9, 12, 12, 12, 15, 7, 11, 7, 14, 11, 18, 13, 8, 18, 15, 18, 12, 14, 12, 8, 8, 8, 8, 9, 9, 9, 12, 7, 10, 10, 8, 8, 12, 12, 12, 7, 12, 12, 9, 7, 7, 7, 7, 7, 8, 15, 12, 9, 10, 10, 7, 10, 10, 13, 11, 10, 9, 22, 11, 9, 8, 8, 8, 8, 8, 13, 18, 13, 9, 15, 19, 9, 7, 7, 10, 7, 7, 7, 11, 8, 13, 17, 7, 7, 10, 10, 10, 7, 20, 16, 7, 7, 7, 7, 7, 7, 11, 21, 12, 12, 13, 11, 14, 16, 8, 8, 13, 11, 7, 7, 13, 7, 7, 14, 15, 15, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 13, 10, 18, 6, 6, 6, 6, 6, 6, 6, 6, 6, 11, 8, 8, 12, 12, 11, 11, 8, 12, 9, 9, 9, 13, 13, 9, 9, 9, 9, 9, 9, 6, 10, 12, 6, 6, 6, 6, 17, 11, 7, 7, 7, 7, 14, 14, 12, 6, 7, 7, 6, 6, 15, 10, 13, 10, 6, 8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 13, 9, 9, 15, 13, 6, 12, 12, 6, 19, 11, 10, 7, 7, 16, 8, 19, 17, 9, 9, 9, 9, 9, 6, 6, 6, 10, 8, 16, 8, 6, 6, 9, 6, 6, 6, 6, 6, 6, 6, 6, 8, 8, 8, 6, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 14, 6, 6, 6, 6, 20, 6, 9, 6, 14, 9, 9, 9, 6, 9, 8, 8, 12, 9, 8, 8, 8, 8, 7, 8, 12, 7, 8, 8, 8, 6, 8, 6, 6, 6, 6, 6, 6, 6, 9, 8, 8, 6, 6, 13, 9, 12, 13, 12, 14, 13, 12, 11, 11, 6, 8, 8, 8, 6, 13, 12, 11, 11, 12, 6, 11, 12, 11, 13, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 15, 6, 6, 6, 6, 6, 6, 6, 13, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 8, 8, 8, 8, 6, 18, 6, 12, 13, 13, 13, 9, 10, 15, 9, 12, 6, 6, 6, 6, 6, 6, 6, 6, 9, 15, 10, 9, 10, 13, 9, 19, 8, 18, 17, 10, 10, 8, 8, 6, 6, 6, 6, 6, 6, 10, 14, 8, 16, 16, 9, 8, 15, 8, 8, 10, 12, 14, 7, 7, 8, 8, 7, 7, 7, 7, 8, 13, 13, 11, 9, 9, 9, 12, 10, 17, 8, 11, 9, 7, 7, 14, 8, 14, 14, 7, 7, 7, 7, 7, 7, 14, 7, 7, 7, 7, 7, 10, 10, 8, 14, 7, 7, 7, 7, 8, 8, 8, 8, 8, 17, 9, 7, 15, 7, 8, 12, 7, 9, 14, 7, 7, 7, 9, 13, 8, 14, 7, 16, 18, 13, 15, 14, 12, 13, 10, 15, 9, 7, 7, 7, 10, 13, 15, 15, 9, 9, 9, 9, 19, 11, 7, 11, 11, 13, 8, 8, 8, 8, 7, 12, 19, 17, 9, 9, 13, 7, 7, 7, 9, 7, 7, 7, 12, 13, 15, 10, 8, 8, 14, 15, 12, 13, 13, 8, 12, 14, 7, 11, 7, 14, 15, 13, 12, 8, 8, 8, 8, 11, 13, 15, 15, 8, 13, 12, 8, 8, 8, 13, 10, 16, 14, 11, 8, 8, 12, 12, 9, 15, 15, 12, 12, 13, 8, 8, 9, 12, 13, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 11, 12, 11, 7, 14, 7, 13, 13, 13, 12, 18, 16, 7, 12, 11, 10, 10, 15, 9, 9, 9, 21, 7, 7, 7, 11, 16, 8, 8, 11, 11, 7, 7, 7, 7, 7, 19, 7, 7, 7, 7, 7, 7, 7, 7, 7, 12, 8, 9, 12, 14, 11, 9, 9, 9, 22, 12, 3, 3, 4, 8, 8, 15, 4, 2, 2, 5, 5, 3, 3, 3, 3, 3, 3, 6, 6, 4, 4, 4, 12, 7, 10, 2, 3, 3, 3, 3, 3, 3, 3, 6, 7, 3, 7, 5, 14, 4, 4, 7, 8, 10, 4, 1, 3, 3, 6, 2, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 4, 2, 2, 5, 3, 4, 2, 2, 2, 2, 2, 2, 11, 5, 5, 5, 11, 5, 5, 3, 5, 5, 5, 5, 11, 14, 13, 9, 11, 9, 12, 8, 11, 11, 8, 11, 16, 9, 9, 7, 10, 9, 12, 8, 15, 6, 7, 6, 6, 13, 10, 8, 11, 8, 6, 6, 6, 12, 16, 6, 11, 7, 8, 9, 18, 6, 6, 9, 4, 4, 6, 13, 6, 6, 6, 6, 8, 8, 9, 16, 7, 7, 14, 7, 8, 8, 8, 7, 7, 7, 7, 7, 7, 15, 13, 7, 10, 7, 7, 10, 12, 16, 15, 7, 9, 9, 14, 11, 11, 10, 9, 10, 8, 12, 7, 8, 7, 7, 10, 12, 7, 12, 8, 7, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 3, 3, 5, 5, 5, 10, 4, 8, 7, 10, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 3, 3, 7, 4, 5, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 6, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 9, 8, 2, 2, 2, 8, 12, 7, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 8, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 7, 11, 9, 8, 8, 8, 7, 8, 9, 7, 7, 9, 7, 7, 7, 10, 7, 7, 10, 9, 10, 6, 6, 6, 6, 6, 6, 15, 7, 8, 9, 9, 8, 6, 6, 10, 9, 6, 8, 13, 9, 7, 6, 6, 6, 6, 6, 6, 12, 6, 6, 7, 6, 7, 6, 6, 6, 10, 10, 7, 6, 6, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 6, 14, 6, 6, 7, 7, 9, 6, 6, 6, 6, 9, 9, 8, 9, 10, 9, 8, 9, 12, 7, 7, 7, 8, 7, 10, 12, 11, 9, 10, 7, 7, 7, 9, 10, 10, 8, 12, 9, 7, 7, 9, 8, 8, 8, 10, 7, 7, 8, 9, 9, 7, 7, 7, 8, 2, 4, 6, 3, 4, 2, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 5, 8, 6, 4, 7, 3, 3, 3, 3, 3, 3, 3, 12, 3, 3, 3, 3, 3, 3, 4, 4, 2, 3, 5, 3, 4, 7, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 6, 4, 3, 4, 2, 2, 2, 5, 3, 3, 3, 3, 3, 5, 4, 4, 4, 4, 7, 6, 8, 9, 2, 2, 2, 2, 3, 3, 3, 5, 7, 2, 3, 3, 8, 7, 7, 2, 2, 8, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 8, 8, 7, 7, 6, 10, 6, 9, 7, 11, 4, 6, 8, 8, 7, 8, 4, 5, 5, 5, 5, 3, 3, 11, 8, 9, 6, 6, 8, 7, 4, 4, 7, 8, 7, 2, 2, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 7, 2, 2, 5, 3, 3, 2, 3, 3, 3, 3, 3, 3, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 12, 5, 5, 3, 3, 3, 5, 10, 12, 6, 15, 4, 6, 6, 7, 14, 9, 3, 3, 3, 3, 3, 8, 2, 2, 3, 5, 5, 3, 3, 3, 3, 3, 3, 8, 8, 8, 7, 5, 8, 4, 6, 11, 2, 2, 6, 7, 3, 3, 2, 9, 8, 5, 5, 3, 3, 3, 5, 5, 7, 7, 6, 6, 10, 6, 8, 6, 8, 9, 7, 4, 4, 4, 4, 7, 6, 6, 7, 7, 10, 9, 8, 11, 8, 3, 3, 3, 3, 3, 4, 4, 2, 3, 3, 3, 3, 3, 7, 6, 2, 5, 6, 7, 6, 4, 8, 9, 11, 2, 2, 3, 3, 3, 3, 3, 3, 3, 2, 2, 5, 3, 3, 3, 3, 3, 9, 9, 6, 4, 8, 7, 7, 5, 9, 8, 6, 2, 8, 7, 8, 5, 5, 5, 5, 5, 3, 3, 3, 16, 8, 7, 7, 7, 8, 7, 7, 7, 7, 9, 6, 9, 6, 10, 7, 7, 7, 6, 10, 8, 9, 11, 11, 8, 4, 4, 10, 8, 8, 6, 9, 6, 11, 8, 8, 8, 15, 7, 8, 9, 5, 3, 3, 3, 3, 3, 5, 11, 2, 2, 3, 8, 9, 10, 3, 2, 2, 2, 2, 2, 2, 3, 6, 4, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 2, 3, 3, 3, 3, 3, 3, 3, 11, 5, 3, 3, 3, 3, 3, 3, 3, 3, 6, 7, 4, 4, 2, 3, 3, 3, 3, 3, 3, 3, 3, 12, 7, 4, 12, 4, 6, 5, 4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 11, 10, 6, 4, 6, 10, 8, 3, 3, 3, 3, 3, 3, 3, 3, 5, 4, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 5, 3, 4, 4, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 10, 5, 5, 5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 7, 8, 8, 7, 13, 12, 10, 10, 8, 8, 7, 7, 9, 12, 11, 6, 6, 8, 8, 9, 7, 7, 7, 10, 15, 10, 4, 4, 4, 4, 4, 11, 8, 8, 9, 7, 9, 14, 14, 12, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 12, 5, 5, 5, 11, 10, 7, 9, 3, 8, 7, 3, 15, 13, 11, 4, 4, 2, 2, 2, 19, 7, 5, 5, 3, 3, 3, 3, 3, 3, 3, 5, 22, 18, 6, 14, 17, 4, 4, 19, 16, 18, 2, 3, 3, 7, 2, 3, 2, 3, 3, 6, 4, 2, 3, 3, 2, 5, 3, 3, 3, 3, 3, 3, 3, 9, 9, 2, 3, 2, 2, 2, 3, 3, 3, 5, 7, 14, 7, 7, 12, 9, 13, 6, 11, 6, 10, 9, 7, 7, 8, 12, 12, 8, 8, 8, 10, 7, 7, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 5, 8, 10, 7, 8, 11, 8, 12, 9, 4, 14, 7, 7, 9, 13, 2, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 1, 2, 2, 3, 3, 3, 3, 3, 3, 5, 2, 2, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 8, 4, 4, 4, 3, 2, 3, 3, 3, 3, 5, 2, 2, 2, 2, 5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 12, 9, 8, 8, 9, 8, 6, 17, 6, 6, 6, 8, 8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 4, 4, 8, 8, 9, 9, 9, 7, 7, 7, 7, 7, 7, 7, 9, 9, 9, 7, 8, 8, 8, 10, 7, 13, 10, 8, 9, 3, 3, 5, 13, 3, 3, 3, 3, 3, 7, 7, 6, 6, 10, 13, 11, 11, 8, 8, 9, 8, 9, 9, 10, 10, 10, 11, 10, 10, 13, 13, 16, 15, 11, 12, 9, 9, 10, 9, 11, 10, 9, 9, 14, 7, 8, 3, 10, 7, 7, 3, 2, 2, 2, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 6, 7, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 11, 6, 7, 4, 6, 2, 2, 3, 3, 3, 1, 3, 3, 3, 3, 3, 3, 6, 4, 4, 2, 2, 2, 3, 3, 3, 3, 4, 4, 6, 6, 6, 6, 5, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 9, 11, 6, 10, 9, 12, 7, 7, 11, 14, 9, 7, 12, 3, 3, 7, 12, 11, 12, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 9, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 11, 5, 5, 5, 5, 5, 5, 5, 5, 11, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 3, 10, 3, 3, 3, 11, 3, 5, 9, 11, 8, 12, 14, 9, 7, 8, 7, 7, 11, 11, 7, 7, 10, 9, 8, 10, 9, 7, 7, 7, 7, 7, 7, 8, 8, 7, 11, 8, 8, 8, 7, 7, 10, 8, 7, 13, 12, 7, 17, 10, 8, 8, 11, 7, 11, 11, 14, 7, 11, 7, 8, 6, 9, 20, 8, 7, 9, 16, 7, 10, 6, 11, 10, 8, 9, 7, 16, 11, 11, 9, 8, 9, 8, 8, 8, 11, 8, 15, 8, 8, 9, 7, 8, 8, 11, 10, 7, 5, 7, 10, 10, 15, 7, 7, 7, 8, 7, 8, 8, 10, 11, 10, 10, 10, 11, 11, 7, 8, 6, 8, 8, 8, 10, 6, 8, 6, 6, 7, 8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 16, 6, 15, 6, 7, 11, 11, 7, 9, 10, 11, 13, 10, 6, 16, 8, 10, 12, 11, 6, 6, 6, 6, 6, 6, 6, 10, 6, 10, 7, 7, 7, 7, 11, 7, 11, 6, 6, 6, 6, 6, 6, 17, 7, 7, 6, 6, 12, 22, 6, 6, 6, 6, 6, 8, 6, 6, 6, 6, 7, 6, 6, 5, 6, 6, 8, 11, 6, 9, 14, 11, 9, 11, 7, 7, 8, 6, 6, 6, 8, 10, 9, 6, 6, 6, 6, 9, 7, 6, 6, 6, 6, 6, 15, 6, 4, 4, 4, 6, 4, 17, 8, 11, 6, 6, 9, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 6, 6, 6, 6, 10, 6, 10, 6, 6, 6, 6, 12, 8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 9, 6, 6, 6, 6, 18, 6, 6, 6, 8, 9, 10, 7, 8, 9, 10, 11, 7, 13, 6, 8, 8, 6, 6, 14, 7, 7, 7, 7, 10, 7, 14, 9, 6, 6, 9, 15, 9, 7, 14, 6, 11, 14, 13, 7, 12, 8, 7, 7, 7, 7, 7, 12, 7, 10, 9, 16, 6, 8, 6, 5, 17, 6, 8, 10, 4, 6, 4, 10, 15, 17, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 8, 4, 4, 11, 7, 4, 4, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 19, 17, 6, 10, 11, 6, 6, 6, 6, 18, 6, 6, 11, 4, 4, 4, 5, 6, 6, 6, 9, 5, 6, 4, 6, 6, 4, 6, 6, 6, 6, 10, 6, 6, 4, 6, 6, 10, 6, 10, 6, 6, 6, 6, 11, 6, 6, 10, 6, 6, 8, 6, 6, 6, 8, 6, 11, 4, 11, 9, 10, 9, 11, 4, 8, 4, 11, 12, 7, 9, 8, 6, 7, 7, 8, 12, 12, 11, 13, 10, 11, 7, 7, 7, 9, 7, 11, 10, 7, 7, 7, 16, 11, 10, 11, 17, 9, 9, 8, 8, 7, 7, 7, 9, 7, 7, 7, 14, 7, 13, 9, 11, 10, 14, 10, 10, 12, 11, 10, 7, 10, 5, 14, 8, 8, 8, 9, 7, 8, 7, 7, 9, 8, 7, 8, 7, 7, 7, 7, 7, 7, 7, 11, 8, 10, 8, 7, 8, 14, 11, 8, 9, 9, 9, 8, 24, 10, 10, 12, 7, 7, 15, 11, 8, 8, 12, 11, 8, 9, 9, 7, 8, 9, 10, 11, 10, 11, 7, 12, 7, 7, 11, 9, 8, 14, 13, 12, 8, 11, 10, 8, 8, 7, 7, 14, 9, 10, 8, 9, 11, 7, 14, 8, 8, 13, 8, 8, 12, 7, 10, 14, 14, 11, 9, 10, 9, 9, 7, 7, 11, 11, 13, 9, 13, 5, 5, 5, 7, 9, 5, 11, 12, 14, 8, 7, 7, 11, 10, 9, 7, 8, 8, 7, 10, 11, 11, 5, 5, 7, 5, 5, 5, 7, 7, 15, 7, 7, 8, 7, 15, 12, 12, 10, 7, 8, 7, 11, 7, 7, 7, 23, 11, 8, 8, 11, 10, 7, 8, 11, 7, 19, 7, 7, 6, 9, 9, 9, 11, 3, 4, 7, 8, 6, 6, 4, 10, 8, 2, 2]);
+  var labelText = "orgmilcomschnetedugovdrrformsfeedbackofficialaccoorgmilschnetgovmagazinemediaunioncargopilotgroupcaarespressworksaerodromeworkinggroupair-traffic-controlaircraftaccident-preventioneducatormarketplaceambulanceinsurancecateringairportrepbodyenginesoftwaremodellingair-surveillanceconsultingchartertrainermaintenanceservicesdesignflightskydivingfreightassociationstudentgroundhandlingdgcafuelclubtaxicrewshowballooningexpresstraderbrokerauthoragentsairtrafficjournalistsafetyconsultantmicrolightaccident-investigationparachutingequipmentproductionfederationrecreationscientistnavigationengineertradingglidingleasingresearchpassenger-associationentertainmentparaglidinghangglidingaerobaticrotorcraftemergencycertificationgovernmentaeroclubexchangelogisticschampionshiphomebuiltcouncilconferencecontrolairlinecivilaviationjournalorgcomnetedugovcoorgcomnomnetobjofforgcomnetuwukiloappsframerorgmilcomnetedugovcoradioorgcomnetcommuneedogpbcoitgvorgedugov*spreviewfrontendrelayononstagingupid*mtls*privatelinktypedreamdeveloperbravemochawindsurfaivenmirenupsunwnextbegetngrokclerkwale2bwebcsbrunputerflutterflowspawnbaseshiptodaymagicpatternsnetlifyondigitaloceanrailwayhostedclaudehasurabotdashvercelgithubluyanigadgetreplitcloudflaretelebitedgecomputeevervaultexponyatnoopencrpplxzeaburwasmerframerzeropsrocketpreviewconvexmedusajsspritesonherculeseasypanelstreamlitglideossnowflakemesserliloginlinehackclubcodepennorthflankbase44corespeedleapcellngrok-freeclerkstagelovableon-fleek*us-west-3ap-south-2us-central-2us-central-1eu-central-1ap-south-1us-west-2us-east-2eu-north-1ap-north-1us-west-1us-east-1*rcloudintsegorgmilcomgobbetnetintedugovturmusicasenasamutualcoopip6uriurnin-addre164homeirisgovdixdaemoncloudnssthwien*inexexkunden4accogvormymyspreadshop4lima2ixortsinfofuturecmsfuturehosting12hpprivfuturemailinglima-cityfunkfeuer123webseitednshomemelmyspreadshopcloudletswasantqldvicactnswtascatholicwasaqldvictasidwasantozqldorgcomvicasnactnetedugovnswtasconfcomairflowlambda-urltransfer-webappairflowtransfer-webapptransfer-webapptransfer-webapp-fipstransfer-webappeu-west-3ap-south-2eu-south-2eu-central-2ap-southeast-3ap-southeast-4ap-northeast-3eu-central-1mx-central-1me-central-1ca-central-1il-central-1ap-northeast-1ap-southeast-1me-south-1af-south-1eu-south-1ap-south-1ap-southeast-7us-west-2eu-west-2us-east-2eu-north-1ap-southeast-2ap-northeast-2ap-southeast-5us-gov-west-1us-gov-east-1ca-west-1us-west-1eu-west-1us-east-1ap-east-1sa-east-1privatenotebookstudiolabelingnotebookstudionotebooknotebook-fipslabelingnotebookstudionotebook-fipsnotebookstudio-fipsnotebook-fipsnotebookstudionotebook-fipsnotebookstudioeu-west-3ap-south-2eu-south-2eu-central-2ap-southeast-3ap-southeast-4ap-northeast-3eu-central-1me-central-1ca-central-1il-central-1ap-northeast-1ap-southeast-1me-south-1af-south-1eu-south-1ap-south-1us-west-2eu-west-2us-east-2eu-north-1ap-southeast-2ap-northeast-2experimentsus-gov-west-1us-gov-east-1ca-west-1us-west-1eu-west-1us-east-1ap-east-1sa-east-1onrepostsagemakercopporgmilcompronetintedugovbiznameinfoshoprsorgmilcomnetedugovbrendlyresolvenzauscotvstoreorgcomnetedugovbizinfoidacaicoittvorgmilcomschnetedugovinfocloudezproxysiteacmymyspreadshopkuleuvenwebhostingtransurl123websitecloudnsinterhostsolutionsddns5476103298edgfacbmlonihkjutwvqpsryxzbarsycoororgcomedumyftpno-iporxcloud-ipfor-somemmafanfor-morewebhopselfipjozidyndnscloudnsdscloudfor-thefor-betteractivetrailcoeconorestooteorgcomeconeteduassurmoneyafricaarchitectesrestaurantloisirstourismavocatsinfoagrounivcoorgcomnetedugoviatvdeportesaludtksatorgmilcomwebgobnetinteducienciaboliviarevistacooperativaempresanombreindustriamusicapatriamedicinademocraciapoliticapuebloindigenaplurinacionalarteblogwikiinfoagrotransportenoticiasprofesionalacademiaeconomiaecologiamovimientotecnologianaturalsimplesitecepesebamapadfmgalampbacscpirngorotomtrjspaprrprrsesmscepesebamapadfmgalampbacscpirngorotomtrjspaprrprrsesms*biaamfmtcmptvfeirasampajampanatalbelemananiradiog12medindfndbmdtrdthepoaggfjdfdefinfenflegsegongengcngorgzlgslglogppgmillelqslcimcomnomadmjabimbbibbsbabcrectecsjcetcpscpvhudieticriapipsiecnbiorioecogeoteoodoproatoartfstmatvetdetbetnetcntnotfotgrueduajuespappreptmpemparqsrvadvdevgovntrturagrjorfarjusmusdesvixxyzcozfozslzbhzmaringasantamariacampinagrandegoianiasorocabafloripasaobernardocuritibaboavistarecifeaparecidasaogoncasalvadorcuiabamorenamacapalondrinacontagemsocialfortalmaceioleilaoosascoriobranconiteroi9guacutcheblogflogvlogwikitaxicoopmanauspalmascaxiasjoinvillebaruericampinassantoandreribeiraoriopretoweorgcomnetedugovv0windsurfshiptodaycloudsitecoaccoorgnetgovofmilcomgovmediatechzacoorgcomnetedugsjgovmydnspenfnlabnbmbgcbcqconcontnuyksknsmyspreadshopno-ipawdevboxbarsyonidatemfuinabusavinstanceseceuguukussryzespawncsxcloud-ipmyphotosfantasyleaguetwmailcleverappsscrappingccwucloudnsftpaccessgame-serverccgovobjectsrmalpgcust*svcalp1aeappenginermalpgmyspreadshop4lima2ixsquare7cloudscale123websitefirenet12hpflowgotdnslinkyard-cloudcloudnslima-citydnskingobjectstorageedaccogoorusorgcomnetintedua\xE9roportxn--aroport-byaassogouvcomilgobgovcloudnses-1eu-west-1us-east-1euvipit1eurarubait1s3lbwebsites3websiteru-spbru-mskelasticcsrunstnukukcaukusnl-ams-1fr-par-1fr-par-2functionsnodess3ddlwhmrdbfnck8sifrs3-websitecockpitscblmgdbdtwhkafkpubprivs3ddlwhmrdbk8sifrs3-websitecockpitscblmgdbdtwhkafks3ddlrdbk8sifrs3-websitecockpitscblmgdbdtwhkafkk8sscalebookpl-wawfr-parnl-amsbaremetalsmartlabelinginstancesdechk2kuleuvenlaravelvoorloperurownoxazapscwhstgrvaporonline-serverobservablehqelementorantagonistreclaimjoteluluencowaydiademjelasticmatlabmagentositetrendhostingaxarnetperspectajenv-arubajelejoteravendbemergenttrafficplexconvexkeliwebserveboltbegetcdnstaticson-rancherprimetelonstackitunison-servicesdnshomelinkyardbarsyjelecloudnscocomnetgovmycn-northwest-1cn-north-1s3s3-accesspoints3-websites3s3-accesspointrdsdualstacks3-deprecatedemrappui-prods3-websiteemrstudio-prods3-object-lambdaemrnotebooks-prodexecute-apis3s3-accesspoints3s3-accesspointrdsdualstackemrappui-prods3-websiteemrstudio-prods3-object-lambdaemrnotebooks-prodexecute-apicn-northwest-1cn-north-1cn-northwest-1ebcomputeelbcn-north-1airflowcn-northwest-1cn-north-1oncn-northwest-1cn-north-1amazonawssagemakeramazonwebservicesdirectasgdsdhehahljlnmhbacscahqhshhihnlnynsnmofjbjzjxjtjhkcqtwgsjssxnxjxgxxzgz\u7DB2\u7D61\u7F51\u7EDC\u516C\u53F8orgmilcomnetedugovxn--55qx5dcanva-appsxn--io0a7iquickconnectcanvasitekhsjxn--od0algcanva-codemyqnapcloudsrvrlessclustersrealtimestorageleadpagescarrdcrdorgmilcomnomnetedugovhidnssupabaserdpareplmypiumsoxmitotaplpagesfirewalledreplitowodevwebview-assetsvfswebview-assetss3s3-accesspointdualstackemrappui-prods3-websiteaws-cloud9emrstudio-prods3-object-lambdaemrnotebooks-prodexecute-apicloud9eu-west-3ap-south-2eu-south-2eu-central-2ap-southeast-3ap-southeast-4ap-northeast-3eu-central-1me-central-1ca-central-1il-central-1ap-northeast-1ap-southeast-1me-south-1af-south-1eu-south-1ap-south-1ap-southeast-7us-west-2eu-west-2us-east-2eu-north-1ap-southeast-2ap-northeast-2ap-southeast-5ca-west-1us-west-1eu-west-1us-east-1ap-east-1sa-east-1s3s3-accesspointdualstackemrappui-prods3-websiteaws-cloud9emrstudio-prods3-object-lambdaemrnotebooks-prodexecute-apicloud9s3s3-accesspointdualstackanalytics-gatewayemrappui-prods3-websiteaws-cloud9emrstudio-prods3-object-lambdaemrnotebooks-prodexecute-apicloud9s3s3-accesspointdualstackemrappui-prods3-websiteemrstudio-prods3-object-lambdaemrnotebooks-prodexecute-apis3s3-accesspointdualstacks3-deprecateds3-websites3-object-lambdaexecute-apis3s3-accesspoints3-websites3-accesspoint-fipss3-fipss3s3-accesspointdualstackemrappui-prods3-websites3-accesspoint-fipsaws-cloud9s3-fipsemrstudio-prods3-object-lambdaemrnotebooks-prodexecute-apicloud9s3s3-accesspointdualstackemrappui-prods3-websites3-accesspoint-fipss3-fipsemrstudio-prods3-object-lambdaemrnotebooks-prodexecute-apis3s3-accesspointdualstacks3-deprecatedanalytics-gatewayemrappui-prods3-websiteaws-cloud9emrstudio-prods3-object-lambdaemrnotebooks-prodexecute-apicloud9vfss3s3-accesspointdualstackemrappui-prods3-websiteaws-cloud9emrstudio-prods3-object-lambdaemrnotebooks-prodexecute-apicloud9eu-west-3ap-south-2eu-central-2ap-southeast-3ap-southeast-4ap-northeast-3eu-central-1mx-central-1me-central-1ca-central-1il-central-1ap-northeast-1us-northeast-1ap-southeast-1me-south-1af-south-1ap-south-1ap-southeast-7us-west-2eu-west-2ap-east-2us-east-2ap-southeast-2ap-northeast-2ap-southeast-5us-gov-west-1us-gov-east-1ap-southeast-6ca-west-1us-west-1eu-west-1us-east-1ap-east-1sa-east-1mrapaccesspoints3s3-accesspointdualstacks3-deprecatedanalytics-gatewayemrappui-prods3-websites3-accesspoint-fipsaws-cloud9s3-fipsemrstudio-prods3-object-lambdaemrnotebooks-prodexecute-apicloud9s3s3-accesspointdualstacks3-deprecatedanalytics-gatewayemrappui-prods3-websites3-accesspoint-fipsaws-cloud9s3-fipsemrstudio-prods3-object-lambdaemrnotebooks-prodexecute-apicloud9s3eu-west-3ap-south-2eu-south-2computes3-ap-northeast-2elbrdss3-ap-east-1s3-sa-east-1s3-us-gov-west-1s3-eu-central-1s3-ca-central-1eu-central-2ap-southeast-3ap-southeast-4ap-northeast-3s3-website-us-west-2s3-website-eu-west-1s3-external-1eu-central-1me-central-1ca-central-1il-central-1s3-us-west-1s3-eu-west-1s3-website-sa-east-1s3-website-ap-southeast-2ap-northeast-1ap-southeast-1s3-us-west-2s3-eu-west-2me-south-1af-south-1eu-south-1ap-south-1us-west-2eu-west-2us-east-2s3-website-ap-southeast-1s3-1s3-globals3-ap-northeast-3eu-north-1airflowap-southeast-2s3-us-gov-east-1s3-fips-us-gov-east-1s3-me-south-1s3-ap-south-1ap-northeast-2s3-website-us-west-1ap-southeast-5s3-eu-north-1s3-ap-southeast-1s3-website-us-gov-west-1compute-1s3-eu-west-3us-gov-west-1s3-website-ap-northeast-1us-gov-east-1s3-fips-us-gov-west-1s3-website-us-east-1s3-ap-southeast-2ca-west-1us-west-1eu-west-1us-east-1ap-east-1sa-east-1s3-us-east-2s3-ap-northeast-1authauthauth-fipsauth-fipseu-west-3ap-south-2eu-south-2eu-central-2ap-southeast-3ap-southeast-4ap-northeast-3eu-central-1mx-central-1me-central-1ca-central-1il-central-1ap-northeast-1ap-southeast-1me-south-1af-south-1eu-south-1ap-south-1ap-southeast-7us-west-2eu-west-2us-east-2eu-north-1ap-southeast-2ap-northeast-2ap-southeast-5us-gov-west-1us-gov-east-1ca-west-1us-west-1eu-west-1us-east-1ap-east-1sa-east-1rframeservicesbuilderstg-builderdev-builder*ociocpocsazuregcpawsdemoinstanceeu-west-3eu-south-2ap-southeast-3ap-northeast-3eu-central-1me-central-1ca-central-1il-central-1ap-northeast-1ap-southeast-1me-south-1af-south-1eu-south-1ap-south-1ap-southeast-7us-west-2eu-west-2us-east-2eu-north-1ap-southeast-2ap-northeast-2ap-southeast-5us-gov-west-1us-gov-east-1us-west-1eu-west-1us-east-1ap-east-1sa-east-1previeweu-4us-4us-1eu-1us-2eu-2us-3eu-3appscomputepaasrag-cloudrag-cloud-chjcloudjcloud-ver-jpcdemonodebalancermembersipeuxvsoncillaocelotonzayalilynxsphinxfentigercustomercaracalo365cloudstaticxendevapp001testcode-builder-stgplatformmediasiteprojedrydpagesjsx0desazacncoitrueu4uhkukgrbrushatenadiarymyspreadshopfrom-flfrom-wvwebspace-hosttheworkpchatenablogcursorusercontentservesarcasmapplinzisakuratanwixsiteappchizigiizeis-into-carsdnsiskinkyadobeaemcloudis-a-therapistpgfogmyvncdojinis-an-actress1kappfldrvkozowqa2jpnmexprgmrfirewall-gatewaydynnscafjsfbsbxooguyfrom-gawoltlab-demois-a-anarchistwiardwebteaches-yogadattowebtb-hostinglive-websiteservegamegotpantheonfrom-nhsubsc-payfrom-ohvipsinaappfrom-cadyndns-officehomelinuxfrom-mahercules-appservebbsstreakusercontentfrom-okfrom-wyfastly-terrariumis-a-llamaqualyhqportalserveexchangeon-vaporvivenushopciscofreakgrayjayleaguesmetaaiusercontentfrom-iais-a-libertariansaves-the-whalestaveusercontentyolasiteoperaunitepoint2thisis-a-catererclaudeusercontentlinodeusercontentfrom-vagithubusercontentsells-for-lesshosteurcanva-appsplaystation-cloudddnsfreefrom-pafrom-prfrom-waddnskingoutsystemscloudhotelwithflightmydattois-a-nascarfanmydbserverminiserverdamnserverservehumouris-a-playerfrom-nvfrom-nmemergentagentgentappsamplifyappfrom-kyis-an-accountantnfshostserveircfrom-akpythonanywherestackhero-networkpostman-echolikescandydyndns-mailobservableusercontentserveftpfreeboxosfrom-utcdn77-storageamazonawsneat-urldyndns-serverlinodeis-a-teacherfrom-vtgleezemythic-beastsus1-pleniteu1-plenitla1-plenitpaywhirlservecounterstrikejdevcloudhealth-carereformis-into-animegoogleapisis-a-painterafricaisa-hockeynutatmetais-an-actora2hostedis-a-democratdatadetectest-le-patrondigitaloceanspacesis-a-designeris-a-hunterlinodeobjectstemp-dnsissmarterthanyoufrom-arsimplesiteevennodetownnews-stagingis-a-liberalgooglecodejelasticservemp3qualyhqpartnerdyndns-free1cooldnsest-a-la-masiondrayddnsdynuddnsfrom-orfrom-miis-a-bloggerfrom-himydobisscanvacodeis-an-engineerest-a-la-maisonupsunappdevinappswafflecellmyasustorwpenginepoweredfrom-ctservep2psame-appmyshopblocksthingdustdatalikes-piediscordsezis-with-thebandlpusercontentis-leetshopitsite3utilitiesis-a-personaltrainersinaappladeskis-a-cheflogoipselfipbase44-sandboxnospamproxyalibabacloudcsmesswithdnsauthgearappsiamallamawithgooglelutrausercontentmochausercontentframercanvasmytabitdyndns-homew-credentialless-staticblitzcpserverdiscordsaysis-a-nurseappspotatlassian-isolated-3premotewdfrom-mtwixstudiocode0emm180rmyactivedirectoryawsappsmytuleapdnsabrpolyspaceqbuserrenderbuiltwithdarkboutirgotdnsabrdnsdopaascanva-hosted-embedawsglobalacceleratorhomesecuritypcmyiphostditchyouripclever-clouddyndns-ipon-aptibleis-a-musicianhosted-by-filessecuritytacticsappspaceusercontenthomeunixstrapiappsame-previewcf-ipfsmycloudnaselasticbeanstalkis-certifieddontexistkasserverik-serverdrive-platformatlassian-3pfirebaseappherokuappawsapprunnerbarsycenteris-a-cubicle-slaveservehttpmyshopifyis-a-guruquicksytessiiitesorsitesmagicpatternsappis-a-cpameteorappfrom-wiis-a-rockstarbumbleshrimpdattolocaldatabricksappsreadthedocs-hostedfrom-rifamilydsdyndns-picsplesknsbplaceddnsaliasdynaliasdyndns-remotedoomdnsip-ddnsblogdnsis-a-doctorroutingthecloudamazoncognitobarsyonlinedsmynasddnsgurucloudflare-ipfsdeus-canvasfrom-idsmushcdnpagespeedmobilizerdyndns-at-homeunusualpersonhosted-by-previderis-a-republicandyn-o-saurstreamlitappworkisboringonthewificprapidqualifioappis-uberleetis-slickgetmyipwpdevcloudtypeformdyndns-at-workgentlentapismynascloudw-corp-staticblitzfrom-ingeekgalaxyservebeerfrom-mdonrenderspace-to-rentaivencloudappspacehostedwafaicloudcodespotblogspotatlassian-3p-us-gov-modfrom-ndfrom-msis-a-techieis-a-studentcustomer-ociis-a-photographerdurumisfrom-ksmassivegriddyndns-wikiis-an-entertaineris-a-hard-workermysecuritycamerafrom-mnrackmazedyndns-blogis-a-bulls-fanwritesthisblogfreemyipsimple-urlfrom-sdreservdauthgear-stagingest-mon-blogueuris-into-gamesrice-labsxtooldevicesakurawebis-an-anarchistoraclecloudappsdyndns-worksells-for-urhcloudfrom-dcfastvps-serverwpmucdnis-a-geekscrysecfrom-txis-into-cartoonsmodelscapetrycloudflarelocaltonetstreak-linkbalena-devicesfrom-njforgeblocksfreebox-oswebadorsitefrom-ncdoesntexisthobby-sitestreaklinkshomesecuritymacownprovidertuleap-partnersdattorelaywphostedmailservequakeis-a-socialistservehalflifepivohostingdynuhostingquipelementsw-staticblitzdyndns-webfrom-deproject-studyaliases121is-not-certifiedhercules-devis-a-financialadvisorservepicsis-a-greenloseyouripfrom-ilwithyoutubemwcloudnonprodwiredbladehostingdnsdojofrom-tnpixolinomyqnapcloudis-an-artisthostedpiis-a-landscaperauiusercontentoaiusercontenton-forgeis-a-conservativedreamhostersnet-freaksapps-1and1is-goneencoreapifastly-edgefrom-nesalesforcefrom-scdeployagentoraclegovcloudappsfrom-alis-a-lawyercechirevultrobjectsstufftoreadisa-geekddnsgeeklovableprojecttry-snowplowfrom-moblogsyteis-a-bookkeepernogmyforumravendbmyboxdeelementoredsaacficogoorinforgcomgobnatneteduidstoreorgcomnetintedudevnomepublorgcomneteduathgovtestscalculatorspaynowinfoquizzesresearchedcloudnsfunnelsassessmentsjscaleforcetmacltdorgmilcompronetgovbizpresseklogesrsccloudcustomfltusrcloude4corealmgovmunicontentproxy9metacentrumdyndyndyndnsdynpagespages-researchitionoccustomercomymyspreadshopipv64diskussionsbereich4limacomrub2ixfirewall-gatewayddnssspdnsbarsykeymachinesquare7myhome-serverspeedpartnercommunity-proschuldockxenonconnectg\xFCnstigliefernbwcloud-os-instancedyndnssecmy-routerxn--gnstigliefern-wobin-butterl-o-g-i-nisteingeekin-dslin-berlinin-brbfuettertdasnetzleitungsenin-vpnlcube-serverdyn-ip24logoipdyn-berlinruhr-uni-bochum12hpgoipsrvdnsfruskygit-repossvn-reposinternet-dnsg\xFCnstigbestellenhome-webserverxn--gnstigbestellen-zvbbplacedheimdnscosidnswebspaceconfiglima-citydyndns1istmeinvirtualuserschulplattformmy-gatewayddnsseclebtimnetztest-iservmein-iservvirtual-userhome64iservschuletaifun-dnstraeumtgeradeschulserverdynamisches-dns123webseitednshomehs-heilbronndnsupdaterbssgraphicdwadpdwdaepeweaawapaafpfwfabwbpbacwcpcciwebuserapiobjectsidsiskospockkimodorikerbonesteamsparisjanewaypicardglobaltarpitreedpikekiraworfsulukirkarchertuckerhackercanarywesleystagingprereleaset3r2lpbravepanelngrokiservstglclcrmerpflypagesbarsyvivenushoplocalcertlocalplayerbearbloggatewaydeno-stagingis-not-ais-a-goodbotdashvercelmocha-sandboxplatter-appreplitgithubpreviewworkersinbrowserevervaultis-ahrsndenoxmitmodxmyaddrstorageapipayloadgrebedocruncontainersstgstagelclstageloginlineis-a-fullstackcodepenleapcellngrok-freeis-coolstoragewebharemediatechlibp2pdiscourseimaginecomyspreadshopstoreregbiz123hjemmesidefirmcoorgcomnetedugovsldorgmilcomwebgobartnetedugovtmorgpolcomsocartnetedugovassoagrondiscoodontk12medcuegyecpaabgengorgmilgalsaltulcomadmesmgobpubdocmonfindgnriouioproartlatvetnetfotedulojgovntrturibrbarxxxofficialbasechefprofmktgpsictechinfoarqtcontdentrrpppsiqgit-pagesritmedfieorgcomlibprieduaipgovriikmeactvsportorgmilcomscieunnetedugovnameinfopintouchtawktotawkmyspreadshoporgcomnomgobedu123miwebcomputeorgcomnetedugovbiznameinfocognito-idpeusc-de-east-1onjelasticnxaspdnsbarsydirectwpdeuxfleurstransurldogadoprvwcloudnsamazonwebservicesdnshomeuserpartycokoobinmkmfidymyspreadshopalandkapsiikixn--hkkinen-5wacloudplatformh\xE4kkinen123kotisivuidacorgmilcompronetedugovbiznameinforadioorgcomneteduuserexperts-comptablestmmyspreadshopgretaprdcomnomynhccifbxoshuissier-justicenotairesaeroportfreeboxoson-webavocatassoportgouvkdnschirurgiens-dentistes-en-franceavouesfbx-os123sitewebveterinairechirurgiens-dentistespharmacienchambagrimedecinfreebox-osdediboxgoupilemszicpyicpvicppleysheezypagesedugovcnpyorgcomcybllcpvtnetedugovtnxonlineschooldaemond6atcopanelorgnetplybotdashstackitkaasorgmilcomnetedugovbizmodltdorgcomedugovcoorgcomneteduappwriteacorgcomnetedugovcloudtranslateusercontentorgcomnetedumobiassoorgcomnetedugovbarsysimplesitediscourseindorgmilcomgobneteduorgcomwebnetedugovguaminfonxhra\u6559\u80B2\u654E\u80B2\u7DB2\u7D61\u7F51\u7D61\u7EC4\u7E54\u7D44\u7E54\u7F51\u7EDC\u7DB2\u7EDC\u7EC4\u7EC7\u7D44\u7EC7\u516C\u53F8\u653F\u5E9C\u500B\u4EBA\u4E2A\u4EBA\u7B87\u4EBAltdorgcomincneteduidvgovxn--uc0ay4axn--55qx5dxn--mk0axixn--io0a7ixn--uc0atvxn--zf0avxxn--lcvr32dxn--od0algxn--wcvs22dxn--gmqw5axn--od0aq3bxn--mxtq1mxn--ciqpnxn--tn0agxn--gmq050iorgmilcomgobneteduiservwp2tempurlmircloudfreesitewpmudevmyfastgadgetcloudaccessjelehalfboltfastvpsemergenteasypanelopencraftizcombrendlynamefromrtpersoadultmedorgpolrelcomproartnetedufirminfoassoshopcoopgouvtmcomediahotelforumvideosportorgsexagrargameslakaseroticaerotikatozsdereklamcasino2000filmsuliinfoboltshopprivnewsszexcityutazasjogaszkonyveloingatlaneacaicogoormy\u1B29\u1B2E\u1B36milwebschnetkopbizzonedesaponpesxn--9tfkymyspreadshopgovmytabittabitorderravpageaccok12idforgnetgovmuniltdplcaccotttvorgcomnetmeca6g5gpgamubacaicniocoukuptverdruscsdelhiindorgmilcomwebnicfingenpronetintedugovresbizbiharbarsyinternetbusinessschooltravelsupabasealumnigujaratfirminfoaeropostbankcoopindevscloudnsno-ipbarsybarrell-of-knowledgebarrel-of-knowledgensupdategroks-thisdnsupdatefor-ourknowsitalldvrcammittwalddynamic-dnsv-infowebhopselfipdyndnshere-for-moreilovecollegemayfirstforumzcloudnsmittwaldservertypo3servergroks-theeusekd1cdndyndnsidrawsainaueuapjpusstagemocksysdevicesclientcustreservdcustdevdisrecprodtestingcobeebyteutwenteboxfusebravepstmndedynngrokorgmilcomnomnetedugovqcxqzzbarsythingdustmo-siemensrb-hostingfh-muenstergitbookbluebitecloudbeesusercontentnodeartkiloappsforgerockdarklangresinstagingapigeebubbleb-datascryptedhypernodedappnodepantheonsitegitlabgithubkeeneticvirtualservercleverappshostyhostingon-rioedugitticketstelebitwixstudioon-k3sicp0icp12038jeleqotolairbubbleappsmyaddrstolosmyrdbxwebflowdrive-platformbeagleboardhasura-applolipopdefinimavaporcloudmusicianwebflowtestazurecontainerresindevicereadthedocsloginlineeditorxmoonscalesandcatsbasicserverwebthingsbrowsersafetymarkbeebyteappbitbucketidaccovistablogorgschnetgovxn--mgba3a4f16axn--mgba3a4fraarvanedge\u0627\u064A\u0631\u0627\u0646\u0627\u06CC\u0631\u0627\u0646jclaspeziapdudcefegelemeperetevebacanatavaparasabgagfgogrgpgalclblimfmrmcbmbvbfclcmcvcrcpcchlimifibicivipirisimncnbnanenrnpntnnolomobocoaogorosopotoptvtatctbtmtltotpusulunutpspapaqsvpvvvtvavvrtrsrprgrfrcrbrarorkrvstsssbscsmsispzczbzbozen-suedtirolmyspreadshopxn--bulsan-sdtirol-nsbxn--valledaoste-ebbtrentinoaltoadigetrentin-sued-tirolxn--forlcesena-c8axn--forl-cesena-fcbxn--bozen-sdtirol-2obtriestetrentinsuedtiroltrentino-s-tirollecceudineaostesienaparmaluccapaviagenoapaduaaostamonzaabruzzoternirietiturinmilanbozenlaziofermoleccocuneonuoropratola-speziavdataaligfvgpugmolcalcamlomumbsicpmnvenvaoedugovabrsarmaremrbastoslazibxosfirenzetrentinos\xFCdtirolval-d-aostavalle-aostamessinacremonaravennatoscanatrentin-suedtirolbolognacalabriaurbinopesarofriuli-v-giuliaogliastraxn--valle-aoste-ebblaquilaandriatranibarlettasyncloudxn--valle-d-aoste-ehbaostavalleyvalled-aostatrentino-alto-adigevallee-d-aostexn--balsan-sdtirol-nsbpistoiasicilialucaniacataniaiserniaperugiabresciaveneziagorizialiguriaimperiabulsan-suedtirolbalsan-suedtirolbarlettatraniandriaxn--trentino-sdtirol-szbforl\xEC-cesenatuscanyvall\xE9e-d-aostemantovavall\xE9e-aostecasertapiemontevalleaostaval-daostafriulivgiuliatrevisoforli-cesenavall\xE9edaosteferrarapescaravald-aostatrentino-altoadigefriuli-vegiuliavallee-aostecarboniaiglesiastarantomediocampidanovalleedaostetrentinosud-tirolcampobassotrentins\xFCd-tiroltrentinos\xFCd-tirolmonzabrianzatrentino-s\xFCdtirolxn--trentino-sd-tirol-c3bpotenzacosenzavicenzaemiliaromagnavenicefrosinonemarchepordenonetrentinosued-tirolvaresemolisevall\xE9eaostefriuli-veneziagiuliabasilicatalatinaanconasavonaveronamodenabiellabolzano-altoadigepugliafoggiaumbriatrentino-stirolgenovapadovamateranovararagusapiacenzatrentinostirolvalleeaostetempio-olbiasudsardegnatrentinsudtirolmassa-carrarafriuliveneziagiuliatrentinosuedtirolandria-barletta-tranitrapanixn--cesenaforl-i8amaceratacaltanissettaascoli-picenobrindisicarraramassacagliaririmininapolivibo-valentiachietibulsan-sudtirolbalsan-sudtiroltrentino-a-adigebulsanbalsaniglesiascarboniamilanotorinoteramodell-ogliastraarezzotrentinoalto-adigerovigotrentovenetoiglesias-carboniatrentino-sud-tirolaltoadigereggio-emiliareggio-calabriasardegnatranibarlettaandriapiedmontxn--sdtirol-n2amedio-campidanotrentino-s\xFCd-tirolfriuli-vgiuliafriuli-ve-giuliaromeennaromapisa32-b16-b64-blodiastibarineencomonaplesforlicesenailiadboxosalessandriasicilytrani-barletta-andriaxn--trentin-sdtirol-7vbpesarourbinotrentinsued-tirolcesena-forliforl\xECcesenaemilia-romagnamonzaebrianzaxn--trentinsdtirol-nsbtrentinos-tiroltrentins\xFCdtirolvalledaostaolbia-tempiocampidanomediovibovalentiasassarivalle-daostalombardysud-sardegnafriulivegiuliareggioemiliamonzaedellabrianzaalto-adigevercellitrentin-sudtiroltraniandriabarlettatrentino-sudtirolascolipicenobozen-s\xFCdtirolfriulive-giuliaflorencexn--cesena-forl-mcbcarbonia-iglesiasaosta-valleycarrara-massadellogliastratrentinoa-adigexn--valleaoste-e7apesaro-urbinoxn--trentinosdtirol-7vbxn--trentin-sd-tirol-rzbxn--trentinsd-tirol-6vbtrani-andria-barlettatrentin-s\xFCd-tirolxn--trentinosd-tirol-rzbgrossetomonza-e-della-brianzas\xFCdtirolreggiocalabriatrentinoaadigetrentin-s\xFCdtirolverbano-cusio-ossolafriuliv-giuliaverbaniacampaniatrentino-aadigefriulivenezia-giuliasardiniaandriabarlettatranibarletta-trani-andriacatanzarooristanourbino-pesarocesena-forl\xECvalle-d-aostacampidano-medio123homepagesiracusatempioolbiasuedtirollombardiaavellinocesenaforl\xECtrentinofriuli-venezia-giuliabozen-sudtirolandria-trani-barlettabulsan-s\xFCdtirolbalsan-s\xFCdtirolmonza-brianzabolzanotrentino-sued-tirolbellunosalernolivornocrotonesondriodnshometrentinsud-tirolmassacarraratrentin-sud-tiroltrentino-suedtirolviterbobergamocesenaforliolbiatempiopalermobeneventoagrigentoofcoorgnetfmaitvphdengorgmilcomschnetedugovperagrikanieasukehandachitatokaiaisaikonanoharuamaobuhigashiuraowariasahiinuyamatobishimaiwakurashitarainazawatoyonegamagorimihamatoyotataharakariyayatomioguchikomakimiyoshinishiotokonamekiyosuchiryutoyohashiokazakiisshikikasugaikotakiratoeianjotogofusosetohazutsushimashinshirotakahamanisshinshikatsuhekinantoyokawaichinomiyatoyoakeodateogataakitaikawakyowahonjoogayurihonjonoshirokamiokakatagamimitanegojomeyokotekosakadaisenkazunonikahohonjyomoriyoshimisatohappoukamikoanihachirogatahigashinarusesembokufujisatokitaakitaitayanagiowanitakkomutsutsurutahirosakigonoheoirasetowadamisawanohejiaomorishingohiranairokunohehashikamitsugarushichinohehachinohenakadomarisannohekuroishisakaeisumiasahiotakiinzaiabikomatsudoyachiyomutsuzawakujukuriomigawakashiwatoganemihamanaritasakuranagaramobarahanamigawachoshishiroichoseikozakishisuikatorimidorichonankyonanfuttsuonjukufunabashinagareyamanodasosatakochuotohnoshourayasukimitsuyokaichibayotsukaidosodegauratateyamakamagayayokoshibahikariyachimatakatsuuratomisatokisarazukamogawaichikawanarashinoichinomiyashimofusaminamibososhirakoichiharaoamishirasatoikatahonaiainansaijoseiyoiyoozuuwajimaniihamanamikatamasakiuchikokihokutobetoonshikokuchuomatsuyamaimabarikamijimakumakogenyawatahamamatsunosabaeikedaobamasakaifukuiohionotsurugamihamawakasaminamiechizeneiheijikatsuyamatakahamaechizensoedaukihaomutaokawanishiogoribuzenonojosueumiokiotochikugosasagurisaigawamizumakishinyoshitomikurumekurateyamadakasuganakamamiyamanogatatakatahakataiizukakawaratagawakasuyaashiyainatsukimunakataminamitsuikishonaikurogifukuchikeisenhigashimiyakoshinguyukuhashiokagakiyamekogaongausuikahotohochuotoyotsumiyawakadazaifuhisayamatachiaraiyanagawanakagawahirokawachikujochikushinochikuhochikuzennamieotamaokumashowateneiiwakikoorinangoononishigoshimogoomotegomishimafukushimaasakawakagamiishishirakawaiitatefutabahiratayugawahanawakitakatakawamatakunimiyabukibandaihigashihironoyamatomiharuyamatsuriaizubangedatesomaaizuwakamatsuyanaizuaizumisatonishiaizuizumizakikitashiobarataishinkaneyamakoriyamainawashirotanagurafurudonosamegawasukagawaishikawatamakawaikedaogakitaruiginanenahashimahichisonakatsugawaibigawashirakawamizunamiminokamomitakekawauesekigaharatomikasakahogikitagatayamagatatajimianpachimotosuyaotsukakamigaharahidakanisekitokigujominogodoyorogifukasamatsutakayamawanouchihigashishirakawakasaharashimonitatsumagoichiyodakannakanrashowameiwakiryuotaoratomiokafujiokaitakuranaganoharahigashiagatsumatakasakishibukawaminakamikatashinatsukiyonokawabanumataannakaoizumimidorishintoisesakiuenoyoshiokakusatsutakayamanakanojonanmokutamamuratatebayashimaebashiotakekaitadaiwahongofuchukuietajimashobaramiharahatsukaichihigashihiroshimamiyoshikumanokurenakasakaseraseranishiasaminamifukuyamashinichionomichiosakikamijimajinsekikogentakeharaotobenanaeikedatohmaozoraobiraabirakyowaeniwataikibibaisharirebunerimohiroooketootarupippunishiokoppechitosefurubirahakodateshiranukakitahiroshimakushiroobihironanporoiwamizawaniikappukunneppufukushimanakasatsunaitoyourakuromatsunaiakabirakamisunagawashibechaurakawakamifuranonakatombetsuasahikawashimokawakayabeokoppebiratoriabashirisaromaatsumanumatahidakabifukamukawamikasahorokanaitoyotomisarufutsuhigashikawaishikarikitamiyoichiesashiiwanaitomariminamifuranoakkeshifuranotoyakoyakumootoineppushikaoishiraoinemuronayorohaboroashorobihororishirifujiutashinaihokutotakasuebetsuurausuassabukikonaishimamakinaiedatetoyabieinikiesanuryuoumuteshikagarikubetsuashibetsukimobetsuaibetsutobetsusobetsuembetsushimizuchippubetsurishirihokuryuhoronobeshintokutsubetsushibetsuhonbetsumombetsutsukigatakuriyamakoshimizushiriuchikutchanmurorannoboribetsukamishihorowassamushinshinotsukembuchiwakkanaikamoenaikiyosatotakinoueshikabesunagawafukagawanakagawatakikawakamikawahigashikagurahamatonbetsumatsumaemoseushirankoshishakotanimakanemashikeotofuketomakomaisandatambaitamiawajikasaiasagoshisoonoakoyashirotoyookaminamiawajiinagawafukusakitakasagokamigorikasugaharimayokawaashiyahimejiakashitaishiaogakisannantakinosumototakarazukanishinomiyashingugoshikinishiwakiyokatakaaioimikisayoyabukawanishiamagasakisasayamashinonsenkakogawaichikawakamikawatatsunotsukubaiwamaogawaasahisakaitokaioaraiitakobandodaigosuifuinaamikasumigaurakashimaomitamayachiyoshimodatetomobetoridehitachinakainashikisakuragawakasamayawaramoriyahitachiomiyanamegatayamagatahitachikamisuushikutakahagiibarakitonekoganakasowayukimihojosomitoryugasakishimotsumafujishirotsuchiurachikuseihitachiotashirosatotamatsukuriuchiharashikahakuinanaotsubatawajimakahokukawakitatsurugikaganominotosuzuuchinadakomatsuanamizunakanotohakusannonoichikanazawaiwateshiwafudaikawaimoriokaofunatohanamakikuzumakikitakamininohekunoheyamadayahabasumitaichinosekitanohatahiraizumirikuzentakatajobojiotsuchihironomiyakoiwaizumikarumaiichinohenodakujitonooshushizukuishifujisawamizusawakamaishikanegasakimannoutazukotohiraayagawazentsujihigashikagawauchinomikanonjisanukimarugamemitoyotakamatsutadotsunaoshimatonoshoakuneamamiizumihiokiyusuikinkoisasookouyamanakatanekagoshimakanoyaisenkawanabeminamitanemakurazakitarumizunishinoomotematsumotosatsumasendaioimatsudaayaseebinamiurazushinakaiodawaraiseharasagamiharahakoneaikawakaiseiatsugitsukuihadanoyamatoyamakitazamaoisochigasakininomiyayokosukakamakuraminamiashigarafujisawasamukawakiyokawahiratsukayugawaraokawaumajikochitsunootoyoakiinonishitosayasudahidakamiharasakawaniyodogawahigashitsunokagamigeiseisusakiotsukinaharisukumomurototosakamiochitoyotosashimizumotoyamanankokunakamurakitagawayusuharaogunichoyoukiasoutoozugyokutoamakusamifunetakamoriyamagaminamataminamiogunikikuchisumotoyamatonagasumashikiaraokumamotokamiamakusanishiharayatsushiroayabeseikasakyoideineujinakagyokameokakyotangokyotanabekyotambaminamiyamashiroyamashinatanabeyawatawazukaminaminantanmiyazuhigashiyamafukuchiyamakitamukokamojoyokizumaizuruujitawaraoyamazakinagaokakyokumiyamakawagoeinabeshimameiwaasahitaikiudonoisetsukisosakikuwanamihamamiyamasuzukatamakimisuginabarikumanokomonominamiisewataraitobakiwatakikihotadomatsusakayokkaichikameyamaureshinoishinomakishichikashukuohirataiwaosakizaohigashimatsushimashikamaiwanumashibataogawaraonagawakawasakiseminemarumoriminamisanrikukakudamuratawakuyatomiyanatoriwataritagajomisatotomekamirifushiroishimatsushimayamamotoshiogamafurukawahyugaebinotsunosaitoayakushimanobeokakitauramiyazakitakazakigokaseshiibamimatashintomikunitomikitakatakobayashikawaminamitakaharukijotakanabemiyakonojonishimeranichinankitagawakadogawamorotsukakisofukushimaminamimakisakaeobuseikedaogawamiasaokayaasahiotakiotarichinoinaomichikumakomaganechikuhokukaruizawayasuokaooshikaikusakaminamiaikitogakushimatsukawakawakamitateshinatakamorikitaaikishiojirimiyadahakubaiizunaiijimaiiyamamiyotasuzakayasakatoguraookuwanagawaminowahirayayamagataminamiminowafujimiomachisakakitakaginaganonakanosakuhokomoronagisoshinanomachiwadauedaiidaharasuwatomiachiaokianankisosakunozawaonsenagematsutakayamashimosuwamatsumotoyamanouchinakagawamochizukiazuminotatsunoobamaomuraseihiunzenosetofutsuikichijiwanagasakiisahayahasamisaikaikawatanasasebohiradokuchinotsugototogitsutsushimashimabarashinkamigotomatsuurayamazoekashibaikomakawaitenrioyodosangokoryoudaojiikarugayamatokoriyamatenkawakatsuragikurotakikawakamimiyakemitsuetakatorikamikitayamayamatotakadahegurishinjokanmakisakuraitawaramotogoseoudanarasoniandokawanishishimoichihigashiyoshinokashiharashimokitayamanosegawayoshinomintsivorytopazsakuragehirnsumomoaseinetopalmail-boxmokurenyoitamuikaojiyagosensanjoaganomyokoseiroagaomishibataniigatanagaokamurakamiuonumayuzawakariwatagamitainaitsunanminamiuonumatochioyahikojoetsuseiroukamosadoizumozakitokamachiitoigawasekikawakashiwazakitsubamemitsukekokonoesaikiusukibeppuusahimeshimakunisakihasamataketatsukumihitaoitahijikusuyufukujukamitsuebungoonobungotakadaibaraniimibizentsuyamaokayamakasaokahayashimayakagemaniwaakaiwamisakishinjotamanotakahashikibichuowakesojanagishookumenannishiawakurakurashikiasakuchisetouchikagaminosatoshotomigusukunakagusukuyaeseizenaurumaiheyaaguniogiminanjokinminamidaitokitanakagusukuyonaguniokinawaishigakikunigamiurasoekadenataramahiraraginozataketomishimojizamamitonakiitomanhigashimotobuyonabarugushikamionnanahanagohaebarukumejimakitadaitonakijinnishiharayomitanginowantokashikiishikawaikedasuitaminohizuminishisakaikananabenodaitoosakasayamayaokishiwadatadaokakaizukatondabayashichihayaakasakakumatorikadomasayamahigashiosakashijonawatehirakatataishimisakitajirihannansennankatanotoyonominatosettsuhigashiyodogawaibarakinosekitachuohigashisumiyoshifujiiderakashiwaraizumiotsutoyonakamatsubaramoriguchiizumisanoshimamototakatsukineyagawahabikinotakaishikawachinaganoyoshinogarikamiminearitaouchiimarihizenogikashimaariakekiyamafukudomikitagatakitahataomachigenkaikanzakinishiaritakyuragisagataratosutakushiroishikaratsuhamatamakouhokukawagoeyoshidasatteogoseirumaasakaurawaogawaniizaomiyayoriiotakishikihonjooganohannohanyuinasaitamaokegawaarakawayoshikawayokozehasudasayamahidakafukayachichibuiwatsukiryokamiyoshimikamiizumifujimiwarabiranzanmiyoshiminanoyashiosakadosugitomisatohigashichichibutodasokakukiyonokazoshiraokakasukabekounosukawajimatsurugashimamiyashirokitamotohatoyamamoroyamahatogayakumagayakawaguchinagatorokamisatomatsubushinamegawatokigawakamikawafujiminohigashimatsuyamakoshigayatokorozawas3isk01isk02ryuohkoseikonanaishorittotakashimamaibarahikonetorahimenishiazaikokagamokotoyasuotsukusatsunagahamamoriyamatoyosatotakatsukinotogawaomihachimanhigashiomiakagiunnanizumogotsuamayatsukakakinokimatsuehamadamasudahikawahikimiokuizumoyasugiyakumomisatotamayuohdahigashiizumookinoshimanishinoshimatsuwanoshimaneshimadafujiedayoshidashimodagotembaiwataatamikosaiyaizuitoizumishimahaibaramakinoharaomaezakikawanehonkannamisusonohigashiizufukuroinumazukawazufujiaraishizuokahamamatsushimizuizunokunimatsuzakimorimachiminamiizunishiizukikugawakakegawafujikawafujinomiyaujiietsugaoyamayaitaohiranikkoashikagakuroisokanumasakurashioyakarasuyamamotegiichikaikaminokawatochigihagamokanogisanobatonasumibunasushiobaranishikatautsunomiyaiwafunemashikoshimotsukeohtawaratakanezawaitanokomatsushimatokushimaichibaminamiaizumiwajikikainanmiyoshinarutomimamugiananmatsushigesanagochishishikuinakagawamachidachiyodakomaefussainagitaitochofufuchuomeotahigashiyamatotoshimaokutamaaogashimakodairaedogawaarakawahachiojishinagawatachikawashibuyasuginamihinodekiyosesumidaoshimanerimamitakahamuraadachinakanomizuhobunkyomegurominatokoganeihigashikurumekokubunjihigashimurayamamusashimurayamatamakitahinochuokotokatsushikakouzushimaogasawaraakishimakunitachishinjukusetagayamusashinohachijoitabashiakirunohinoharachizunanbukotouramisasawakasayonagokogehinoyazutottorinichinansakaiminatokawaharaoyabetairainamiasahinantoimizufuchutakaokakurobeyamadajohanatoyamatonaminyuzenfunahashinakaniikawanamerikawaunazukitogahimiuozufukumitsutateyamakamiichiiwadearidayuasainamitaijikatsuragiaridagawatanabemihamahidakakainankiminomisatoshingushirahamakamitondayurakozakoyagobokitayamawakayamakudoyamahashimotokushimotokozagawahirogawakinokawanachikatsuurarsuseroeoishidasagaeoguniasahinagaitendonanyoobanazawanishikawasakataohkuratozawamikawamamurogawayamagatafunagatatakahatashonaishinjokahokuiideyuzakawanishitsuruokakaminoyamayamanobeshiratakamurayamanakayamakaneyamahigashineyonezawasakegawamitouubeyuuabushimonosekitabuseoshimatoyotaiwakunihikarishunannagatohagihofukudamatsutokuyamashowadoshitsurunanbukoshukaiminami-alpsnirasakikosugeotsukioshinohokutominobuyamanashifuefukichuokofuichikawamisatoyamanakakonakamichitabayamanishikatsuranarusawafujikawahayakawafujiyoshidafujikawaguchikouenohara\u9577\u91CE\u4EAC\u90FD\u5C90\u961C\u5927\u962A\u4E09\u91CD\u7FA4\u99AC\u5343\u8449\u6ECB\u8CC0\u4F50\u8CC0\u5948\u826Fadednelgaccogogror\u79CB\u7530\u611B\u77E5\u9AD8\u77E5\u57FC\u7389\u6C96\u7E04\u6803\u6728\u718A\u672C\u5CA9\u624B\u9752\u68EE\u5C71\u68A8\u65B0\u6F5F\u5CF6\u6839\u9CE5\u53D6\u9577\u5D0E\u9999\u5DDD\u5BAE\u57CE\u77F3\u5DDD\u5927\u5206\u5BAE\u5D0E\u8328\u57CE\u5C71\u53E3\u5175\u5EAB\u5C71\u5F62\u5FB3\u5CF6\u5E83\u5CF6\u798F\u5CF6\u798F\u5CA1\u5CA1\u5C71\u5BCC\u5C71\u9759\u5CA1\u611B\u5A9B\u798F\u4E95\u6771\u4EACxn--4it168dhatenadiaryxn--vgu402ckawaiishophatenablogcocottenamaste\u5317\u6D77\u9053penneehimeiwateversestabachibashigagonnagunmapermahaccaakitaosakauh-ohblushkochiaichifukuikuroncapooitigohyogotokyokyotopunyuthickcheap0t00g00j0mie2-ddaapyawjg0amfemsubxiiboomoobutchueekpgwrgrherskrboyrdyupperunderflierchipsmydnsheavyangryhippygirlyrulez\u795E\u5948\u5DDD\u9E7F\u5150\u5CF6\u548C\u6B4C\u5C71bambinaxn--nit225kokayamasaitamaxn--k7yn95exn--1lqs03nsapporoparasitelolipopmcxn--efvn9sniigatafukuokatokushimafukushimahiroshimakagoshimafakefurokinawaxn--8pvr4ucoolblogxn--0trq7p7nnkawasakinagasakimiyazakichilloutxn--8ltr62kxn--klty5xpeeweezombiecutegirlxn--rny31hxn--uuwu58axn--ntso0iqx3axn--djrs72d6uytoyamanikitanyantakagawamimozanagoyaboyfriendxn--2m4a15egreaterchowderegoismyamagatafashionstorexn--elqq16hxn--pssu33lsendaimiyagixn--rht27zpecoriaomorisaloonwatsonvivianxn--djty4knobushipigboatnaganopinokoxn--f6qx53asadistvelvetsecretxn--5js045dchicappayamanashiibarakidigickgirlfriendxn--1lqs71dmongolianxn--c3s14mxn--qqqt11mtochigixn--5rtq34kparallelo0o0mondkobesagabonadecaoitanarafoolkilldecimainhiholomosblokilociaoundopupugifutankcrapflopnooroopsmodsholyjeezstripperpepperbittershizuokaxn--rht3dkitakyushureadymadeicurusversusmatrixxn--rht61ehungryfloppygloomycrankyhandcraftedlittlestarxn--klt787dxn--kltx9awhitesnowsunnydaytottorilovepoptheshopbuyshopxn--5rtp49cxn--d5qv7z876cwebaccelxn--kbrq7oxn--4pvxsxn--1ctwolovesickkumamotocatfoodxn--tor131oyokohamawakayamatonkotsuxn--ehqz56nxn--uist22hxn--6btw5axn--kltp7dyamaguchifrenchkisspussycatxn--4it797kxn--uisz3gbabybluexn--zbx025dnetgamersxn--7t0a264ckanagawaxn--6orx2rishikawaxn--ntsq17ghalfmoonschoolbusjellybeanxn--mkru45iusercontentlolitapunkxn--32vp30hsakurastoragehokkaidoshimanecandypopbabymilksupersaleweblikeraindropbackdropwebsozaikikirarahateblodaynightmeneacsccogoormobiinfoaeusxxorgmilcomnetedugovorgcomnetedugovbizinfotmprdorgmilcomnomedugovassnotairespresseassocoopgouvveterinairemedecinpharmaciensorgnetedugovtraorgcomedurepgovmeneperekgacscaiiocogoitoresmshsseoulbusanulsandaeguc01milvkimmvchungnamjeonnamjeonbukeliv-dnsgyeonggijejueliv-cdnincheondaejeongangwongyeongbukgwangjuchungbukgyeongnameliv-apicoeduindorgcomembnetedugovorgmilcomnetedugovjcloudorgcomnetintedugovperbnrinfocooyorgcomnetedugovethipfscanvamypepethw3sstorachakeeneticjoinmcinbrowserdwebcyonnftstoragemyfritzaemewphlxachotelltdorgcomwebsocschngonetintedugrpgovassnomgacsccoorgnetedugovbizinfo123websiteidorgmilcomasnnetedugovconfidmedorgcomplcschnetedugovaccoorgnetgovpresstmassoirseproxaccosoundcasthoptocraftvp4c66orgnetedugovitsmcdirmyboxbarsyedgestacksynologylogintoopencloudnohostwebhopdiskstationi234tcp4hoocgroknoipprivmydsddnsdnsforlohmustransipdscloudfilegear-sgbrasiliafilegearframerbarsybarsyonlinecoprdorgmilcomnomedugovinforgcomnetedugovnameacprorgcomartnetedugovpresseinfoassoinstgouvorgnycedugovbarsydscloudjuorgcomnetedugovminisiteaccoororgcomnetgovorgmilcompronetintedugovbizmuseumnameinfoaerocoopaccoorgcomnetintedugovbizcooporgcomgobneteduorgmilcomnetedugovbiznameaccoorgmilneteduadvgovcoorgcomnetaltgovforgotherhiskeeneticispmanagernomassoprod5476132eastasiacentraluswesteuropewestus2eastus2pnortheurope-01newzealandnorth-01southindia-01southcentralus2-01norwaywest-01eastus2-01westus2-01australiaeast-01italynorth-01israelnorthwest-01swedencentral-01westeurope-01centraluseuap-01taiwannorthwest-01uaecentral-01northcentralusstage-01israelcentral-01mexicocentral-01canadacentral-01austriaeast-01germanywestcentral-01francecentral-01ukwest-01denmarkeast-01polandcentral-01eastus-01westus-01swedensouth-01eastus3-01westus3-01brazilsouth-01centralus-01francesouth-01australiacentral-01westindia-01uaenorth-01jioindiacentral-01canadaeast-01belgiumcentral-01spaincentral-01koreacentral-01chilecentral-01qatarcentral-01westcentralus-01eastus2euap-01norwayeast-01southafricanorth-01brazilsoutheast-01germanynorth-01switzerlandnorth-01switzerlandwest-01japanwest-01southafricawest-01japaneast-01eastasia-01indiasouthcentral-01taiwannorth-01centralindia-01uksouth-01southcentralus-01northcentralus-01eastasiastage-01indonesiacentral-01australiacentral2-01australiasoutheast-01malaysiawest-01koreasouth-01southeastasia-01southeastus5-01northeastus5-01jioindiawest-01rucdnwest1-usfra1-desandboxjls-sto1jls-sto3jls-sto2aglobalabglobalsslmapprodfreetlsmapvpslon-1lon-2ny-1fr-1sg-1ny-2paassnwebpaashostingjelasticnordeste-idcsocuserpagescwebfileblobservicebuscoreatlricnjsjelasticwebsitestoragesezagbinruhuukjptsmyspreadshopmynetnameakamaiorigin-stagingfrom-coipv64dynv6cdn77serveblogadobeaemcloudhicamsprytdnsupno-ipownipde5ovhicpfirewall-gatewaysytesmypsxbarsyusgovcloudapimyamazemyradwebakamaihdsaveincloudfastlylbfrom-lasubsc-paysquare7in-the-bandblackbaudcdnhomelinuxoninfernoctfcloudservebbsdns-dynamiccloudfrontakamai-stagingipifonyham-radio-opsenseeringclickrisingcommunity-profrom-nylocalcertgrafana-devedgesuite-stagingcloudflareanycasteating-organicatlassian-devmydattofeste-iplocaltotorprojectknx-serveredgekeycloudflareglobalcloudyclustercasacamserveftpakamaized-stagingakamaiorigindns-cloudmyeffectboomlabotdashbuyshousestwmailhetemlazure-mobilein-dslthruhereredirectmedynuddnsbouncemesupabaseluyanicloudappakamaicloudfunctionsdebiannhlfanpgafanstatic-accessin-vpnmysynologymafeloappudohomeftptrafficmanagersiteleafseidatmemsetcloudflarecloudaccesskeyword-onazure-apiis-a-chefdoes-itgets-itwebhopselfiphomeipkicks-assedgesuitewindowsserver-ontunnelmolemydissentscrapper-sitecloudflarecnuni5srcfggffiobbzabchrsndenodynuopikddnsvpndnsakadnselastxkinghostvps-hostfastlyhomeunixazureedgeshopselectdontexistmyfritzcloudjiffyalwaysdatasells-itsquaresbroke-itazurefddattolocalat-band-campmeinforumfamilydsazurestaticappsdefinimabplaceddnsaliasdynaliasnow-dnsblogdnsroutingthecloudendofinternetdsmynasakamaiedgemymediapcadobeio-staticakamaiedge-stagingakamaihd-stagingddns-ipprivatizehealthinsurancelive-onkrellianschokokeksmassivegridmysecuritycamerarackmazeserveminecraftfrom-azis-a-geekakamaizedmoonscaleoffice-on-theusgovtrafficmanageradobeioruntimeedgekey-stagingreserve-onlinechannelsdvrdnsdojousgovcloudappcdn77-sslapps-1and1podzoneazurewebsitesdynathomescaleforceyandexcloudvusercontentisa-geekcdn-edgescoaemalcesappwriteazimuthtlonarvobuiltwithrocketnoticeablestorecomwebrecnetperotherfirminfoartslgdloncogoiltdorgmilcolcomplcschgenngonetedugovbiznamefirmmobiacincoorgmilcomnomwebgobnetintedubizinfocomyspreadshopdemongovtransurl123websitehosting-clusterkhplaycistrongsnesosvalerv\xE5lerxn--vler-qoaossandeheroysandeher\xF8yb\xF8boheroyher\xF8yxn--hery-iraxn--b-5gavalerb\xF8boxn--b-5gasandesandexn--hery-iraxn--vler-qoav\xE5lerh\xE5re\xE5laahavaofsfvfhlolnlalrlhmfmtmahcostntbu\xE5strmreigersundmyspreadshopg\xE1ls\xE1eidsvolltingvollgildeskalflor\xF8vads\xF8vard\xF8vanylvenxn--bhccavuotna-k7astrandaxn--kvnangen-k0axn--sknland-fxaxn--mosjen-eyarakkestadhyllestadnannestadvevelstadvaapstenordre-landsondre-lands\xF8ndre-landtjieltexn--vrggt-xqads\xF8r-aurdalsor-aurdalheradstordmoldefordef\xF8rdeseljefedjeryggehemnexn--krehamn-dxasognegranes\xF8gnebrynetjomevallebykletokkegiskedovretj\xF8mehob\xF8lvoldasaudatolgas\xF8mnaviknad\xF8nnasomnadonnatranafrananesnaraumasmolatr\xE6nafr\xE6nalesjasm\xF8la\xF8rstaorstahitrafloraaukraloppafr\xF8yarissasnasahalsagalsaromsaraisar\xE1isafroyasn\xE5sagronghobolfjelltydal\xE5rdalardalaskimharamkraanghkekr\xE5anghkesorumbarumhurumb\xE6rums\xF8rummodums\xE1l\xE1tb\xE1l\xE1tfrognbjugnv\xE5ganvagangulenskienl\xF8tenlotenstrynvefsnxn--merker-kuaskaunsveiob\xF8mlobomloskj\xE5kvardoflorovadsosalatbalats\xE1latkl\xE6buklabuselbubarduulvikskjakkleppris\xF8rxn--nttery-byaefl\xE5eidflahofmilgolholsellomskifetvikdepvgsfhsaskerrisorhamarasnes\xE5snesr\xF8rosrorosxn--slat-5namasoynaroyvaroyluroydyroyaskoyradoyandoyrodoymeloyrad\xF8yand\xF8yr\xF8d\xF8ymel\xF8yask\xF8ylur\xF8ydyr\xF8ym\xE5s\xF8yv\xE6r\xF8yn\xE6r\xF8yhoylandeth\xF8ylandetdivtasvuodnal\xF8renskoglorenskognesoddtangenxn--tjme-hraxn--smla-hraxn--stjrdal-s1aunjargalillehammerunj\xE1rgaxn--hamary-fyadavvenjargaxn--bearalvhki-y4a123hjemmesidegjerdrumxn--brnnysund-m8acxn--tnsberg-q1axn--mlatvuopmi-s4axn--snsa-roaxn--skierv-utaxn--brum-voatysfjordkvafjordeidfjordkv\xE6fjordsongdalenmjondalenmj\xF8ndalenxn--gls-elackragerog\xE1\u014Bgaviikagangaviikas\xF8rreisasorreisas\xF8r-varangersor-varangerxn--risr-iraskiervaxn--frna-woaxn--trna-woakvinesdalleksvikleirvikr\xF8yrvikroyrviksvelvikvenneslaevje-og-hornnessandnessj\xF8enmarnardalvindafjordsandefjordenebakksnillfjordullensvangxn--trany-yuabr\xF8nn\xF8ysundnamsskoganaustevollxn--stjrdalshalsen-sqbnord-aurdalnord-frontr\xF8gstadtrogstadgrimstadflakstadgjerstadxn--sandy-yuaxn--leagaviika-52bnore-og-uvdalvegarsheixn--rlingen-mxaxn--ggaviika-8ya47hveg\xE5rsheikarlsoykvitsoymasfjordenhamaroyinderoyosteroydavvenj\xE1rgasauheradguovdageaidnuxn--vre-eiker-k8abronnoysiellakkr\xF8dsheradkrodsheradkvinnheradbr\xF8nn\xF8yxn--mtta-vrjjat-k7afxn--lrenskog-54akvits\xF8yv\xE1rgg\xE1tkarls\xF8yoster\xF8yinder\xF8yhamar\xF8ybronnoysundxn--aurskog-hland-jnbbahccavuotnab\xE1hccavuotnagiehtavuoatnastor-elvdalmidtre-gauldalxn--gildeskl-g0akarasjokevenassixn--bievt-0qaxn--yer-znalebesbynessebyxn--hbmer-xqamalselvm\xE5lselvxn--unjrga-rtam\xF8re-og-romsdalmore-og-romsdalhareidmeland\xF8rlandorlandstrand\xE5lg\xE5rdsolundalgardafjord\xE5fjorddielddanuorrikautokeinoxn--stre-toten-zcbskodjeaejriestangeliernebamblestokkefauskesn\xE5asesnaasekongsvingerlangevagberlevagxn--flor-jrahattfjelldalostre-toten\xF8stre-totenvestfoldxn--mely-ira\xE1laheadjualaheadjunordreisaxn--troms-zuaxn--lgrd-poacporsangerflatangerstavangerleikangerbremangersamnangergieldakarasjohkaxn--rdy-0nabfrostautsirasnoasatromsaxn--sr-aurdal-l8aflekkefjordj\xF8lsterjolsteraremarkhedmarkn\xE5\xE5mesjevuemienaamesjevuemiexn--vard-jrarollagmer\xE5kermerakerorskog\xF8rskogxn--bdddj-mrabd\xE1k\u014Boluoktaxn--osyro-wuaaknoluoktatrysilskjerv\xF8ymandaljondalbindalrindalmeldalsuldalorkdalsigdalalvdall\xE6rdalhurdalsirdalverdallerdallardaloppdal\xE5seralaseralhadselkrager\xF8divttasvuotnaoverhallasteinkjerxn--hnefoss-q1askedsmokorsettroms\xF8xn--dyry-iravestre-totenmuseumxn--sandnessjen-ogbrahkkeravjufylkesbiblb\xE1jddarbajddarxn--laheadju-7yarennes\xF8yxn--koluokta-7ya57hxn--hgebostad-g3aleirfjordstorfjordbalsfjordb\xE5tsfjordbatsfjordmuos\xE1tbiev\xE1tloab\xE1tk\xE1r\xE1\u0161johkan\xF8tter\xF8yxn--mjndalen-64anordkappl\xE1hppilahppialstahaugsiljanverranr\xF8ykenroykenhaldenlyngenbergenhortenh\xF8nefosshonefosstroandinbeiarnvarggatosoyroos\xF8yrotromsoidrettmuosatbievatruovatloabatvoagattynsetnessetxn--indery-fyask\xE1nitskanitraholtr\xE5holtxn--ystre-slidre-ujbandebusarpsborgbearduxn--karlsy-fyahordalandjorpelandj\xF8rpelanddeatnuringsakers\xF8r-odalsor-odalxn--slt-elabringerikeaudnedalnittedalnissedalhemsedalslattumsurnadalxn--blt-elabelverumstj\xF8rdalnaustdalhjartdalgj\xF8vikfyresdalhasviknarviklarvikgjovikmalvikgamviklenvikporsgrunnstjordalengerdaldrobakdr\xF8bakxn--msy-ula0hvestvagoyxn--vgan-qoaxn--ryken-vuaxn--lten-graxn--stfold-9xaxn--hpmir-xqaxn--lury-iram\xE1latvuopmimalatvuopmitysv\xE6rkirkenesbirkenesmoskenesb\xE1id\xE1rxn--fjord-lraxn--rdal-poabahcavuotnab\xE1hcavuotnaxn--frde-gralind\xE5sbearalvahkixn--hobl-irar\xE1hkker\xE1vjuxn--loabt-0qav\xE5g\xE5\xE1lt\xE1bod\xF8sundlundrader\xE5deetnetimeholeauregrueoddavagavegaranatanaarnasolasulaaltalekafusavangbergkvam\xE5mliamlibokntinnroangranosenoslobodor\xF8stroststat\xE5motamotivgupriv\xF8yeroyerliermossvossxn--nvuotna-hwalusterlunnermarkerh\xE1bmerhabmerhvalerfjalerxn--rholt-mratysvarbaidarfitjargaularh\xE1pmirhapmirmelhusfosnes\xF8ksnesoksnestysneshemnesevenesflesbergeidsbergtonsbergt\xF8nsberglindasxn--sndre-land-0cbnamsosxn--srum-gra\xF8ystre-slidreoystre-slidrevestre-slidretrondheimbalestrandxn--langevg-jxaaustrheimxn--skjk-soavagsoyaveroysandoykarmoyfinnoytranoyvestbytranbysykkylvenxn--hyanger-q1aspjelkavikandasuoloxn--fl-ziaxn--drbak-wuastathellexn--sr-varanger-ggbtelemarkxn--bhcavuotna-s4axn--porsgu-sta26f\u010D\xE1hcesuolocahcesuoloakrehamn\xE5krehamnsand\xF8ykarm\xF8yfinn\xF8ytran\xF8yv\xE5gs\xF8yaver\xF8ynamdalseidxn--lesund-huabadaddjaxn--vegrshei-c0axn--btsfjord-9zagildesk\xE5lporsanguxn--trgstad-r1an\xE1vuotnanavuotnahammerfestxn--sgne-graxn--brnny-wuacibestadharstadnarviikaeven\xE1\u0161\u0161ivestnesgjemnessandnesagdenesrennesoyxn--avery-yuaxn--tysvr-vrabearalv\xE1hkikongsbergspydebergrandabergxn--andy-iradavvesiidaxn--krdsherad-m8apors\xE1\u014Bgufredrikstadbjerkreimringeburennebuaurskog-holandnotteroyxn--vgsy-qoa0jxn--rmskog-byaskierv\xE1ivelandbyglandfrolandaurlandforsandxn--bjddar-ptamidsund\xE5lesundalesundfetsundfarsundovre-eiker\xF8vre-eikerakershusxn--moreke-juas\xF8rfold\xF8stfoldostfoldsorfoldh\xF8yangerhoyangerlevangerorkangertanangerxn--vestvgy-ixa6olillesandulsteinxn--rennesy-v1agranvinskjervoyxn--klbu-woalavagisxn--h-2faxn--ryrvik-byakafjordk\xE5fjordseljordfolkebiblxn--gjvik-wuajevnakerxn--kfjord-iuabudejjuxn--kranghke-b0axn--davvenjrga-y4axn--rland-uuaxn--ldingen-q1axn--mlselv-iuaxn--rady-iraxn--linds-prabrumunddalxn--ygarden-p1amo-i-ranaeidskogr\xF8mskogromskoghjelmelandxn--finny-yuaxn--sr-odal-q1axn--skjervy-v1aballangenkvanangenkv\xE6nangengratangenxn--hmmrfeasta-s4acvossevangensuohkanxn--rde-ulaxn--mli-tlaxn--ksnes-uuanordlandskanlandsk\xE5nlandsortlandfuoiskuxn--rros-graxn--hcesuolo-7ya35bxn--eveni-0qa01gagaivuotnag\xE1ivuotnaxn--seral-lradrammenmodalenmosjoenjan-mayentorskensteigengloppenxn--snes-poamatta-varjjatxn--sr-fron-q1aomasvuotnajessheimb\xE5d\xE5ddj\xE5xn--krager-gyaxn--kvfjord-nxaxn--asky-iraxn--snase-nraxn--bidr-5nacholt\xE5lenxn--vads-jraxn--jlster-byamosj\xF8enxn--rst-0nastavernxn--ostery-fyaxn--oppegrd-ixaxn--sknit-yqaxn--risa-5naoppeg\xE5rdskiptvetrendalenholtalenxn--mot-tlaxn--lhppi-xqaxn--holtlen-hxaxn--srreisa-q1akopervikxn--muost-0qaxn--bmlo-grahokksundkvalsundegersundxn--karmy-yuaullensakerxn--hylandet-54axn--kvitsy-fyaxn--bod-2nalangev\xE5gberlev\xE5gkristiansandxn--rsta-frahornindalstj\xF8rdalshalsenstjordalshalsensandnessjoenh\xE1mm\xE1rfeastaxn--lrdal-sras\xF8r-fronsor-fronnord-odalkristiansundm\xE1tta-v\xE1rjjatvestv\xE5g\xF8ynesoddennotoddenbuskerud\xF8ygardenoygardensalangenlavangenralingenr\xE6lingenlodingenl\xF8dingenlea\u014Bgaviikalaakesvuemieleangaviikauenorgexn--srfold-byaaskvollxn--rskog-uuaxn--nry-yla5gxn--vry-yla5ghammarfeastaxn--rhkkervju-01afxn--givuotna-8yakommunekrokstadelvanedre-eikerhagebostadh\xE6gebostadxn--berlevg-jxakviteseidxn--s-1faxn--l-1faxn--nmesjevuemie-tcbafuosskomo\xE5rekemoarekexn--lt-liacxn--jrpeland-54asvalbardoppegardholmestrandtvedestrandsogndalsokndalarendalsunndalfolldalxn--krjohka-hwab49jlyngdaletnedalnorddalsaltdalgausdalskedsmovaksdalgjesdalstordalxn--frya-hraaarbortedrangedalxn--smna-graaurskog-h\xF8landxn--vg-yiabtjeldsundhaugesundlindesnesxn--mre-og-romsdal-qqbxn--dnna-gradyntmpheremerseineshacknetenterprisecloudmineaccomaorim\u0101oriorgmilcriiwigennetschoolhealthkiwigovtgeekxn--mori-qsacloudnsparliamentcomedorgcompronetedugovmuseumwebsitekinservicebarsywebsitebuildereerobookheimdnsleapcelleero-stagetechcrscsslorigingohomecdbedeeeiemesecabgngilnlalplchfisiincnnoroptatitmtltruauhulumkdkukskjplvtrgrfrkrhrusesismycynzcznetinteduassoososcloudstgbetaaezaeuhkusjshatenadiarycdn77hoptozaptois-a-knightmyftpno-ipjpnddnssdpdnsspdnsbarsysweetpepperis-a-bruinsfanis-very-sweetservegameis-a-soxfanhomelinuxcdn77-secureservebbsmisconfusedwebredirectblogsitefreedesktopcouchpotatofriestoolforgeaccesscamis-lostreadmyblogsmall-webfedorapeopleserveftpis-a-celticsfanmywirepotagertwmailin-dslsellsyourhomeread-booksfreeddnscable-modemis-savednflfanufcfanmlbfanstuff-4-saleendoftheinternetin-vpnmy-firewallhomeftpis-localis-a-chefboldlygoingnowherewebhopselfipkicks-assroxatunkcamdvrfedoraprojectgotdnsdvrdnsdyndnspubtlspimientahomeunixdontexistfedorainfracloudwmflabsfspagesbmoattachmentsteckidsfamilydsdnsaliasdynaliasnow-dnscloudnsdoomdnsduckdnsblogdnshomednsroutingthecloudendofinternetdsmynasip-dynamicpoivronhttpbinmyfirewallis-very-evilmysecuritycamerais-a-linux-userwmcloudis-a-geektuxfamilyis-a-candidatedoesntexistis-very-badhobby-sitegame-hostaltervistais-foundis-a-patsfandnsdojohepforgepodzonedynservcollegefanis-very-goodfrom-meis-very-niceisa-geeknerdpolacmedsldingorgcomnomgobabonetedupleskaemhlxmyboxrockyprvcydeuxfleurspdnscodebergheyflowstatichostorgmilcomnomgobneteduorgcomeduiorgmilcomngonetedugovcloudns1337ngrokacorggogfamcomwebgobnetedugokgopgkpgovgosbizpasaugumicsopozpapuwmwsrprusiskwpspkppspkmpspokeoiawsawifoumsdnskokwpmuppuppsppiwwiwoowuzswkzoschrzpisdnwzmiuwwitdpssewsseumigugimoirmpinbwinbwiihupporzgwgriwupowwskrwioswuozstarostwokonsulattmpccopruszkowmyspreadshopostrodakartuzyopolegminamediaustkazgorajgoraolawailawalomzawloclradombytomjaworznotargilubinkoninzagantorunkutnokepnonakloczestsopotsanokturekplockslasksklepzarowlukowmedaidgdaorgmilrelcomnomatmgsmartneteduelkgovwawsossexbiztgorysejnytychypomorzeboleslawiechomesklepsdscloudunicloudzakopanelegnicarawa-mazbydgoszczswidnikkrasnikwloclawekbielawamragowograjeworealestatebeskidykaszubymalopolskaprzeworskswiebodzinlecznadfirmaszkolawarmiagdyniamiastakazimierz-dolnymalborkswidnicadlugolekaostrolekapodlasieelblagtravelsimplesitezachpomormielecszczecinnieruchomosciwalbrzychlezajsklublinbedzinpoznanwielunmielnooleckostarachowicedkontopowiatwroclawrybniksuwalkileborkslupskgdanskostrowwlkptarnobrzegtourismwegrowkrakowglogowyou2pilanysamailwrocinfoagroautobeepshoppriviqhslapypiszlodzcfolksecommerce-shopmazurypulawyskoczowrzeszowpomorskiezgierzkaliszolkuszlowiczostrowiecsosnowiecmazowszewodzislawbialowiezazgorzeleckatowicepabianicejelenia-gorawolominkarpaczsieradznowarudaczeladzkonskowolaskierniewiceswinoujscieturystykabieszczadycieszynketrzynolsztynbialystokbabia-goraprochowicewarszawastalowa-wolapolkowicegorlicegliwiceponiatowalimanowalubartowaugustowkobierzyceopocznognieznoszczytnokolobrzegshoparenapodhalebielskoklodzkostargardatwithplayitownnamecoorgnetedugovacorgcomproestnetedugovbiznameislaprofinforechtngrokmedaaaacacpaenglawjurbarbarsykeeneticavocatacctcloudnsorgcomsecplonetedugov123paginaweborgcomnetintedugovnomepublidkinbarsygovx443cloudnsorgmilcomnetedugovcooporgmilcomschnetedugovnamecomcannetlibassoaemclantmcontstoreorgcomnomrecwwwbarsyfirminfoshopartsstackitmyddnswebspacelima-cityacincooxorgedugovbarsybrendlyhbvpsvpsspectrumlandinghostingacppmordoviamcprecbgorgmilcomspbnetintedumsknovgovbirrasmcdirmytismircloudvladimirnalchikadygeyamarinepyatigorskmyjinobashkiriaeurodirvladikavkazna4ugroznykustanaikalmykiacldmaildagestaniranbuildcloudcanvaliaravalwixdevelopmentappwritemigrationneedleverceldatabasestackitcodereplravendbonporterlovableaccoorgmilnetgovcoopmedorgcompubschnetedugovservicemecomygovorggovtvmedorgcomnetedugovinfoedgfacbmlonihkutwpsryxzbdtmacfhppmyspreadshopbrandpartiorgcomfhvpress123minsidaitcouldbeworlanbibkommunalforbundfhskiopsyskomvuxkomforbnaturbruksgymnloginlineorgcomnetedugovenscaledeuusentsurgebotdaorgmilcomnetgovnowteleporthashbangplatformlovablebarsyshopwarebasehoplixbarsyonlinemsf5gitappgitpagewawamscofigma-govcaffeinefigmacanvasoltstscwputerbarsysupportchatgptsquareomniweopensocialcpanelplaycodenotionnovecorewpsquaredpreviewjelecyonbyensrhtfastvpspieboxconvexjouwwebheyflowplatformshloginlinemadethissourcecraftclouderaorgorgcomartedugouvunivmeorgcomnetedugovsurveysstatichfheiyuxs4allprojectmyfastubervibehostapp-ionosdeployagentmecoorgcomschnetedugovbizcncostoreorgmilcomneteduembaixadaconsuladokiraranohoprincipesaotomeheliohobarsystorebaseshopwaresellfyaiabkhaziavologdamordoviapenzalenugsochinavoiexnetspbmsknovnorth-kazakhstanashgabadkareliaarmeniageorgiavladimirnalchikivanovobukharaadygeyakhakassiakalugakrasnodarjambylaktyubinsktroitskbryanskobninskkurganazerbaijanpokrovskbashkiriatselinogradvladikavkazmurmansktulatuvamangyshlaktashkentchimkentgroznykaragandatermezarkhangelskkustanaikalmykiabalashoveast-kazakhstankaracoldagestantogliattibarsyredorgcomgobedumirenknightpointaccoorgjelasticdiscoursecleverappsschacmiincogoornetonlineshopcogoorgmilcomwebnicnetintedugovbiznametestcoorgmilcomnomnetedugovorangecloudpersoindorgcomfinnatnetgovensmincomtourismintlinfox0611oyaorgmilcomnetedugovquickconnectvpnplusnettprequalifymeaddrmyaddrntdllwadlnctvavdrk12orgmilpolbeltelcomwebgennetedutskkepgovbbsbiznameinfocoorgmilcompronetedugovbiznameinfobetter-thanworse-thansakurafromdyndnson-the-webmymailerorgmilurlcomneteduidvgovmydnsgameclubebizmeneacsccogotvorhotelmilmobiinfovodteiflgplkmsmsbcckhincndnvncoztltmkckppzpdprvcvkvlvcrkrkscxuzchernovtsyrivneyaltaodesavolynrovnolutskltdinforgcomnetedugovbizvinnicazhitomirternopilpoltavakropyvnytskyizaporizhzhiasevastopolsebastopoluzhgoroduzhhorodkharkovkharkivvinnytsiakhmelnytskyizaporizhzhecrimeaodessazhytomyrnikolaevcherkassydonetskluganskluhanskkirovogradivano-frankivskchernivtsikrymkievkyivlvivsumyzakarpattiamykolaivcherkasychernigovkhersonchernihivdnipropetrovskdnepropetrovskkhmelnitskiyneacsccogoorusorgmilcomedugovmyspreadshopadimono-ipbarsybarsyonlinelayershiftnh-servretrosnubapicampaignservicelugaffinitylotteryweeklylotteryraffleentrygluglugsmeaccoindependent-inquestnimsitecopropymntltdorgplcschnetgovnhsbarsyindependent-commissionindependent-reviewpolicepublic-inquiryindependent-panelconnhospindependent-inquiryroyal-commissionoraclegovcloudappscck12libaws-govccphxcclibpvtparochchtrcck12libcceatonk12coglibtecgendstmusann-arborwashtenawcck12glghcck12sealibforksolympiabainbridge-islkeyporthoquiamyarrow-pointcentraliaport-townsendsequimport-ludlowrentonsilverdalebremertonredmondsheltonbellevueport-orchardport-angeleskingstonchehalisaberdeengig-harborseattlepoulsboidmdndsddemenegacalamaiavawapailalflnmdcncscohnhmihiviwiriinmntnmocoutvtctmtgunjokakwvnvprarorasmskstxwynykyazisadninsnngosrvis-bymircloudservernamepointtoenscaledland-4-salefreeddnsstuff-4-saleazure-apinoipdatabricksappscloudnsgolffanheliohostazurewebsitesgvorgmilcomgubneteducoorgcomnetd0egvorgmilcomnetedugovmydnsiacostoree12orgmilcomnomwebgobbibrectecnetintedugovraremprendefirminfoartseducok12orgcomnethidnsidacaiiosonlahanamhanoicamauhueorgcompronetintedugovbizbacninhtayninhhoabinhnamdinhtravinhhaiphongvinhlonghaiduongquangnamquangtrithuathienhuequangninhbacgianghaugiangquangbinhsoctrangbentrethanhphohochiminhdanangkontumhatinhkhanhhoathanhhoahealthgialailaocaiyenbaibackanngheanlonganphuyenphuthocanthodaklakdongnainameinfovinhphucdongthapkiengiangtiengiangquangngailaichaulangsonlamdongdaknonghagiangangiangcaobangbinhduongninhthuanbinhthuanbaclieuthaibinhninhbinhbinhdinhtuyenquanghungyenbaria-vungtauthainguyendienbienbinhphuocschbizputerimagine-proxyorgcomnetedugovcloud66advisormypetsdyndnsxn--8dbq2axn--4dbgdty6cxn--5dbhl8dxn--hebda8bxn--80auxn--d1atxn--c1avgxn--o1acxn--o1achxn--90azhxn--55qx5dxn--uc0atvxn--od0algxn--wcvs22dxn--gmqw5axn--mxtq1mxn--12c1fe0brxn--h3cuzk1dixn--12co0c3b4evaxn--12cfi8ixb8lxn--o3cyx2axn--m3ch0j3axn--j1adpxn--90amcxn--90a1afxn--h1ahnxn--j1ael8bxn--h1alizxn--c1avgxn--j1aefxn--80aaa0cvacxn--41acaffeineexeopentunnelbotdashtelebitorgtmaccoagricorgmilnomwebnicngonetaltedugovlawnisschoolgrondaraccoorgmilcomschnetedugovbizinfoprg1-zeropstritonstackitlimazeropsaccoorgmilgov\u044F\u0441\u043F\u0431\u043E\u0440\u0433\u043A\u043E\u043C\u043C\u0441\u043A\u0431\u0438\u0437\u043C\u0438\u0440\u0441\u0430\u043C\u0430\u0440\u0430\u043A\u0440\u044B\u043C\u0441\u043E\u0447\u0438\u0430\u043A\u043E\u0434\u043F\u0440\u043E\u0440\u0433\u043E\u0431\u0440\u0443\u043F\u0440\u05E6\u05D4\u05DC\u05DE\u05DE\u05E9\u05DC\u05D9\u05E9\u05D5\u05D1\u05D0\u05E7\u05D3\u05DE\u05D9\u05D4\u0E2D\u0E07\u0E04\u0E4C\u0E01\u0E23\u0E18\u0E38\u0E23\u0E01\u0E34\u0E08\u0E23\u0E31\u0E10\u0E1A\u0E32\u0E25\u0E28\u0E36\u0E01\u0E29\u0E32\u0E17\u0E2B\u0E32\u0E23\u0E40\u0E19\u0E47\u0E15\u6559\u80B2\u7DB2\u7D61\u7D44\u7E54\u516C\u53F8\u653F\u5E9C\u500B\u4EBA\uB2F7\uB137\uD55C\uAD6D\u6FB3\u95E8\u65B0\u95FB\u6FB3\u9580\u8054\u901A\u5BB6\u96FB\u5609\u91CC\u62DB\u8058\u901A\u8CA9\uB2F7\uCEF4\uC0BC\uC131\u30B3\u30E0\u10D2\u10D4\u0431\u0433\u0440\u0444\u0435\u044Eadcdbdgdidmdsdtdaebedeeegeiejekemenepereseveyegabacalamanauavapaqasazacfbfafgfnfpfwftfbgcgagggegkgngmgsgpgvgtgugilmlnlalclglplsltlhmimjmkmmmomambmcmdmfmgmzmpmsmtmgbbblbsbecccacnclcmcvctcscmhkhghchbhthphshlinikifigiaibicivisikninhnmncnbngnsnpnvntnjoionomobocoaofodorosotoptstttytatbtetgtithtmtltrusuvuaucueuguhulumunufjdjbjtjsjlkmkhkfkdkcktkukskpkgpmpnpkpjpgqaqmqiqsvtvcvbvmvlvrwpwtwzwbwcwawgwkwmwtrsrprgrfrercrbrarnrmrlrkrirhrwsusrssspsgsesbsaslsmsissxmxaxcxuypysylymykygybycyuztzsznzmzkzdzczbzaz\u03B5\u03BB\u03B5\u03C5\u4E16\u754C\u53F0\u7063\u8D2D\u7269\u516C\u76CA\u70B9\u770B\u81FA\u7063\u7F51\u7EDC\u66F8\u7C4D\u5728\u7EBF\u7F51\u7AD9\u624B\u673A\u673A\u6784\u5927\u62FF\u6E38\u620F\u4FE1\u606F\u53F0\u6E7E\u8C37\u6B4C\u6148\u5584\u5546\u6807\u9999\u6E2F\u4E2D\u56FD\u9910\u5385\u7F51\u5740\u4E2D\u570B\u5546\u57CE\u98DF\u54C1\u5FAE\u535A\u653F\u52A1\u79FB\u52A8\u96C6\u56E2\u516C\u53F8\u516B\u5366\u5546\u5E97\u5065\u5EB7\u7F51\u5E97\u653F\u5E9C\u65F6\u5C1A\u4F5B\u5C71\u4E2D\u4FE1\u5A31\u4E50\u5E7F\u4E1C\u4F01\u4E1Ahomedepotengineering\u0627\u0645\u0627\u0631\u0627\u062Arepublicankuokgroupversicherungchannelcitadelxn--pgbs0dhxn--b4w605ferdstatebankwebsitexn--mgb9awbf\u4E9A\u9A6C\u900A\u6DE1\u9A6C\u9521alibabaxn--ngbc5azdxn--mgbbh1axn--45br5cyltoshibabuildworldcloudtradeguideplacespacedancemoviephoneprimesmilebiblestyleappleazurestoreskypegripexn--l1accdrivelottehorsehouseleasechasereisestadahondaomegaaetnaamicaninjanokiamediadeltavodkaedekaosakapizzaslingemailgmailtirolshelltmallfinallegaltotalhotelamfamforumrehabmusicciticricohcoachwatchboschearthfaithirishmiamiarchidubaiguccipraxi\u307F\u3093\u306A\u30B9\u30C8\u30A2\u30BB\u30FC\u30EBcanonsalononionnikonepsonkoelngreensevencrownikanoradioaudioweiboglobopromogalloyahoociscorodeovideomangobingotokyovolvolottokyotophotosmartsportquesttrusthyattjetztadultcymrubaidutushuxn--kprw13dubankclickblackmerckgroupsharpcheapnowtvxn--h2brj9c\u05E7\u05D5\u05DD\u0570\u0561\u0575\u043E\u0440\u0433\u0441\u0440\u0431\u043C\u043E\u043D\u043A\u043E\u043C\u0431\u0435\u043B\u043C\u043A\u0434\u049B\u0430\u0437\u0440\u0443\u0441\u0443\u043A\u0440\u0645\u0635\u0631\u0642\u0637\u0631\u0639\u0631\u0628\u0643\u0648\u0645dadcfdmedwedredphdthdbidpidkrdmsdltdiceonewmeglemoerwecfageacbanbambaaaammakianraspacpaaxawtfbcgaegongingaigvigorgdogdhlmilrilonlaolloluoljllcalgalnflafltelsrlfrllplkimibmcamcombommomifmabbjcbscbwebcabnabtabmlbpubabcbbcnecincpncllcstcwtcpwcnyckfhbzhovhmoiskiobisbitcifyituipinvinwinxincbnbcnmanfangdnmenrenkpnmtnyunrunfununobiojioriohbogmofooboooooacoecoceongoproartistottnttbbtcateatlatvetpetbetnethktmitfitintjothotgotdotbotprueduicujnjyouinknhktdkappsapgapmapdnptopgopllpjmpzipvipripesqtrvdtvitvdevmovgovhivnrwlawsewnewbmwwownowhowdvrftrmtrsfrbarcartvscrseusawsupsubssbsadsddsldssasbmsmlsxxxboxfoxgmxtjxsextaxbuyflydiysoyjoyskypaydaygayxyzanzbizwebersenerpokerlameractortatarsolar\u0EA5\u0EB2\u0EA7\u0E04\u0E2D\u0E21\u0E44\u0E17\u0E22tourslocusnexuslexusgiftsbeatsboatspartspressglassswiss\u0915\u0949\u092E\u0928\u0947\u091Ftiresgivescodeshomesgamestunesshoescardswalesloansvegastoolsdealsautosparis\u30D5\u30A1\u30C3\u30B7\u30E7\u30F3workssucksrocksxeroxforexfedexpartylillymoneystudyrugbytoraytoday\u4E2D\u6587\u7F51xn--unup4y\u5929\u4E3B\u6559\u98DE\u5229\u6D66\u65B0\u52A0\u5761enterprises\u6211\u7231\u4F60\u5609\u91CC\u5927\u9152\u5E97christmasxn--fct429kholdingsxn--8y0a063axn--mgbx4cd0ablifestyleabogadoallstatenetbank\u0643\u0627\u062B\u0648\u0644\u064A\u0643xn--s9brj9cxn--gk3at1ebestbuycharityxn--55qx5dmicrosoftpropertybasketballhomegoodscorsicajewelrygallerygrocerysurgerycountrybrusselsverisignferreroxn--czr694bhdfcbankcommbanksoftbank\u067E\u0627\u0643\u0633\u062A\u0627\u0646\u067E\u0627\u06A9\u0633\u062A\u0627\u0646nextdirect\u0627\u0644\u0633\u0639\u0648\u062F\u064A\u0647\u0627\u0644\u0639\u0644\u064A\u0627\u0646xn--h2brj9c8cxn--80adxhksshikshaxn--mgbai9azgqp6jcuisinellabarclayscatholicxn--kpry57dcompanyxn--xhq521bblackfridayxn--mgba3a3ejtsandvikxn--d1acj3bacademydownload\u0645\u0644\u064A\u0633\u064A\u0627xn--j1amhxn--w4r85el8fhu5dnraipirangaathletaxn--fhbeixn--mgbqly7cvafrzuerichxn--c2br7g\u0B87\u0BB2\u0B99\u0BCD\u0B95\u0BC8contractorsxn--io0a7igraphicsinsurancetemasekxn--xkc2al3hye2amotorcyclesphotographydirectoryplumbingxn--vhquvclothingtrainingcleaningwilliamhilllightingxn--mgba3a4f16ashoppingcateringeducationokinawapicturesventuresproductionsxn--9et52uwalmart\u0D2D\u0D3E\u0D30\u0D24\u0D02supportrealestatecapitalonexn--nqv7fs00emaauspostfloristdentistxn--qxamgodaddybradescobargainsmitsubishikerryhotelsxn--9dbq2axn--3pxu8kimmobilienxn--fjq720axn--mgbtx2bholidaymckinseymadridbusinessbuildershelsinkixn--4gbrim\u043C\u043E\u0441\u043A\u0432\u0430\u0627\u0644\u0633\u0639\u0648\u062F\u06CC\u0629coffeedegreelacaixapartnersalsaceofficeabbvievoyageorangegeorgeonlinechromemobilekindlegoogleoraclecircleschulesecureinsurexn--mgba7c0bbn0aestatexn--mgbc0a9azcgcruisehangoutxn--vuq861bxn--42c2d9arexrothfirestoneuniversityxn--nnx388alifeinsuranceextraspace\u043E\u043D\u043B\u0430\u0439\u043Dverm\xF6gensberatersoftwarexn--fiqs8sxn--mgbab2bdxn--w4rs40ltienda\u092D\u093E\u0930\u0924\u092E\u094Dafricatoyotaotsukasakuracameracreditcardnagoyaconsultingnetworkjunipertheatermonsterprogressivepioneerxn--55qw42gracingdatingvotingvikinglivinggivingxn--bck1b9a5dre4cbrotherweatherjoburg\u0641\u0644\u0633\u0637\u064A\u0646lplfinancialxn--clchc0ea0b2g2a9gcdfutbolschoolsocialglobaldentalwoodsidechanelairtelmatteltravelrealtorwebcamstream\u0C2D\u0C3E\u0C30\u0C24\u0C4Dunicomalstomxn--nodexn--6frz82gmuseumfurniturexn--rvc1e0am3exn--mix891faccenturexn--11b4c3dismailineustardiscountquebeccomsecclinicservicesxn--y9a3aqxn--c1avgswatchchurchsearch\u0627\u0644\u0627\u0631\u062F\u0646marketingcontacthealthmonashshoujisanofitaipeiamericanexpresssuzuki\u30A2\u30DE\u30BE\u30F3\u30AF\u30E9\u30A6\u30C9\u30DD\u30A4\u30F3\u30C8bharti\u30B0\u30FC\u30B0\u30EBxn--mgberp4a5d4armemorialxn--1qqw23alondonmormoninstitutevisionbostonnortoncouponmaisonamazonvirginberlindesigndurbanolayannissananquanxihuanhitachikaufengardenreisenbayerntechnologydatsunxn--90a3aclatinocasinostudiophysioxn--ngbe9e0apharmacytattootaobaoaramcoexpertreportabbottdirectselectimamatfairwindspictettargetmarketintuittravelersinsurancecreditdupontryukyusuppliesxn--tckwebnpparibasschmidtmerckmsdyodobashirestaurantbridgestonecricketxn--fpcrj9c3dbostikbroadwayattorneylefrakemerckxn--fiq228c5hscareersfarmerswinnersflowersxn--wgbh1cguitarsxn--54b7fta0ccxn--p1acfmakeupgalluplandroverxn--kcrx77d1x4agoldpointbauhausxn--mgbayh7gpahiphopplaystationxn--mgba3a4fraxn--eckvdtc9dhyundaixn--gckr3f0fistanbulticketsmarketsflightschintaireviewsxn--3e0b707ewindowsxn--fiqz9sfinancialxn--fzys8d69uvgm\u0627\u0628\u0648\u0638\u0628\u064Adiscoverreview\u09AC\u09BE\u0982\u09B2\u09BExn--5su34j936bgsgmoscowobserverapartments\u0434\u0435\u0442\u0438\u0627\u0631\u0627\u0645\u0643\u0648\u0441\u0430\u0439\u0442eurovisionxn--i1b6b1a6a2exn--xkc2dl3a5ee0h\u062A\u0648\u0646\u0633\u0645\u0648\u0642\u0639\u0628\u0627\u0631\u062A\u0680\u0627\u0631\u062A\u0634\u0628\u0643\u0629\u0639\u0645\u0627\u0646\u0628\u064A\u062A\u0643\u0639\u0631\u0627\u0642readkredbondlandbandfundfoodprodgoldfordtubecafesafelifeggeeieeefreefagepagegugezonewinememenamegamesaleablebikenikelikecarecbreherefiresaveloveliveblueartedatesitevotecaseluxebofamodaltdaasdatiaayogasinavanashiaasiajavabbvatevavivadatazaraarpacasavisasncfprofmaifsurfgolfdvagsongbingpingwangkpmggoogblogpohlfailcooldellcalldeallidlsarlfilmteamroomfarmimdbarabclubhdfcicbchsbcgmbhrichtechfishdishcashminiernikddiaudiwikimobitaxicitikiwidesiqponskinloanakdnwienopenporncerntownimmolimoolloinfonicofidolegosaxozeroaerovivoautovotomotofastbestresthostpostnextlgbtchatseatgiftmeetdietreitmintrentgentspotscotguruitausohumenucyoubanklinkpinkdclktalksilkbookseekworkrsvpaarpjeepshopcoophelpcamppccwshowbeerstarruhrflirweirhaircarsparsjprshausplusnewstipstoysjobskidsfanspicsdocsxboxamexsexynavycitysonyarmyallybabyplaydeliverybuzzgbizlamborghiniphilips\u0DBD\u0D82\u0D9A\u0DCF\u0CAD\u0CBE\u0CB0\u0CA4fitnessexpresslanxesspfizercenterwalterlawyersoccercareerkosherbrokerlockerdealerdoctorauthorxn--mgbqly7c0a67fbcverm\xF6gensberatungjaguarxn--pssy2uxn--hxt814eflickrrepairrogersairbusxn--mgbai9a5eva00beventsyachtsxn--t60b56a\u09AD\u09BE\u09F0\u09A4\u09AD\u09BE\u09B0\u09A4\u092D\u093E\u0930\u0924\u092D\u093E\u0930\u094B\u0924viajeshermeshughesxn--j1aef\u0938\u0902\u0917\u0920\u0928villas\u0B2D\u0B3E\u0B30\u0B24claimshotels\u0AAD\u0ABE\u0AB0\u0AA4zapposphotosjuegoscondostatamotorsgratistennis\u0A2D\u0A3E\u0A30\u0A24tkmaxxtjmaxxschaeffleryandexxn--80aswgrealtysafetybeautyluxuryxn--3ds443gsupplyfamilyxn--o3cw4hhockeysydneyxn--90aenissayalipayenergycomputeragencyxn--rovu88b\u96FB\u8A0A\u76C8\u79D1xn--gecrj9cstatefarmaccountantaquarelleolayangroup\u9999\u683C\u91CC\u62C9xn--p1ai\u7EC4\u7EC7\u673A\u6784xn--1ck2e1bxn--mgbt3dhdschwarz\u0645\u0648\u0631\u064A\u062A\u0627\u0646\u064A\u0627abudhabinowruzkomatsufujitsuhospitalxn--80asehdbxn--mgbtf8flxn--j6w193gxn--yfro4i67oprudentialxn--flw351ecruisescoursesrecipesxn--e1a4cferrarixn--ses554gxn--wgbl6awatchesstaplessinglesxn--mgbcpq6gpa1axn--otu796dpropertiescreditunionxn--mgbah1a3hjkrdstockholmhisamitsu\u0627\u0644\u0633\u0639\u0648\u062F\u064A\u0629stcgroupdomainsoriginscouponsbloombergclubmedfroganslimitedxn--80aqecdr1aexposedinternationalequipmentbarclaycardxn--q7ce6axn--mgbi4ecexpprotectionassociatesconstructionxn--cck2b3bxn--45q11candroidfoundation\u05D9\u05E9\u05E8\u05D0\u05DCxn--mgbca7dzdocliniqueboutiqueengineerxn--qxa6asystemsfirmdalefashionauctionxn--nqv7finfinitirentalsreliancetradingweddingfishinghostinggentingbookingcookingxn--3hcrj9cgraingerxn--czrs0tdemocratsamsungyokohamaxn--h2breg3evexn--nyqy26alundbeckmelbournevacationssolutionsfrontierxn--vermgensberatung-pwbmanagementxn--cg4bkixn--mgb2ddeslincolnhamburgsandvikcoromantblockbusterairforcebarefootxn--4dbrk0ceinvestmentsfeedbackcommunityxn--ngbrx\u0627\u0644\u0628\u062D\u0631\u064A\u0646diamondsamsterdamhealthcareredumbrellaxn--mxtq1mxn--2scrj9cagakhanxn--mgbpl2fh\u043A\u0430\u0442\u043E\u043B\u0438\u043Acaravan\u0B9A\u0BBF\u0B99\u0BCD\u0B95\u0BAA\u0BCD\u0BAA\u0BC2\u0BB0\u0BCDrichardlimortgageamericanfamilyxn--fzc2c9e2cscholarshipssaarlandxn--imr513nvlaanderensamsclubgoodyearkitchen\u0B87\u0BA8\u0BCD\u0BA4\u0BBF\u0BAF\u0BBEweatherchannelallfinanzxn--kput3i\u0627\u0644\u0633\u0639\u0648\u062F\u06CC\u06C3xn--90aisxn--efvy88h\u0627\u0644\u062C\u0632\u0627\u0626\u0631xn--mgbaam7a8hexchangejpmorganxn--tiq49xqyjfidelitysecurityxn--mk1bu44cwanggouxn--fiq64bxn--6qq986b3xlxn--mgbbh1a71exn--80ao21amarshallsxn--5tzm5gtravelerspanasoniclatrobeyoutubeaccountantsxn--rhqv96gxn--cckwcxetdanalyticsxn--ygbi2ammx\u0628\u0627\u0632\u0627\u0631\u0628\u06BE\u0627\u0631\u062A\u0633\u0648\u0631\u064A\u0629organicfresenius\u0633\u0648\u0631\u064A\u0627xn--9krt00axn--qcka1pmcxn--jlq480n2rgdeloittesciencefinancexn--jvr189mxn--30rr7yhomesensehotmailbaseballfootballleclercboehringerxn--q9jyb4cxn--mix082f\u0627\u0644\u064A\u0645\u0646\u0647\u0645\u0631\u0627\u0647politie\u0633\u0648\u062F\u0627\u0646\u0627\u064A\u0631\u0627\u0646\u0627\u06CC\u0631\u0627\u0646netflixyamaxunxn--lgbbat1ad8jcollegestoragecapetowncolognekerrypropertiesxn--mgbgu82axn--ogbpf8flxn--czru2dwhoswhociprianilasallexn--g2xx48cforsalebanamexaudiblexn--vermgensberater-ctbxn--zfr164bericssonvanguardxn--45brj9cindustriestheatremarriottxn--3bst00mcomparexn--mgberp4a5d4a87gcapitaldigital\u0627\u0644\u0645\u063A\u0631\u0628barcelonashangrilaxn--d1alfcalvinkleinwwwcitysapporokawasakinagoyasendaikobekitakyushuyokohamackjp";
+
+  // node_modules/tldts/dist/es6/src/suffix-trie.js
+  var numberOfNodes = nodeFlags.length;
+  var numberOfEdges = edgeLength.length;
+  var edgeOffset = new Uint32Array(numberOfEdges);
+  var edgeHash = new Uint32Array(numberOfEdges);
+  var wildcardEdge = new Int32Array(numberOfNodes).fill(-1);
+  for (let node = 0, offset = 0; node < numberOfNodes; node += 1) {
+    for (let edge = edgeStart[node]; edge < edgeStart[node + 1]; edge += 1) {
+      edgeOffset[edge] = offset;
+      const end = offset + edgeLength[edge];
+      let hash = 5381;
+      for (let i = end - 1; i >= offset; i -= 1) {
+        hash = hash * 33 ^ labelText.charCodeAt(i);
+      }
+      edgeHash[edge] = hash >>> 0;
+      if (edgeLength[edge] === 1 && labelText.charCodeAt(offset) === 42) {
+        wildcardEdge[node] = edge;
+      }
+      offset = end;
+    }
+  }
+
+  // node_modules/tldts/dist/es6/index.js
+  var RESULT = getEmptyResult();
+
+  // src/ui/categories.ts
+  var categoryKey = (label) => label.trim().replace(/\s+/g, " ").toLocaleLowerCase("en");
+  var categoryLabel = (label) => label.trim().replace(/\s+/g, " ");
+  var predefinedCategories = [...curatedWhitelist.map((group) => group.label), "Your destinations"];
+  function categorySuggestions(committed, drafted = []) {
+    const labels = /* @__PURE__ */ new Map();
+    for (const label of [...predefinedCategories, ...committed, ...drafted]) {
+      const normalized = categoryLabel(label);
+      if (normalized && normalized.length <= 64 && !labels.has(categoryKey(normalized))) labels.set(categoryKey(normalized), normalized);
+    }
+    return [...labels.values()];
+  }
+  function canonicalCategory(label, existing) {
+    return existing.find((value) => categoryKey(value) === categoryKey(label)) ?? categoryLabel(label);
+  }
+
+  // src/ui/destinations.ts
+  function destinationIndex(policy, metadata2 = []) {
+    const active = new Set(policy.whitelist.filter((hostname2) => evaluate({ hostname: hostname2 }, policy).outcome === "ALLOW"));
+    const entries = [];
+    for (const item of metadata2) {
+      const hostnames = item.hostnames.filter((host3) => active.has(host3));
+      if (hostnames.length === 0) continue;
+      entries.push({
+        id: item.id,
+        label: item.label,
+        category: item.category,
+        hostname: hostnames.includes(item.primaryHostname) ? item.primaryHostname : hostnames[0],
+        hostnames
+      });
+      hostnames.forEach((host3) => active.delete(host3));
+    }
+    for (const group of curatedWhitelist) for (const service of group.services) {
+      const hostnames = serviceHostnames(service).filter((hostname2) => active.has(hostname2));
+      if (hostnames.length === 0) continue;
+      entries.push({ id: `service:${service.hostname}`, label: service.label, hostname: hostnames[0], hostnames, category: group.label });
+      hostnames.forEach((hostname2) => active.delete(hostname2));
+    }
+    for (const hostname2 of [...active].sort()) entries.push({ label: hostname2, hostname: hostname2, hostnames: [hostname2], category: "Your destinations" });
+    const curatedIds = curatedWhitelist.flatMap((group) => group.services.map((service) => `service:${service.hostname}`));
+    const order = (entry) => {
+      const index = curatedIds.indexOf(entry.id ?? "");
+      return index < 0 ? curatedIds.length : index;
+    };
+    const categories2 = categorySuggestions(metadata2.map((item) => item.category));
+    return entries.sort((a, b) => order(a) - order(b)).map((entry) => ({ ...entry, category: canonicalCategory(entry.category, categories2) }));
+  }
+
+  // src/ui/home-model.ts
+  function destinationId(entry) {
+    if (entry.id !== void 0) return entry.id;
+    for (const group of curatedWhitelist) for (const service of group.services) {
+      if (serviceHostnames(service).includes(entry.hostname)) return `service:${service.hostname}`;
+    }
+    return `host:${entry.hostname}`;
+  }
+
+  // src/ui/destination-metadata.ts
+  var destinationPreferencesKey = "atlas-destinations-v1";
+  var emptyDestinationPreferences = () => ({ version: 1, destinations: [], pending: null });
+  var validDestinationId = (id) => typeof id === "string" && /^(host|service):[a-z0-9.-]{1,253}$/.test(id);
+  var hostname = (value) => typeof value === "string" && normalizeTarget({ hostname: value })?.hostname === value;
+  function metadata(value) {
+    if (value === null || typeof value !== "object") return null;
+    const item = value;
+    if (!validDestinationId(item.id) || typeof item.label !== "string" || item.label.trim().length === 0 || item.label.length > 100 || typeof item.category !== "string" || item.category.trim().length === 0 || item.category.length > 64 || !hostname(item.primaryHostname) || !Array.isArray(item.hostnames) || item.hostnames.length === 0 || item.hostnames.length > 100 || !item.hostnames.every(hostname) || new Set(item.hostnames).size !== item.hostnames.length || !item.hostnames.includes(item.primaryHostname)) return null;
+    return { id: item.id, label: item.label, category: item.category, primaryHostname: item.primaryHostname, hostnames: [...item.hostnames] };
+  }
+  function readDestinationPreferences(value) {
+    if (value === null || typeof value !== "object") return emptyDestinationPreferences();
+    const stored = value;
+    if (stored.version !== 1 || !Array.isArray(stored.destinations) || stored.destinations.length > 2e3) return emptyDestinationPreferences();
+    const destinations = stored.destinations.map(metadata);
+    if (destinations.some((item) => item === null) || new Set(destinations.map((item) => item.id)).size !== destinations.length) return emptyDestinationPreferences();
+    const hosts = destinations.flatMap((item) => item.hostnames);
+    if (new Set(hosts).size !== hosts.length) return emptyDestinationPreferences();
+    let pending = null;
+    if (stored.pending != null) {
+      const item = stored.pending;
+      const destination2 = item.destination === null ? null : metadata(item.destination);
+      const policy = item.candidatePolicy;
+      if (Number.isSafeInteger(item.proposalId) && item.proposalId > 0 && Number.isSafeInteger(item.basePolicyRevision) && item.basePolicyRevision >= 0 && (item.destination === null || destination2 !== null) && (item.removedId === null || validDestinationId(item.removedId)) && typeof item.pin === "boolean" && policy && Array.isArray(policy.whitelist) && Array.isArray(policy.blacklist) && policy.whitelist.length + policy.blacklist.length <= 1e4 && [...policy.whitelist, ...policy.blacklist].every(hostname)) {
+        pending = {
+          proposalId: item.proposalId,
+          basePolicyRevision: item.basePolicyRevision,
+          candidatePolicy: { whitelist: [...policy.whitelist], blacklist: [...policy.blacklist] },
+          destination: destination2,
+          removedId: item.removedId,
+          pin: item.pin
+        };
+      }
+    }
+    return { version: 1, destinations, pending };
+  }
+
+  // src/ui/destination-usage.ts
+  var usagePreferencesKey = "atlas-destination-usage-v1";
+  var usageHalfLifeMs = 7 * 24 * 60 * 60 * 1e3;
+  function readDestinationUsage(value) {
+    if (value === null || typeof value !== "object" || Array.isArray(value) || Object.keys(value).length > 2e3) return {};
+    const usage = /* @__PURE__ */ Object.create(null);
+    for (const [id, record] of Object.entries(value)) {
+      if (!validDestinationId(id) || record === null || typeof record !== "object") return {};
+      const item = record;
+      if (!Number.isSafeInteger(item.count) || item.count < 1 || !Number.isFinite(item.score) || item.score <= 0 || item.score > 1e6 || !Number.isSafeInteger(item.lastOpenedAt) || item.lastOpenedAt < 0) return {};
+      usage[id] = { count: item.count, score: item.score, lastOpenedAt: item.lastOpenedAt };
+    }
+    return usage;
+  }
+  function usageScore(record, now2) {
+    return record === void 0 ? 0 : record.score * 2 ** (-Math.max(0, now2 - record.lastOpenedAt) / usageHalfLifeMs);
+  }
+  function recordDestinationLaunch(usage, id, now2) {
+    if (!validDestinationId(id) || !Number.isSafeInteger(now2) || now2 < 0) return usage;
+    const previous = usage[id];
+    return { ...usage, [id]: {
+      count: Math.min(Number.MAX_SAFE_INTEGER, (previous?.count ?? 0) + 1),
+      score: Math.min(1e6, usageScore(previous, now2) + 1),
+      lastOpenedAt: now2
+    } };
+  }
+
+  // src/background/destination-usage.ts
+  function saveDestinationLaunch(storage, policy, hostname2, at) {
+    try {
+      const metadata2 = readDestinationPreferences(JSON.parse(storage.getItem(destinationPreferencesKey) ?? "null"));
+      const destination2 = destinationIndex(policy, metadata2.destinations).find((entry) => entry.hostnames.includes(hostname2));
+      if (destination2 === void 0) return;
+      const usage = readDestinationUsage(JSON.parse(storage.getItem(usagePreferencesKey) ?? "null"));
+      storage.setItem(usagePreferencesKey, JSON.stringify(recordDestinationLaunch(usage, destinationId(destination2), at)));
+    } catch {
+    }
+  }
+
   // src/storage/managed-cache.ts
   function openManagedCache(factory, name = "atlas-managed-blacklist-v1") {
     return new Promise((resolve, reject5) => {
@@ -3377,7 +4015,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
   var categories = ["base", "fakenews", "gambling", "porn", "social"];
   var maxFeedBytes = 2e7;
   var minimumDomains = 5e4;
-  var local = (hostname) => hostname === "localhost" || hostname === "localhost.localdomain" || hostname === "local" || hostname === "broadcasthost" || hostname.startsWith("ip6-") || hostname.endsWith(".localhost") || hostname.endsWith(".local");
+  var local = (hostname2) => hostname2 === "localhost" || hostname2 === "localhost.localdomain" || hostname2 === "local" || hostname2 === "broadcasthost" || hostname2.startsWith("ip6-") || hostname2.endsWith(".localhost") || hostname2.endsWith(".local");
   function parseHostsFeed(text) {
     const domains = /* @__PURE__ */ new Set();
     const names = /* @__PURE__ */ new Set();
@@ -3398,9 +4036,9 @@ ${countdown(display.expiresAt, now2)} remaining`;
       for (const field of fields) {
         if (field === "0.0.0.0" || field === "127.0.0.1" || field === "::1" || local(field.toLowerCase())) continue;
         names.add(field.toLowerCase().replace(/\.$/, ""));
-        const hostname = normalizeTarget({ hostname: field })?.hostname;
-        if (hostname === void 0 || !hostname.includes(".")) continue;
-        if (!local(hostname)) domains.add(hostname);
+        const hostname2 = normalizeTarget({ hostname: field })?.hostname;
+        if (hostname2 === void 0 || !hostname2.includes(".")) continue;
+        if (!local(hostname2)) domains.add(hostname2);
       }
     }
     const header = text.slice(0, 4e3);
@@ -3535,7 +4173,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         lastUpdatedAt: current.record.fetchedAt,
         lastAttemptAt,
         updateStatus: status,
-        conflicts: whitelist.filter((hostname) => managedBlacklistContains(current.compiled, hostname) === true)
+        conflicts: whitelist.filter((hostname2) => managedBlacklistContains(current.compiled, hostname2) === true)
       }),
       refresh: () => {
         if (inFlight !== null) return inFlight;
@@ -3582,7 +4220,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
   var now = () => Date.now();
   var managed = null;
   var cachePromise = null;
-  var host = async () => {
+  var host2 = async () => {
     const value = await createAdapterHost({
       openRepository: () => openRepository(indexedDB, () => crypto.randomUUID()),
       loadManaged: async () => {
@@ -3595,12 +4233,12 @@ ${countdown(display.expiresAt, now2)} remaining`;
           download: downloadStevenBlack,
           bundle: async () => {
             const base = browser.runtime.getURL("data/stevenblack/");
-            const [data, metadata] = await Promise.all([
+            const [data, metadata2] = await Promise.all([
               fetch(`${base}hosts`, { cache: "no-store" }),
               fetch(`${base}metadata.json`, { cache: "no-store" })
             ]);
-            if (!data.ok || !metadata.ok) throw new Error("BUNDLE_UNAVAILABLE");
-            const record = await metadata.json();
+            if (!data.ok || !metadata2.ok) throw new Error("BUNDLE_UNAVAILABLE");
+            const record = await metadata2.json();
             return {
               text: await data.text(),
               sourceUrl: record.sourceUrl,
@@ -3628,12 +4266,16 @@ ${countdown(display.expiresAt, now2)} remaining`;
   };
   var adapter = new FirefoxAdapter(
     browser,
-    host,
+    host2,
     () => crypto.randomUUID(),
     now,
     void 0,
     void 0,
-    createCanonicalEntryDiscovery(browser)
+    createCanonicalEntryDiscovery(browser),
+    (hostname2, at) => {
+      const policy = adapter.view().controller?.snapshot?.policy;
+      if (policy) saveDestinationLaunch(localStorage, policy, hostname2, at);
+    }
   );
   void adapter.ready.then(async () => {
     await adapter.refresh();

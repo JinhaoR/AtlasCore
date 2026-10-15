@@ -112,6 +112,16 @@ def main():
     parser.add_argument("--productization", action="store_true", help="Add native badge/search/protected settings and schema migration checks")
     parser.add_argument("--productization-only", action="store_true", help="Run the isolated D19 checks after fresh setup")
     parser.add_argument("--coherence-only", action="store_true", help="Run isolated adapter/source, UI draft and keyboard-focus regressions")
+    parser.add_argument("--ui-reliability-only", action="store_true", help="Exercise rendered presentation failures/retries, exact search, unavailable state and Vault feedback")
+    parser.add_argument("--destination-batch-only", action="store_true", help="Exercise persistent batch drafts, one Vault cycle, failures, stale reconciliation and full Firefox restarts")
+    parser.add_argument("--home-organization-only", action="store_true", help="Exercise Home layout, presentation conflicts, access links and Sites navigation with an isolated restart")
+    parser.add_argument("--visual-polish-only", action="store_true", help="Capture synthetic visual states and measure responsive controls, contrast and focus")
+    parser.add_argument("--ui-stability-only", action="store_true", help="Measure idle DOM/focus stability in a disposable native Firefox profile")
+    parser.add_argument("--ui-stability-baseline", action="store_true", help="Record pre-fix measurements without asserting the corrected mutation budget")
+    parser.add_argument("--ui-stability-interactions-only", action="store_true", help="Exercise rendering races, failed responses, native controls, toolbar reuse and the passive indicator")
+    parser.add_argument("--ui-stability-indicator-only", action="store_true", help="Measure the passive Journey indicator for 60 seconds in isolation")
+    parser.add_argument("--visual-baseline", action="store_true", help="Record pre-polish metrics without enforcing the new visual targets")
+    parser.add_argument("--destination-polish-only", action="store_true", help="Exercise Sites, compact Home, protected timing, local preferences and timeout renewal guards")
     parser.add_argument("--friend-prototype-only", action="store_true", help="Check automatic first-run policy, temporary access overview/countdown, expiry and restart")
     parser.add_argument("--journey-retry-only", action="store_true", help="Run Journey interruption/retry and visibility checks")
     parser.add_argument("--journey-probe", action="store_true", help="Record pre-fix Journey interruption behavior")
@@ -129,6 +139,7 @@ def main():
     profile = run / "profile"
     profile.mkdir()
     hits = []
+    timeout_mode = None
 
     class Pages(BaseHTTPRequestHandler):
         def do_POST(self):
@@ -162,9 +173,39 @@ def main():
             self.end_headers()
 
         def do_GET(self):
+            nonlocal timeout_mode
             host = self.headers.get("Host", "").split(":")[0]
             hits.append((host, self.path))
             port = server.server_port
+            if arguments.destination_polish_only and host == 'root.localhost':
+                if self.path in ['/timeout-http-arm', '/timeout-script-arm', '/timeout-meta-arm']:
+                    timeout_mode = {'/timeout-http-arm': 'HTTP', '/timeout-script-arm': 'SCRIPT', '/timeout-meta-arm': 'META'}[self.path]
+                    self.send_response(302)
+                    self.send_header('Location', f'http://login.localhost:{port}/')
+                    self.end_headers()
+                    return
+                if self.path == '/' and timeout_mode == 'HTTP':
+                    self.send_response(302)
+                    self.send_header('Location', f'http://login.localhost:{port}/')
+                    self.end_headers()
+                    return
+                if self.path == '/' and timeout_mode == 'SCRIPT':
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'text/html')
+                    self.end_headers()
+                    self.wfile.write(f'<title>Synthetic timeout return</title><script>location.href="http://login.localhost:{port}/"</script>'.encode())
+                    return
+                if self.path == '/' and timeout_mode == 'META':
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'text/html')
+                    self.end_headers()
+                    self.wfile.write(f'<title>Synthetic timeout reload</title><meta http-equiv="refresh" content="0;url=http://root.localhost:{port}/timeout-meta-next">'.encode())
+                    return
+                if self.path == '/timeout-meta-next':
+                    self.send_response(302)
+                    self.send_header('Location', f'http://login.localhost:{port}/')
+                    self.end_headers()
+                    return
             if self.path == '/atlas-site-icon.svg':
                 self.send_response(200)
                 self.send_header('Content-Type', 'image/svg+xml')
@@ -278,6 +319,12 @@ def main():
             assert session['capabilities']['acceptInsecureCerts'], 'synthetic HTTPS fixture capability'
         version = session["capabilities"]["browserVersion"]
         client.call("WebDriver:SetWindowRect", width=1280, height=1100)
+        if arguments.destination_batch_only or arguments.home_organization_only:
+            # A permanent signed baseline preserves the same origin across full process
+            # restarts. Development overlays run only in this disposable profile.
+            baseline_version = '0.1.14' if arguments.home_organization_only else '0.1.13'
+            signed = EXTENSION / f'release/{baseline_version}/signed/d7b2a7bba5e34ed685e3-{baseline_version}.xpi'
+            client.call("Addon:Install", path=str(signed.resolve()), temporary=False)
         client.call("Addon:Install", path=str(arguments.addon_dir.resolve()), temporary=True)
         handles = client.call("WebDriver:GetWindowHandles")
         client.call("WebDriver:SwitchToWindow", handle=handles[-1])
@@ -290,7 +337,7 @@ def main():
             });
         """, UI_URL)
         client.call("Marionette:SetContext", value="content")
-        wait_for(lambda: client.script("return location.href === arguments[0] && document.readyState === 'complete';", UI_URL), "extension UI")
+        wait_for(lambda: client.script("return location.href.split(/#/,1)[0] === arguments[0] && document.readyState === 'complete';", UI_URL), "extension UI")
         ui_handle = client.call("WebDriver:GetWindowHandle")
         wait_for(lambda: client.message({"kind": "GET_VIEW"}).get("view", {}).get("controller"), "Core startup")
         assert client.script("return document.getElementById('use-defaults').checked;"), "preset offered by default"
@@ -309,8 +356,10 @@ def main():
             assert client.script("return document.getElementById('setup').hidden;"), 'friend seed needs no setup'
             fixture_white = ['root.localhost'] if arguments.existing_policy else startup['snapshot']['policy']['whitelist'] + ['root.localhost']
             configure_policy(client, {'whitelist': fixture_white, 'blacklist': ['black.localhost']})
-        wait_for(lambda: client.message({"kind": "GET_VIEW"})["view"]["controller"]["status"] == "READY", "fixture policy saved")
-        initial = client.message({"kind": "GET_VIEW"})["view"]["controller"]
+        # Retain the verified observation itself. A second query can interleave
+        # with normal background housekeeping and observe COMMITTING instead.
+        initial = wait_for(lambda: (v := client.message({"kind": "GET_VIEW"})["view"]["controller"])
+                           and v["status"] == "READY" and v, "fixture policy saved")
         assert initial["status"] == "READY", initial
         policy = initial["snapshot"]["policy"]
         # Settle the one startup refresh before testing ordered navigation effects.
@@ -333,7 +382,7 @@ def main():
             client.call("Marionette:SetContext", value="content")
             ui_handle = client.call("WebDriver:GetWindowHandles")[-1]
             client.call("WebDriver:SwitchToWindow", handle=ui_handle)
-            wait_for(lambda: client.script("return location.href === arguments[0] && document.readyState === 'complete';", UI_URL), "upgrade UI after reload")
+            wait_for(lambda: client.script("return location.href.split(/#/,1)[0] === arguments[0] && document.readyState === 'complete';", UI_URL), "upgrade UI after reload")
             wait_for(lambda: client.message({"kind": "GET_VIEW"}).get("view", {}).get("controller", {}).get("status") == "READY", "existing policy recovered")
             client.script("""
                 const done = arguments[arguments.length - 1]; browser.tabs.remove(arguments[0]).then(() => done(true));
@@ -362,6 +411,24 @@ def main():
         assert "google.com" not in policy["whitelist"] and "www.google.com" not in policy["whitelist"]
         assert policy["blacklist"] == ["black.localhost"]
         print(f"Firefox {version}: curated setup, real IndexedDB, managed list active ({managed['count']} domains)", flush=True)
+        if arguments.ui_stability_interactions_only or arguments.ui_stability_indicator_only:
+            from firefox_ui_stability_interactions import run_interactions
+            result = run_interactions(client, ui_handle, UI_URL, port, wait_for, run, arguments.ui_stability_baseline, arguments.ui_stability_indicator_only)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.ui_stability_only:
+            from firefox_ui_stability import run_ui_stability
+            result = run_ui_stability(client, ui_handle, UI_URL, port, wait_for, run, arguments.ui_stability_baseline)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.visual_polish_only:
+            from firefox_visual_polish import run_visual_polish
+            result = run_visual_polish(client, ui_handle, UI_URL, port, wait_for, run, arguments.visual_baseline)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
         if arguments.friend_prototype_only:
             from firefox_friend_prototype import run_friend_prototype
             ui_handle, result = run_friend_prototype(client, ui_handle, UI_URL, port, wait_for, hits, run, startup)
@@ -371,6 +438,47 @@ def main():
         if arguments.coherence_only:
             from firefox_coherence import run_coherence
             result = run_coherence(client, ui_handle, UI_URL, port, wait_for, run)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.destination_batch_only or arguments.home_organization_only:
+            def restart_batch_browser():
+                nonlocal process, client, ui_handle
+                client.call('Marionette:Quit', flags=['eForceQuit'])
+                client.socket.close()
+                process.wait(timeout=20)
+                process = subprocess.Popen([arguments.firefox, '-headless', '-no-remote', '-profile', str(profile),
+                    '-marionette', '--remote-allow-system-access', 'about:blank'], stdout=log, stderr=log, env=environment,
+                    creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+                client = wait_for(connect, 'restarted Firefox automation', 30)
+                client.call('WebDriver:NewSession')
+                client.call('Addon:Install', path=str(arguments.addon_dir.resolve()), temporary=True)
+                client.call('Marionette:SetContext', value='chrome')
+                client.script('gBrowser.selectedTab = gBrowser.addTrustedTab(arguments[0]);', UI_URL)
+                client.call('Marionette:SetContext', value='content')
+                handle = client.call('WebDriver:GetWindowHandles')[-1]
+                client.call('WebDriver:SwitchToWindow', handle=handle)
+                wait_for(lambda: client.script('return location.href.split(/#/,1)[0]===arguments[0] && document.readyState==="complete";', UI_URL), 'restarted development UI')
+                ui_handle = handle
+                return client, handle
+            if arguments.home_organization_only:
+                from firefox_home_organization import run_home_organization
+                result = run_home_organization(client, ui_handle, UI_URL, port, wait_for, run, restart_batch_browser)
+            else:
+                from firefox_destination_batch import run_destination_batch
+                result = run_destination_batch(client, ui_handle, UI_URL, wait_for, run, restart_batch_browser)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.ui_reliability_only:
+            from firefox_ui_reliability import run_ui_reliability
+            result = run_ui_reliability(client, ui_handle, UI_URL, port, wait_for, run)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.destination_polish_only:
+            from firefox_destination_polish import run_destination_polish
+            result = run_destination_polish(client, ui_handle, UI_URL, port, wait_for, hits, run)
             (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
             print(f'Artifacts: {run}', flush=True)
             return
@@ -409,7 +517,10 @@ def main():
                          and context["effect"] == "REMOVED"), None)
         denied = wait_for(managed_denied, "native managed denial")
         assert denied["latest"]["decision"]["reason"] == "MANAGED_BLACKLISTED", denied
-        assert client.message({"kind": "START_ACCESS", "tabId": denied_id})["result"]["reason"] == "MANAGED_BLACKLISTED"
+        refused = client.message({"kind": "START_ACCESS", "tabId": denied_id})
+        assert refused['error'] == 'SCOPE_REVIEW_REQUIRED'
+        assert refused['view']['controller']['snapshot']['accessState']['pendingRequests'] == []
+        assert refused['view']['controller']['snapshot']['accessState']['grants'] == []
         client.script("""
             const done = arguments[arguments.length - 1]; browser.tabs.remove(arguments[0]).then(() => done(true));
         """, denied_id, asynchronous=True)
@@ -593,7 +704,10 @@ def main():
         client.script("location.href = arguments[0];", f"http://unknown.localhost:{port}/")
         wait_for(lambda: any(context["tabId"] == tab_id and context["hostname"] == "unknown.localhost"
                             and context["effect"] == "REMOVED" for context in view()["contexts"]), "second Greylist page")
-        assert client.message({"kind": "START_ACCESS", "tabId": tab_id})["result"]["type"] == "COMMITTED"
+        prepared = client.message({"kind": "PREPARE_ACCESS", "tabId": tab_id})
+        scope = next(c for c in prepared['view']['contexts'] if c['tabId'] == tab_id)['accessScope']
+        assert scope['status'] == 'READY' and scope['hostnames'] == ['unknown.localhost']
+        assert client.message({"kind": "START_ACCESS", "tabId": tab_id, "scopeId": scope['id']})["result"]["type"] == "COMMITTED"
         active = client.message({"kind": "OPEN_JOURNEY", "url": f"http://root.localhost:{port}/begin-login"})
         assert active["result"]["type"] == "COMMITTED"
         wait_for(lambda: any(c["tabId"] == active["tabId"] and c["displayedHostname"] == "login.localhost"
@@ -608,7 +722,7 @@ def main():
         client.call("Marionette:SetContext", value="content")
         ui_handle = client.call("WebDriver:GetWindowHandles")[-1]
         client.call("WebDriver:SwitchToWindow", handle=ui_handle)
-        wait_for(lambda: client.script("return location.href === arguments[0] && document.readyState === 'complete';", UI_URL), "reopened UI")
+        wait_for(lambda: client.script("return location.href.split(/#/,1)[0] === arguments[0] && document.readyState === 'complete';", UI_URL), "reopened UI")
 
         def recovered():
             try:
@@ -628,8 +742,11 @@ def main():
         assert view()["managed"]["lastAttemptAt"] == managed["lastAttemptAt"]
         print("PASS real background reload: pending/grant deadlines preserved; old Journey binding ended", flush=True)
         client.call("WebDriver:SwitchToWindow", handle=ui_handle)
-        wait_for(lambda: client.script("return document.querySelectorAll('#destination-list .service-group').length === 7 && document.getElementById('managed-status').textContent.startsWith('Status: active');"),
-                 "restored curated groups and managed status in UI")
+        # Home now preserves the fixture's custom destination category alongside
+        # the seven curated categories; none may disappear on background restart.
+        restored_categories = ['university', 'scholar / research', 'writing', 'development', 'mail', 'ai', 'video', 'your destinations']
+        wait_for(lambda: client.script("return [...document.querySelectorAll('#destination-list .service-group')].map(g=>g.dataset.categoryKey).sort().join('|') === arguments[0].slice().sort().join('|') && document.getElementById('managed-status').textContent.startsWith('Status: active');", restored_categories),
+                 "restored curated/custom groups and managed status in UI")
         shot = client.call("WebDriver:TakeScreenshot", id=None, highlights=[], full=True)
         (run / "ui.png").write_bytes(base64.b64decode(shot))
         report = {"firefox": version, "journey": journey(), "requests": hits, "managed": view()["managed"],
@@ -649,6 +766,14 @@ def main():
         (run / "result.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
         print(f"Artifacts: {run}", flush=True)
     except Exception:
+        if arguments.home_organization_only and client is not None:
+            try:
+                client.call('WebDriver:SwitchToWindow', handle=ui_handle)
+                debug = client.script('return {home:document.getElementById("home-layout-status")?.textContent, groups:[...document.querySelectorAll(".service-group")].map(g=>g.dataset.categoryKey),focus:document.activeElement.id,route:location.hash,sites:document.getElementById("site-save-feedback")?.textContent};')
+                (run / 'failure-home.json').write_text(json.dumps(debug,indent=2), encoding='utf-8')
+                print('Home fixture:', json.dumps(debug), flush=True)
+            except Exception:
+                pass
         if client is not None:
             try:
                 client.call("WebDriver:SwitchToWindow", handle=journey_handle)

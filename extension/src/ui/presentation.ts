@@ -7,7 +7,7 @@ import type { StartupStatus } from '../adapter/startup-status.js';
 /** Explain adapter startup separately from Core authority. This creates no state. */
 export function startupCopy(startup: StartupStatus | undefined): string {
   if (startup?.status !== 'FAILED') return '';
-  if (startup.stage === 'MANAGED_BLACKLIST') return 'Atlas could not verify its bundled safety list. Load the complete current extension/dist folder, then retry startup in Settings.';
+  if (startup.stage === 'MANAGED_BLACKLIST') return 'Atlas could not verify its bundled safety list. Retry startup in Settings. If this continues, obtain a verified signed Atlas update; keep the extension installed to preserve saved state.';
   if (startup.stage === 'STORAGE') return 'Atlas could not open its saved state. Retry startup in Settings. If this continues, check Firefox storage availability.';
   return 'Atlas could not finish startup. Retry startup in Settings. Your saved policy is preserved.';
 }
@@ -34,13 +34,19 @@ export function canQueueOperation(view: AtlasControllerView | null | undefined):
 }
 
 /** Presentation of a Core result, never a substitute for obtaining a fresh result. */
+export function accessOutcomeLabel(decision: AtlasNavigationDecision | null): string {
+  if (!decision) return 'No decision';
+  return { ALLOW: 'Allowed', DENY: decision.reason === 'BLACKLISTED' || decision.reason === 'MANAGED_BLACKLISTED' ? 'Blocked' : 'Unavailable',
+    GREYLIST: 'Greylist', WAIT: 'Waiting', REQUIRE_CONFIRMATION: 'Confirm access' }[decision.outcome];
+}
+
 export function accessCopy(decision: AtlasNavigationDecision | null): { title: string; description: string; tone: string } {
   if (decision === null) return { title: 'Choose a tab', description: 'Select a website to see its access status.', tone: 'neutral' };
   switch (decision.outcome) {
     case 'GREYLIST': return { title: 'Take a moment before continuing', description: 'This site is outside your Pure Whitelist. Start a request, then return to confirm temporary access.', tone: 'wait' };
     case 'WAIT': return { title: 'Your waiting period is running', description: 'You can leave this page and come back. When the wait ends, you still need to confirm.', tone: 'wait' };
     case 'REQUIRE_CONFIRMATION': return { title: 'Ready when you are', description: 'Confirm to open the site home with temporary access. Your policy stays the same.', tone: 'ready' };
-    case 'DENY': return { title: decision.reason === 'BLACKLISTED' || decision.reason === 'MANAGED_BLACKLISTED' ? 'This site is blocked' : 'Access is unavailable', description: decision.reason === 'BLACKLISTED' ? 'Your Blacklist prevents access to this destination.' : decision.reason === 'MANAGED_BLACKLISTED' ? 'The managed StevenBlack list blocks this destination. Temporary access and Journey cannot override it.' : 'Atlas could not authorize this navigation. Check the decision details below.', tone: 'blocked' };
+    case 'DENY': return { title: decision.reason === 'BLACKLISTED' || decision.reason === 'MANAGED_BLACKLISTED' ? 'This site is blocked' : 'Access is unavailable', description: decision.reason === 'BLACKLISTED' ? 'Your Blacklist prevents access to this destination.' : decision.reason === 'MANAGED_BLACKLISTED' ? 'The managed StevenBlack list blocks this destination. Temporary access and Journey cannot override it.' : 'Atlas could not authorize this navigation. Check the decision details below.', tone: decision.reason === 'BLACKLISTED' || decision.reason === 'MANAGED_BLACKLISTED' ? 'blocked' : 'unavailable' };
     case 'ALLOW': return { title: 'You can continue', description: decision.reason === 'WHITELISTED' ? 'This destination is in your Pure Whitelist.' : decision.reason === 'ACTIVE_JOURNEY' ? 'This navigation is covered by your current Journey. Its original deadline still applies.' : 'Temporary access is active. This site remains Greylist.', tone: 'ready' };
   }
 }

@@ -300,7 +300,7 @@ test('failed or hung document removal remains conservative and reports failure t
   assert.equal(adapter.view().contexts[0].latest.reason, 'CONTENT_REMOVAL_FAILED');
 });
 
-test('retained-content expiry during a pending navigation does not invent a return hop', async (t) => {
+test('retained-content expiry returns to the root without inventing a Journey hop', async (t) => {
   const { firefox, controller, clock, adapter } = await fixture(t);
   const { tabId } = await firefox.send({ kind: 'OPEN_JOURNEY', url: 'https://root.example/' });
   await transit(firefox, tabId, 'https://login.example/');
@@ -311,7 +311,9 @@ test('retained-content expiry during a pending navigation does not invent a retu
   await firefox.flush();
   assert.equal(controller.getView().snapshot.journeyState.journeys[0].hopCount, 2);
   assert.equal(controller.getView().snapshot.journeyState.journeys[0].endReason, 'EXPIRED');
-  assert.equal(adapter.view().contexts[0].effect, 'REMOVED');
+  assert.equal(firefox.updates.at(-1).url, 'https://root.example/');
+  assert.equal(adapter.view().contexts[0].effect, 'NONE');
+  assert.equal(controller.getView().snapshot.journeyState.journeys.length, 1);
 });
 
 test('unsupported HTTP targets discovered after restoration fail closed', async (t) => {
@@ -352,6 +354,9 @@ test('a missing arrival callback cannot retain a released intermediate past its 
   await adapter.refresh();
   await firefox.flush();
   assert.equal(controller.getView().snapshot.journeyState.journeys[0].endReason, 'EXPIRED');
-  assert.ok(firefox.documents.get(tabId).url.startsWith('moz-extension:'));
-  assert.equal(adapter.view().contexts[0].effect, 'REMOVED');
+  assert.equal(firefox.updates.at(-1).url, 'https://root.example/');
+  assert.equal(adapter.view().contexts[0].effect, 'NONE');
+  assert.equal((await firefox.request(tabId, 'https://root.example/')).cancel, undefined);
+  assert.equal(controller.getView().snapshot.journeyState.journeys[0].endReason, 'EXPIRED');
+  assert.equal(controller.getView().snapshot.journeyState.journeys.length, 1);
 });

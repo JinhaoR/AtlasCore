@@ -1,0 +1,573 @@
+{
+  "milestone": "Bounded Download Intents",
+  "verifiedOn": "2026-10-12",
+  "developmentVersion": "0.1.15",
+  "addonId": "atlas-development@atlas.invalid",
+  "authoritySchema": 2,
+  "commands": [
+    "npm --prefix packages/core run typecheck",
+    "npm --prefix packages/core test",
+    "npm --prefix extension run typecheck",
+    "npm --prefix extension test",
+    "python extension/scripts/firefox-downloads.py --baseline",
+    "python extension/scripts/firefox-downloads.py --probe",
+    "python extension/scripts/firefox-downloads.py",
+    "python extension/scripts/firefox-e2e.py --journey-polish-only",
+    "python extension/scripts/firefox-e2e.py --ui-reliability-only",
+    "python extension/scripts/firefox-e2e.py --destination-batch-only",
+    "python extension/scripts/firefox-e2e.py",
+    "npm --prefix extension run release:verify-signed -- 0.1.14"
+  ],
+  "limits": {
+    "lifetimeMs": 30000,
+    "maxRedirects": 5,
+    "preparedNewTabEvidenceMs": 3000
+  },
+  "automated": {
+    "corePassed": 204,
+    "extensionPassed": 308,
+    "newCoreDownloadTests": 13,
+    "newAdapterDownloadTests": 21,
+    "failed": 0,
+    "skipped": 0,
+    "coreTypecheck": true,
+    "extensionTypecheck": true,
+    "developmentBuild": true
+  },
+  "native": {
+    "probe": {
+      "firefox": "157.0.1",
+      "platform": "Windows desktop, headless",
+      "artifact": ".tools/firefox-downloads-djb4i9nw",
+      "profile": "isolated synthetic fixture",
+      "mode": "observer only",
+      "scenarios": [
+        {
+          "name": "direct",
+          "files": 1,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "new",
+          "files": 1,
+          "serverRequests": 2,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "delay",
+          "files": 1,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "html",
+          "files": 1,
+          "serverRequests": 4,
+          "htmlScriptBeacon": true
+        },
+        {
+          "name": "js",
+          "files": 1,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "claimed",
+          "files": 1,
+          "serverRequests": 3,
+          "htmlScriptBeacon": true
+        },
+        {
+          "name": "blob",
+          "files": 1,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "interstitial",
+          "files": 1,
+          "serverRequests": 3,
+          "htmlScriptBeacon": true
+        },
+        {
+          "name": "blacklist",
+          "files": 1,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "loop",
+          "files": 0,
+          "serverRequests": 21,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "attachment-html",
+          "files": 1,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "mime-only",
+          "files": 1,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "unactivated",
+          "files": 1,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false
+        }
+      ],
+      "newTabSignalSequence": [
+        {
+          "event": "tabs.onCreated",
+          "request": null,
+          "hostname": null,
+          "sourceFrame": null,
+          "userActivation": false,
+          "attachment": false
+        },
+        {
+          "event": "navigation.onCreatedNavigationTarget",
+          "request": null,
+          "hostname": "redirect.localhost",
+          "sourceFrame": 0,
+          "userActivation": false,
+          "attachment": false
+        },
+        {
+          "event": "onBeforeRequest",
+          "request": 4,
+          "hostname": "redirect.localhost",
+          "sourceFrame": null,
+          "userActivation": false,
+          "attachment": false
+        },
+        {
+          "event": "onBeforeSendHeaders",
+          "request": 4,
+          "hostname": "redirect.localhost",
+          "sourceFrame": null,
+          "userActivation": true,
+          "attachment": false
+        },
+        {
+          "event": "onHeadersReceived",
+          "request": 4,
+          "hostname": "redirect.localhost",
+          "sourceFrame": null,
+          "userActivation": false,
+          "attachment": false
+        },
+        {
+          "event": "onBeforeRequest",
+          "request": 4,
+          "hostname": "cdn.localhost",
+          "sourceFrame": null,
+          "userActivation": false,
+          "attachment": false
+        },
+        {
+          "event": "onBeforeSendHeaders",
+          "request": 4,
+          "hostname": "cdn.localhost",
+          "sourceFrame": null,
+          "userActivation": true,
+          "attachment": false
+        },
+        {
+          "event": "onHeadersReceived",
+          "request": 4,
+          "hostname": "cdn.localhost",
+          "sourceFrame": null,
+          "userActivation": false,
+          "attachment": true
+        },
+        {
+          "event": "downloads.onCreated",
+          "request": null,
+          "hostname": "cdn.localhost",
+          "sourceFrame": null,
+          "userActivation": false,
+          "attachment": false
+        }
+      ]
+    },
+    "baseline014": {
+      "firefox": "157.0.1",
+      "platform": "Windows desktop, headless",
+      "artifact": ".tools/firefox-downloads-hugyswis",
+      "profile": "isolated synthetic fixture",
+      "mode": "preserved 0.1.14 copy; observation of failures",
+      "scenarios": [
+        {
+          "name": "direct",
+          "files": 1,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "new",
+          "files": 0,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "delay",
+          "files": 0,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "html",
+          "files": 0,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "js",
+          "files": 0,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "claimed",
+          "files": 0,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "blob",
+          "files": 1,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "interstitial",
+          "files": 0,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "blacklist",
+          "files": 0,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "loop",
+          "files": 0,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "attachment-html",
+          "files": 0,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "mime-only",
+          "files": 0,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "unactivated",
+          "files": 0,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        }
+      ],
+      "observerTraceIncomplete": true
+    },
+    "downloads": {
+      "firefox": "157.0.1",
+      "platform": "Windows desktop, headless",
+      "artifact": ".tools/firefox-downloads-q8jf3_3s",
+      "profile": "isolated synthetic fixture",
+      "mode": "final development regression; all 17 cases pass",
+      "scenarios": [
+        {
+          "name": "direct",
+          "files": 1,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false,
+          "completedNativeDownloadsSoFar": 1
+        },
+        {
+          "name": "new",
+          "files": 1,
+          "serverRequests": 2,
+          "htmlScriptBeacon": false,
+          "completedNativeDownloadsSoFar": 2
+        },
+        {
+          "name": "delay",
+          "files": 1,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false,
+          "completedNativeDownloadsSoFar": 3
+        },
+        {
+          "name": "html",
+          "files": 0,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "js",
+          "files": 1,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false,
+          "completedNativeDownloadsSoFar": 4
+        },
+        {
+          "name": "claimed",
+          "files": 0,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "blob",
+          "files": 1,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false,
+          "completedNativeDownloadsSoFar": 5
+        },
+        {
+          "name": "interstitial",
+          "files": 0,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "blacklist",
+          "files": 0,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "loop",
+          "files": 0,
+          "serverRequests": 6,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "attachment-html",
+          "files": 1,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false,
+          "completedNativeDownloadsSoFar": 6
+        },
+        {
+          "name": "mime-only",
+          "files": 0,
+          "serverRequests": 1,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "unactivated",
+          "files": 0,
+          "serverRequests": 0,
+          "htmlScriptBeacon": false
+        },
+        {
+          "name": "expired",
+          "files": 0,
+          "pendingFileWithheld": true
+        },
+        {
+          "name": "policy",
+          "files": 0,
+          "pendingFileWithheld": true
+        },
+        {
+          "name": "closed",
+          "files": 0,
+          "pendingFileWithheld": true
+        },
+        {
+          "name": "restart",
+          "files": 0,
+          "pendingFileWithheld": true
+        }
+      ],
+      "newTabSignalSequence": [
+        {
+          "event": "tabs.onCreated",
+          "request": null,
+          "hostname": null,
+          "sourceFrame": null,
+          "userActivation": false,
+          "attachment": false
+        },
+        {
+          "event": "navigation.onCreatedNavigationTarget",
+          "request": null,
+          "hostname": "redirect.localhost",
+          "sourceFrame": 0,
+          "userActivation": false,
+          "attachment": false
+        },
+        {
+          "event": "onBeforeRequest",
+          "request": 4,
+          "hostname": "redirect.localhost",
+          "sourceFrame": null,
+          "userActivation": false,
+          "attachment": false
+        },
+        {
+          "event": "onBeforeSendHeaders",
+          "request": 4,
+          "hostname": "redirect.localhost",
+          "sourceFrame": null,
+          "userActivation": true,
+          "attachment": false
+        },
+        {
+          "event": "onHeadersReceived",
+          "request": 4,
+          "hostname": "redirect.localhost",
+          "sourceFrame": null,
+          "userActivation": false,
+          "attachment": false
+        },
+        {
+          "event": "onBeforeRequest",
+          "request": 4,
+          "hostname": "cdn.localhost",
+          "sourceFrame": null,
+          "userActivation": false,
+          "attachment": false
+        },
+        {
+          "event": "onBeforeSendHeaders",
+          "request": 4,
+          "hostname": "cdn.localhost",
+          "sourceFrame": null,
+          "userActivation": true,
+          "attachment": false
+        },
+        {
+          "event": "onHeadersReceived",
+          "request": 4,
+          "hostname": "cdn.localhost",
+          "sourceFrame": null,
+          "userActivation": false,
+          "attachment": true
+        },
+        {
+          "event": "downloads.onCreated",
+          "request": null,
+          "hostname": "cdn.localhost",
+          "sourceFrame": null,
+          "userActivation": false,
+          "attachment": false
+        }
+      ],
+      "completedFilesAndSyntheticBytesChecked": true,
+      "policyUnchangedAndNoAccessGrantsInBasicCases": true,
+      "externalHtmlDocumentCommitsAndScriptExecutionBlocked": true
+    },
+    "journey": {
+      "firefox": "157.0.1",
+      "platform": "Windows desktop, headless",
+      "artifact": ".tools/firefox-e2e-k674rkqs",
+      "profile": "isolated synthetic fixture",
+      "checks": [
+        "loaded root ends REACHED; actual Login starts a new Journey",
+        "immediate same-host auto-POST survives document/request ordering",
+        "same-host POST does not consume a hop or extend the fixed deadline",
+        "four same-tab Google denial/root re-entry/Login/return cycles",
+        "explicit cancellation and Restart action reach fresh root and fresh Login",
+        "two tabs keep independent authorization and indicators; denied synthetic request withheld",
+        "four-second root document delay survives timer checkpoints without losing permission",
+        "actual direct GET, cross-host POST and root script departures start fresh Journeys",
+        "first departure consumes hop one; subsequent redirects retain HTTP correlation",
+        "all direct-departure returns end the same Journey without renewed deadline",
+        "uncorrelated intermediate link stays Greylist and its destination request is withheld",
+        "typed Google stays Greylist during direct-departure Journey",
+        "same-tab root re-entry and legitimate direct Login succeed after each ended attempt",
+        "cross-domain confirmation POST and immediate auto-POST return with unchanged Journey ID/deadline",
+        "policy/configuration unchanged",
+        "no permanent trust, pending Access request or temporary grant created"
+      ]
+    },
+    "uiReliability": {
+      "firefox": "157.0.1",
+      "platform": "Windows desktop, headless",
+      "artifact": ".tools/firefox-e2e-zt883yqq",
+      "profile": "isolated synthetic fixture",
+      "checks": [
+        "failed authority query retains labelled stale cards, hides fake empty messages, disables openings and recovers",
+        "rendered exact-host click goes through adapter/Core, aliases stay exact, service names default and ambiguous entry points are separate",
+        "failed rendered display save preserves draft, no false saved values, explicit retry, focus return and reload persistence",
+        "saved proposal and waiting/ready/committed states, pending Sites explanation and link, routine status semantics",
+        "actual Core commit with failed accompanying display write reports partial success and retries display without another proposal",
+        "genuine empty collection is distinct from unavailable and recovers through ordinary protected policy changes"
+      ]
+    },
+    "destinationBatch": {
+      "firefox": "157.0.1",
+      "platform": "Windows desktop, headless",
+      "artifact": ".tools/firefox-e2e-bvcwx3ql",
+      "profile": "isolated synthetic fixture",
+      "checks": [
+        "three Whitelist additions, two Blacklist additions, explicit removal and name/category/pin edit staged together without policy or waiting",
+        "editable draft survives closing UI and a full Firefox process restart; complete destination review and unchanged old-term Vault wait",
+        "one explicit confirmation commits entire candidate once; replay rejected; post-commit display failure survives full restart and retries only presentation",
+        "unrelated commit stales preserved draft; explicit reconciliation preview and acceptance do not create permission or submit automatically",
+        "custom Books category reused across editor and committed Home grouping without rewriting legacy records or changing category ordering controls",
+        "two native Atlas pages detect a changed shared draft, retain local work and explicitly reload without overwriting the other page",
+        "real draft transaction failure retains raw inputs and blocks submission; explicit local retry saves work without policy commands",
+        "final full process restart retains completed policy/display/pins and separately preserves the next editable unsubmitted draft",
+        "lost response plus unrelated proposal ID advancement has an explicit local discard after Core recovery; saved policy retained and no repeat proposal or confirmation"
+      ],
+      "fullFirefoxRestarts": 3
+    },
+    "ordinaryNavigation": {
+      "firefox": "157.0.1",
+      "platform": "Windows desktop, headless",
+      "artifact": ".tools/firefox-e2e-7cddqjgi",
+      "profile": "isolated synthetic fixture",
+      "checks": [
+        "curated initialization UI",
+        "managed denial",
+        "managed cache restart",
+        "journey",
+        "redirect",
+        "greylist",
+        "confirmation UI",
+        "focus retention",
+        "diagnostics UI",
+        "closed-tab selection",
+        "request withholding",
+        "background restart"
+      ]
+    }
+  },
+  "releaseIntegrity": {
+    "version": "0.1.14",
+    "offlineVerification": "PASS",
+    "exactRuntimeFileHashes": 13,
+    "totalRuntimeFiles": 14,
+    "manifestJsonTokensMatch": true,
+    "xpiSha256": "88b699c0b23542228cee490f3cc046abeebf326ef94e3fe4560bb21cf79f5ff1",
+    "artifactsChanged": false,
+    "signingOrPublicationAttempted": false
+  },
+  "limitsAndTradeoffs": [
+    "Bounded network contact precedes attachment proof; no ordinary browsing permission is inherited.",
+    "Unfamiliar HTML interstitials cannot execute; download attributes, filename extensions and MIME types are not authorization.",
+    "Plain remote HTTP and missing activation/lineage fail closed for the exception.",
+    "Blob, fetch-to-Blob, Save As, POST downloads, resumes, embedded downloads and protected/internal origins are outside this new exception.",
+    "Later unfamiliar same-tab GET from a Journey intermediate retains existing Journey rules and may remain blocked.",
+    "After accepted attachment headers, transfer handling and duration belong to Firefox.",
+    "Evidence is synthetic desktop Firefox 157.0.1; no real-account or universal-mechanism compatibility claim."
+  ]
+}

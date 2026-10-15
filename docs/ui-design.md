@@ -1,12 +1,31 @@
 # Atlas Firefox interface
 
-The original 2026-10-01 pass follows the user's reference as a visual direction: warm parchment and stone, muted olive/bronze/navy accents, restrained serif headings, quiet borders, spacious destination cards and a left sidebar. D24 simplifies this interface on 2026-10-02. It uses the real service data and existing Firefox page. Core and repository authority stay separate from presentation; Journey behavior remains owned by D18/D22.
+Milestone D's [visual polish report](visual-polish.md) owns the shared color/type/
+spacing tokens, readable operational text, control sizes, status treatment and
+before/after native screenshots. It refines these surfaces without changing the
+A/B/C workflows or presentation storage.
+
+Milestone C's [Home organization contract](home-organization.md) now owns category
+order, visibility, complete collapse, current access links and Sites navigation.
+It preserves the cards, five-column cap, palette and permanent rail described here.
+
+Milestone B changes Sites editing and review through the
+[destination batch contract](destination-polish.md#milestone-b-destination-batch-drafts).
+It preserves the visual identity and Home layout. Local drafts, frozen proposals
+and committed presentation are shown separately; category suggestions derive from
+existing metadata and category identity is consistent across display projections.
+
+The original 2026-10-01 pass follows the user's reference as a visual direction: warm parchment and stone, muted olive/bronze accents, restrained serif headings, quiet borders and a left sidebar. D30 (2026-10-04) makes the interface denser and adds Sites & Access; [destination-polish.md](destination-polish.md) owns its model, scope, ranking and timeout rules. Core and repository authority stay separate from presentation.
 
 ## Home
 
-- Atlas identity, local destination search, Pinned, then the existing categories. University and Scholar / Research appear first; longer categories initially show four destinations with a functional Show all / Show fewer control.
-- Cards emphasize the service name and show its exact hostname second. Website favicons identify destinations, with a simple globe when no usable image is available. Services with distinct active entry points retain their selector; explicit equivalent aliases still belong to one service.
-- A pin button adds/removes an active destination from Pinned. There is no inferred visit frequency or browsing-history collection. Pins start empty and require an actual user action.
+The [Milestone A reliability contract](ui-reliability.md) owns save acknowledgment,
+display retry, exact search targets, stale/unavailable collections and action feedback.
+These repairs preserve the existing visual identity and all authorization rules.
+
+- Atlas identity and search, explicit Pinned order, relevant Access in progress, then chosen categories. Initial layout retains the previous visible ordering; Customize Home controls saved category order and visibility. Clicking a category heading completely collapses its cards. D31's one-row preview still uses one to five cards with Show all / Show fewer inside expanded categories. Expanded and pinned grids also use at most five columns. Resize updates visibility in place and preserves ranking, explicit preview expansion and card nodes.
+- Compact launchers show icon and name at a fixed 54px button height. Long names use ellipsis and keep their full accessible label; exact hosts appear in tooltips and Sites details. Services with distinct active entry points retain their selector in a small disclosure; explicit equivalent aliases still belong to one service. Default category rows never grow vertically as the window narrows; Show all is the explicit way to reveal additional rows.
+- Pins start empty and retain the user's explicit order. Local usage ranks each category separately; only explicit Atlas launches and typed/bookmark destination arrivals are recorded. No browsing history is imported and intermediates never gain popularity.
 - Search keeps its effective-Whitelist index, labels and active aliases, Blacklist exclusion and ordinary navigation gate. Arrow keys, Enter and Escape remain supported. `/` focuses search when the user is outside an editable control. Long result lists scroll to the highlighted result.
 - Home shows a compact Journey strip for the selected context when relevant. Current tab access opens the focused access view. Blocked/waiting pages retain clear request, confirmation and cancellation actions, exact scope, countdown and expandable decision details.
 
@@ -14,15 +33,15 @@ D21 adds a passive Journey indicator on web documents and explicit root retry on
 
 ## Settings and navigation
 
-The D24 cleanup (2026-10-02) keeps two primary sidebar destinations: Home and Settings. Vault, managed lists, recovery and diagnostics live inside Settings. Timing, an empty Vault and managed data are collapsed initially; a new saved proposal opens Vault, and explicit review focuses it. Settings retains one pending-change marker. Policy fields remain directly available.
+The sidebar has Home, Sites & Access and Settings. Sites shows committed exact policy and an explicit destination draft. Settings shows protected behavior/timing first, including Journey lifetime; Vault, managed lists, recovery and diagnostics remain secondary disclosures. Timing starts open; a new saved proposal opens Vault and explicit review focuses it. Settings retains one pending-change marker. Normal Settings has no raw policy textareas.
 
-The desktop sidebar can minimize to an 80-pixel icon rail with accessible names, hover titles, a status indicator and a visible expand control. Layout preference uses `atlas-sidebar-v1` in extension-origin localStorage, separate from policy. Missing/corrupt/unavailable preference reads use the expanded layout. Failed writes keep the chosen page layout; reload uses the last saved preference. Storage events synchronize open Atlas pages. At 700 pixels or below a compact horizontal header ignores the desktop preference and keeps both destinations visible.
+The desktop sidebar is permanently a 60-pixel icon rail with accessible names, hover titles and a status indicator. D31 removes the expand control and layout-preference code. Old `atlas-sidebar-v1` values are ignored; no policy or pin migration is needed. At 700 pixels or below a compact horizontal header keeps all navigation labels visible.
 
-Settings contains destination/policy editing, grouped timing fields, Vault, managed lists, recovery and diagnostics. Timing fields show each active value beside the editable draft. Proposing a change takes the user to Vault. Frozen review shows actual list changes and a table of changed timing values, Active versus Proposed; the full Core review remains expandable. Existing wait, explicit confirmation, cancellation and persistence behavior remains owned by Core.
+Timing fields show active values beside the draft. Permission or timing changes take the user to Vault. Frozen review shows actual exact list changes and changed timing values, Active versus Proposed; the full Core review remains expandable. Name/category/pin-only edits are explicitly saved as display details without changing policy. Existing wait, explicit confirmation, cancellation and persistence behavior remains owned by Core.
 
 The brand returns to Home within the page, preserving drafts. Busy actions show Working/Saving feedback. When a Vault action disappears or disables, focus moves to its summary. Unpinning a focused card returns focus to that destination's visible category pin, with search as a fallback. Home spacing and Settings rhythm are tighter; decorative slogans and duplicate timing summaries are removed. Short hover/layout transitions respect reduced-motion settings.
 
-Diagnostics, source details, raw policy and recovery remain available. Their technical information is secondary to browsing. The sidebar keeps authority availability visible; it creates no permission.
+Diagnostics, source details and recovery remain available. Their technical information is secondary to browsing. Exact policy lives in Sites; recovery displays counts and revision. The sidebar keeps authority availability visible; it creates no permission.
 
 ## Presentation storage and stable updates
 
@@ -30,7 +49,7 @@ Pins are stored under `atlas-home-pins-v1` in extension-origin `localStorage`. T
 
 Every pinned entry is resolved against the current effective-Whitelist display index. An old pin cannot restore a removed/Blacklisted hostname, create a grant, change policy or start a Journey. Destination openings continue through `OPEN_DESTINATION` and the ordinary held-request gate.
 
-Category/card nodes are retained while policy is unchanged. Pin rows change only when active pin contents change; timers update their text without rebuilding the page. Search and settings drafts retain focus during housekeeping. Reduced-motion styles, visible keyboard focus, a skip link and labeled controls are included.
+Category/card nodes are retained while policy, metadata and usage are unchanged. Category expansion survives ranking updates. Pin rows change only when active pin contents change; timers update their text without rebuilding the page. Search and settings drafts retain focus during housekeeping. Reduced-motion styles, visible keyboard focus, a skip link and labeled controls are included.
 
 ## Visual compromises and limits
 
@@ -38,9 +57,20 @@ D23's [code review](code-review.md) separates Settings/Home rendering and centra
 
 The reference's palette, hierarchy and spacing guide the implementation. Existing Atlas identity, real categories and system fonts are retained. Scenic photography is outside this pass. There are no mock Edit controls or invented frequent destinations.
 
-Pins are local to this Firefox extension profile and can be lost with its presentation storage. They are not part of policy backups. Category expansion is page-local and resets on a policy redraw/reload. Cross-document pin sync is implemented; broader multi-window and assistive-technology coverage remains future validation. Full authenticated website compatibility remains outside this UI evidence.
+Pins and Home layout are local to this Firefox extension profile and are not part
+of policy backups. Category order, visibility and complete collapse persist in a
+separate revision-checked presentation record. Show all/fewer preview expansion
+remains page-local. Cross-page layout and pin synchronization are tested separately
+from authority; full assistive-technology coverage remains unverified. Full
+authenticated website compatibility remains outside this UI evidence.
 
 ## Temporary access overview (D27)
+
+The following records D27's original grant-only view. Milestone C adds separate
+pending request and Journey summaries in **Access in progress**, links into the
+existing workflow, and hides verified-empty status sections. None of these links
+creates or extends permission. [The current contract](home-organization.md) owns
+the status/navigation changes.
 
 D28's access panel uses a shared adapter draft to show the exact proposed scope above **Request temporary access**. The button remains disabled while checking the public address. An observed canonical pair explains why both hosts share one wait and deadline. Pending/granted terms come from the current Core decision's request ID, so expired/stale records cannot substitute old scope copy for a new request. [The stabilization contract](firefox-stabilization.md#d28-greylist-request-time-scope-preparation-2026-10-03) owns authorization and discovery limits.
 
@@ -55,6 +85,26 @@ Icon discovery uses the destination's exact hostname and works for user-added de
 Downloads omit credentials and referrers, accept at most one MiB per response and have fixed time limits. Firefox decodes images before display. Website markup is read for link metadata and never inserted into the Atlas document; SVGs are passive images. Icons load as cards become visible, share an ephemeral per-host cache across pinned/category cards, and refresh when Firefox observes new favicon metadata. Changing a service entry point also changes its icon lookup. No favicon URL or image enters the authoritative snapshot or diagnostics.
 
 This is display metadata in the extension UI. It creates no hostname equivalence, Whitelist entries, Access grants or Journey authority. Search matching and authorization remain owned by their existing layers. No dependencies or browser permissions were added.
+
+## Permanent rail and responsive rows (D31)
+
+Extension **0.1.12** removes sidebar expansion and its presentation-storage reader/writer. The old preference key is ignored, preserving all unrelated pins, metadata and authoritative state. No Core changes or dependencies are added.
+
+One column count controls the grid and collapsed category visibility. It uses the actual available content width, a 195px minimum card width and a 9px gap, capped at five. A `ResizeObserver` updates cards in place; hidden controls never keep focus. Explicit Show all retains its expanded state through resize and ranking updates. Pinned and expanded grids may have multiple rows, with at most five cards per row. Launcher buttons remain 54px tall; names cannot wrap and increase the row height.
+
+Validation: extension typecheck/build and **203 extension tests pass**. Native Firefox 157.0 passes `firefox-e2e.py --destination-polish-only` and `--productization-only`. The resize scenario records 2/3/4/5/5 columns at actual 500/800/1000/1440/2100px viewport widths, one default row, stable card nodes, fixed height and no horizontal overflow. The regression retains pin focus, search, site icons, protected settings, migration and restart checks. Expanded/malformed/old sidebar preferences cannot restore expansion. [Sanitized measurements](evidence/firefox-responsive-home-d31.json) and [current Home preview](evidence/atlas-home-responsive-d31.png) record the results. Firefox clamps the narrower requested window to 500px; native evidence does not establish smaller widths.
+
+Commands run from the repository root:
+
+```sh
+npm.cmd --prefix extension run typecheck
+npm.cmd --prefix extension test
+python extension/scripts/firefox-e2e.py --destination-polish-only
+python extension/scripts/firefox-e2e.py --productization-only
+node extension/scripts/verify-bundle.mjs extension/dist
+```
+
+The extension test command runs the real build before tests. Earlier D24/D30 evidence below and in the linked reports describes those historical versions; D31 supersedes their expandable sidebar and four-card preview.
 
 ## Files and validation
 

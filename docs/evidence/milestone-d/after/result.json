@@ -1,0 +1,1265 @@
+{
+  "firefox": "157.0.1",
+  "baseline": false,
+  "extensionVersion": "0.1.15",
+  "captures": [
+    "home-1440.png",
+    "home-500.png",
+    "home-hover-1440.png",
+    "search-1440.png",
+    "search-500.png",
+    "customize-1440.png",
+    "customize-500.png",
+    "keyboard-focus-1440.png",
+    "presentation-error-1440.png",
+    "presentation-error-500.png",
+    "crowded-15-1440.png",
+    "crowded-15-500.png",
+    "crowded-30-1440.png",
+    "crowded-30-500.png",
+    "sites-1440.png",
+    "sites-500.png",
+    "long-hostname-1440.png",
+    "long-hostname-500.png",
+    "editor-1440.png",
+    "editor-500.png",
+    "form-error-1440.png",
+    "form-error-500.png",
+    "batch-review-1440.png",
+    "batch-review-500.png",
+    "reconciliation-1440.png",
+    "reconciliation-500.png",
+    "vault-1440.png",
+    "vault-500.png",
+    "vault-terms-1440.png",
+    "vault-terms-500.png",
+    "settings-1440.png",
+    "settings-500.png",
+    "diagnostics-1440.png",
+    "diagnostics-500.png",
+    "decision-1440.png",
+    "decision-500.png",
+    "greylist-1440.png",
+    "greylist-500.png",
+    "confirmation-1440.png",
+    "confirmation-500.png",
+    "allowed-1440.png",
+    "allowed-500.png",
+    "grant-1440.png",
+    "grant-500.png",
+    "journey-indicator-1440.png",
+    "journey-1440.png",
+    "journey-500.png",
+    "journey-recovery-1440.png",
+    "journey-recovery-500.png",
+    "blacklist-1440.png",
+    "blacklist-500.png",
+    "unavailable-1440.png",
+    "unavailable-500.png",
+    "zoom-125-1440.png",
+    "zoom-150-1440.png",
+    "zoom-200-1440.png"
+  ],
+  "layouts": [
+    {
+      "surface": "home",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "home",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "home-hover",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "search",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "search",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "customize",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "customize",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "keyboard-focus",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "presentation-error",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "presentation-error",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "crowded-15",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "crowded-15",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "crowded-30",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "crowded-30",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "sites",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "sites",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "long-hostname",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "long-hostname",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "editor",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "editor",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "form-error",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "form-error",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "batch-review",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "batch-review",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "reconciliation",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "reconciliation",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "vault",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "vault",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "vault-terms",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "vault-terms",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "settings",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "settings",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "diagnostics",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "diagnostics",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "decision",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "decision",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "greylist",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "greylist",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "confirmation",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "confirmation",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "allowed",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "allowed",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "grant",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "grant",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "journey",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "journey",
+      "width": 500,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "journey-recovery",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "journey-recovery",
+      "width": 500,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "blacklist",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "blacklist",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "unavailable",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "unavailable",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "width": 500,
+      "columns": 2,
+      "overflow": false,
+      "cardHeights": [
+        56
+      ],
+      "overlappingCardControls": 0
+    },
+    {
+      "width": 768,
+      "columns": 3,
+      "overflow": false,
+      "cardHeights": [
+        56
+      ],
+      "overlappingCardControls": 0
+    },
+    {
+      "width": 1080,
+      "columns": 4,
+      "overflow": false,
+      "cardHeights": [
+        56
+      ],
+      "overlappingCardControls": 0
+    },
+    {
+      "width": 1440,
+      "columns": 5,
+      "overflow": false,
+      "cardHeights": [
+        56
+      ],
+      "overlappingCardControls": 0
+    },
+    {
+      "width": 1800,
+      "columns": 5,
+      "overflow": false,
+      "cardHeights": [
+        56
+      ],
+      "overlappingCardControls": 0
+    },
+    {
+      "zoom": 1.25,
+      "route": "home",
+      "width": 1152,
+      "overflow": false
+    },
+    {
+      "zoom": 1.25,
+      "route": "sites",
+      "width": 1152,
+      "overflow": false
+    },
+    {
+      "zoom": 1.25,
+      "route": "settings",
+      "width": 1152,
+      "overflow": false
+    },
+    {
+      "surface": "zoom-125",
+      "width": 1152,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "zoom": 1.5,
+      "route": "home",
+      "width": 960,
+      "overflow": false
+    },
+    {
+      "zoom": 1.5,
+      "route": "sites",
+      "width": 960,
+      "overflow": false
+    },
+    {
+      "zoom": 1.5,
+      "route": "settings",
+      "width": 960,
+      "overflow": false
+    },
+    {
+      "surface": "zoom-150",
+      "width": 960,
+      "overflow": false,
+      "columns": 4
+    },
+    {
+      "zoom": 2,
+      "route": "home",
+      "width": 720,
+      "overflow": false
+    },
+    {
+      "zoom": 2,
+      "route": "sites",
+      "width": 720,
+      "overflow": false
+    },
+    {
+      "zoom": 2,
+      "route": "settings",
+      "width": 720,
+      "overflow": false
+    },
+    {
+      "surface": "zoom-200",
+      "width": 720,
+      "overflow": false,
+      "columns": 3
+    }
+  ],
+  "checks": [
+    "native keyboard focus within customization has a visible 2px outline",
+    "real five/fifteen/thirty-category Home, pins, search and customization captured",
+    "invalid hostname receives associated error and focus; correction retains and stages the existing draft",
+    "rendered stale ten-item draft is explicitly reconciled without changing policy",
+    "long Sites list, real editor and ten-item mixed batch/frozen review captured without premature policy changes",
+    "actual blocked/wait/confirmation/grant/Journey/recovery states use existing Core workflows",
+    "all requested viewport widths, actual Firefox zoom and stable fixed-height five-column launchers",
+    "actual reduced-motion preference disables control transitions"
+  ],
+  "metrics": [
+    {
+      "surface": "home",
+      "text": [
+        {
+          "selector": ".note",
+          "fontSize": 13,
+          "contrast": 5.691668434613073
+        },
+        {
+          "selector": ".search-hint",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": "search placeholder",
+          "fontSize": 16,
+          "contrast": 5.996419578923797
+        }
+      ],
+      "targets": [
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".text-button",
+          "width": 116.80000305175781,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 96.23333740234375,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 96.23333740234375,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 96.19999694824219,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 96.23333740234375,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 96.19999694824219,
+          "height": 32
+        }
+      ],
+      "borders": [
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.6224236738859616
+        },
+        {
+          "tag": "BUTTON",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.6224236738859616
+        }
+      ],
+      "controlBorder": "#817e6e"
+    },
+    {
+      "surface": "search",
+      "text": [
+        {
+          "selector": ".note",
+          "fontSize": 13,
+          "contrast": 5.691668434613073
+        },
+        {
+          "selector": ".search-hint",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".result-copy small",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".result-copy small",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".result-copy small",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".result-copy small",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": "search placeholder",
+          "fontSize": 16,
+          "contrast": 5.996419578923797
+        }
+      ],
+      "targets": [
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".text-button",
+          "width": 116.80000305175781,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 96.23333740234375,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 96.23333740234375,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 96.19999694824219,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 96.23333740234375,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 96.19999694824219,
+          "height": 32
+        }
+      ],
+      "borders": [
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.6224236738859616
+        },
+        {
+          "tag": "BUTTON",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.6224236738859616
+        }
+      ],
+      "controlBorder": "#817e6e"
+    },
+    {
+      "surface": "customize",
+      "text": [
+        {
+          "selector": ".note",
+          "fontSize": 13,
+          "contrast": 5.691668434613073
+        },
+        {
+          "selector": ".note",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".note",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".search-hint",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": "search placeholder",
+          "fontSize": 16,
+          "contrast": 5.996419578923797
+        }
+      ],
+      "targets": [
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".pin-button",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "selector": ".text-button",
+          "width": 116.80000305175781,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 47.73333740234375,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 96.23333740234375,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 96.23333740234375,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 96.19999694824219,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 96.23333740234375,
+          "height": 32
+        },
+        {
+          "selector": ".home-layout-list button",
+          "width": 32.133331298828125,
+          "height": 32
+        },
+        {
+          "selector": ".home-layout-list button",
+          "width": 32.133331298828125,
+          "height": 32
+        },
+        {
+          "selector": ".home-layout-list button",
+          "width": 32.133331298828125,
+          "height": 32
+        },
+        {
+          "selector": ".home-layout-list button",
+          "width": 32.133331298828125,
+          "height": 32
+        },
+        {
+          "selector": ".home-layout-list button",
+          "width": 32.133331298828125,
+          "height": 32
+        },
+        {
+          "selector": ".home-layout-list button",
+          "width": 32.133331298828125,
+          "height": 32
+        }
+      ],
+      "borders": [
+        {
+          "tag": "BUTTON",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "BUTTON",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "BUTTON",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "BUTTON",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "BUTTON",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "BUTTON",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "BUTTON",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "BUTTON",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        }
+      ],
+      "controlBorder": "#817e6e"
+    },
+    {
+      "surface": "vault",
+      "text": [
+        {
+          "selector": ".note",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".note",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".note",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".note",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".section-meta",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".section-meta",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".section-meta",
+          "fontSize": 13,
+          "contrast": 5.691668434613073
+        },
+        {
+          "selector": ".field-current",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".field-current",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".field-current",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".field-current",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".unit",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".unit",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".unit",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".unit",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".feedback",
+          "fontSize": 13,
+          "contrast": 7.270141240753254
+        },
+        {
+          "selector": ".pill",
+          "fontSize": 13,
+          "contrast": 5.835158361775232
+        },
+        {
+          "selector": ".pill",
+          "fontSize": 13,
+          "contrast": 5.83688919256017
+        },
+        {
+          "selector": ".deadline",
+          "fontSize": 16,
+          "contrast": 5.739367845220725
+        }
+      ],
+      "targets": [
+        {
+          "selector": ".text-button",
+          "width": 127.41667175292969,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 146.18333435058594,
+          "height": 32
+        }
+      ],
+      "borders": [
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "BUTTON",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        }
+      ],
+      "controlBorder": "#817e6e"
+    },
+    {
+      "surface": "settings",
+      "text": [
+        {
+          "selector": ".note",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".note",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".note",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".note",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".section-meta",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".section-meta",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".section-meta",
+          "fontSize": 13,
+          "contrast": 5.691668434613073
+        },
+        {
+          "selector": ".field-current",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".field-current",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".field-current",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".field-current",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".unit",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".unit",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".unit",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".unit",
+          "fontSize": 13,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".pill",
+          "fontSize": 13,
+          "contrast": 5.835158361775232
+        },
+        {
+          "selector": ".pill",
+          "fontSize": 13,
+          "contrast": 5.83688919256017
+        },
+        {
+          "selector": ".deadline",
+          "fontSize": 16,
+          "contrast": 5.739367845220725
+        }
+      ],
+      "targets": [
+        {
+          "selector": ".text-button",
+          "width": 127.41667175292969,
+          "height": 32
+        },
+        {
+          "selector": ".text-button",
+          "width": 146.18333435058594,
+          "height": 32
+        }
+      ],
+      "borders": [
+        {
+          "tag": "INPUT",
+          "color": "rgb(80, 91, 62)",
+          "contrast": 6.75155066832317
+        },
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "INPUT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "BUTTON",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        }
+      ],
+      "controlBorder": "#817e6e"
+    },
+    {
+      "surface": "greylist",
+      "text": [
+        {
+          "selector": ".note",
+          "fontSize": 14,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".pill",
+          "fontSize": 13,
+          "contrast": 5.83688919256017
+        },
+        {
+          "selector": ".deadline",
+          "fontSize": 14,
+          "contrast": 5.739367845220725
+        }
+      ],
+      "targets": [],
+      "borders": [
+        {
+          "tag": "BUTTON",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        },
+        {
+          "tag": "SELECT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        }
+      ],
+      "controlBorder": "#817e6e"
+    },
+    {
+      "surface": "journey",
+      "text": [
+        {
+          "selector": ".note",
+          "fontSize": 14,
+          "contrast": 5.996419578923797
+        },
+        {
+          "selector": ".note",
+          "fontSize": 13,
+          "contrast": 5.182521699916402
+        },
+        {
+          "selector": ".pill",
+          "fontSize": 13,
+          "contrast": 5.835158361775232
+        },
+        {
+          "selector": ".pill",
+          "fontSize": 13,
+          "contrast": 5.835158361775232
+        },
+        {
+          "selector": ".deadline",
+          "fontSize": 14,
+          "contrast": 5.739367845220725
+        }
+      ],
+      "targets": [],
+      "borders": [
+        {
+          "tag": "BUTTON",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.298380696605199
+        },
+        {
+          "tag": "SELECT",
+          "color": "rgb(129, 126, 110)",
+          "contrast": 3.8163804674829964
+        }
+      ],
+      "controlBorder": "#817e6e"
+    }
+  ],
+  "isolatedProfile": true
+}

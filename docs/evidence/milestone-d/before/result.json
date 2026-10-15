@@ -1,0 +1,852 @@
+{
+  "firefox": "157.0.1",
+  "baseline": true,
+  "extensionVersion": "0.1.15",
+  "captures": [
+    "home-1440.png",
+    "home-500.png",
+    "search-1440.png",
+    "search-500.png",
+    "customize-1440.png",
+    "customize-500.png",
+    "crowded-15-1440.png",
+    "crowded-30-1440.png",
+    "sites-1440.png",
+    "sites-500.png",
+    "editor-1440.png",
+    "editor-500.png",
+    "batch-review-1440.png",
+    "batch-review-500.png",
+    "vault-1440.png",
+    "vault-500.png",
+    "vault-terms-1440.png",
+    "vault-terms-500.png",
+    "settings-1440.png",
+    "settings-500.png",
+    "diagnostics-1440.png",
+    "diagnostics-500.png",
+    "decision-1440.png",
+    "decision-500.png",
+    "greylist-1440.png",
+    "greylist-500.png",
+    "confirmation-1440.png",
+    "confirmation-500.png",
+    "allowed-1440.png",
+    "allowed-500.png",
+    "grant-1440.png",
+    "grant-500.png",
+    "journey-1440.png",
+    "journey-500.png",
+    "journey-recovery-1440.png",
+    "journey-recovery-500.png",
+    "blacklist-1440.png",
+    "blacklist-500.png",
+    "unavailable-1440.png",
+    "unavailable-500.png",
+    "zoom-125-1440.png",
+    "zoom-150-1440.png",
+    "zoom-200-1440.png"
+  ],
+  "layouts": [
+    {
+      "surface": "home",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "home",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "search",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "search",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "customize",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "customize",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "crowded-15",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "crowded-30",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "sites",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "sites",
+      "width": 500,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "editor",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "editor",
+      "width": 500,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "batch-review",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "batch-review",
+      "width": 500,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "vault",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "vault",
+      "width": 500,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "vault-terms",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "vault-terms",
+      "width": 500,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "settings",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "settings",
+      "width": 500,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "diagnostics",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "diagnostics",
+      "width": 500,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "decision",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "decision",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "greylist",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "greylist",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "confirmation",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "confirmation",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "allowed",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "allowed",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "grant",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "grant",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "journey",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "journey",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "journey-recovery",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "journey-recovery",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "blacklist",
+      "width": 1440,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "blacklist",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "surface": "unavailable",
+      "width": 1440,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "surface": "unavailable",
+      "width": 500,
+      "overflow": false,
+      "columns": 2
+    },
+    {
+      "width": 500,
+      "columns": 2,
+      "overflow": false,
+      "cardHeights": [
+        56
+      ],
+      "overlappingCardControls": 0
+    },
+    {
+      "width": 768,
+      "columns": 3,
+      "overflow": false,
+      "cardHeights": [
+        56
+      ],
+      "overlappingCardControls": 0
+    },
+    {
+      "width": 1080,
+      "columns": 4,
+      "overflow": false,
+      "cardHeights": [
+        56
+      ],
+      "overlappingCardControls": 0
+    },
+    {
+      "width": 1440,
+      "columns": 5,
+      "overflow": false,
+      "cardHeights": [
+        56
+      ],
+      "overlappingCardControls": 0
+    },
+    {
+      "width": 1800,
+      "columns": 5,
+      "overflow": false,
+      "cardHeights": [
+        56
+      ],
+      "overlappingCardControls": 0
+    },
+    {
+      "zoom": 1.25,
+      "route": "home",
+      "width": 1152,
+      "overflow": false
+    },
+    {
+      "zoom": 1.25,
+      "route": "sites",
+      "width": 1152,
+      "overflow": false
+    },
+    {
+      "zoom": 1.25,
+      "route": "settings",
+      "width": 1152,
+      "overflow": false
+    },
+    {
+      "surface": "zoom-125",
+      "width": 1152,
+      "overflow": false,
+      "columns": 5
+    },
+    {
+      "zoom": 1.5,
+      "route": "home",
+      "width": 960,
+      "overflow": false
+    },
+    {
+      "zoom": 1.5,
+      "route": "sites",
+      "width": 960,
+      "overflow": false
+    },
+    {
+      "zoom": 1.5,
+      "route": "settings",
+      "width": 960,
+      "overflow": false
+    },
+    {
+      "surface": "zoom-150",
+      "width": 960,
+      "overflow": false,
+      "columns": 4
+    },
+    {
+      "zoom": 2,
+      "route": "home",
+      "width": 720,
+      "overflow": false
+    },
+    {
+      "zoom": 2,
+      "route": "sites",
+      "width": 720,
+      "overflow": false
+    },
+    {
+      "zoom": 2,
+      "route": "settings",
+      "width": 720,
+      "overflow": false
+    },
+    {
+      "surface": "zoom-200",
+      "width": 720,
+      "overflow": false,
+      "columns": 3
+    }
+  ],
+  "checks": [
+    "real five/fifteen/thirty-category Home, pins, search and customization captured",
+    "long Sites list, real editor and ten-item mixed batch/frozen review captured without premature policy changes",
+    "actual blocked/wait/confirmation/grant/Journey/recovery states use existing Core workflows",
+    "all requested viewport widths, actual Firefox zoom and stable fixed-height five-column launchers"
+  ],
+  "metrics": [
+    {
+      "surface": "home",
+      "text": [
+        {
+          "selector": ".note",
+          "fontSize": 12,
+          "contrast": 4.790981056493598
+        },
+        {
+          "selector": ".search-hint",
+          "fontSize": 12,
+          "contrast": 3.6702969943922654
+        },
+        {
+          "selector": "search placeholder",
+          "fontSize": 16,
+          "contrast": 3.6843919243002983
+        }
+      ],
+      "targets": [
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".text-button",
+          "width": 101.06666564941406,
+          "height": 19.20001220703125
+        },
+        {
+          "selector": ".text-button",
+          "width": 80.2166748046875,
+          "height": 19.199996948242188
+        },
+        {
+          "selector": ".text-button",
+          "width": 82.05000305175781,
+          "height": 19.199996948242188
+        },
+        {
+          "selector": ".text-button",
+          "width": 82.05000305175781,
+          "height": 19.199996948242188
+        },
+        {
+          "selector": ".text-button",
+          "width": 80.2166748046875,
+          "height": 19.199996948242188
+        },
+        {
+          "selector": ".text-button",
+          "width": 82.05000305175781,
+          "height": 19.20001220703125
+        }
+      ]
+    },
+    {
+      "surface": "search",
+      "text": [
+        {
+          "selector": ".note",
+          "fontSize": 12,
+          "contrast": 4.790981056493598
+        },
+        {
+          "selector": ".search-hint",
+          "fontSize": 12,
+          "contrast": 3.6702969943922654
+        },
+        {
+          "selector": ".result-copy small",
+          "fontSize": 11,
+          "contrast": 5.0475063576615815
+        },
+        {
+          "selector": ".result-copy small",
+          "fontSize": 11,
+          "contrast": 5.0475063576615815
+        },
+        {
+          "selector": ".result-copy small",
+          "fontSize": 11,
+          "contrast": 5.0475063576615815
+        },
+        {
+          "selector": ".result-copy small",
+          "fontSize": 11,
+          "contrast": 5.0475063576615815
+        },
+        {
+          "selector": "search placeholder",
+          "fontSize": 16,
+          "contrast": 3.6843919243002983
+        }
+      ],
+      "targets": [
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".text-button",
+          "width": 101.06666564941406,
+          "height": 19.20001220703125
+        },
+        {
+          "selector": ".text-button",
+          "width": 82.08334350585938,
+          "height": 19.199996948242188
+        },
+        {
+          "selector": ".text-button",
+          "width": 82.08334350585938,
+          "height": 19.199996948242188
+        },
+        {
+          "selector": ".text-button",
+          "width": 82.05000305175781,
+          "height": 19.199996948242188
+        },
+        {
+          "selector": ".text-button",
+          "width": 82.08334350585938,
+          "height": 19.199996948242188
+        },
+        {
+          "selector": ".text-button",
+          "width": 82.05000305175781,
+          "height": 19.20001220703125
+        }
+      ]
+    },
+    {
+      "surface": "customize",
+      "text": [
+        {
+          "selector": ".note",
+          "fontSize": 12,
+          "contrast": 4.790981056493598
+        },
+        {
+          "selector": ".note",
+          "fontSize": 12,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".note",
+          "fontSize": 12,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".search-hint",
+          "fontSize": 12,
+          "contrast": 3.6702969943922654
+        },
+        {
+          "selector": "search placeholder",
+          "fontSize": 16,
+          "contrast": 3.6843919243002983
+        }
+      ],
+      "targets": [
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".pin-button",
+          "width": 23,
+          "height": 23
+        },
+        {
+          "selector": ".text-button",
+          "width": 101.06666564941406,
+          "height": 19.20001220703125
+        },
+        {
+          "selector": ".text-button",
+          "width": 37.30000305175781,
+          "height": 19.199996948242188
+        },
+        {
+          "selector": ".text-button",
+          "width": 82.08334350585938,
+          "height": 19.199996948242188
+        },
+        {
+          "selector": ".text-button",
+          "width": 82.08334350585938,
+          "height": 19.20001220703125
+        },
+        {
+          "selector": ".text-button",
+          "width": 82.05000305175781,
+          "height": 19.199996948242188
+        },
+        {
+          "selector": ".text-button",
+          "width": 82.08334350585938,
+          "height": 19.199996948242188
+        },
+        {
+          "selector": ".home-layout-list button",
+          "width": 31.199996948242188,
+          "height": 33.600006103515625
+        },
+        {
+          "selector": ".home-layout-list button",
+          "width": 31.199996948242188,
+          "height": 33.600006103515625
+        },
+        {
+          "selector": ".home-layout-list button",
+          "width": 31.199996948242188,
+          "height": 33.600006103515625
+        },
+        {
+          "selector": ".home-layout-list button",
+          "width": 31.199996948242188,
+          "height": 33.59999084472656
+        },
+        {
+          "selector": ".home-layout-list button",
+          "width": 31.199996948242188,
+          "height": 33.59999084472656
+        },
+        {
+          "selector": ".home-layout-list button",
+          "width": 31.199996948242188,
+          "height": 33.600006103515625
+        }
+      ]
+    },
+    {
+      "surface": "settings",
+      "text": [
+        {
+          "selector": ".note",
+          "fontSize": 12,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".note",
+          "fontSize": 12,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".note",
+          "fontSize": 12,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".note",
+          "fontSize": 12,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".section-meta",
+          "fontSize": 11,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".section-meta",
+          "fontSize": 11,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".section-meta",
+          "fontSize": 11,
+          "contrast": 4.790981056493598
+        },
+        {
+          "selector": ".field-current",
+          "fontSize": 10,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".field-current",
+          "fontSize": 10,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".field-current",
+          "fontSize": 10,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".field-current",
+          "fontSize": 10,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".unit",
+          "fontSize": 10,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".unit",
+          "fontSize": 10,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".unit",
+          "fontSize": 10,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".unit",
+          "fontSize": 10,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".pill",
+          "fontSize": 10,
+          "contrast": 5.441652369355586
+        },
+        {
+          "selector": ".pill",
+          "fontSize": 10,
+          "contrast": 5.441652369355586
+        },
+        {
+          "selector": ".deadline",
+          "fontSize": 16,
+          "contrast": 6.125832752571748
+        }
+      ],
+      "targets": [
+        {
+          "selector": ".text-button",
+          "width": 110.86666870117188,
+          "height": 19.20001220703125
+        },
+        {
+          "selector": ".text-button",
+          "width": 128.23333740234375,
+          "height": 19.199996948242188
+        }
+      ]
+    },
+    {
+      "surface": "greylist",
+      "text": [
+        {
+          "selector": ".note",
+          "fontSize": 14,
+          "contrast": 4.9722515046210605
+        },
+        {
+          "selector": ".pill",
+          "fontSize": 10,
+          "contrast": 5.441652369355586
+        },
+        {
+          "selector": ".deadline",
+          "fontSize": 14,
+          "contrast": 6.125832752571748
+        }
+      ],
+      "targets": []
+    }
+  ],
+  "isolatedProfile": true
+}

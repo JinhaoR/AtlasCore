@@ -1,0 +1,293 @@
+{
+  "checkedOn": "2026-10-10",
+  "extensionVersion": "0.1.13",
+  "addonId": "atlas-development@atlas.invalid",
+  "archiveSha256": {
+    "unsigned": "157661acb39fbd8cf3cb77b5fd8dd5917992c5706294c033cc05fc16d64f4cae",
+    "source": "3148c5b9766f86e8ebe6238296e1a65e600b152a8e85bdf55094dab95cfb8b6f",
+    "signed": "8eaa4607fec0931f3ddd66cea732a0831750404bdbb36b11eaa7b878c6fbada0"
+  },
+  "entries": {
+    "unsigned": [
+      {
+        "name": "THIRD-PARTY-NOTICES.txt",
+        "directory": false,
+        "size": 1178,
+        "compression": 8,
+        "sha256": "8be6bc89a814768b7f723979b0c73f67796ad873d2fce129d0050324c54024b9"
+      },
+      {
+        "name": "background.js",
+        "directory": false,
+        "size": 182616,
+        "compression": 8,
+        "sha256": "670fc5a9c3bc4db19569115f7c528ba5f4f36d3e7e62a15b9a5d3c8c864c6707"
+      },
+      {
+        "name": "data/stevenblack/NOTICE.md",
+        "directory": false,
+        "size": 1036,
+        "compression": 8,
+        "sha256": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291"
+      },
+      {
+        "name": "data/stevenblack/hosts",
+        "directory": false,
+        "size": 4561328,
+        "compression": 8,
+        "sha256": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76"
+      },
+      {
+        "name": "data/stevenblack/license.txt",
+        "directory": false,
+        "size": 1086,
+        "compression": 8,
+        "sha256": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b"
+      },
+      {
+        "name": "data/stevenblack/metadata.json",
+        "directory": false,
+        "size": 334,
+        "compression": 8,
+        "sha256": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f"
+      },
+      {
+        "name": "data/stevenblack/upstream-readme.md",
+        "directory": false,
+        "size": 47483,
+        "compression": 8,
+        "sha256": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69"
+      },
+      {
+        "name": "journey-indicator.js",
+        "directory": false,
+        "size": 3621,
+        "compression": 8,
+        "sha256": "c7a2554fcadbd4fc8c719ebb067212a2029041d268d2afde5669661957e55b6d"
+      },
+      {
+        "name": "manifest.json",
+        "directory": false,
+        "size": 1085,
+        "compression": 8,
+        "sha256": "95b58f34d58ff20e2cb2032dbf44108b3a045ed9c49a0c97b744fbb85a3d422b"
+      },
+      {
+        "name": "ui/atlas.svg",
+        "directory": false,
+        "size": 298,
+        "compression": 8,
+        "sha256": "6047e46de52bc6244dbe2d17a6f571578dc630da9610d8cc44581867226a21b9"
+      },
+      {
+        "name": "ui/index.html",
+        "directory": false,
+        "size": 18311,
+        "compression": 8,
+        "sha256": "559b842922dcd578b9e762db0cada4a83d77a981ab0bc28b2fdca8ecf101b30e"
+      },
+      {
+        "name": "ui/main.js",
+        "directory": false,
+        "size": 264610,
+        "compression": 8,
+        "sha256": "8703ff76c83268ce17fd3ba9eff62bd9a6a322aa874f2d3ddbff6238d4f7caf1"
+      },
+      {
+        "name": "ui/site.svg",
+        "directory": false,
+        "size": 224,
+        "compression": 8,
+        "sha256": "01fff6d53bd89016708e9d52709f975e44273a076c5b036251250c6bc9222cad"
+      },
+      {
+        "name": "ui/style.css",
+        "directory": false,
+        "size": 21282,
+        "compression": 8,
+        "sha256": "377c514677b371528bf17f9650fb6035ad332812d677ac6af313d31bc7a1d23f"
+      }
+    ],
+    "signed": [
+      {
+        "name": "journey-indicator.js",
+        "directory": false,
+        "size": 3621,
+        "compression": 8,
+        "sha256": "c7a2554fcadbd4fc8c719ebb067212a2029041d268d2afde5669661957e55b6d"
+      },
+      {
+        "name": "manifest.json",
+        "directory": false,
+        "size": 1263,
+        "compression": 8,
+        "sha256": "c064ccb9525144fadbfb5a8a7be5477a79f123de57852e067577c96317aab2e4"
+      },
+      {
+        "name": "background.js",
+        "directory": false,
+        "size": 182616,
+        "compression": 8,
+        "sha256": "670fc5a9c3bc4db19569115f7c528ba5f4f36d3e7e62a15b9a5d3c8c864c6707"
+      },
+      {
+        "name": "THIRD-PARTY-NOTICES.txt",
+        "directory": false,
+        "size": 1178,
+        "compression": 8,
+        "sha256": "8be6bc89a814768b7f723979b0c73f67796ad873d2fce129d0050324c54024b9"
+      },
+      {
+        "name": "ui/atlas.svg",
+        "directory": false,
+        "size": 298,
+        "compression": 8,
+        "sha256": "6047e46de52bc6244dbe2d17a6f571578dc630da9610d8cc44581867226a21b9"
+      },
+      {
+        "name": "ui/main.js",
+        "directory": false,
+        "size": 264610,
+        "compression": 8,
+        "sha256": "8703ff76c83268ce17fd3ba9eff62bd9a6a322aa874f2d3ddbff6238d4f7caf1"
+      },
+      {
+        "name": "ui/site.svg",
+        "directory": false,
+        "size": 224,
+        "compression": 8,
+        "sha256": "01fff6d53bd89016708e9d52709f975e44273a076c5b036251250c6bc9222cad"
+      },
+      {
+        "name": "ui/index.html",
+        "directory": false,
+        "size": 18311,
+        "compression": 8,
+        "sha256": "559b842922dcd578b9e762db0cada4a83d77a981ab0bc28b2fdca8ecf101b30e"
+      },
+      {
+        "name": "ui/style.css",
+        "directory": false,
+        "size": 21282,
+        "compression": 8,
+        "sha256": "377c514677b371528bf17f9650fb6035ad332812d677ac6af313d31bc7a1d23f"
+      },
+      {
+        "name": "data/stevenblack/hosts",
+        "directory": false,
+        "size": 4561328,
+        "compression": 8,
+        "sha256": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76"
+      },
+      {
+        "name": "data/stevenblack/upstream-readme.md",
+        "directory": false,
+        "size": 47483,
+        "compression": 8,
+        "sha256": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69"
+      },
+      {
+        "name": "data/stevenblack/metadata.json",
+        "directory": false,
+        "size": 334,
+        "compression": 8,
+        "sha256": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f"
+      },
+      {
+        "name": "data/stevenblack/NOTICE.md",
+        "directory": false,
+        "size": 1036,
+        "compression": 8,
+        "sha256": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291"
+      },
+      {
+        "name": "data/stevenblack/license.txt",
+        "directory": false,
+        "size": 1086,
+        "compression": 8,
+        "sha256": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b"
+      },
+      {
+        "name": "META-INF/cose.manifest",
+        "directory": false,
+        "size": 2265,
+        "compression": 8,
+        "sha256": "4807cf37a28ce89b069db3ee64d3b6239565510d863b5d3ee98002124dbb0755"
+      },
+      {
+        "name": "META-INF/cose.sig",
+        "directory": false,
+        "size": 3109,
+        "compression": 8,
+        "sha256": "fa24c84f493dbb4705bd7dd92ef8cd83c472520e30d2c990e90b3cd4cb050ac9"
+      },
+      {
+        "name": "META-INF/manifest.mf",
+        "directory": false,
+        "size": 2586,
+        "compression": 8,
+        "sha256": "627f25007ab0fb344e3bf4f028a354fc4f5e327a5686be76e4003c8cfd45c13d"
+      },
+      {
+        "name": "META-INF/mozilla.sf",
+        "directory": false,
+        "size": 144,
+        "compression": 8,
+        "sha256": "49e1eeae968e9e75ebdbcd59ae927e37b6a57178009aa6ce1599687492e89da5"
+      },
+      {
+        "name": "META-INF/mozilla.rsa",
+        "directory": false,
+        "size": 4376,
+        "compression": 8,
+        "sha256": "f409b0dec3c150c7544aa9151c412239df82bcb743f87cda68d5f73084c09e34"
+      }
+    ]
+  },
+  "signedOnly": [
+    "META-INF/cose.manifest",
+    "META-INF/cose.sig",
+    "META-INF/manifest.mf",
+    "META-INF/mozilla.rsa",
+    "META-INF/mozilla.sf"
+  ],
+  "unsignedOnly": [],
+  "changedRuntimeBytes": [
+    {
+      "name": "manifest.json",
+      "unsignedSha256": "95b58f34d58ff20e2cb2032dbf44108b3a045ed9c49a0c97b744fbb85a3d422b",
+      "signedSha256": "c064ccb9525144fadbfb5a8a7be5477a79f123de57852e067577c96317aab2e4",
+      "unsignedSize": 1085,
+      "signedSize": 1263
+    }
+  ],
+  "manifestJsonEqual": true,
+  "byteIdenticalRuntimeFiles": 13,
+  "runtimeFileCount": 14,
+  "stagedRuntimeSha256": {
+    "THIRD-PARTY-NOTICES.txt": "8be6bc89a814768b7f723979b0c73f67796ad873d2fce129d0050324c54024b9",
+    "background.js": "670fc5a9c3bc4db19569115f7c528ba5f4f36d3e7e62a15b9a5d3c8c864c6707",
+    "data/stevenblack/NOTICE.md": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291",
+    "data/stevenblack/hosts": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76",
+    "data/stevenblack/license.txt": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b",
+    "data/stevenblack/metadata.json": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f",
+    "data/stevenblack/upstream-readme.md": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69",
+    "journey-indicator.js": "c7a2554fcadbd4fc8c719ebb067212a2029041d268d2afde5669661957e55b6d",
+    "manifest.json": "95b58f34d58ff20e2cb2032dbf44108b3a045ed9c49a0c97b744fbb85a3d422b",
+    "ui/atlas.svg": "6047e46de52bc6244dbe2d17a6f571578dc630da9610d8cc44581867226a21b9",
+    "ui/index.html": "559b842922dcd578b9e762db0cada4a83d77a981ab0bc28b2fdca8ecf101b30e",
+    "ui/main.js": "8703ff76c83268ce17fd3ba9eff62bd9a6a322aa874f2d3ddbff6238d4f7caf1",
+    "ui/site.svg": "01fff6d53bd89016708e9d52709f975e44273a076c5b036251250c6bc9222cad",
+    "ui/style.css": "377c514677b371528bf17f9650fb6035ad332812d677ac6af313d31bc7a1d23f"
+  },
+  "stagedRuntimeMatchesUnsigned": true,
+  "originalUnsignedDigestMatchesReceipt": true,
+  "originalSourceDigestMatchesReceipt": true,
+  "originalSourceEntriesMatchReceipt": true,
+  "localStagingBookkeeping": [
+    ".amo-upload-uuid"
+  ],
+  "signedXpiModified": false,
+  "signingRerun": false,
+  "scope": "Payload hashes and strict whitespace-only manifest verification; Firefox cryptographic trust/restart result is recorded separately"
+}

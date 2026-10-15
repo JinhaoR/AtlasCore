@@ -1,0 +1,19 @@
+{
+  "firefox": "157.0.1",
+  "extensionVersion": "0.1.13",
+  "freshInstallWhitelistCount": 51,
+  "freshInstallBlacklistEmpty": true,
+  "setupRequired": false,
+  "freshRevision": 0,
+  "noCopiedRuntimeState": true,
+  "pendingAndReadyRequestsHidden": true,
+  "savedGrantVisible": true,
+  "countdownAdvances": true,
+  "rowAndFocusStable": true,
+  "smallScreenFits": true,
+  "unavailableStateHidesGrants": true,
+  "restartPreservesGrantAndPolicy": true,
+  "expiryRemovesRowAndPage": true,
+  "fixedExpiry": true,
+  "noRenewal": true
+}

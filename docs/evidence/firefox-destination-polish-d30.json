@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-04",
+  "extension": "0.1.11",
+  "core": "0.1.0",
+  "coreAuthorizationChanged": false,
+  "unitTests": { "core": 191, "extension": 203, "newExtensionTests": 13 },
+  "buildsAndTypechecks": "PASS both packages",
+  "native": {
+    "firefox": "157.0",
+    "scenario": "--destination-polish-only",
+    "checks": [
+      "54px icon/name launchers, four per category, 60px accessible rail and saved preference",
+      "Journey lifetime visible, old-term Vault wait, no early application, saved explicit confirmation",
+      "Sites search/details, explicit PSL www pair, freeze/cancel/commit, presentation-only edit, Blacklist and removal through Vault",
+      "duplicate active destination rejected without creating a proposal",
+      "native timeout returns recorded origin; HTTP, immediate JS and same-origin meta-refresh cannot renew",
+      "explicit Restart and real address-bar document arrival allow subsequent attempts without grants",
+      "real IndexedDB settings restart, metadata/ranking reload and failed presentation write without permission changes",
+      "500px Home/Sites without horizontal overflow; selecting a Sites row focuses and reveals details"
+    ],
+    "measurements": {
+      "expandedSidebarPx": 216,
+      "collapsedSidebarPx": 60,
+      "launcherPx": 54,
+      "namesVisible": true,
+      "hostsHiddenOnLaunchers": true,
+      "initialCategoryCounts": [2, 4, 1, 1, 4, 2, 1],
+      "narrowViewportPx": 500
+    }
+  },
+  "nativeRegressions": [
+    {
+      "scenario": "baseline",
+      "result": "PASS",
+      "checks": ["managed denial/cache restart", "Journey redirects and fixed expiry", "Greylist wait and explicit confirmation", "focus and diagnostics", "closed-tab selection", "request withholding", "background restart"]
+    },
+    {
+      "scenario": "--productization-only",
+      "result": "PASS",
+      "checks": ["sidebar keyboard/storage sync and malformed preference fallback", "online site icons", "pin focus and local search", "schema-1 atomic migration", "per-tab badge lifecycle", "old-term settings wait/commit", "settings and pending proposal restart"]
+    },
+    {
+      "scenario": "--journey-polish-only",
+      "result": "PASS",
+      "checks": ["loaded-root arrival and fresh Login", "immediate same-host POST", "fixed deadline/hops", "repeated denial/re-entry/retry", "context isolation", "slow root document", "first GET/POST/script departure", "HTTP correlation", "unrelated typed navigation and intermediate-link denial", "cross-domain and immediate POST continuation", "unchanged policy/configuration and no permanent trust or grants"]
+    },
+    {
+      "scenario": "--coherence-only",
+      "result": "PASS",
+      "checks": ["draft preservation across unavailable authority", "disabled commands", "fractional timing rejected", "feedback/focus and responsive layout", "internal replacement retires source evidence", "Greylist wait and access focus"]
+    }
+  ],
+  "limits": [
+    "isolated synthetic sites, no real-account sign-in",
+    "timeout returns origin homepage without replaying authentication paths",
+    "immediately redirecting root after timeout needs explicit Atlas Restart",
+    "usage omits ordinary links without an attested launch",
+    "native narrow viewport is 500px; smaller widths not established",
+    "physical power-loss durability not tested"
+  ]
+}

@@ -3,6 +3,7 @@ import { curatedWhitelist, serviceHostnames } from '../presets/curated-whitelist
 
 /** Presentation identity only. A saved pin cannot make an inactive destination available. */
 export function destinationId(entry: DestinationEntry): string {
+  if (entry.id !== undefined) return entry.id;
   for (const group of curatedWhitelist) for (const service of group.services) {
     if (serviceHostnames(service).includes(entry.hostname)) return `service:${service.hostname}`;
   }
@@ -17,7 +18,24 @@ export function readPins(value: unknown): readonly string[] {
 
 export function pinnedDestinations(entries: readonly DestinationEntry[], pins: readonly string[]): readonly DestinationEntry[] {
   const active = new Map(entries.map((entry) => [destinationId(entry), entry]));
-  return pins.flatMap((id) => active.has(id) ? [active.get(id)!] : []);
+  const selected = new Set<string>();
+  return pins.flatMap(id => {
+    const entry = active.get(id) ?? (id.startsWith('host:') ? entries.find(item => item.hostnames.includes(id.slice(5))) : undefined);
+    if (entry === undefined || selected.has(destinationId(entry))) return [];
+    selected.add(destinationId(entry)); return [entry];
+  });
+}
+
+export function updateDestinationPin(pins: readonly string[], id: string, pinned: boolean, hosts: readonly string[] = []): readonly string[] {
+  const related = new Set([id, ...hosts.map(host => `host:${host}`)]);
+  const next: string[] = [];
+  let placed = false;
+  for (const pin of pins) {
+    if (!related.has(pin)) next.push(pin);
+    else if (pinned && !placed) { next.push(id); placed = true; }
+  }
+  if (pinned && !placed) next.push(id);
+  return next;
 }
 
 /** Preserve distinct active entry points; aliases do not create duplicate service cards. */

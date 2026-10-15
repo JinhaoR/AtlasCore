@@ -1,0 +1,180 @@
+{
+  "milestone": "B",
+  "verifiedOn": "2026-10-11",
+  "developmentVersion": "0.1.13",
+  "automated": {
+    "corePassed": 191,
+    "extensionPassed": 287,
+    "newBatchRegressions": 42,
+    "retainedMilestoneARegressions": 19,
+    "failed": 0,
+    "skipped": 0,
+    "coreTypecheck": true,
+    "extensionTypecheck": true,
+    "developmentBuild": true,
+    "distributionVerified": true,
+    "originalSignedPackageVerifiedOffline": true
+  },
+  "nativeBatch": {
+    "firefox": "157.0.1",
+    "checks": [
+      "three Whitelist additions, two Blacklist additions, explicit removal and name/category/pin edit staged together without policy or waiting",
+      "editable draft survives closing UI and a full Firefox process restart; complete destination review and unchanged old-term Vault wait",
+      "one explicit confirmation commits entire candidate once; replay rejected; post-commit display failure survives full restart and retries only presentation",
+      "unrelated commit stales preserved draft; explicit reconciliation preview and acceptance do not create permission or submit automatically",
+      "custom Books category reused across editor and committed Home grouping without rewriting legacy records or changing category ordering controls",
+      "two native Atlas pages detect a changed shared draft, retain local work and explicitly reload without overwriting the other page",
+      "real draft transaction failure retains raw inputs and blocks submission; explicit local retry saves work without policy commands",
+      "final full process restart retains completed policy/display/pins and separately preserves the next editable unsubmitted draft",
+      "lost response plus unrelated proposal ID advancement has an explicit local discard after Core recovery; saved policy retained and no repeat proposal or confirmation"
+    ],
+    "fullFirefoxRestarts": 3,
+    "isolatedProfile": true,
+    "signedReleaseModified": false,
+    "coreSemanticsChanged": false
+  },
+  "nativeRegressions": {
+    "uiReliability": {
+      "firefox": "157.0.1",
+      "checks": [
+        "failed authority query retains labelled stale cards, hides fake empty messages, disables openings and recovers",
+        "rendered exact-host click goes through adapter/Core, aliases stay exact, service names default and ambiguous entry points are separate",
+        "failed rendered display save preserves draft, no false saved values, explicit retry, focus return and reload persistence",
+        "saved proposal and waiting/ready/committed states, pending Sites explanation and link, routine status semantics",
+        "actual Core commit with failed accompanying display write reports partial success and retries display without another proposal",
+        "genuine empty collection is distinct from unavailable and recovers through ordinary protected policy changes"
+      ],
+      "profile": "isolated synthetic fixture",
+      "signedReleaseModified": false
+    },
+    "destinationPolish": {
+      "firefox": "157.0.1",
+      "checks": [
+        "54px launchers, one responsive preview row, two to five columns in tested windows, maximum five per row, stable cards and permanent 60px accessible rail",
+        "Journey lifetime visible, old-term Vault wait, no early application, saved explicit confirmation",
+        "Sites search/details, explicit PSL www pair, freeze/cancel/commit, presentation-only edit, Blacklist and removal through Vault",
+        "native timeout returns recorded origin; HTTP, immediate JS and same-origin meta-refresh cannot renew; explicit Restart and real address-bar document arrival allow subsequent attempts without grants",
+        "real IndexedDB settings restart, metadata/ranking reload, failed presentation write without permission changes and 500px Home/Sites without horizontal overflow"
+      ],
+      "metrics": {
+        "rail": 60,
+        "card": 54,
+        "names": true,
+        "hiddenHosts": true
+      },
+      "layouts": [
+        {
+          "width": 500,
+          "columns": 2,
+          "expected": 2,
+          "counts": [
+            2,
+            2,
+            1,
+            1,
+            2,
+            2,
+            1
+          ],
+          "singleRow": true,
+          "maxRow": 2,
+          "fixedHeight": true,
+          "sameCard": true,
+          "overflow": false
+        },
+        {
+          "width": 800,
+          "columns": 3,
+          "expected": 3,
+          "counts": [
+            2,
+            3,
+            1,
+            1,
+            3,
+            2,
+            1
+          ],
+          "singleRow": true,
+          "maxRow": 3,
+          "fixedHeight": true,
+          "sameCard": true,
+          "overflow": false
+        },
+        {
+          "width": 1000,
+          "columns": 4,
+          "expected": 4,
+          "counts": [
+            2,
+            4,
+            1,
+            1,
+            4,
+            2,
+            1
+          ],
+          "singleRow": true,
+          "maxRow": 4,
+          "fixedHeight": true,
+          "sameCard": true,
+          "overflow": false
+        },
+        {
+          "width": 1440,
+          "columns": 5,
+          "expected": 5,
+          "counts": [
+            2,
+            5,
+            1,
+            1,
+            4,
+            2,
+            1
+          ],
+          "singleRow": true,
+          "maxRow": 5,
+          "fixedHeight": true,
+          "sameCard": true,
+          "overflow": false
+        },
+        {
+          "width": 2100,
+          "columns": 5,
+          "expected": 5,
+          "counts": [
+            2,
+            5,
+            1,
+            1,
+            4,
+            2,
+            1
+          ],
+          "singleRow": true,
+          "maxRow": 5,
+          "fixedHeight": true,
+          "sameCard": true,
+          "overflow": false
+        }
+      ]
+    }
+  },
+  "boundaries": {
+    "coreSourceUnchanged": true,
+    "authoritySchemaUnchanged": true,
+    "extensionIdentityUnchanged": true,
+    "versionUnchanged": true,
+    "installedProfileUntouched": true,
+    "enterprisePoliciesUntouched": true,
+    "mozillaSubmissionOrSigning": false
+  },
+  "limits": [
+    "Synthetic sites; no authenticated remote accounts.",
+    "Fault injection does not establish physical power-loss durability.",
+    "Drafts remain local to one Firefox profile; no external synchronization.",
+    "Unsaved edits cannot be guaranteed after failed storage or abrupt process loss.",
+    "Full assistive-technology testing has not been performed."
+  ]
+}
