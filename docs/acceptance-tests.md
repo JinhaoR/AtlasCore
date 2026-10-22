@@ -1,5 +1,28 @@
 # Atlas Core acceptance scenarios
 
+## Daily-use storage reliability (2026-10-21)
+
+The [storage report](firefox-storage-reliability.md) and
+[evidence record](evidence/firefox-storage-reliability.json) distinguish the
+reproduced 0.1.16 unavailable latch from the original, unrecorded Firefox error.
+Core **204/204** and extension **391/391** tests pass without skips, including
+17 new storage regressions. Both TypeScript checks and the development build pass.
+Core source, identity, permissions and storage formats are unchanged.
+
+Isolated Firefox **158.0.1** reproduces the old failure with one native transaction
+abort. The repaired seven-group native fixture covers readonly loads, recovery
+before Whitelist page replacement, original grant/Vault timestamps, one bounded
+attempt under persistent failure, explicit Recovery, quota diagnostics and
+Blacklist enforcement. Its three-tab five-second sample records 60 write
+transactions before and 16 after; these are sampled counts, not a storage-capacity
+or CPU benchmark. The existing nine-group batch/Vault suite passes with three
+full Firefox restarts. Real checkpoint writes and reconciliation receipts remain;
+physical crash/disk-error durability and receipt compaction are not certified.
+The existing nine native UI/Journey interaction groups also pass, including the
+60-second passive indicator, unchanged controls/drafts and one refresh timer.
+All 76 preserved 0.1.13–0.1.16 release files retain their hashes and the four signed
+XPIs verify offline. No installed profile, signing or deployment change occurred.
+
 ## Release candidate evidence (0.1.16)
 
 Prepared 2026-10-13 following user authorization. The

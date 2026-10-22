@@ -383,6 +383,10 @@ commands. Intents stay outside `AtlasSnapshot` and its unchanged repository sche
 
 ### Failure and restart rules
 
+The Firefox host's bounded use of this recovery API after a confirmed transient
+IndexedDB abort is described in [storage reliability](firefox-storage-reliability.md).
+It does not change controller states, commit semantics or authorization rules.
+
 - Owner statuses are UNINITIALIZED, LOADING, READY, COMMITTING, RECONCILING, and UNAVAILABLE. Only READY accepts operations; an initial `open()` is required.
 - Definite write failure returns BLOCKED, retains the last verified snapshot, and requires explicit `open()` recovery before further operations. Queued confirmations cannot silently retry the failed write. A later confirmation is a fresh call using the original deadline.
 - Conflict discards the candidate, reloads latest data, and returns BLOCKED. Recovery never replays the operation or rebases a proposal.

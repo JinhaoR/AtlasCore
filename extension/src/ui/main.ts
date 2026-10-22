@@ -14,7 +14,7 @@ import { destinationEntryPoints, destinationId, pinnedDestinations, readPins, up
 import { usagePreferencesKey as destinationUsageKey, readDestinationUsage, rankDestinations, type DestinationUsage } from './destination-usage.js';
 import { initializeSites, type SitesCommandResponse } from './sites.js';
 import { loadWebsiteIcon } from './website-icons.js';
-import { accessCopy, accessOutcomeLabel, canQueueOperation, countdown, journeyEndCopy, selectedAccessRecord, selectedContext, startupCopy } from './presentation.js';
+import { accessCopy, accessOutcomeLabel, canQueueOperation, countdown, journeyEndCopy, selectedAccessRecord, selectedContext, startupCopy, storageDiagnosticsCopy, storageFailureCopy } from './presentation.js';
 import { configurationFromDraft, settingsCopy, timingFields, type TimingDraft } from './settings-model.js';
 import { compileCuratedWhitelist, curatedWhitelist, serviceLabel } from '../presets/curated-whitelist.js';
 import type { Policy, PolicyReview } from '@atlas/core';
@@ -86,6 +86,9 @@ const buildVersion = document.createElement('p');
 buildVersion.id = 'build-version'; buildVersion.className = 'note';
 setProperty(buildVersion, 'textContent', `Atlas extension ${browser.runtime.getManifest().version}`);
 element('diagnostics').append(buildVersion);
+const storageDiagnostic = document.createElement('p');
+storageDiagnostic.id = 'storage-diagnostic'; storageDiagnostic.className = 'note';
+element('diagnostics').append(storageDiagnostic);
 element('diagnostics').append(element('startup-diagnostic'));
 element('diagnostics').append(element('action-diagnostic'));
 setProperty(document.body.dataset, 'mode', params.get('view') === 'access' ? 'access' : 'control');
@@ -436,8 +439,9 @@ function renderSettings(controller: AdapterView['controller'] | undefined, ready
   setProperty(element<HTMLButtonElement>('recover'), 'disabled', busy || ready || status === 'UNINITIALIZED' || status === 'COMMITTING');
   text('recover', view?.startup.status === 'FAILED' ? 'Retry startup' : 'Reload and reconcile state');
   text('startup-diagnostic', view?.startup.status === 'FAILED' ? `Startup: ${view.startup.stage} · ${view.startup.reason}` : '');
+  text('storage-diagnostic', storageDiagnosticsCopy(view?.storage));
   text('policy', controller?.snapshot
-    ? `Exact Whitelist hosts: ${policy!.whitelist.length}\nManual Blacklist hosts: ${policy!.blacklist.length}\nPolicy revision: ${controller.snapshot.policyRevision}\nState: ${status}${controller.reason ? ` · ${controller.reason}` : ''}`
+    ? `Exact Whitelist hosts: ${policy!.whitelist.length}\nManual Blacklist hosts: ${policy!.blacklist.length}\nPolicy revision: ${controller.snapshot.policyRevision}\nState: ${status}${controller.reason ? ` · ${controller.reason}` : ''}${status === 'UNAVAILABLE' && view?.storage?.lastFailure ? `\n${storageFailureCopy(view.storage)}` : ''}`
     : startupCopy(view?.startup) || 'No verified policy loaded.');
 }
 
@@ -872,7 +876,7 @@ element('export-diagnostics').addEventListener('click', () => {
   const tabId = element<HTMLSelectElement>('diagnostic-scope').value === 'all' ? null : Number(selected || -1);
   void browser.runtime.sendMessage({ kind: 'GET_DIAGNOSTICS', tabId }).then((response) => {
     if (!Array.isArray(response?.entries)) throw new Error('Unavailable');
-    const url = URL.createObjectURL(new Blob([JSON.stringify({ format: 'atlas-diagnostics-v1', entries: response.entries }, null, 2)], { type: 'application/json' }));
+    const url = URL.createObjectURL(new Blob([JSON.stringify({ format: 'atlas-diagnostics-v1', entries: response.entries, storage: response.storage ?? null }, null, 2)], { type: 'application/json' }));
     const link = document.createElement('a'); link.href = url; link.download = 'atlas-diagnostics.json'; link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }).catch(() => feedback('Could not export diagnostics.', 'error'));

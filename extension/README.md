@@ -2,6 +2,17 @@
 
 A Firefox WebExtension consuming `@atlas/core`. Core decides policy, Greylist, Vault, and Journey behavior. The extension holds requests, supplies browser facts, persists snapshots, and executes saved decisions. The [architecture](../docs/firefox-adapter.md) records the choices made before implementation.
 
+The current development [storage reliability fix](../docs/firefox-storage-reliability.md)
+uses readonly authority loads, safe local error diagnostics and one verified
+recovery after a confirmed transient write abort. It preserves Core rules and
+signed 0.1.16. This fix is not installed into your daily Firefox by a development
+build. Native regressions use
+`python extension/scripts/firefox-e2e.py --storage-reliability-only`; add
+`--storage-baseline --addon-dir extension/release/0.1.16/addon` only to reproduce
+the old failure in a disposable profile. Storage cause/counters appear in
+Settings → Navigation diagnostics and its JSON export. Unavailable recovery also
+shows the safe cause. Never clear saved Atlas data to resolve a storage error.
+
 ## Build and load
 
 Development includes [Milestone D visual polish](../docs/visual-polish.md): shared

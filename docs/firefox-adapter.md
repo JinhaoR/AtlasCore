@@ -67,6 +67,12 @@ An unrelated address entered manually in an active Journey tab receives ordinary
 
 Repository unit tests use IndexedDB emulation; native Firefox tests exercise the real backend and extension. Neither establishes physical power-loss durability, authentication-provider compatibility, or exhaustive browser event coverage. Receipt records are retained for reconciliation; compaction is deferred and their growth is a development limitation.
 
+The [storage reliability fix](firefox-storage-reliability.md) separates ordinary
+readonly loads from strict atomic migration, records safe local failure causes
+and permits one verified recovery attempt after a proven transient aborted write.
+It calls the same Core owner without replaying confirmations. Persistent, quota,
+corrupt and unknown outcomes retain conservative recovery boundaries.
+
 ## Validation plan
 
 Use the real Core and fake time with mocked Firefox events for allowed and denied navigation, explicit Greylist confirmation, fixed Journey paths, redirects, context isolation, superseded requests, failed saves, untrusted messages, cancellation, and visible-content expiry. Separately test repository CAS, atomic replacement, initialization, corruption, receipts, and restart loading.

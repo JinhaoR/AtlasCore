@@ -120,6 +120,8 @@ def main():
     parser.add_argument("--ui-stability-baseline", action="store_true", help="Record pre-fix measurements without asserting the corrected mutation budget")
     parser.add_argument("--ui-stability-interactions-only", action="store_true", help="Exercise rendering races, failed responses, native controls, toolbar reuse and the passive indicator")
     parser.add_argument("--ui-stability-indicator-only", action="store_true", help="Measure the passive Journey indicator for 60 seconds in isolation")
+    parser.add_argument("--storage-reliability-only", action="store_true", help="Exercise real IndexedDB abort recovery and conservative storage failures in a disposable profile")
+    parser.add_argument("--storage-baseline", action="store_true", help="Record the preserved release's sticky storage failure without expecting automatic recovery")
     parser.add_argument("--visual-baseline", action="store_true", help="Record pre-polish metrics without enforcing the new visual targets")
     parser.add_argument("--destination-polish-only", action="store_true", help="Exercise Sites, compact Home, protected timing, local preferences and timeout renewal guards")
     parser.add_argument("--friend-prototype-only", action="store_true", help="Check automatic first-run policy, temporary access overview/countdown, expiry and restart")
@@ -411,6 +413,12 @@ def main():
         assert "google.com" not in policy["whitelist"] and "www.google.com" not in policy["whitelist"]
         assert policy["blacklist"] == ["black.localhost"]
         print(f"Firefox {version}: curated setup, real IndexedDB, managed list active ({managed['count']} domains)", flush=True)
+        if arguments.storage_reliability_only:
+            from firefox_storage_reliability import run_storage_reliability
+            result = run_storage_reliability(client, ui_handle, UI_URL, port, wait_for, run, arguments.storage_baseline)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
         if arguments.ui_stability_interactions_only or arguments.ui_stability_indicator_only:
             from firefox_ui_stability_interactions import run_interactions
             result = run_interactions(client, ui_handle, UI_URL, port, wait_for, run, arguments.ui_stability_baseline, arguments.ui_stability_indicator_only)

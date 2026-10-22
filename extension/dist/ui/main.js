@@ -4638,6 +4638,16 @@
   }
 
   // src/ui/presentation.ts
+  function storageFailureCopy(storage) {
+    const failure = storage?.lastFailure;
+    if (!failure) return "";
+    const code = `Last storage issue: ${failure.operation} \xB7 ${failure.stage} \xB7 ${failure.cause}.`;
+    if (failure.cause === "QUOTA_EXCEEDED") return `${code} Firefox reported insufficient storage. Free disk space, then reload and reconcile state. Do not clear Atlas data.`;
+    return `${code} If access remains paused, reload and reconcile state. Your saved policy is retained.`;
+  }
+  function storageDiagnosticsCopy(storage) {
+    return storage ? `Storage this background session: ${storage.readTransactions} read transactions, ${storage.writeTransactions} write transactions, ${storage.committedWrites} committed snapshots, ${storage.failedCommits} failed commits. ${storageFailureCopy(storage)}` : "";
+  }
   function startupCopy(startup) {
     if (startup?.status !== "FAILED") return "";
     if (startup.stage === "MANAGED_BLACKLIST") return "Atlas could not verify its bundled safety list. Retry startup in Settings. If this continues, obtain a verified signed Atlas update; keep the extension installed to preserve saved state.";
@@ -4896,6 +4906,10 @@
   buildVersion.className = "note";
   setProperty(buildVersion, "textContent", `Atlas extension ${browser.runtime.getManifest().version}`);
   element2("diagnostics").append(buildVersion);
+  var storageDiagnostic = document.createElement("p");
+  storageDiagnostic.id = "storage-diagnostic";
+  storageDiagnostic.className = "note";
+  element2("diagnostics").append(storageDiagnostic);
   element2("diagnostics").append(element2("startup-diagnostic"));
   element2("diagnostics").append(element2("action-diagnostic"));
   setProperty(document.body.dataset, "mode", params.get("view") === "access" ? "access" : "control");
@@ -5286,10 +5300,12 @@ Unsupported names skipped: ${managed.ignoredNames}` : "");
     setProperty(element2("recover"), "disabled", busy || ready || status === "UNINITIALIZED" || status === "COMMITTING");
     text2("recover", view?.startup.status === "FAILED" ? "Retry startup" : "Reload and reconcile state");
     text2("startup-diagnostic", view?.startup.status === "FAILED" ? `Startup: ${view.startup.stage} \xB7 ${view.startup.reason}` : "");
+    text2("storage-diagnostic", storageDiagnosticsCopy(view?.storage));
     text2("policy", controller?.snapshot ? `Exact Whitelist hosts: ${policy.whitelist.length}
 Manual Blacklist hosts: ${policy.blacklist.length}
 Policy revision: ${controller.snapshot.policyRevision}
-State: ${status}${controller.reason ? ` \xB7 ${controller.reason}` : ""}` : startupCopy(view?.startup) || "No verified policy loaded.");
+State: ${status}${controller.reason ? ` \xB7 ${controller.reason}` : ""}${status === "UNAVAILABLE" && view?.storage?.lastFailure ? `
+${storageFailureCopy(view.storage)}` : ""}` : startupCopy(view?.startup) || "No verified policy loaded.");
   }
   function renderHome(policy, ready) {
     const verified = view?.controller?.status === "READY" && policy !== void 0;
@@ -5864,7 +5880,7 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
     const tabId = element2("diagnostic-scope").value === "all" ? null : Number(selected || -1);
     void browser.runtime.sendMessage({ kind: "GET_DIAGNOSTICS", tabId }).then((response) => {
       if (!Array.isArray(response?.entries)) throw new Error("Unavailable");
-      const url = URL.createObjectURL(new Blob([JSON.stringify({ format: "atlas-diagnostics-v1", entries: response.entries }, null, 2)], { type: "application/json" }));
+      const url = URL.createObjectURL(new Blob([JSON.stringify({ format: "atlas-diagnostics-v1", entries: response.entries, storage: response.storage ?? null }, null, 2)], { type: "application/json" }));
       const link = document.createElement("a");
       link.href = url;
       link.download = "atlas-diagnostics.json";

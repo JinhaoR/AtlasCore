@@ -1,5 +1,24 @@
 import { createAccessState, createJourneyState, createVaultState, validateAtlasSnapshot, migrateAtlasSnapshotV1, readConfiguration, } from '@atlas/core';
 import { configuration as defaultConfiguration } from "../background/configuration.js";
+// Never expose exception messages, browser event objects, URLs or stored data.
+function failureCause(error, fallback = 'OTHER') {
+    try {
+        switch (error?.name) {
+            case 'AbortError': return 'ABORTED';
+            case 'UnknownError': return 'IO_ERROR';
+            case 'QuotaExceededError': return 'QUOTA_EXCEEDED';
+            case 'InvalidStateError': return 'CONNECTION_CLOSED';
+            case 'NotSupportedError': return 'DURABILITY_UNAVAILABLE';
+            case 'DataError':
+            case 'DataCloneError':
+            case 'ConstraintError': return 'INVALID_DATA';
+            default: return fallback;
+        }
+    }
+    catch {
+        return 'OTHER';
+    }
+}
 const stores = ['authority', 'receipts'];
 /** Opening completes before this port is exposed, so each operation enqueues its transaction immediately. */
 export function openRepository(factory, newVersion, name = 'atlas-authority-v1', bootstrapInput = defaultConfiguration) {
@@ -34,49 +53,80 @@ class IndexedDBRepository {
     database;
     newVersion;
     bootstrap;
+    reads = 0;
+    writes = 0;
+    committed = 0;
+    failedCommits = 0;
+    failureSequence = 0;
+    lastFailure = null;
     constructor(database, newVersion, bootstrap) {
         this.database = database;
         this.newVersion = newVersion;
         this.bootstrap = bootstrap;
     }
     close() { this.database.close(); }
+    getDiagnostics() {
+        return Object.freeze({ readTransactions: this.reads, writeTransactions: this.writes,
+            committedWrites: this.committed, failedCommits: this.failedCommits, lastFailure: this.lastFailure });
+    }
+    failed(operation, stage, cause) {
+        if (operation === 'COMMIT')
+            this.failedCommits++;
+        this.lastFailure = Object.freeze({ sequence: ++this.failureSequence, operation, stage, cause });
+    }
     transaction(mode) {
-        const transaction = this.database.transaction(stores, mode, { durability: 'strict' });
+        const transaction = this.database.transaction(stores, mode, mode === 'readwrite' ? { durability: 'strict' } : undefined);
+        if (mode === 'readonly')
+            this.reads++;
+        else
+            this.writes++;
         if (mode === 'readwrite' && transaction.durability !== 'strict') {
             transaction.abort();
-            throw new Error('STRICT_DURABILITY_UNAVAILABLE');
+            throw new DOMException('STRICT_DURABILITY_UNAVAILABLE', 'NotSupportedError');
         }
         return transaction;
     }
     load() {
+        return this.read('readonly');
+    }
+    read(mode) {
         return new Promise((resolve) => {
             try {
-                const transaction = this.transaction('readwrite');
+                const transaction = this.transaction(mode);
                 const authority = transaction.objectStore('authority');
                 const initialized = authority.get('initialized');
                 const envelope = authority.get('envelope');
                 let loaded;
+                let needsMigration = false;
+                let invalidMigration = false;
                 envelope.onsuccess = () => {
                     loaded = envelope.result;
                     if (initialized.result !== true || loaded === null || typeof loaded !== 'object'
                         || !('schemaVersion' in loaded) || loaded.schemaVersion !== 1)
                         return;
+                    if (mode === 'readonly') {
+                        needsMigration = true;
+                        return;
+                    }
                     // One fenced atomic migration; damaged legacy authority is never replaced by defaults.
                     try {
                         const old = loaded;
                         if (Object.keys(old).length !== 4 || !Object.hasOwn(old, 'snapshot')
                             || typeof old.storageVersion !== 'string' || !/^[a-z0-9_.:-]{1,256}$/i.test(old.storageVersion)
                             || (old.lastCommitId !== null && (typeof old.lastCommitId !== 'string' || !/^[a-z0-9_.:-]{1,256}$/i.test(old.lastCommitId)))) {
+                            invalidMigration = true;
                             transaction.abort();
                             return;
                         }
                         const migrated = migrateAtlasSnapshotV1(old.snapshot, this.bootstrap);
                         if (!migrated.ok) {
+                            invalidMigration = true;
                             transaction.abort();
                             return;
                         }
                         const storageVersion = this.version();
                         if (storageVersion === old.storageVersion) {
+                            invalidMigration = true;
                             transaction.abort();
                             return;
                         }
@@ -88,6 +138,12 @@ class IndexedDBRepository {
                     }
                 };
                 transaction.oncomplete = () => {
+                    // Only legacy data needs a write. Reread it inside the fenced write
+                    // transaction so another connection cannot migrate or commit underneath it.
+                    if (needsMigration) {
+                        resolve(this.read('readwrite'));
+                        return;
+                    }
                     if (initialized.result === false && envelope.result === undefined) {
                         resolve({ type: 'UNINITIALIZED' });
                     }
@@ -98,9 +154,13 @@ class IndexedDBRepository {
                     else
                         resolve({ type: 'UNAVAILABLE' });
                 };
-                transaction.onabort = () => resolve({ type: 'UNAVAILABLE' });
+                transaction.onabort = () => {
+                    this.failed('LOAD', 'TRANSACTION_ABORT', invalidMigration ? 'INVALID_DATA' : failureCause(transaction.error, 'ABORTED'));
+                    resolve({ type: 'UNAVAILABLE' });
+                };
             }
-            catch {
+            catch (error) {
+                this.failed('LOAD', 'TRANSACTION_OPEN', failureCause(error));
                 resolve({ type: 'UNAVAILABLE' });
             }
         });
@@ -134,9 +194,10 @@ class IndexedDBRepository {
                     }
                 };
                 transaction.oncomplete = () => resolve(applied);
-                transaction.onabort = () => resolve(false);
+                transaction.onabort = () => { this.failed('INITIALIZE', 'TRANSACTION_ABORT', failureCause(transaction.error, 'ABORTED')); resolve(false); };
             }
-            catch {
+            catch (error) {
+                this.failed('INITIALIZE', 'TRANSACTION_OPEN', failureCause(error));
                 resolve(false);
             }
         });
@@ -155,11 +216,13 @@ class IndexedDBRepository {
             try {
                 transaction = this.transaction('readwrite');
             }
-            catch {
+            catch (error) {
+                this.failed('COMMIT', 'TRANSACTION_OPEN', failureCause(error));
                 resolve({ type: 'NOT_WRITTEN', commitId: request.commitId });
                 return;
             }
             let result = { type: 'NOT_WRITTEN', commitId: request.commitId };
+            let caughtFailure = null;
             const authority = transaction.objectStore('authority');
             const receipts = transaction.objectStore('receipts');
             const initialized = authority.get('initialized');
@@ -184,6 +247,7 @@ class IndexedDBRepository {
                         return;
                     const storageVersion = this.version();
                     if (storageVersion === envelope.storageVersion) {
+                        caughtFailure = 'INVALID_DATA';
                         transaction.abort();
                         return;
                     }
@@ -193,13 +257,23 @@ class IndexedDBRepository {
                     receipts.add(receipt, request.commitId);
                     result = receipt;
                 }
-                catch {
+                catch (error) {
+                    caughtFailure = failureCause(error);
                     transaction.abort();
                 }
             };
-            transaction.oncomplete = () => resolve(result);
+            transaction.oncomplete = () => {
+                if (result.type === 'COMMITTED')
+                    this.committed++;
+                else if (result.type === 'NOT_WRITTEN')
+                    this.failed('COMMIT', 'VALIDATION', 'INVALID_DATA');
+                resolve(result);
+            };
             // IndexedDB abort rolls back the whole transaction and cannot apply it later.
-            transaction.onabort = () => resolve({ type: 'NOT_WRITTEN', commitId: request.commitId });
+            transaction.onabort = () => {
+                this.failed('COMMIT', 'TRANSACTION_ABORT', caughtFailure ?? failureCause(transaction.error, 'ABORTED'));
+                resolve({ type: 'NOT_WRITTEN', commitId: request.commitId });
+            };
         });
     }
     resolveCommit(commitId) {
@@ -226,9 +300,10 @@ class IndexedDBRepository {
                     else
                         resolve({ type: 'UNKNOWN', commitId });
                 };
-                transaction.onabort = () => resolve({ type: 'UNKNOWN', commitId });
+                transaction.onabort = () => { this.failed('RESOLVE', 'TRANSACTION_ABORT', failureCause(transaction.error, 'ABORTED')); resolve({ type: 'UNKNOWN', commitId }); };
             }
-            catch {
+            catch (error) {
+                this.failed('RESOLVE', 'TRANSACTION_OPEN', failureCause(error));
                 resolve({ type: 'UNKNOWN', commitId });
             }
         });

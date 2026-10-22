@@ -1,3 +1,16 @@
+/** Local storage observations are explanations, never authorization inputs. */
+export function storageFailureCopy(storage) {
+    const failure = storage?.lastFailure;
+    if (!failure)
+        return '';
+    const code = `Last storage issue: ${failure.operation} · ${failure.stage} · ${failure.cause}.`;
+    if (failure.cause === 'QUOTA_EXCEEDED')
+        return `${code} Firefox reported insufficient storage. Free disk space, then reload and reconcile state. Do not clear Atlas data.`;
+    return `${code} If access remains paused, reload and reconcile state. Your saved policy is retained.`;
+}
+export function storageDiagnosticsCopy(storage) {
+    return storage ? `Storage this background session: ${storage.readTransactions} read transactions, ${storage.writeTransactions} write transactions, ${storage.committedWrites} committed snapshots, ${storage.failedCommits} failed commits. ${storageFailureCopy(storage)}` : '';
+}
 /** Explain adapter startup separately from Core authority. This creates no state. */
 export function startupCopy(startup) {
     if (startup?.status !== 'FAILED')

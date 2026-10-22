@@ -2,6 +2,14 @@
 
 An independent decision library for intentional web access. Core implements pure domain workflows and a framework-independent controller that coordinates commits through injected interfaces.
 
+The development [storage reliability fix](docs/firefox-storage-reliability.md)
+addresses 0.1.16's latched `WRITE_FAILED` outage after a transient IndexedDB abort.
+Ordinary authority loads are readonly; one verified adapter recovery keeps healthy
+Whitelist pages open without replaying confirmations. Persistent/unknown failures
+remain conservative. Core and signed release artifacts are unchanged.
+Verification passes **204 Core and 391 extension tests**, both TypeScript checks,
+the development build and isolated Firefox storage/batch/UI regression suites.
+
 The development [UI stability pass](docs/ui-stability.md) removes unchanged DOM
 writes and preference-loading cycles, retains native controls, and adds matched
 60-second Firefox rendering regressions. The **0.1.16 unsigned release candidate**
@@ -15,7 +23,7 @@ Vault cycle, explicit stale-draft reconciliation and reusable custom categories.
 existing planner/controller. [Milestone C Home organization](docs/home-organization.md)
 and [Milestone D visual polish](docs/visual-polish.md) are preserved, with
 **204 Core and 374 extension tests** passing in this development pass.
-Signed **0.1.13**, **0.1.14** and **0.1.15** release assets remain frozen.
+Signed **0.1.13**, **0.1.14**, **0.1.15** and **0.1.16** release assets remain frozen.
 The [release guide](docs/firefox-private-release.md) describes their packaging and
 verification. Version 0.1.16 is prepared for separate unlisted signing; no submission
 or installed Firefox update is performed by preparation.

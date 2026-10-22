@@ -33,6 +33,7 @@ export class FirefoxAdapter {
     host = null;
     startup = { status: 'LOADING' };
     refreshPending = null;
+    storageRecoveryUsed = false;
     stopped = false;
     nextNavigation = 0;
     nextAccessScope = 0;
@@ -862,9 +863,48 @@ export class FirefoxAdapter {
             .finally(() => { this.refreshPending = null; });
         return this.refreshPending;
     }
+    /** Recover authority, never replay an operation. Unknown writes, damaged data,
+     * quota and clock failures keep their explicit recovery boundary. */
+    async recoverTransientStorage() {
+        const host = this.host;
+        const view = host?.controller.getView();
+        const failure = this.storageDiagnostics()?.lastFailure;
+        if (!host || this.storageRecoveryUsed || view?.status !== 'UNAVAILABLE'
+            || view.reason !== 'WRITE_FAILED' || view.pendingCommitId !== null
+            || failure?.operation !== 'COMMIT' || failure.stage !== 'TRANSACTION_ABORT'
+            || (failure.cause !== 'ABORTED' && failure.cause !== 'IO_ERROR'))
+            return false;
+        this.storageRecoveryUsed = true;
+        // Same owner, time floor and repository. Core reloads/validates complete
+        // authority and saves recovery housekeeping before returning READY.
+        await host.controller.open();
+        return host.controller.getView().status === 'READY';
+    }
+    storageDiagnostics() {
+        try {
+            return this.host?.repository.getDiagnostics?.() ?? null;
+        }
+        catch {
+            return null;
+        }
+    }
+    async checkRetained(context, target) {
+        const assess = () => {
+            const retained = this.journey(context);
+            return this.check(context, target, false, retained !== null && retained.phase !== 'ENDED'
+                ? { kind: 'RETAINED', sourceHostname: retained.currentHostname } : undefined);
+        };
+        const result = await assess();
+        return result.type === 'BLOCKED' && await this.recoverTransientStorage() ? assess() : result;
+    }
     async recheck() {
+        if (this.host?.controller.getView().status === 'READY')
+            this.storageRecoveryUsed = false;
         const generations = new Map([...this.contexts.values()].map(context => [context.tabId, context.generation]));
-        const observation = await this.host?.controller.handle({ kind: 'OBSERVE_TIME' });
+        await this.recoverTransientStorage();
+        let observation = await this.host?.controller.handle({ kind: 'OBSERVE_TIME' });
+        if (observation?.type === 'BLOCKED' && await this.recoverTransientStorage())
+            observation = await this.host?.controller.handle({ kind: 'OBSERVE_TIME' });
         for (const [tabId, target] of this.downloadTargets)
             if (this.now() - target.at >= 3000 || this.contexts.get(target.source.context.tabId) !== target.source.context)
                 this.downloadTargets.delete(tabId);
@@ -902,7 +942,7 @@ export class FirefoxAdapter {
                 if (previous !== undefined && previous.flight === null && !previous.launching) {
                     this.acknowledgeRemoval(previous);
                     if (previous.requested !== null)
-                        this.publish(previous, await this.check(previous, previous.requested.target));
+                        this.publish(previous, await this.checkRetained(previous, previous.requested.target));
                 }
                 continue;
             }
@@ -948,9 +988,7 @@ export class FirefoxAdapter {
                 || (journey !== null && journey.phase !== 'ENDED' && journey.currentHostname !== observed.target.hostname)) {
                 await this.loseJourney(context);
             }
-            const retained = this.journey(context);
-            const result = await this.check(context, observed.target, false, retained !== null && retained.phase !== 'ENDED'
-                ? { kind: 'RETAINED', sourceHostname: retained.currentHostname } : undefined);
+            const result = await this.checkRetained(context, observed.target);
             if (!this.live(context, generation))
                 continue;
             context.displayed = observed;
@@ -1029,6 +1067,7 @@ export class FirefoxAdapter {
     view() {
         const controller = this.host?.controller.getView() ?? null;
         return { startup: this.startup, controller, managed: this.host?.managed?.getView(controller?.snapshot?.policy.whitelist) ?? null,
+            storage: this.storageDiagnostics(),
             temporaryAccess: temporaryAccessView(controller, this.now(), this.host?.managed?.getBlacklist()),
             pendingAccess: pendingAccessView(controller, this.now(), this.host?.managed?.getBlacklist()),
             contexts: [...this.contexts.values()].map((context) => ({ tabId: context.tabId,
@@ -1078,7 +1117,7 @@ export class FirefoxAdapter {
             return Promise.resolve({ view: this.view() });
         if (command.kind === 'GET_DIAGNOSTICS')
             return Promise.resolve(command.tabId === null || Number.isSafeInteger(command.tabId)
-                ? { entries: this.diagnostics.read(command.tabId) } : { error: 'INVALID_CONTEXT' });
+                ? { entries: this.diagnostics.read(command.tabId), storage: this.storageDiagnostics() } : { error: 'INVALID_CONTEXT' });
         if (command.kind === 'CLEAR_DIAGNOSTICS') {
             this.diagnostics.clear();
             return Promise.resolve({ entries: [] });
@@ -1098,6 +1137,8 @@ export class FirefoxAdapter {
                 await this.host.controller.open();
             if (this.host === null)
                 return { error: this.startupReason(), view: this.view() };
+            if (this.host.controller.getView().status === 'READY')
+                this.storageRecoveryUsed = false;
             await this.recheck();
             return { view: this.view() };
         }

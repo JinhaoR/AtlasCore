@@ -70,6 +70,14 @@ Build a fresh application-independent core using Zenith as a source of lessons. 
 
 ## Decisions already made
 
+**Daily-use storage reliability (2026-10-21):** Fix 0.1.16's latched unavailable
+state after a transient aborted write in the Firefox storage/adapter layer.
+The [owning contract](firefox-storage-reliability.md) specifies readonly loads,
+strict migration/commits, safe diagnostics and one bounded use of the existing
+Core recovery API. This cannot replay confirmation, reset state, extend deadlines
+or auto-resolve an unknown outcome. Core semantics, profiles and signed releases
+remain unchanged; no release or deployment is performed by this fix.
+
 **0.1.16 release preparation (2026-10-13):** The user authorizes packaging the
 completed UI stability fixes for a future signed update. The
 [release guide](firefox-private-release.md#0116-release-candidate) owns validation

@@ -1,0 +1,732 @@
+{
+  "milestone": "Daily-use Firefox storage reliability",
+  "date": "2026-10-21",
+  "reportedVersion": "0.1.16",
+  "developmentVersion": "0.1.16",
+  "addonId": "atlas-development@atlas.invalid",
+  "reproducedCause": "A single final aborted checkpoint write latches Core UNAVAILABLE; the previous adapter never invokes recovery, so periodic checks remove authorized pages until explicit Recovery.",
+  "originalFirefoxError": "Unknown: 0.1.16 discarded the underlying IndexedDB error. The screenshot proves WRITE_FAILED, not quota exhaustion or a particular hardware/browser cause.",
+  "before": {
+    "artifact": ".tools/firefox-e2e-w4slu77u/result.json",
+    "firefox": "158.0.1",
+    "suite": "storage-reliability",
+    "baseline": true,
+    "checks": [
+      "baseline records write transactions used for ordinary authority reads",
+      "one aborted checkpoint reproduces persistent WRITE_FAILED and tab removal; explicit Recovery restores authority"
+    ],
+    "observations": [
+      {
+        "case": "five-second-steady-browsing",
+        "reads": 0,
+        "writes": 60
+      },
+      {
+        "case": "native-abort-before-fix",
+        "status": "UNAVAILABLE",
+        "reason": "WRITE_FAILED",
+        "policyRetained": true
+      }
+    ]
+  },
+  "after": {
+    "artifact": ".tools/firefox-e2e-wnkesdd4/result.json",
+    "firefox": "158.0.1",
+    "suite": "storage-reliability",
+    "baseline": false,
+    "checks": [
+      "steady browsing uses real persisted checkpoints; ordinary loads use readonly transactions",
+      "one native abort recovers through verified Core open before any Whitelist tab is replaced",
+      "real Greylist grant and frozen Vault proposal keep exact timestamps and policy across abort recovery",
+      "persistent abort performs at most one automatic recovery and then withholds browsing without a retry loop",
+      "explicit Recovery remains usable after the bounded automatic attempt fails",
+      "quota failure stays closed, reports a safe cause and retains saved authority without resetting or automatic retry",
+      "recovered authority still enforces the existing explicit Blacklist"
+    ],
+    "observations": [
+      {
+        "case": "five-second-steady-browsing",
+        "reads": 32,
+        "writes": 16
+      },
+      {
+        "case": "native-abort-after-fix",
+        "status": "READY",
+        "storage": {
+          "readTransactions": 153,
+          "writeTransactions": 76,
+          "committedWrites": 75,
+          "failedCommits": 1,
+          "lastFailure": {
+            "sequence": 1,
+            "operation": "COMMIT",
+            "stage": "TRANSACTION_ABORT",
+            "cause": "ABORTED"
+          }
+        }
+      },
+      {
+        "case": "quota-failure",
+        "storage": {
+          "readTransactions": 318,
+          "writeTransactions": 160,
+          "committedWrites": 155,
+          "failedCommits": 5,
+          "lastFailure": {
+            "sequence": 5,
+            "operation": "COMMIT",
+            "stage": "TRANSACTION_ABORT",
+            "cause": "QUOTA_EXCEEDED"
+          }
+        },
+        "status": "UNAVAILABLE"
+      }
+    ]
+  },
+  "regressionNative": {
+    "batch": {
+      "artifact": ".tools/firefox-e2e-brflp7ut/result.json",
+      "firefox": "158.0.1",
+      "checks": [
+        "three Whitelist additions, two Blacklist additions, explicit removal and name/category/pin edit staged together without policy or waiting",
+        "editable draft survives closing UI and a full Firefox process restart; complete destination review and unchanged old-term Vault wait",
+        "one explicit confirmation commits entire candidate once; replay rejected; post-commit display failure survives full restart and retries only presentation",
+        "unrelated commit stales preserved draft; explicit reconciliation preview and acceptance do not create permission or submit automatically",
+        "custom Books category reused across editor and committed Home grouping without rewriting legacy records or changing category ordering controls",
+        "two native Atlas pages detect a changed shared draft, retain local work and explicitly reload without overwriting the other page",
+        "real draft transaction failure retains raw inputs and blocks submission; explicit local retry saves work without policy commands",
+        "final full process restart retains completed policy/display/pins and separately preserves the next editable unsubmitted draft",
+        "lost response plus unrelated proposal ID advancement has an explicit local discard after Core recovery; saved policy retained and no repeat proposal or confirmation"
+      ],
+      "fullFirefoxRestarts": 3,
+      "isolatedProfile": true,
+      "signedReleaseModified": false,
+      "coreSemanticsChanged": false
+    },
+    "ui": {
+      "artifact": ".tools/firefox-e2e-65b8vpw5/result.json",
+      "firefox": "158.0.1",
+      "checks": [
+        "usage reordering retains the exact card, focused entry-point selector, selected hostname and open disclosure",
+        "retained entry-point selection sends the exact adapter command; this fixture withholds the external browser effect",
+        "120 identical storage notifications leave destination structure and attributes unchanged",
+        "an out-of-order failed poll cannot overwrite a newer verified operation or the active draft/caret",
+        "failed authority retains work/focus, disables launchers and read-only retries retain one timer before recovery",
+        "late diagnostics from a previous scope cannot replace newer results",
+        "failed layout saves retain unsaved work and recover only after acknowledged retry",
+        "actual Firefox toolbar activation reuses Sites without reloading or discarding the persistent editor",
+        "passive Journey indicator retains host/label for 60 seconds, mutates only countdown text and keeps its fixed Core deadline"
+      ],
+      "observations": [
+        {
+          "case": "usage-entry-point",
+          "cardSame": true,
+          "oldConnected": true,
+          "open": true,
+          "selected": "canvas.instructure.com",
+          "headingSame": true,
+          "focusSame": true
+        },
+        {
+          "case": "unchanged-storage-notifications",
+          "mutations": 6,
+          "attributes": 0,
+          "redundantAttributes": 0,
+          "childList": 6,
+          "added": 6,
+          "removed": 6,
+          "replacements": {},
+          "writes": {},
+          "regions": {
+            "diagnostics": 4,
+            "other": 2
+          },
+          "messages": {
+            "GET_VIEW": 4
+          },
+          "creates": 0,
+          "layoutReads": 0,
+          "timerCreated": 4,
+          "timerFired": 3,
+          "activeTimers": 1,
+          "maxTimers": 1
+        },
+        {
+          "case": "retry-timer-ownership",
+          "mutations": 20,
+          "attributes": 20,
+          "redundantAttributes": 10,
+          "childList": 0,
+          "added": 0,
+          "removed": 0,
+          "replacements": {},
+          "writes": {},
+          "regions": {
+            "other": 20
+          },
+          "messages": {
+            "GET_VIEW": 10
+          },
+          "creates": 0,
+          "layoutReads": 0,
+          "timerCreated": 10,
+          "timerFired": 4,
+          "activeTimers": 1,
+          "maxTimers": 1
+        },
+        {
+          "case": "passive-indicator",
+          "seconds": 60.03,
+          "samples": [
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 4,
+                "added": 4,
+                "removed": 4
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:56"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 9,
+                "added": 9,
+                "removed": 9
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:51"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 14,
+                "added": 14,
+                "removed": 14
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:46"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 19,
+                "added": 19,
+                "removed": 19
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:41"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 24,
+                "added": 24,
+                "removed": 24
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:35"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 28,
+                "added": 28,
+                "removed": 28
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:31"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 33,
+                "added": 33,
+                "removed": 33
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:26"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 38,
+                "added": 38,
+                "removed": 38
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:21"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 43,
+                "added": 43,
+                "removed": 43
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:16"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 48,
+                "added": 48,
+                "removed": 48
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:10"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 52,
+                "added": 52,
+                "removed": 52
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:06"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 57,
+                "added": 57,
+                "removed": 57
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:01"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "checks": {
+    "coreTests": 204,
+    "extensionTests": 391,
+    "newStorageTests": 17,
+    "failed": 0,
+    "skipped": 0,
+    "coreTypecheck": true,
+    "extensionTypecheck": true,
+    "developmentBuild": true,
+    "pythonCompile": true,
+    "gitDiffCheck": true,
+    "preservedSignedVersionsVerifiedOffline": [
+      "0.1.13",
+      "0.1.14",
+      "0.1.15",
+      "0.1.16"
+    ]
+  },
+  "preserved": {
+    "releaseFileCount": 76,
+    "files": [
+      {
+        "path": "extension/release/0.1.13/atlas-0.1.13-source.zip",
+        "sha256": "3148c5b9766f86e8ebe6238296e1a65e600b152a8e85bdf55094dab95cfb8b6f"
+      },
+      {
+        "path": "extension/release/0.1.13/atlas-0.1.13-unsigned.zip",
+        "sha256": "157661acb39fbd8cf3cb77b5fd8dd5917992c5706294c033cc05fc16d64f4cae"
+      },
+      {
+        "path": "extension/release/0.1.13/release.json",
+        "sha256": "f8fb00f6f37ed6ebed109a5cac7b1613056db0730fed7207ce6134c584743b78"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/.amo-upload-uuid",
+        "sha256": "7eeb232cb64ec78df88861c9632ea1f6f6c7c958037fa1e8594048b05782bee3"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/background.js",
+        "sha256": "670fc5a9c3bc4db19569115f7c528ba5f4f36d3e7e62a15b9a5d3c8c864c6707"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/journey-indicator.js",
+        "sha256": "c7a2554fcadbd4fc8c719ebb067212a2029041d268d2afde5669661957e55b6d"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/manifest.json",
+        "sha256": "95b58f34d58ff20e2cb2032dbf44108b3a045ed9c49a0c97b744fbb85a3d422b"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/THIRD-PARTY-NOTICES.txt",
+        "sha256": "8be6bc89a814768b7f723979b0c73f67796ad873d2fce129d0050324c54024b9"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/data/stevenblack/hosts",
+        "sha256": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/data/stevenblack/license.txt",
+        "sha256": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/data/stevenblack/metadata.json",
+        "sha256": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/data/stevenblack/NOTICE.md",
+        "sha256": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/data/stevenblack/upstream-readme.md",
+        "sha256": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/ui/atlas.svg",
+        "sha256": "6047e46de52bc6244dbe2d17a6f571578dc630da9610d8cc44581867226a21b9"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/ui/index.html",
+        "sha256": "559b842922dcd578b9e762db0cada4a83d77a981ab0bc28b2fdca8ecf101b30e"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/ui/main.js",
+        "sha256": "8703ff76c83268ce17fd3ba9eff62bd9a6a322aa874f2d3ddbff6238d4f7caf1"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/ui/site.svg",
+        "sha256": "01fff6d53bd89016708e9d52709f975e44273a076c5b036251250c6bc9222cad"
+      },
+      {
+        "path": "extension/release/0.1.13/addon/ui/style.css",
+        "sha256": "377c514677b371528bf17f9650fb6035ad332812d677ac6af313d31bc7a1d23f"
+      },
+      {
+        "path": "extension/release/0.1.13/signed/d7b2a7bba5e34ed685e3-0.1.13.xpi",
+        "sha256": "8eaa4607fec0931f3ddd66cea732a0831750404bdbb36b11eaa7b878c6fbada0"
+      },
+      {
+        "path": "extension/release/0.1.14/atlas-0.1.14-source.zip",
+        "sha256": "9e7d276171542f6d9a6bd78521a645b053fa6adc93218741386d6f2cca47e120"
+      },
+      {
+        "path": "extension/release/0.1.14/atlas-0.1.14-unsigned.zip",
+        "sha256": "8c77cfbb090d4b16c02dc623d114de659aead070662b97d9f81048e8891bedff"
+      },
+      {
+        "path": "extension/release/0.1.14/release.json",
+        "sha256": "af9f077564d0d394a57c25d8f1de85e32a2c97868d3c78b38946a24ad574f50c"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/.amo-upload-uuid",
+        "sha256": "6016beb57d005d5135a278c3a57d8a5c822e29d82b8130db4293616c15b9b74c"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/background.js",
+        "sha256": "03bdd1bba9e85cca94752c5def989512d719f74c77aee05122b656465e322687"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/journey-indicator.js",
+        "sha256": "c7a2554fcadbd4fc8c719ebb067212a2029041d268d2afde5669661957e55b6d"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/manifest.json",
+        "sha256": "021a6b569a3ce50d580afa6af1e5cfe602b381ed5f4cfb41e41b5b9ff2e72586"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/THIRD-PARTY-NOTICES.txt",
+        "sha256": "8be6bc89a814768b7f723979b0c73f67796ad873d2fce129d0050324c54024b9"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/data/stevenblack/hosts",
+        "sha256": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/data/stevenblack/license.txt",
+        "sha256": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/data/stevenblack/metadata.json",
+        "sha256": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/data/stevenblack/NOTICE.md",
+        "sha256": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/data/stevenblack/upstream-readme.md",
+        "sha256": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/ui/atlas.svg",
+        "sha256": "6047e46de52bc6244dbe2d17a6f571578dc630da9610d8cc44581867226a21b9"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/ui/index.html",
+        "sha256": "7e318f368aaff4d77fa575a16fabc9822b64b41383c626ea1e3b3a9d62648214"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/ui/main.js",
+        "sha256": "2479094226d37231b09802866746c78f97c700af356029804f87d08899dbaf61"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/ui/site.svg",
+        "sha256": "01fff6d53bd89016708e9d52709f975e44273a076c5b036251250c6bc9222cad"
+      },
+      {
+        "path": "extension/release/0.1.14/addon/ui/style.css",
+        "sha256": "054cbc5c03a854c80162fbc39512ffff97f177454f4d1a2b1f150ca697954e59"
+      },
+      {
+        "path": "extension/release/0.1.14/signed/d7b2a7bba5e34ed685e3-0.1.14.xpi",
+        "sha256": "88b699c0b23542228cee490f3cc046abeebf326ef94e3fe4560bb21cf79f5ff1"
+      },
+      {
+        "path": "extension/release/0.1.15/atlas-0.1.15-source.zip",
+        "sha256": "57262bc669918fb6625acdd43a1560a00b429fc92df39c4c3041797188cb964e"
+      },
+      {
+        "path": "extension/release/0.1.15/atlas-0.1.15-unsigned.zip",
+        "sha256": "2a1552e7ae4357415dffee6b5b509d717112262b846f713b8e65ee0e29ae48a5"
+      },
+      {
+        "path": "extension/release/0.1.15/release.json",
+        "sha256": "1e73855b7043347492f7147171e23b51fb0893b88584ed3a31ddf654fe1eb6b8"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/.amo-upload-uuid",
+        "sha256": "2cce97f7c476e3415869fe7dfc9a06d1d6aa0a073695d8559a473464a6e3ee9c"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/background.js",
+        "sha256": "acc40fe6cd190199ab3ef332847cc0de152f371b7943c21bccc684cb0188efdd"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/journey-indicator.js",
+        "sha256": "090cc0594a53258a61964e76b15f630447e99906d89354c42437019729193ba8"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/manifest.json",
+        "sha256": "16450b176e07763a4db3a6369651dd479cfb1fbd55a6a208979d9f8c61d5cf36"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/THIRD-PARTY-NOTICES.txt",
+        "sha256": "8be6bc89a814768b7f723979b0c73f67796ad873d2fce129d0050324c54024b9"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/data/stevenblack/hosts",
+        "sha256": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/data/stevenblack/license.txt",
+        "sha256": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/data/stevenblack/metadata.json",
+        "sha256": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/data/stevenblack/NOTICE.md",
+        "sha256": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/data/stevenblack/upstream-readme.md",
+        "sha256": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/ui/atlas.svg",
+        "sha256": "6047e46de52bc6244dbe2d17a6f571578dc630da9610d8cc44581867226a21b9"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/ui/index.html",
+        "sha256": "5a19a35a39afdb9ae476a10569664fd8b4d0289d093f1d9e83938713ecdb7695"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/ui/main.js",
+        "sha256": "f08f490742a47df5edc3b5588bb2253f6848d5b92fba7ad83c074a7c408ba2e9"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/ui/site.svg",
+        "sha256": "01fff6d53bd89016708e9d52709f975e44273a076c5b036251250c6bc9222cad"
+      },
+      {
+        "path": "extension/release/0.1.15/addon/ui/style.css",
+        "sha256": "261bbf842d4d94f5c855a0506044fee7481713fce322387dc3706bce0ffb2806"
+      },
+      {
+        "path": "extension/release/0.1.15/signed/d7b2a7bba5e34ed685e3-0.1.15.xpi",
+        "sha256": "393455a5123b908430a83298c7608cfbaa8a8a1417fa2ba1f8835ab5bb595627"
+      },
+      {
+        "path": "extension/release/0.1.16/atlas-0.1.16-source.zip",
+        "sha256": "a4e84cd5f797d6cba78968884b5d8f2322f42420e6168abbe1c2a1daa918759a"
+      },
+      {
+        "path": "extension/release/0.1.16/atlas-0.1.16-unsigned.zip",
+        "sha256": "2e25a481c166b90dab8a24f5c717b5cb9ce5654a07b67d7077bf05f087a07b1d"
+      },
+      {
+        "path": "extension/release/0.1.16/release.json",
+        "sha256": "dc2197041418bfe7d1bfb47d4f39876dd0ebf097ea16702bf0ee0e3550a54671"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/.amo-upload-uuid",
+        "sha256": "a3ecf0a1c0ade8e9ad2ca14a11ea7338384689985c1039b20aea07895623922f"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/background.js",
+        "sha256": "7a6c26db83be2b4b9b6ec5021cf1eef9e4fb1849207536f26956249b3b861cdd"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/journey-indicator.js",
+        "sha256": "c40b2c5997dd304c23ccbfe9622f8205b285ed4249242de993d28d3844449f3e"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/manifest.json",
+        "sha256": "7d5725d2178db46755afa179649c26fa5a95ec9c5b6d183a806f96e7673448f0"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/THIRD-PARTY-NOTICES.txt",
+        "sha256": "8be6bc89a814768b7f723979b0c73f67796ad873d2fce129d0050324c54024b9"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/data/stevenblack/hosts",
+        "sha256": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/data/stevenblack/license.txt",
+        "sha256": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/data/stevenblack/metadata.json",
+        "sha256": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/data/stevenblack/NOTICE.md",
+        "sha256": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/data/stevenblack/upstream-readme.md",
+        "sha256": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/ui/atlas.svg",
+        "sha256": "6047e46de52bc6244dbe2d17a6f571578dc630da9610d8cc44581867226a21b9"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/ui/index.html",
+        "sha256": "5a19a35a39afdb9ae476a10569664fd8b4d0289d093f1d9e83938713ecdb7695"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/ui/main.js",
+        "sha256": "57b55fd7314388e4b188ba9fae4d09e6451cb5a5ed9e122a368ce7bf7c53e35e"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/ui/site.svg",
+        "sha256": "01fff6d53bd89016708e9d52709f975e44273a076c5b036251250c6bc9222cad"
+      },
+      {
+        "path": "extension/release/0.1.16/addon/ui/style.css",
+        "sha256": "261bbf842d4d94f5c855a0506044fee7481713fce322387dc3706bce0ffb2806"
+      },
+      {
+        "path": "extension/release/0.1.16/signed/d7b2a7bba5e34ed685e3-0.1.16.xpi",
+        "sha256": "a45a26defa3ba0821c6ea628769e672ace804caf1ee4bd96f6af0b535d9aafe6"
+      }
+    ],
+    "coreSourceComparedToSigned016": [
+      "packages/core/src/access-models.ts",
+      "packages/core/src/access-state.ts",
+      "packages/core/src/access.ts",
+      "packages/core/src/atlas-controller-models.ts",
+      "packages/core/src/atlas-controller.ts",
+      "packages/core/src/atlas-models.ts",
+      "packages/core/src/atlas-planner.ts",
+      "packages/core/src/atlas-ports.ts",
+      "packages/core/src/atlas-state.ts",
+      "packages/core/src/configuration.ts",
+      "packages/core/src/download.ts",
+      "packages/core/src/evaluate.ts",
+      "packages/core/src/index.ts",
+      "packages/core/src/journey-models.ts",
+      "packages/core/src/journey-state.ts",
+      "packages/core/src/journey.ts",
+      "packages/core/src/managed-blacklist.ts",
+      "packages/core/src/models.ts",
+      "packages/core/src/policy.ts",
+      "packages/core/src/target.ts",
+      "packages/core/src/vault-models.ts",
+      "packages/core/src/vault-state.ts",
+      "packages/core/src/vault.ts"
+    ],
+    "coreLineEndingsNormalizedOnly": true,
+    "manifestSemanticsUnchanged": true,
+    "storageSchemaUnchanged": true
+  },
+  "boundaries": {
+    "sameCoreOwnerAndTimeFloor": true,
+    "noConfirmationReplay": true,
+    "noUnknownOutcomeAutoRecovery": true,
+    "strictWritesAndAcknowledgementPreserved": true,
+    "noReceiptPruning": true,
+    "noPolicyReset": true,
+    "noSignedReleaseChanges": true,
+    "noVersionBump": true,
+    "noMozillaSubmission": true,
+    "noDeployment": true,
+    "noNormalProfileAccess": true,
+    "noEnterprisePolicyChanges": true
+  },
+  "limitations": [
+    "Original device-specific IndexedDB failure cause was not captured by the old build.",
+    "One proven transient abort can recover; persistent/quota/corrupt/uncertain outcomes remain blocked.",
+    "Core recovery still ends active Journeys; intermediate authentication may need a fresh attempt from the trusted root.",
+    "Receipt history remains unbounded for reconciliation. Real checkpoint writes are retained; no new compaction contract is invented.",
+    "Five-second transaction counts are samples, not CPU/capacity benchmarks.",
+    "Native evidence uses disposable Firefox 158.0.1 profiles and synthetic sites; physical disk/power-loss durability and real accounts are unverified.",
+    "The installed signed 0.1.16 extension has not been updated by this development fix."
+  ]
+}

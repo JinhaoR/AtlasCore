@@ -2407,6 +2407,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
     host = null;
     startup = { status: "LOADING" };
     refreshPending = null;
+    storageRecoveryUsed = false;
     stopped = false;
     nextNavigation = 0;
     nextAccessScope = 0;
@@ -3101,9 +3102,39 @@ ${countdown(display.expiresAt, now2)} remaining`;
       });
       return this.refreshPending;
     }
+    /** Recover authority, never replay an operation. Unknown writes, damaged data,
+     * quota and clock failures keep their explicit recovery boundary. */
+    async recoverTransientStorage() {
+      const host3 = this.host;
+      const view = host3?.controller.getView();
+      const failure = this.storageDiagnostics()?.lastFailure;
+      if (!host3 || this.storageRecoveryUsed || view?.status !== "UNAVAILABLE" || view.reason !== "WRITE_FAILED" || view.pendingCommitId !== null || failure?.operation !== "COMMIT" || failure.stage !== "TRANSACTION_ABORT" || failure.cause !== "ABORTED" && failure.cause !== "IO_ERROR") return false;
+      this.storageRecoveryUsed = true;
+      await host3.controller.open();
+      return host3.controller.getView().status === "READY";
+    }
+    storageDiagnostics() {
+      try {
+        return this.host?.repository.getDiagnostics?.() ?? null;
+      } catch {
+        return null;
+      }
+    }
+    async checkRetained(context, target) {
+      const assess = () => {
+        const retained = this.journey(context);
+        return this.check(context, target, false, retained !== null && retained.phase !== "ENDED" ? { kind: "RETAINED", sourceHostname: retained.currentHostname } : void 0);
+      };
+      const result = await assess();
+      return result.type === "BLOCKED" && await this.recoverTransientStorage() ? assess() : result;
+    }
     async recheck() {
+      if (this.host?.controller.getView().status === "READY") this.storageRecoveryUsed = false;
       const generations = new Map([...this.contexts.values()].map((context) => [context.tabId, context.generation]));
-      const observation = await this.host?.controller.handle({ kind: "OBSERVE_TIME" });
+      await this.recoverTransientStorage();
+      let observation = await this.host?.controller.handle({ kind: "OBSERVE_TIME" });
+      if (observation?.type === "BLOCKED" && await this.recoverTransientStorage())
+        observation = await this.host?.controller.handle({ kind: "OBSERVE_TIME" });
       for (const [tabId, target] of this.downloadTargets) if (this.now() - target.at >= 3e3 || this.contexts.get(target.source.context.tabId) !== target.source.context)
         this.downloadTargets.delete(tabId);
       for (const context of this.contexts.values()) {
@@ -3131,7 +3162,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         if (withoutFragment(tab.url).split("?", 1)[0] === this.uiUrl) {
           if (previous !== void 0 && previous.flight === null && !previous.launching) {
             this.acknowledgeRemoval(previous);
-            if (previous.requested !== null) this.publish(previous, await this.check(previous, previous.requested.target));
+            if (previous.requested !== null) this.publish(previous, await this.checkRetained(previous, previous.requested.target));
           }
           continue;
         }
@@ -3152,8 +3183,8 @@ ${countdown(display.expiresAt, now2)} remaining`;
         const generation = context.generation;
         if (context.flight !== null || context.launching) {
           const authorities = [context.displayedDecision, context.flight?.authority];
-          const expired = authorities.some((retained2) => retained2?.type === "ASSESSMENT" && "expiresAt" in retained2.decision && this.now() >= retained2.decision.expiresAt);
-          const revisionChanged = authorities.some((retained2) => retained2 != null && "policyRevision" in retained2 && retained2.policyRevision !== this.host?.controller.getView().snapshot?.policyRevision);
+          const expired = authorities.some((retained) => retained?.type === "ASSESSMENT" && "expiresAt" in retained.decision && this.now() >= retained.decision.expiresAt);
+          const revisionChanged = authorities.some((retained) => retained != null && "policyRevision" in retained && retained.policyRevision !== this.host?.controller.getView().snapshot?.policyRevision);
           if (observation?.type === "OBSERVED" && !expired && !revisionChanged) continue;
           ++context.generation;
           context.flight = null;
@@ -3166,13 +3197,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         if (context.displayed?.target.hostname !== observed.target.hostname || journey !== null && journey.phase !== "ENDED" && journey.currentHostname !== observed.target.hostname) {
           await this.loseJourney(context);
         }
-        const retained = this.journey(context);
-        const result = await this.check(
-          context,
-          observed.target,
-          false,
-          retained !== null && retained.phase !== "ENDED" ? { kind: "RETAINED", sourceHostname: retained.currentHostname } : void 0
-        );
+        const result = await this.checkRetained(context, observed.target);
         if (!this.live(context, generation)) continue;
         context.displayed = observed;
         context.displayedDecision = result.type === "ADAPTER_ERROR" ? null : result;
@@ -3247,6 +3272,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         startup: this.startup,
         controller,
         managed: this.host?.managed?.getView(controller?.snapshot?.policy.whitelist) ?? null,
+        storage: this.storageDiagnostics(),
         temporaryAccess: temporaryAccessView(controller, this.now(), this.host?.managed?.getBlacklist()),
         pendingAccess: pendingAccessView(controller, this.now(), this.host?.managed?.getBlacklist()),
         contexts: [...this.contexts.values()].map((context) => ({
@@ -3299,7 +3325,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
       const fields = command.kind === "START_ACCESS" && Object.hasOwn(command, "scopeId") ? ["tabId", "scopeId"] : command.kind === "PROPOSE_POLICY" && Object.hasOwn(command, "basePolicyRevision") ? ["candidatePolicy", "basePolicyRevision"] : Object.hasOwn(keys, command.kind) ? keys[command.kind] : void 0;
       if (fields === void 0 || Object.keys(command).length !== fields.length + 1 || fields.some((field) => !Object.hasOwn(command, field))) return Promise.resolve({ error: "INVALID_COMMAND" });
       if (command.kind === "GET_VIEW") return Promise.resolve({ view: this.view() });
-      if (command.kind === "GET_DIAGNOSTICS") return Promise.resolve(command.tabId === null || Number.isSafeInteger(command.tabId) ? { entries: this.diagnostics.read(command.tabId) } : { error: "INVALID_CONTEXT" });
+      if (command.kind === "GET_DIAGNOSTICS") return Promise.resolve(command.tabId === null || Number.isSafeInteger(command.tabId) ? { entries: this.diagnostics.read(command.tabId), storage: this.storageDiagnostics() } : { error: "INVALID_CONTEXT" });
       if (command.kind === "CLEAR_DIAGNOSTICS") {
         this.diagnostics.clear();
         return Promise.resolve({ entries: [] });
@@ -3312,6 +3338,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
         if (this.host === null) await this.loadHost();
         else await this.host.controller.open();
         if (this.host === null) return { error: this.startupReason(), view: this.view() };
+        if (this.host.controller.getView().status === "READY") this.storageRecoveryUsed = false;
         await this.recheck();
         return { view: this.view() };
       }
@@ -3508,6 +3535,30 @@ ${countdown(display.expiresAt, now2)} remaining`;
   };
 
   // src/storage/indexeddb-repository.ts
+  function failureCause(error2, fallback = "OTHER") {
+    try {
+      switch (error2?.name) {
+        case "AbortError":
+          return "ABORTED";
+        case "UnknownError":
+          return "IO_ERROR";
+        case "QuotaExceededError":
+          return "QUOTA_EXCEEDED";
+        case "InvalidStateError":
+          return "CONNECTION_CLOSED";
+        case "NotSupportedError":
+          return "DURABILITY_UNAVAILABLE";
+        case "DataError":
+        case "DataCloneError":
+        case "ConstraintError":
+          return "INVALID_DATA";
+        default:
+          return fallback;
+      }
+    } catch {
+      return "OTHER";
+    }
+  }
   var stores = ["authority", "receipts"];
   function openRepository(factory, newVersion, name = "atlas-authority-v1", bootstrapInput = configuration) {
     const bootstrap = readConfiguration(bootstrapInput);
@@ -3541,41 +3592,74 @@ ${countdown(display.expiresAt, now2)} remaining`;
       this.newVersion = newVersion;
       this.bootstrap = bootstrap;
     }
+    reads = 0;
+    writes = 0;
+    committed = 0;
+    failedCommits = 0;
+    failureSequence = 0;
+    lastFailure = null;
     close() {
       this.database.close();
     }
+    getDiagnostics() {
+      return Object.freeze({
+        readTransactions: this.reads,
+        writeTransactions: this.writes,
+        committedWrites: this.committed,
+        failedCommits: this.failedCommits,
+        lastFailure: this.lastFailure
+      });
+    }
+    failed(operation, stage, cause) {
+      if (operation === "COMMIT") this.failedCommits++;
+      this.lastFailure = Object.freeze({ sequence: ++this.failureSequence, operation, stage, cause });
+    }
     transaction(mode) {
-      const transaction = this.database.transaction(stores, mode, { durability: "strict" });
+      const transaction = this.database.transaction(stores, mode, mode === "readwrite" ? { durability: "strict" } : void 0);
+      if (mode === "readonly") this.reads++;
+      else this.writes++;
       if (mode === "readwrite" && transaction.durability !== "strict") {
         transaction.abort();
-        throw new Error("STRICT_DURABILITY_UNAVAILABLE");
+        throw new DOMException("STRICT_DURABILITY_UNAVAILABLE", "NotSupportedError");
       }
       return transaction;
     }
     load() {
+      return this.read("readonly");
+    }
+    read(mode) {
       return new Promise((resolve) => {
         try {
-          const transaction = this.transaction("readwrite");
+          const transaction = this.transaction(mode);
           const authority = transaction.objectStore("authority");
           const initialized = authority.get("initialized");
           const envelope = authority.get("envelope");
           let loaded;
+          let needsMigration = false;
+          let invalidMigration = false;
           envelope.onsuccess = () => {
             loaded = envelope.result;
             if (initialized.result !== true || loaded === null || typeof loaded !== "object" || !("schemaVersion" in loaded) || loaded.schemaVersion !== 1) return;
+            if (mode === "readonly") {
+              needsMigration = true;
+              return;
+            }
             try {
               const old = loaded;
               if (Object.keys(old).length !== 4 || !Object.hasOwn(old, "snapshot") || typeof old.storageVersion !== "string" || !/^[a-z0-9_.:-]{1,256}$/i.test(old.storageVersion) || old.lastCommitId !== null && (typeof old.lastCommitId !== "string" || !/^[a-z0-9_.:-]{1,256}$/i.test(old.lastCommitId))) {
+                invalidMigration = true;
                 transaction.abort();
                 return;
               }
               const migrated = migrateAtlasSnapshotV1(old.snapshot, this.bootstrap);
               if (!migrated.ok) {
+                invalidMigration = true;
                 transaction.abort();
                 return;
               }
               const storageVersion = this.version();
               if (storageVersion === old.storageVersion) {
+                invalidMigration = true;
                 transaction.abort();
                 return;
               }
@@ -3586,14 +3670,22 @@ ${countdown(display.expiresAt, now2)} remaining`;
             }
           };
           transaction.oncomplete = () => {
+            if (needsMigration) {
+              resolve(this.read("readwrite"));
+              return;
+            }
             if (initialized.result === false && envelope.result === void 0) {
               resolve({ type: "UNINITIALIZED" });
             } else if (initialized.result === true && envelope.result !== void 0) {
               resolve({ type: "READY", envelope: loaded });
             } else resolve({ type: "UNAVAILABLE" });
           };
-          transaction.onabort = () => resolve({ type: "UNAVAILABLE" });
-        } catch {
+          transaction.onabort = () => {
+            this.failed("LOAD", "TRANSACTION_ABORT", invalidMigration ? "INVALID_DATA" : failureCause(transaction.error, "ABORTED"));
+            resolve({ type: "UNAVAILABLE" });
+          };
+        } catch (error2) {
+          this.failed("LOAD", "TRANSACTION_OPEN", failureCause(error2));
           resolve({ type: "UNAVAILABLE" });
         }
       });
@@ -3633,8 +3725,12 @@ ${countdown(display.expiresAt, now2)} remaining`;
             }
           };
           transaction.oncomplete = () => resolve(applied);
-          transaction.onabort = () => resolve(false);
-        } catch {
+          transaction.onabort = () => {
+            this.failed("INITIALIZE", "TRANSACTION_ABORT", failureCause(transaction.error, "ABORTED"));
+            resolve(false);
+          };
+        } catch (error2) {
+          this.failed("INITIALIZE", "TRANSACTION_OPEN", failureCause(error2));
           resolve(false);
         }
       });
@@ -3649,11 +3745,13 @@ ${countdown(display.expiresAt, now2)} remaining`;
         let transaction;
         try {
           transaction = this.transaction("readwrite");
-        } catch {
+        } catch (error2) {
+          this.failed("COMMIT", "TRANSACTION_OPEN", failureCause(error2));
           resolve({ type: "NOT_WRITTEN", commitId: request.commitId });
           return;
         }
         let result = { type: "NOT_WRITTEN", commitId: request.commitId };
+        let caughtFailure = null;
         const authority = transaction.objectStore("authority");
         const receipts = transaction.objectStore("receipts");
         const initialized = authority.get("initialized");
@@ -3675,6 +3773,7 @@ ${countdown(display.expiresAt, now2)} remaining`;
             if (request.next.schemaVersion !== 2 || !validated.ok) return;
             const storageVersion = this.version();
             if (storageVersion === envelope.storageVersion) {
+              caughtFailure = "INVALID_DATA";
               transaction.abort();
               return;
             }
@@ -3687,12 +3786,20 @@ ${countdown(display.expiresAt, now2)} remaining`;
             }, "envelope");
             receipts.add(receipt, request.commitId);
             result = receipt;
-          } catch {
+          } catch (error2) {
+            caughtFailure = failureCause(error2);
             transaction.abort();
           }
         };
-        transaction.oncomplete = () => resolve(result);
-        transaction.onabort = () => resolve({ type: "NOT_WRITTEN", commitId: request.commitId });
+        transaction.oncomplete = () => {
+          if (result.type === "COMMITTED") this.committed++;
+          else if (result.type === "NOT_WRITTEN") this.failed("COMMIT", "VALIDATION", "INVALID_DATA");
+          resolve(result);
+        };
+        transaction.onabort = () => {
+          this.failed("COMMIT", "TRANSACTION_ABORT", caughtFailure ?? failureCause(transaction.error, "ABORTED"));
+          resolve({ type: "NOT_WRITTEN", commitId: request.commitId });
+        };
       });
     }
     resolveCommit(commitId) {
@@ -3713,8 +3820,12 @@ ${countdown(display.expiresAt, now2)} remaining`;
               resolve({ type: "COMMITTED", commitId, storageVersion: stored.storageVersion });
             } else resolve({ type: "UNKNOWN", commitId });
           };
-          transaction.onabort = () => resolve({ type: "UNKNOWN", commitId });
-        } catch {
+          transaction.onabort = () => {
+            this.failed("RESOLVE", "TRANSACTION_ABORT", failureCause(transaction.error, "ABORTED"));
+            resolve({ type: "UNKNOWN", commitId });
+          };
+        } catch (error2) {
+          this.failed("RESOLVE", "TRANSACTION_OPEN", failureCause(error2));
           resolve({ type: "UNKNOWN", commitId });
         }
       });

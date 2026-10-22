@@ -111,6 +111,12 @@ Firefox changes remain separate user operations.
 
 Current user instructions take precedence over this packet. Requirements and settled decisions are distinguished from proposals in the foundation. Historical Zenith behavior is not authority for Atlas.
 
+The 0.1.16 daily-use storage investigation is owned by
+`docs/firefox-storage-reliability.md`. Ordinary reads remain readonly; legacy
+migration and actual commits stay strict/atomic. One adapter recovery after a
+confirmed transient aborted write uses the same Core owner; never replay a
+confirmation or auto-resolve unknown outcomes. Preserve signed release assets.
+
 Before implementing behavior affected by an open product question, resolve that question with the user or an explicit later decision. Do not request renewed approval for decisions already made. Routine reversible engineering choices within an authorized milestone can be made and documented without a separate approval ceremony.
 
 If documents conflict, identify the conflict before changing behavior. Do not invent an interpretation and silently turn it into a requirement.
