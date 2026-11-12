@@ -4,6 +4,7 @@ import { validateAtlasSnapshot } from "./atlas-state.js";
 import { hasJourneyFields, validContextId } from "./journey-state.js";
 import { freezeVaultData } from "./vault-state.js";
 import { isManagedBlacklist } from "./managed-blacklist.js";
+import { sameAtlasData as same } from './atlas-equality.js';
 function token(value) {
     return typeof value === "string" && /^[A-Za-z0-9_.:-]{1,256}$/.test(value);
 }
@@ -13,7 +14,9 @@ function readEnvelope(value) {
         || (value.lastCommitId !== null && !token(value.lastCommitId)))
         return null;
     const validated = validateAtlasSnapshot(value.snapshot);
-    return validated.ok ? freezeVaultData({ schemaVersion: 2, storageVersion: value.storageVersion,
+    // Validation returns an owned deeply frozen snapshot. Only this new envelope
+    // needs freezing; traversing the entire snapshot again adds no protection.
+    return validated.ok ? Object.freeze({ schemaVersion: 2, storageVersion: value.storageVersion,
         lastCommitId: value.lastCommitId, snapshot: validated.snapshot }) : null;
 }
 function readReceipt(input, commitId, resolving = false) {
@@ -32,13 +35,43 @@ function readReceipt(input, commitId, resolving = false) {
     return hasJourneyFields(value, ["type", "commitId"]) && value.commitId === commitId
         ? { type: value.type, commitId } : null;
 }
-// Values have fixed validated shapes and contain only domain data.
-function same(left, right) {
-    return JSON.stringify(left) === JSON.stringify(right);
-}
 function sameEnvelope(left, right) {
     return left.storageVersion === right.storageVersion && left.lastCommitId === right.lastCommitId
         && same(left.snapshot, right.snapshot);
+}
+const operationNames = {
+    BEGIN_NAVIGATION: true, CHECK_NAVIGATION: true, RECORD_JOURNEY_NAVIGATION: true,
+    START_ACCESS: true, CONFIRM_ACCESS: true, CANCEL_ACCESS: true, END_ACCESS: true,
+    START_JOURNEY: true, CANCEL_JOURNEY: true, CLOSE_JOURNEY_CONTEXT: true,
+    PROPOSE_POLICY: true, PROPOSE_SETTINGS: true, REVIEW_POLICY: true,
+    CONFIRM_POLICY: true, CANCEL_POLICY: true, OBSERVE_TIME: true, CHECK_DOWNLOAD: true,
+    REMOVE_WHITELIST: true,
+};
+function faultOperation(value) {
+    try {
+        const kind = value !== null && typeof value === 'object' ? value.kind : undefined;
+        return typeof kind === 'string' && Object.hasOwn(operationNames, kind) ? kind : 'INVALID_OPERATION';
+    }
+    catch {
+        return 'INVALID_OPERATION';
+    }
+}
+function faultClass(value) {
+    try {
+        const name = value !== null && typeof value === 'object' ? value.name : undefined;
+        switch (name) {
+            case 'Error': return 'ERROR';
+            case 'TypeError': return 'TYPE_ERROR';
+            case 'RangeError': return 'RANGE_ERROR';
+            case 'SyntaxError': return 'SYNTAX_ERROR';
+            case 'InternalError': return 'INTERNAL_ERROR';
+            case 'DataCloneError': return 'DATA_CLONE_ERROR';
+            default: return 'OTHER';
+        }
+    }
+    catch {
+        return 'OTHER';
+    }
 }
 function rolledBack(next, prior) {
     return next.configurationRevision < prior.configurationRevision
@@ -67,21 +100,41 @@ export function createAtlasController(options) {
     let pending = null;
     let resolvedCommit = null;
     let queue = Promise.resolve();
+    let internalFault;
+    let activeOperation = 'OPEN';
+    let stage = 'START';
+    let active = false, queued = 0, completed = 0;
     function setStatus(next, issue = null) {
         status = next;
         reason = issue;
     }
     function getView() {
-        return freezeVaultData({ status, reason, snapshot: authority?.snapshot ?? null,
-            storageVersion: authority?.storageVersion ?? null, pendingCommitId: pending?.commitId ?? null });
+        // Both nested records were already deeply frozen by their constructors.
+        return Object.freeze({ status, reason, snapshot: authority?.snapshot ?? null,
+            storageVersion: authority?.storageVersion ?? null, pendingCommitId: pending?.commitId ?? null,
+            ...(internalFault === undefined ? {} : { internalFault }) });
     }
     function blocked(issue = reason ?? "NOT_READY") {
         return Object.freeze({ type: "BLOCKED", reason: issue, status, pendingCommitId: pending?.commitId ?? null });
     }
-    function fault() {
+    function fault(error) {
+        try {
+            const snapshot = authority?.snapshot;
+            internalFault = Object.freeze({ sequence: Math.min((internalFault?.sequence ?? 0) + 1, Number.MAX_SAFE_INTEGER),
+                operation: activeOperation, stage, error: faultClass(error), pendingCommitId: pending?.commitId ?? null,
+                stateCounts: snapshot ? Object.freeze({ journeys: snapshot.journeyState.journeys.length,
+                    requests: snapshot.accessState.pendingRequests.length, grants: snapshot.accessState.grants.length }) : null });
+        }
+        catch { /* Observability must not replace the conservative failure path. */ }
         setStatus(pending ? "RECONCILING" : "UNAVAILABLE", pending ? "COMMIT_UNKNOWN" : "INTERNAL_ERROR");
+        try {
+            if (internalFault)
+                options.onInternalFault?.(error, internalFault);
+        }
+        catch { /* Diagnostic observers cannot change failure/recovery semantics. */ }
     }
     function sampleManaged() {
+        stage = 'MANAGED_POLICY';
         if (options.managedBlacklist === undefined)
             return undefined;
         try {
@@ -96,12 +149,16 @@ export function createAtlasController(options) {
     function context(snapshot, now, managed) {
         return { snapshot, now, configuration: snapshot.configuration, ...(managed === undefined ? {} : { managedBlacklist: managed }) };
     }
-    function enqueue(work, failed) {
-        const next = queue.then(work).catch(() => { fault(); return failed(); });
+    function enqueue(operation, work, failed) {
+        queued++;
+        const next = queue.then(() => { queued--; active = true; activeOperation = operation; stage = 'START'; return work(); })
+            .catch(error => { fault(error); return failed(); })
+            .finally(() => { active = false; completed++; });
         queue = next.then(() => undefined);
         return next;
     }
     function sampleTime() {
+        stage = 'CLOCK';
         let now;
         try {
             now = clock.now();
@@ -124,6 +181,7 @@ export function createAtlasController(options) {
         return now;
     }
     async function loadAuthority(expected) {
+        stage = 'LOAD';
         let loaded;
         try {
             loaded = await repository.load();
@@ -132,6 +190,7 @@ export function createAtlasController(options) {
             setStatus("UNAVAILABLE", "STORAGE_UNAVAILABLE");
             return false;
         }
+        stage = 'VALIDATE_LOAD';
         if (hasJourneyFields(loaded, ["type", "commitId"]) && loaded.type === "UNRESOLVED" && token(loaded.commitId)) {
             pending = { commitId: loaded.commitId, expectedStorageVersion: null, snapshot: null };
             setStatus("RECONCILING", "COMMIT_UNKNOWN");
@@ -151,6 +210,7 @@ export function createAtlasController(options) {
             setStatus("UNAVAILABLE", "CORRUPT_STATE");
             return false;
         }
+        stage = 'VERIFY_AUTHORITY';
         if (resolvedCommit !== null) {
             const proof = resolvedCommit;
             if (envelope.storageVersion === proof.priorVersion
@@ -183,6 +243,7 @@ export function createAtlasController(options) {
         if (pending === null)
             return true;
         const attempt = pending;
+        stage = 'RESOLVE_COMMIT';
         setStatus("RECONCILING", "COMMIT_UNKNOWN");
         let receipt;
         try {
@@ -202,6 +263,7 @@ export function createAtlasController(options) {
         return true;
     }
     async function save(snapshot) {
+        stage = 'VALIDATE_COMMIT';
         if (authority === null) {
             setStatus("UNAVAILABLE", "INTERNAL_ERROR");
             return false;
@@ -217,10 +279,12 @@ export function createAtlasController(options) {
         }
         const expectedStorageVersion = authority.storageVersion;
         const commitId = `${ownerId}:${++sequence}`;
-        const next = freezeVaultData({ schemaVersion: 2, snapshot: validated.snapshot });
+        stage = 'PREPARE_COMMIT';
+        const next = Object.freeze({ schemaVersion: 2, snapshot: validated.snapshot });
         pending = { commitId, expectedStorageVersion, snapshot: validated.snapshot };
         setStatus("COMMITTING");
         let receipt;
+        stage = 'COMMIT';
         try {
             receipt = readReceipt(await repository.commit({ expectedStorageVersion, commitId, next }), commitId);
         }
@@ -242,7 +306,7 @@ export function createAtlasController(options) {
             await loadAuthority(); // Refresh for recovery; never replay this operation.
             return false;
         }
-        const committed = freezeVaultData({ ...next, storageVersion: receipt.storageVersion, lastCommitId: commitId });
+        const committed = Object.freeze({ ...next, storageVersion: receipt.storageVersion, lastCommitId: commitId });
         authority = committed; // The receipt confirms this complete write; no candidate was published earlier.
         return loadAuthority(committed);
     }
@@ -260,6 +324,7 @@ export function createAtlasController(options) {
         const managed = sampleManaged();
         if (managed === null)
             return getView();
+        stage = 'PLAN_RECOVERY';
         const observed = planAtlasOperation({ kind: "OBSERVE_TIME" }, context(authority.snapshot, now, managed));
         let recovery = observed.observationSnapshot;
         if (recovery === null) {
@@ -269,6 +334,7 @@ export function createAtlasController(options) {
         for (const journey of recovery.journeyState.journeys) {
             if (journey.phase === "ENDED")
                 continue;
+            stage = 'PLAN_RECOVERY';
             const closed = planAtlasOperation({ kind: "CLOSE_JOURNEY_CONTEXT", journeyId: journey.id,
                 contextId: journey.contextId }, context(recovery, now, managed));
             if (closed.candidateSnapshot === null) {
@@ -277,6 +343,7 @@ export function createAtlasController(options) {
             }
             recovery = closed.candidateSnapshot;
         }
+        stage = 'COMPARE_PLAN';
         if (!same(recovery, authority.snapshot) && !await save(recovery))
             return getView();
         if (sampleTime() === null)
@@ -285,6 +352,7 @@ export function createAtlasController(options) {
         return getView();
     }
     function publish(result, now) {
+        stage = 'PUBLISH';
         if (authority === null)
             return blocked("NOT_READY");
         const version = { policyRevision: authority.snapshot.policyRevision,
@@ -310,8 +378,10 @@ export function createAtlasController(options) {
         const managed = sampleManaged();
         if (managed === null)
             return blocked();
+        stage = 'PLAN';
         const plan = planAtlasOperation(operation, context(authority.snapshot, now, managed));
         const next = plan.candidateSnapshot ?? plan.observationSnapshot;
+        stage = 'COMPARE_PLAN';
         if (next !== null && (plan.candidateSnapshot !== null || !same(next, authority.snapshot))) {
             if (!await save(next))
                 return blocked();
@@ -335,7 +405,7 @@ export function createAtlasController(options) {
         return publish(plan.result, now);
     }
     return Object.freeze({
-        open: () => enqueue(open, getView),
+        open: () => enqueue('OPEN', open, getView),
         handle: (operation) => {
             let captured;
             try {
@@ -344,8 +414,9 @@ export function createAtlasController(options) {
             catch {
                 captured = null;
             }
-            return enqueue(() => handle(captured), () => blocked());
+            return enqueue(faultOperation(captured), () => handle(captured), () => blocked());
         },
         getView,
+        getActivity: () => Object.freeze({ operation: activeOperation, stage, active, queued, completed }),
     });
 }

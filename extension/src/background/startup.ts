@@ -25,6 +25,12 @@ export async function createAdapterHost(dependencies: StartupDependencies): Prom
     }
     try { await initializeDevelopmentPolicy(repository); }
     catch { throw new StartupError('INITIALIZATION', 'INITIALIZATION_FAILED'); }
+    try {
+      const upgrade = await repository.applyCuratedUpgrade(managed.getBlacklist());
+      if (upgrade.type === 'UNAVAILABLE') throw new Error('CURATED_UPGRADE_UNAVAILABLE');
+      const scopes = await repository.applyCuratedScopes();
+      if (scopes.type === 'UNAVAILABLE') throw new Error('CURATED_SCOPE_UPGRADE_UNAVAILABLE');
+    } catch { throw new StartupError('INITIALIZATION', 'INITIALIZATION_FAILED'); }
     try { return { repository, managed, controller: dependencies.createController(repository, managed) }; }
     catch { throw new StartupError('CONTROLLER', 'CONTROLLER_UNAVAILABLE'); }
   } catch (error) {

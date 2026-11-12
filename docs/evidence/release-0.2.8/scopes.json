@@ -1,0 +1,23 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.2.7",
+  "firefox": "160.0",
+  "curatedScopes": {
+    "added": [
+      "drive.google.com",
+      "kth.se"
+    ],
+    "skippedBlacklisted": [
+      "github.com"
+    ],
+    "skippedNotAllowedCount": 291,
+    "google": "GREYLIST",
+    "automaticSyncMaterializedDefaultPages": true,
+    "customPolicySettingsPinsPagesLayoutDraftsPreserved": true,
+    "plainChildGrouped": true,
+    "exactChildSearch": true,
+    "fullRestartIdempotent": true,
+    "signedRollbackPreservesMigratedPolicy": true
+  },
+  "status": "PASS"
+}

@@ -1,0 +1,119 @@
+{
+  "baseline": false,
+  "firefox": "159.0.1",
+  "navigationMs": [
+    23,
+    14,
+    13,
+    13,
+    14,
+    13,
+    13,
+    14,
+    14,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13
+  ],
+  "idle": {
+    "replacedNodes": 0,
+    "attributes": 0,
+    "additionalResources": 0,
+    "pinIdentity": true,
+    "viewRequests": 5,
+    "presentationRequests": 5,
+    "maxConcurrentViews": 1
+  },
+  "everyday": {
+    "compassOverflow": {
+      "client": 344,
+      "scroll": 344
+    },
+    "keyboardPanelScroll": true,
+    "stableDesktop": true,
+    "headlessToolbarClickOpenedPanel": false,
+    "popup": {
+      "status": "Atlas is ready",
+      "host": "No website selected",
+      "buttons": [
+        "Current site access \u2192",
+        "Home",
+        "Sites",
+        "Vault Protected changes",
+        "Settings"
+      ]
+    },
+    "popupKeyboardActivation": "Not verified: headless Marionette retains the underlying tab as its keyboard target.",
+    "popupRetainedEditor": true,
+    "permissionPrompt": [
+      {
+        "id": "addon-webext-permissions-notification",
+        "button": "Allow"
+      }
+    ],
+    "connectedGroups": 6,
+    "nativeEventRetainsDirtyEditor": true,
+    "bidirectional": true,
+    "noAuthorityChanges": true,
+    "temporaryOverlayRestart": "Firefox revoked optional permission while reverting to signed 0.2.2, whose manifest does not request bookmarks. Both copies retained; reconnect is required.",
+    "restartPreserved": true,
+    "restartPromptShown": true,
+    "permissionRestorationPreservedCopies": true,
+    "viewports": [
+      {
+        "window": 1488,
+        "zoom": 1.25,
+        "width": 1190,
+        "scroll": 1190,
+        "client": 1190
+      },
+      {
+        "window": 1488,
+        "zoom": 1.5,
+        "width": 992,
+        "scroll": 992,
+        "client": 992
+      },
+      {
+        "window": 1488,
+        "zoom": 2,
+        "width": 744,
+        "scroll": 744,
+        "client": 744
+      },
+      {
+        "window": 800,
+        "zoom": 1,
+        "width": 800,
+        "scroll": 800,
+        "client": 800
+      },
+      {
+        "window": 500,
+        "zoom": 1,
+        "width": 500,
+        "scroll": 500,
+        "client": 500
+      },
+      {
+        "window": 500,
+        "zoom": 2,
+        "width": 250,
+        "scroll": 250,
+        "client": 250
+      }
+    ],
+    "access": {
+      "checks": [
+        "exact full URL sent through OPEN_DESTINATION; path/query delivered, fragment retained; Blacklist target blocked without HTTP request despite trusted parent",
+        "real wait to readiness gives no permission; Home opens existing confirmation; original grant deadline displayed and expired action removed",
+        "synthetic unavailable authority retains presentation and disables launches without inventing permission"
+      ],
+      "grantDeadline": 1794233727043
+    }
+  },
+  "status": "PASS"
+}

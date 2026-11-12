@@ -1,9 +1,9 @@
-import { curatedWhitelist, serviceHostnames } from '../presets/curated-whitelist.js';
+import { curatedServiceCatalog, serviceHostnames } from '../presets/curated-whitelist.js';
 /** Presentation identity only. A saved pin cannot make an inactive destination available. */
 export function destinationId(entry) {
     if (entry.id !== undefined)
         return entry.id;
-    for (const group of curatedWhitelist)
+    for (const group of curatedServiceCatalog)
         for (const service of group.services) {
             if (serviceHostnames(service).includes(entry.hostname))
                 return `service:${service.hostname}`;
@@ -45,7 +45,7 @@ export function updateDestinationPin(pins, id, pinned, hosts = []) {
 }
 /** Preserve distinct active entry points; aliases do not create duplicate service cards. */
 export function destinationEntryPoints(entry) {
-    for (const group of curatedWhitelist)
+    for (const group of curatedServiceCatalog)
         for (const service of group.services) {
             if (!serviceHostnames(service).includes(entry.hostname))
                 continue;

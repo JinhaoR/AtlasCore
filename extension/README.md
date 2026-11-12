@@ -1,11 +1,57 @@
 # Atlas Firefox prototype
 
+[Compact Home](../docs/compact-home.md) is packaged in the unsigned
+[0.2.3 candidate](../docs/release-candidate-0.2.3.md).
+Use **Edit pins and pages** for saved named URLs and **All categories** to browse
+hidden category sections. Bookmark launches use the ordinary Core gate. This
+change has not been signed or deployed; signed 0.2.2 and older release artifacts
+are unchanged. The following notes describe earlier release preparation.
+
+The unsigned [0.2.1 candidate](../docs/release-candidate-0.2.1.md) repairs startup
+and viewport behavior in the signed 0.2.0 design. See the
+[native evidence and layout/asset-cache contract](../docs/startup-layout-0.2.1.md).
+Core authorization and policy persistence are unchanged; signed releases remain
+frozen. Packaging does not authorize signing, installation or deployment.
+
+Whitelist-only [removals](../docs/whitelist-removal.md), including disabling an
+existing subdomain scope, apply after Review with **Apply Whitelist removals now**
+and no cooldown. Additions, Blacklist changes and mixed batches keep the existing
+Vault wait. Persistence, current revision and ordinary Core gates remain required.
+
+Development **0.1.19** repairs destination editor selection/review and reduces
+work from retained completed batches and rapid raw-input saves. It also adds an
+explicit, default-off [all-subdomains Whitelist option](../docs/whitelist-scopes.md)
+through the existing Vault workflow. Manual Blacklist always wins; additional
+subdomains retain managed blocking. No preset or legacy rule becomes broad.
+
+The [current preset](../docs/curated-destinations.md) has **294 exact hosts across
+122 services**, excluding Wikipedia and YouTube. Existing saved Wikipedia rules
+are preserved. Valid signed-0.1.18 v2 migration receipts remain accepted without
+rerunning the expansion; fresh/unmigrated profiles use the corrected v3 terms.
+See [0.1.19 development notes](../docs/release-0.1.19.md).
+Signed 0.1.13-0.1.18 remain frozen. No signing or installed-profile update is
+performed by this development work.
+
+Test an upgrade in a disposable profile with
+`python extension/scripts/firefox-e2e.py --curated-upgrade-only --addon-dir extension/release/0.1.17/addon --upgrade-addon-dir extension/dist`.
+The fixture uses real Vault waits and two full restarts. It does not access the
+installed profile. Current Firefox requires the harness's system-access opt-in,
+set only in the disposable child process environment.
+
+For already-migrated signed 0.1.18 data, use
+`python extension/scripts/firefox-e2e.py --curated-upgrade-only --curated-upgrade-applied --addon-dir extension/release/0.1.18/addon --upgrade-addon-dir extension/dist`.
+This retains authentic old drafts/receipts and verifies that v2 does not reapply.
+`--subdomain-scope-only` exercises two real Vault confirmations and controlled
+descendant navigation. The [editor report](../docs/editor-reliability-0.1.19.md)
+owns matched performance checks and [consolidated evidence](../docs/evidence/editor-reliability-0.1.19.json).
+
 A Firefox WebExtension consuming `@atlas/core`. Core decides policy, Greylist, Vault, and Journey behavior. The extension holds requests, supplies browser facts, persists snapshots, and executes saved decisions. The [architecture](../docs/firefox-adapter.md) records the choices made before implementation.
 
 The current development [storage reliability fix](../docs/firefox-storage-reliability.md)
 uses readonly authority loads, safe local error diagnostics and one verified
-recovery after a confirmed transient write abort. It preserves Core rules and
-signed 0.1.16. This fix is not installed into your daily Firefox by a development
+recovery after a confirmed transient read or write abort, with a retained Core
+interruption reason across Recovery. It preserves Core rules and signed
+0.1.13-0.1.18. This fix is not installed into your daily Firefox by a development
 build. Native regressions use
 `python extension/scripts/firefox-e2e.py --storage-reliability-only`; add
 `--storage-baseline --addon-dir extension/release/0.1.16/addon` only to reproduce
@@ -26,14 +72,17 @@ For permanent desktop installation and private distribution, follow the
 packages, reviewer source, credentials, signing, updates and safe migration. The
 temporary development workflow below remains available.
 
-Current development build: **0.1.16**, with [UI stability fixes](../docs/ui-stability.md), [bounded file-operation authorization](../docs/firefox-downloads.md) and preserved [destination and Journey polishing](../docs/destination-polish.md): Sites & Access, compact launchers, local category ranking, a 60px sidebar rail, and guarded timeout returns. Permission edits use Vault; display details remain local preferences. Journey lifetime is visible in protected timing settings. [Verified distribution and startup recovery](../docs/managed-policy.md#distribution-and-startup-recovery-d29) still preserves bundled bytes and seeds 51 approved Whitelist hosts only on empty installations. Verify **Atlas extension 0.1.16** under **Settings → Diagnostics**. Reload preserves saved authority; older Greylist scopes remain frozen.
+Current development build: **0.1.19**, with [UI stability fixes](../docs/ui-stability.md), [bounded file-operation authorization](../docs/firefox-downloads.md) and preserved [destination and Journey polishing](../docs/destination-polish.md): Sites & Access, compact launchers, local category ranking, a 60px sidebar rail, and guarded timeout returns. Permission edits use Vault; display details remain local preferences. Journey lifetime is visible in protected timing settings. [Verified distribution and startup recovery](../docs/managed-policy.md#distribution-and-startup-recovery-d29) preserves bundled bytes. The [294-host preset and one-time additive upgrade](../docs/curated-expansion.md) preserve saved custom hosts and restrictions. Verify **Atlas extension 0.1.19** under **Settings → Diagnostics**. Reload preserves saved authority; older Greylist scopes remain frozen.
 
 The archived [0.1.15 release](../docs/firefox-private-release.md#0115-release-preserved)
 packages downloads and Milestones C/D into staged runtime, unsigned ZIP, reviewer
 source, integrity receipt and a signed XPI. Its files remain frozen. Current
-[UI stability work](../docs/ui-stability.md) is included in the
-[unsigned 0.1.16 candidate](../docs/release-0.1.16.md). Signing and the installed
-extension update remain separate steps.
+[storage reliability work](../docs/firefox-storage-reliability.md) is included in the
+[preserved 0.1.17 release](../docs/release-0.1.17.md). The preserved signed 0.1.18 release
+packages the catalog, performance and recovery follow-ups; see its
+[release notes](../docs/release-0.1.18.md) and
+[package evidence](../docs/evidence/firefox-release-0.1.18.json).
+Signing and installation remain separate operations.
 
 After building, run `python extension/scripts/firefox-e2e.py --ui-stability-only`
 for five 60-second idle probes, and `--ui-stability-interactions-only` for native
@@ -81,7 +130,7 @@ write succeeds. See [the Home contract](../docs/home-organization.md) for migrat
 limits and recovery. After building,
 `python extension/scripts/firefox-e2e.py --home-organization-only` exercises native
 customization, failure/conflict recovery, full restart, access links, narrow windows
-and real Firefox zoom in an isolated profile. Development is now 0.1.16; that
+and real Firefox zoom in an isolated profile. Development is now 0.1.19; that
 candidate has not been signed or published.
 
 After building, `python extension/scripts/firefox-downloads.py` tests real top-level
@@ -124,7 +173,7 @@ Then reload `extension/dist/manifest.json`. If startup still shows a failure, **
 5. Use **End Journey** to stop an attempt. The Journey panel shows its intended service and original deadline; diagnostics retain hop details. After the attempt ends, intermediate domains return to their ordinary Core assessment.
 6. Home's **Temporary access** section lists confirmed Greylist grants across tabs, including exact alias scope and remaining time. It excludes waits and Journeys and removes expired entries. Reload preserves each grant's original deadline.
 
-Journey intermediate destinations have one deadline and one context. A loaded Pure Whitelist page may make one direct cross-host departure. Later unfamiliar steps need correlated HTTP redirects or browser-attested POSTs from the loaded current intermediate. Both keep the same fixed terms. Later unfamiliar GET links and typed targets use normal policy. Same-host document actions may continue to an HTTP redirect. Browser provenance does not prove login necessity. Manual Blacklist still wins; managed denial cannot be bypassed by a Journey or grant. Opening a popup or duplicating a tab does not copy a Journey. Pure Whitelist matching remains exact. The curated preset represents each service once with explicit equivalent aliases and distinct entry points; it never infers `www` equivalence.
+Journey intermediate destinations have one deadline and one context. A loaded Pure Whitelist page may make one direct cross-host departure. Later unfamiliar steps need correlated HTTP redirects or browser-attested POSTs from the loaded current intermediate. Both keep the same fixed terms. Later unfamiliar GET links and typed targets use normal policy. Same-host document actions may continue to an HTTP redirect. Browser provenance does not prove login necessity. Manual Blacklist still wins; managed denial cannot be bypassed by a Journey or grant. Opening a popup or duplicating a tab does not copy a Journey. Ordinary Whitelist entries remain exact; only an explicitly confirmed all-subdomains scope covers descendants. The curated preset represents each service once with explicit equivalent aliases and distinct entry points; it never infers `www` equivalence.
 
 Home shows local search, explicitly pinned destinations and compact icon/name launchers. `/` focuses search outside editable controls. Each category shows one row of destinations ranked by local recent use, fitting the available width up to five cards, with Show all / Show fewer. Pins retain their explicit order; blocked/removed destinations cannot return through pins. A compact Journey strip opens the selected context's focused access view. The sidebar has Home, Sites & Access and Settings; it is permanently a 60px icon rail with no expand control. Old sidebar preferences are ignored. Sites shows committed exact rules, search, details and add/edit/removal drafts. Permission changes go through Vault; name/category/pin-only edits use **Save display details**. Settings contains protected timing, Vault, managed lists, recovery and Diagnostics. A pending-change marker opens the frozen Vault review. Toolbar badges show `J`, `WAIT`, `GO` (confirmation available), or `!`. A closed selected tab stays selected as unavailable; actions never switch silently to another tab. Adding the current curated preset to an existing policy uses the protected action below. See [the interface refinement](../docs/ui-design.md) for presentation and [D30](../docs/destination-polish.md) for timeout returns and destination scope.
 
@@ -164,11 +213,11 @@ python extension/scripts/firefox-greylist-alias.py --hostname www.amazon.se
 
 Run these from the repository root after building, serially. They verify Atlas authorization through the public canonical redirect; Amazon may still present a bot challenge. See [D26 evidence](../docs/evidence/firefox-greylist-alias-d26.json).
 
-Edit [curated-whitelist.ts](src/presets/curated-whitelist.ts) to change the initial preset. Its 32 services expand to the user's approved 51 exact hostnames. Google Search and login infrastructure are excluded. Canvas includes only `canvas.kth.se`, `canvas.instructure.com`, and `learn.canvas.net`; other institution roots must be added explicitly. Login continuations use Journey, with no wildcard or authentication database.
+Edit [curated-whitelist.ts](src/presets/curated-whitelist.ts) to change the initial preset. Its current 122 services expand to 294 exact hostnames; it never selects the optional subdomain scope. Google Search and login infrastructure are excluded. Canvas includes only `canvas.kth.se`, `canvas.instructure.com`, and `learn.canvas.net`; other institution roots must be added explicitly. Login continuations use Journey, with no wildcard or authentication database.
 
 The official [StevenBlack combined variant](https://github.com/StevenBlack/hosts) enables base + fakenews + gambling + porn + social. The bundled snapshot supplies 163,850 usable exact domains (six unsupported upstream names are skipped). A separate IndexedDB cache holds the verified last good feed, digest, source/version, and last refresh attempt. Startup checks staleness; at most one attempt occurs per 24 hours, including failures across restart. Empty, malformed, truncated, greatly reduced, or failed updates retain the good dataset. Navigation performs no dataset download or full scan.
 
-Core decides manual Blacklist → explicit Whitelist → managed Blacklist → Access Grant / Journey → Greylist. **Managed Blacklist** shows count, categories, origin, upstream date/version, update time, and status. Diagnostics show exact Whitelist conflicts. Defaults initialize genuinely empty development installs only; loading this version never overwrites existing user policy.
+Core decides manual Blacklist → exact Whitelist → managed Blacklist → explicitly selected subdomain scope → Access Grant / Journey → Greylist. **Managed Blacklist** shows count, categories, origin, upstream date/version, update time, and status. Diagnostics show exact Whitelist conflicts. Defaults initialize genuinely empty development installs only; the one-time curated expansion unions approved exact terms without replacing custom policy.
 
 ### Updating an existing development installation
 

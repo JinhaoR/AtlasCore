@@ -1,0 +1,4593 @@
+{
+  "date": "2026-10-29",
+  "version": "0.1.18",
+  "platform": "Windows native Firefox 159.0",
+  "status": "DEVELOPMENT_VERIFIED_NOT_PACKAGED_OR_INSTALLED",
+  "catalogCorrection": {
+    "beforeHosts": 300,
+    "afterHosts": 298,
+    "beforeServices": 124,
+    "afterServices": 123,
+    "removed": [
+      "www.youtube.com",
+      "youtube.com"
+    ],
+    "otherHostnamesUnchanged": true,
+    "savedUserPermissionsPreserved": true,
+    "migrationIdUnchanged": "research-infrastructure-2026-10-v2"
+  },
+  "method": {
+    "baselineFrozenBeforeProductEdits": true,
+    "runtimeHashesBefore": {
+      "THIRD-PARTY-NOTICES.txt": "8be6bc89a814768b7f723979b0c73f67796ad873d2fce129d0050324c54024b9",
+      "background.js": "955d4d9f9c7ce2514a06f86edea77be1ec676945932856b90a7d9caec72b7710",
+      "data/stevenblack/NOTICE.md": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291",
+      "data/stevenblack/hosts": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76",
+      "data/stevenblack/license.txt": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b",
+      "data/stevenblack/metadata.json": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f",
+      "data/stevenblack/upstream-readme.md": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69",
+      "journey-indicator.js": "1b41962930ddea09b705fbc8600000f0b09f3b9e051701e827acc5bf26eeec0b",
+      "manifest.json": "0e9b6c9c570ad4defe3feb1a2981035719036d776b80bae20abec706d2a321c3",
+      "ui/atlas.svg": "6047e46de52bc6244dbe2d17a6f571578dc630da9610d8cc44581867226a21b9",
+      "ui/index.html": "5a19a35a39afdb9ae476a10569664fd8b4d0289d093f1d9e83938713ecdb7695",
+      "ui/main.js": "cfaacfa869b75b587f7c2d0dc9ce9a99602e24eec055bee36d5f3fbe6016d99d",
+      "ui/site.svg": "01fff6d53bd89016708e9d52709f975e44273a076c5b036251250c6bc9222cad",
+      "ui/style.css": "261bbf842d4d94f5c855a0506044fee7481713fce322387dc3706bce0ffb2806"
+    },
+    "runtimeHashesAfter": {
+      "THIRD-PARTY-NOTICES.txt": "8be6bc89a814768b7f723979b0c73f67796ad873d2fce129d0050324c54024b9",
+      "background.js": "39e33b243fbe23a3ba2ad9fda92f77738d997d8ad676b20debd58005f2325806",
+      "data/stevenblack/NOTICE.md": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291",
+      "data/stevenblack/hosts": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76",
+      "data/stevenblack/license.txt": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b",
+      "data/stevenblack/metadata.json": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f",
+      "data/stevenblack/upstream-readme.md": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69",
+      "journey-indicator.js": "1b41962930ddea09b705fbc8600000f0b09f3b9e051701e827acc5bf26eeec0b",
+      "manifest.json": "0e9b6c9c570ad4defe3feb1a2981035719036d776b80bae20abec706d2a321c3",
+      "ui/atlas.svg": "6047e46de52bc6244dbe2d17a6f571578dc630da9610d8cc44581867226a21b9",
+      "ui/index.html": "5a19a35a39afdb9ae476a10569664fd8b4d0289d093f1d9e83938713ecdb7695",
+      "ui/main.js": "ef38d49b55f51325a8985157133e7c0267396c798dfe3b3779c929d31b51695a",
+      "ui/site.svg": "01fff6d53bd89016708e9d52709f975e44273a076c5b036251250c6bc9222cad",
+      "ui/style.css": "261bbf842d4d94f5c855a0506044fee7481713fce322387dc3706bce0ffb2806"
+    },
+    "isolatedProfiles": true,
+    "realIndexedDB": true,
+    "numericTestCopyInstrumentation": true,
+    "functionTiming": "Inclusive wall time; nested/async spans overlap, not CPU samples.",
+    "cpuUnits": "Aggregate process CPU; 100 percent is one core, not whole-machine utilization.",
+    "memoryUnits": "Aggregate process working/private MiB; not retained JS heap.",
+    "primaryBeforeAfterIncludesRequestedTwoHostCorrection": true
+  },
+  "comparison": [
+    {
+      "case": "add-draft-0-to-5",
+      "beforeMedianMs": 3656.0,
+      "afterMedianMs": 125.0,
+      "beforeWallSeconds": 19.266,
+      "afterWallSeconds": 0.593,
+      "beforeRenderCalls": 87,
+      "afterRenderCalls": 40,
+      "beforeCreates": 3189,
+      "afterCreates": 59
+    },
+    {
+      "case": "add-draft-5-to-25",
+      "beforeMedianMs": 3719.0,
+      "afterMedianMs": 125.0,
+      "beforeWallSeconds": 76.641,
+      "afterWallSeconds": 2.781,
+      "beforeRenderCalls": 347,
+      "afterRenderCalls": 166,
+      "beforeCreates": 12870,
+      "afterCreates": 197
+    },
+    {
+      "case": "add-draft-25-to-60",
+      "beforeMedianMs": 3781.0,
+      "afterMedianMs": 140.0,
+      "beforeWallSeconds": 132.625,
+      "afterWallSeconds": 4.828,
+      "beforeRenderCalls": 598,
+      "afterRenderCalls": 285,
+      "beforeCreates": 31185,
+      "afterCreates": 315
+    },
+    {
+      "case": "rapid-edits-60-item-draft",
+      "beforeMedianMs": 8476.5,
+      "afterMedianMs": 250.0,
+      "beforeWallSeconds": 102.313,
+      "afterWallSeconds": 3.109,
+      "beforeRenderCalls": 443,
+      "afterRenderCalls": 195,
+      "beforeCreates": 12528,
+      "afterCreates": 36
+    },
+    {
+      "case": "30-page-navigation-actions",
+      "beforeMedianMs": 234.0,
+      "afterMedianMs": 15.0,
+      "beforeWallSeconds": 6.969,
+      "afterWallSeconds": 0.328,
+      "beforeRenderCalls": 39,
+      "afterRenderCalls": 30,
+      "beforeCreates": 0,
+      "afterCreates": 0
+    },
+    {
+      "case": "30-second-idle-large-review",
+      "beforeMedianMs": null,
+      "afterMedianMs": null,
+      "beforeWallSeconds": 30.0,
+      "afterWallSeconds": 30.015,
+      "beforeRenderCalls": 29,
+      "afterRenderCalls": 31,
+      "beforeCreates": 0,
+      "afterCreates": 0
+    },
+    {
+      "case": "remove-8-draft-items",
+      "beforeMedianMs": null,
+      "afterMedianMs": null,
+      "beforeWallSeconds": 5.781,
+      "afterWallSeconds": 1.125,
+      "beforeRenderCalls": 23,
+      "afterRenderCalls": 17,
+      "beforeCreates": 8472,
+      "afterCreates": 0
+    }
+  ],
+  "matchedBefore": {
+    "firefox": "159.0",
+    "baseline": true,
+    "checks": [
+      "60 mixed Whitelist/Blacklist draft additions save without policy commands or permission changes",
+      "rapid typing and repeated staging retain the final edit and all 60 entries",
+      "idle review retains staged data and bounded refresh timers",
+      "local edits/removals/navigation never submit or confirm a Vault proposal",
+      "six close/reopen cycles retain the saved large draft and final edit without duplicate page timers/listeners"
+    ],
+    "measurements": [
+      {
+        "case": "add-draft-0-to-5",
+        "seconds": 19.266,
+        "ui": {
+          "functions": {
+            "evaluate": {
+              "calls": 73937,
+              "ms": 16747,
+              "maxMs": 7
+            },
+            "destinationIndex": {
+              "calls": 239,
+              "ms": 16343,
+              "maxMs": 94
+            },
+            "policyDestinationIndex": {
+              "calls": 238,
+              "ms": 16283,
+              "maxMs": 94
+            },
+            "draftBaseline": {
+              "calls": 88,
+              "ms": 6161,
+              "maxMs": 94
+            },
+            "renderSettings": {
+              "calls": 87,
+              "ms": 10,
+              "maxMs": 1
+            },
+            "readDestinationDraft": {
+              "calls": 148,
+              "ms": 10203,
+              "maxMs": 84
+            },
+            "assessDraft": {
+              "calls": 87,
+              "ms": 38,
+              "maxMs": 1
+            },
+            "validateDraftCandidate": {
+              "calls": 87,
+              "ms": 6081,
+              "maxMs": 86
+            },
+            "renderFrozenReview": {
+              "calls": 87,
+              "ms": 1,
+              "maxMs": 1
+            },
+            "renderBatch": {
+              "calls": 87,
+              "ms": 12179,
+              "maxMs": 173
+            },
+            "renderHome": {
+              "calls": 87,
+              "ms": 191,
+              "maxMs": 141
+            },
+            "render": {
+              "calls": 87,
+              "ms": 12917,
+              "maxMs": 281
+            },
+            "readDestinationWorkspace": {
+              "calls": 61,
+              "ms": 4174,
+              "maxMs": 81
+            },
+            "refreshView": {
+              "calls": 14,
+              "ms": 6091,
+              "maxMs": 1269
+            }
+          },
+          "messages": {
+            "GET_VIEW": 14
+          },
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 30,
+            "atlas-home-layout-v1:readonly": 8,
+            "atlas-home-layout-v1:readwrite": 1,
+            "atlas-destination-drafts-v1:readonly": 2
+          },
+          "mutations": 1079,
+          "creates": 3189,
+          "replacements": {
+            "sites-list": 6,
+            "site-categories": 1,
+            "destination-draft-items": 5,
+            "destination-draft-conflicts": 5,
+            "draft-reconciliation-items": 5,
+            "vault-changes": 1,
+            "vault-settings-rows": 1,
+            "home-layout-list": 1
+          },
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 10,
+              "ms": 13875,
+              "maxMs": 2253
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 20,
+            "atlas-authority-v1:readwrite": 10
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 11.8281,
+          "workingMiB": 1094.12,
+          "privateMiB": 898.11,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 31.875,
+          "workingMiB": 2054.86,
+          "privateMiB": 1842.75,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 5,
+          "median": 3656.0,
+          "max": 4735.0,
+          "samples": [
+            4735.0,
+            3484.0,
+            3656.0,
+            3875.0,
+            3516.0
+          ]
+        },
+        "aggregateCpuPercent": 104.05
+      },
+      {
+        "case": "add-draft-5-to-25",
+        "seconds": 76.641,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 347,
+              "ms": 32,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 290415,
+              "ms": 66203,
+              "maxMs": 65
+            },
+            "destinationIndex": {
+              "calls": 941,
+              "ms": 64710,
+              "maxMs": 133
+            },
+            "policyDestinationIndex": {
+              "calls": 941,
+              "ms": 64733,
+              "maxMs": 133
+            },
+            "draftBaseline": {
+              "calls": 347,
+              "ms": 24278,
+              "maxMs": 110
+            },
+            "readDestinationDraft": {
+              "calls": 594,
+              "ms": 41295,
+              "maxMs": 135
+            },
+            "assessDraft": {
+              "calls": 347,
+              "ms": 148,
+              "maxMs": 2
+            },
+            "validateDraftCandidate": {
+              "calls": 347,
+              "ms": 24179,
+              "maxMs": 94
+            },
+            "renderFrozenReview": {
+              "calls": 347,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 347,
+              "ms": 48599,
+              "maxMs": 194
+            },
+            "renderHome": {
+              "calls": 347,
+              "ms": 211,
+              "maxMs": 2
+            },
+            "render": {
+              "calls": 347,
+              "ms": 50413,
+              "maxMs": 244
+            },
+            "readDestinationWorkspace": {
+              "calls": 247,
+              "ms": 17300,
+              "maxMs": 135
+            },
+            "refreshView": {
+              "calls": 67,
+              "ms": 27681,
+              "maxMs": 1457
+            }
+          },
+          "messages": {
+            "GET_VIEW": 67
+          },
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 120,
+            "atlas-home-layout-v1:readonly": 24,
+            "atlas-destination-drafts-v1:readonly": 8
+          },
+          "mutations": 3145,
+          "creates": 12870,
+          "replacements": {
+            "sites-list": 20,
+            "destination-draft-items": 20,
+            "destination-draft-conflicts": 20,
+            "draft-reconciliation-items": 20
+          },
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 38,
+              "ms": 54621,
+              "maxMs": 3097
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 78,
+            "atlas-authority-v1:readwrite": 39
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 31.875,
+          "workingMiB": 2054.88,
+          "privateMiB": 1842.88,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 109.6094,
+          "workingMiB": 5732.35,
+          "privateMiB": 5525.11,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 20,
+          "median": 3719.0,
+          "max": 4672.0,
+          "samples": [
+            3735.0,
+            3469.0,
+            4046.0,
+            4672.0,
+            3657.0,
+            4062.0,
+            3422.0,
+            3687.0,
+            3641.0,
+            3656.0,
+            4110.0,
+            3984.0,
+            3750.0,
+            3703.0,
+            4203.0,
+            3657.0,
+            3765.0,
+            4188.0,
+            3672.0,
+            3562.0
+          ]
+        },
+        "aggregateCpuPercent": 101.43
+      },
+      {
+        "case": "add-draft-25-to-60",
+        "seconds": 132.625,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 598,
+              "ms": 95,
+              "maxMs": 2
+            },
+            "evaluate": {
+              "calls": 503847,
+              "ms": 114217,
+              "maxMs": 96
+            },
+            "destinationIndex": {
+              "calls": 1628,
+              "ms": 111279,
+              "maxMs": 176
+            },
+            "policyDestinationIndex": {
+              "calls": 1628,
+              "ms": 111309,
+              "maxMs": 176
+            },
+            "draftBaseline": {
+              "calls": 598,
+              "ms": 41720,
+              "maxMs": 146
+            },
+            "readDestinationDraft": {
+              "calls": 1030,
+              "ms": 71128,
+              "maxMs": 179
+            },
+            "assessDraft": {
+              "calls": 598,
+              "ms": 269,
+              "maxMs": 2
+            },
+            "validateDraftCandidate": {
+              "calls": 598,
+              "ms": 41600,
+              "maxMs": 179
+            },
+            "renderFrozenReview": {
+              "calls": 598,
+              "ms": 4,
+              "maxMs": 1
+            },
+            "renderBatch": {
+              "calls": 598,
+              "ms": 83954,
+              "maxMs": 248
+            },
+            "renderHome": {
+              "calls": 598,
+              "ms": 341,
+              "maxMs": 5
+            },
+            "render": {
+              "calls": 598,
+              "ms": 87097,
+              "maxMs": 273
+            },
+            "readDestinationWorkspace": {
+              "calls": 432,
+              "ms": 29859,
+              "maxMs": 145
+            },
+            "refreshView": {
+              "calls": 108,
+              "ms": 47823,
+              "maxMs": 1501
+            }
+          },
+          "messages": {
+            "GET_VIEW": 109
+          },
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 210,
+            "atlas-home-layout-v1:readonly": 49,
+            "atlas-destination-drafts-v1:readonly": 12
+          },
+          "mutations": 5481,
+          "creates": 31185,
+          "replacements": {
+            "sites-list": 35,
+            "destination-draft-items": 35,
+            "destination-draft-conflicts": 35,
+            "draft-reconciliation-items": 35
+          },
+          "activeTimers": 0,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 69,
+              "ms": 94158,
+              "maxMs": 2354
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 139,
+            "atlas-authority-v1:readwrite": 70
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 109.625,
+          "workingMiB": 5732.39,
+          "privateMiB": 5525.17,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 243.1719,
+          "workingMiB": 5804.92,
+          "privateMiB": 5599.7,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 35,
+          "median": 3781.0,
+          "max": 4235.0,
+          "samples": [
+            3828.0,
+            3781.0,
+            3594.0,
+            4203.0,
+            3500.0,
+            3735.0,
+            3765.0,
+            3532.0,
+            3796.0,
+            4032.0,
+            3703.0,
+            3656.0,
+            3781.0,
+            3672.0,
+            4094.0,
+            3750.0,
+            3625.0,
+            3875.0,
+            4000.0,
+            3500.0,
+            4062.0,
+            3625.0,
+            3516.0,
+            4156.0,
+            3532.0,
+            4000.0,
+            3484.0,
+            4156.0,
+            3844.0,
+            3437.0,
+            4047.0,
+            3500.0,
+            4235.0,
+            3812.0,
+            3797.0
+          ]
+        },
+        "aggregateCpuPercent": 100.7
+      },
+      {
+        "case": "rapid-edits-60-item-draft",
+        "seconds": 102.313,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 443,
+              "ms": 53,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 374207,
+              "ms": 88444,
+              "maxMs": 65
+            },
+            "destinationIndex": {
+              "calls": 1225,
+              "ms": 87330,
+              "maxMs": 147
+            },
+            "policyDestinationIndex": {
+              "calls": 1225,
+              "ms": 87365,
+              "maxMs": 147
+            },
+            "draftBaseline": {
+              "calls": 443,
+              "ms": 32129,
+              "maxMs": 118
+            },
+            "readDestinationDraft": {
+              "calls": 782,
+              "ms": 56510,
+              "maxMs": 150
+            },
+            "assessDraft": {
+              "calls": 443,
+              "ms": 218,
+              "maxMs": 2
+            },
+            "validateDraftCandidate": {
+              "calls": 443,
+              "ms": 32168,
+              "maxMs": 128
+            },
+            "renderFrozenReview": {
+              "calls": 443,
+              "ms": 3,
+              "maxMs": 1
+            },
+            "renderBatch": {
+              "calls": 443,
+              "ms": 64630,
+              "maxMs": 200
+            },
+            "renderHome": {
+              "calls": 443,
+              "ms": 257,
+              "maxMs": 2
+            },
+            "render": {
+              "calls": 443,
+              "ms": 65957,
+              "maxMs": 265
+            },
+            "readDestinationWorkspace": {
+              "calls": 339,
+              "ms": 24623,
+              "maxMs": 150
+            },
+            "refreshView": {
+              "calls": 83,
+              "ms": 29776,
+              "maxMs": 2786
+            }
+          },
+          "messages": {
+            "GET_VIEW": 84
+          },
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 168,
+            "atlas-home-layout-v1:readonly": 33,
+            "atlas-destination-drafts-v1:readonly": 3
+          },
+          "mutations": 1917,
+          "creates": 12528,
+          "replacements": {
+            "sites-list": 12,
+            "destination-draft-items": 12,
+            "destination-draft-conflicts": 12,
+            "draft-reconciliation-items": 12
+          },
+          "activeTimers": 0,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 51,
+              "ms": 63042,
+              "maxMs": 3528
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 104,
+            "atlas-authority-v1:readwrite": 52
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 243.1875,
+          "workingMiB": 5804.93,
+          "privateMiB": 5599.73,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 346.6094,
+          "workingMiB": 5877.21,
+          "privateMiB": 5668.36,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 12,
+          "median": 8476.5,
+          "max": 9031.0,
+          "samples": [
+            8438.0,
+            8422.0,
+            8125.0,
+            8484.0,
+            8469.0,
+            8422.0,
+            8906.0,
+            9031.0,
+            8500.0,
+            8360.0,
+            8656.0,
+            8500.0
+          ]
+        },
+        "aggregateCpuPercent": 101.08
+      },
+      {
+        "case": "30-page-navigation-actions",
+        "seconds": 6.969,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 39,
+              "ms": 6,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 26265,
+              "ms": 6323,
+              "maxMs": 6
+            },
+            "destinationIndex": {
+              "calls": 87,
+              "ms": 6334,
+              "maxMs": 92
+            },
+            "policyDestinationIndex": {
+              "calls": 87,
+              "ms": 6339,
+              "maxMs": 93
+            },
+            "draftBaseline": {
+              "calls": 39,
+              "ms": 2894,
+              "maxMs": 87
+            },
+            "readDestinationDraft": {
+              "calls": 48,
+              "ms": 3538,
+              "maxMs": 95
+            },
+            "assessDraft": {
+              "calls": 39,
+              "ms": 15,
+              "maxMs": 1
+            },
+            "validateDraftCandidate": {
+              "calls": 39,
+              "ms": 2872,
+              "maxMs": 96
+            },
+            "renderFrozenReview": {
+              "calls": 39,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 39,
+              "ms": 5773,
+              "maxMs": 171
+            },
+            "renderHome": {
+              "calls": 39,
+              "ms": 29,
+              "maxMs": 2
+            },
+            "render": {
+              "calls": 39,
+              "ms": 5820,
+              "maxMs": 173
+            },
+            "refreshView": {
+              "calls": 9,
+              "ms": 2957,
+              "maxMs": 442
+            },
+            "readDestinationWorkspace": {
+              "calls": 9,
+              "ms": 683,
+              "maxMs": 88
+            }
+          },
+          "messages": {
+            "GET_VIEW": 9
+          },
+          "transactions": {
+            "atlas-destination-drafts-v1:readonly": 9,
+            "atlas-home-layout-v1:readonly": 3
+          },
+          "mutations": 344,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 7,
+              "ms": 5305,
+              "maxMs": 982
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 15,
+            "atlas-authority-v1:readwrite": 8
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 346.625,
+          "workingMiB": 5877.21,
+          "privateMiB": 5668.36,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 354.6406,
+          "workingMiB": 5866.0,
+          "privateMiB": 5655.15,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 30,
+          "median": 234.0,
+          "max": 438.0,
+          "samples": [
+            172.0,
+            297.0,
+            234.0,
+            438.0,
+            234.0,
+            297.0,
+            234.0,
+            329.0,
+            250.0,
+            156.0,
+            156.0,
+            156.0,
+            172.0,
+            141.0,
+            359.0,
+            219.0,
+            297.0,
+            234.0,
+            313.0,
+            250.0,
+            156.0,
+            156.0,
+            141.0,
+            172.0,
+            140.0,
+            344.0,
+            234.0,
+            313.0,
+            219.0,
+            156.0
+          ]
+        },
+        "aggregateCpuPercent": 115.02
+      },
+      {
+        "case": "30-second-idle-large-review",
+        "seconds": 30.0,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 29,
+              "ms": 7,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 26245,
+              "ms": 6850,
+              "maxMs": 7
+            },
+            "destinationIndex": {
+              "calls": 87,
+              "ms": 6846,
+              "maxMs": 104
+            },
+            "policyDestinationIndex": {
+              "calls": 87,
+              "ms": 6850,
+              "maxMs": 104
+            },
+            "draftBaseline": {
+              "calls": 29,
+              "ms": 2344,
+              "maxMs": 101
+            },
+            "readDestinationDraft": {
+              "calls": 58,
+              "ms": 4611,
+              "maxMs": 106
+            },
+            "assessDraft": {
+              "calls": 29,
+              "ms": 20,
+              "maxMs": 2
+            },
+            "validateDraftCandidate": {
+              "calls": 29,
+              "ms": 2333,
+              "maxMs": 99
+            },
+            "renderFrozenReview": {
+              "calls": 29,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 29,
+              "ms": 4682,
+              "maxMs": 200
+            },
+            "renderHome": {
+              "calls": 29,
+              "ms": 24,
+              "maxMs": 2
+            },
+            "render": {
+              "calls": 29,
+              "ms": 4730,
+              "maxMs": 201
+            },
+            "refreshView": {
+              "calls": 29,
+              "ms": 4951,
+              "maxMs": 209
+            },
+            "readDestinationWorkspace": {
+              "calls": 29,
+              "ms": 2310,
+              "maxMs": 106
+            }
+          },
+          "messages": {
+            "GET_VIEW": 29
+          },
+          "transactions": {
+            "atlas-home-layout-v1:readonly": 24,
+            "atlas-destination-drafts-v1:readonly": 29
+          },
+          "mutations": 39,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 29,
+              "ms": 2193,
+              "maxMs": 302
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 59,
+            "atlas-authority-v1:readwrite": 29
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 356.0625,
+          "workingMiB": 5850.01,
+          "privateMiB": 5638.93,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 365.0312,
+          "workingMiB": 1904.29,
+          "privateMiB": 1679.99,
+          "processes": 11
+        },
+        "aggregateCpuPercent": 29.9
+      },
+      {
+        "case": "remove-8-draft-items",
+        "seconds": 5.781,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 23,
+              "ms": 4,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 22022,
+              "ms": 5163,
+              "maxMs": 6
+            },
+            "destinationIndex": {
+              "calls": 63,
+              "ms": 4435,
+              "maxMs": 91
+            },
+            "policyDestinationIndex": {
+              "calls": 63,
+              "ms": 4435,
+              "maxMs": 91
+            },
+            "draftBaseline": {
+              "calls": 23,
+              "ms": 1674,
+              "maxMs": 87
+            },
+            "readDestinationDraft": {
+              "calls": 40,
+              "ms": 2821,
+              "maxMs": 92
+            },
+            "assessDraft": {
+              "calls": 23,
+              "ms": 15,
+              "maxMs": 2
+            },
+            "validateDraftCandidate": {
+              "calls": 23,
+              "ms": 1632,
+              "maxMs": 80
+            },
+            "renderFrozenReview": {
+              "calls": 23,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 23,
+              "ms": 3489,
+              "maxMs": 187
+            },
+            "renderHome": {
+              "calls": 23,
+              "ms": 16,
+              "maxMs": 1
+            },
+            "render": {
+              "calls": 23,
+              "ms": 4103,
+              "maxMs": 270
+            },
+            "readDestinationWorkspace": {
+              "calls": 17,
+              "ms": 1207,
+              "maxMs": 92
+            },
+            "refreshView": {
+              "calls": 7,
+              "ms": 1414,
+              "maxMs": 245
+            }
+          },
+          "messages": {
+            "GET_VIEW": 7
+          },
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 8,
+            "atlas-home-layout-v1:readonly": 3,
+            "atlas-destination-drafts-v1:readonly": 2
+          },
+          "mutations": 1084,
+          "creates": 8472,
+          "replacements": {
+            "sites-list": 8,
+            "destination-draft-items": 8,
+            "destination-draft-conflicts": 8,
+            "draft-reconciliation-items": 8
+          },
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 5,
+              "ms": 3924,
+              "maxMs": 1014
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 10,
+            "atlas-authority-v1:readwrite": 5
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 365.0312,
+          "workingMiB": 1904.29,
+          "privateMiB": 1679.99,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 371.1562,
+          "workingMiB": 2277.37,
+          "privateMiB": 2056.41,
+          "processes": 11
+        },
+        "aggregateCpuPercent": 105.95
+      }
+    ],
+    "reopenCycles": [
+      {
+        "iteration": 0,
+        "ms": 1860.0,
+        "before": {
+          "cpuSeconds": 371.2031,
+          "workingMiB": 2277.67,
+          "privateMiB": 2057.22,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 373.2812,
+          "workingMiB": 2752.13,
+          "privateMiB": 2536.64,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 1,
+        "ms": 1890.0,
+        "before": {
+          "cpuSeconds": 373.3594,
+          "workingMiB": 2752.98,
+          "privateMiB": 2537.08,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 375.4531,
+          "workingMiB": 2808.16,
+          "privateMiB": 2591.82,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 2,
+        "ms": 1735.0,
+        "before": {
+          "cpuSeconds": 375.7344,
+          "workingMiB": 2807.83,
+          "privateMiB": 2590.09,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 377.6562,
+          "workingMiB": 2865.62,
+          "privateMiB": 2655.73,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 3,
+        "ms": 1906.0,
+        "before": {
+          "cpuSeconds": 377.9375,
+          "workingMiB": 2865.18,
+          "privateMiB": 2654.01,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 380.1406,
+          "workingMiB": 2923.91,
+          "privateMiB": 2714.6,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 4,
+        "ms": 1766.0,
+        "before": {
+          "cpuSeconds": 380.4219,
+          "workingMiB": 2922.96,
+          "privateMiB": 2712.84,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 382.3594,
+          "workingMiB": 2970.63,
+          "privateMiB": 2761.02,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 5,
+        "ms": 1766.0,
+        "before": {
+          "cpuSeconds": 382.6406,
+          "workingMiB": 2969.9,
+          "privateMiB": 2759.71,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 384.5938,
+          "workingMiB": 3016.03,
+          "privateMiB": 2808.79,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      }
+    ],
+    "persistedSyntheticSummary": {
+      "count": 52,
+      "last": "Edited 11 11",
+      "revision": 536
+    },
+    "finalControllerStatus": "READY",
+    "instrumentation": "test-copy-only numeric AST function timing and native Windows process counters",
+    "limits": [
+      "Function times are inclusive wall times, not sampled CPU profiles.",
+      "RSS/private bytes are aggregate process snapshots and are not proof of retained JavaScript heap.",
+      "Accelerated repeated use does not reproduce multiple weeks of daily use."
+    ]
+  },
+  "matchedAfter": {
+    "firefox": "159.0",
+    "baseline": false,
+    "checks": [
+      "60 mixed Whitelist/Blacklist draft additions save without policy commands or permission changes",
+      "rapid typing and repeated staging retain the final edit and all 60 entries",
+      "idle review retains staged data and bounded refresh timers",
+      "local edits/removals/navigation never submit or confirm a Vault proposal",
+      "six close/reopen cycles retain the saved large draft and final edit without duplicate page timers/listeners"
+    ],
+    "measurements": [
+      {
+        "case": "add-draft-0-to-5",
+        "seconds": 0.593,
+        "ui": {
+          "functions": {
+            "evaluate": {
+              "calls": 301,
+              "ms": 80,
+              "maxMs": 1
+            },
+            "policyDestinationIndex": {
+              "calls": 140,
+              "ms": 60,
+              "maxMs": 2
+            },
+            "draftBaseline": {
+              "calls": 41,
+              "ms": 29,
+              "maxMs": 2
+            },
+            "renderSettings": {
+              "calls": 40,
+              "ms": 6,
+              "maxMs": 1
+            },
+            "readDestinationDraft": {
+              "calls": 99,
+              "ms": 164,
+              "maxMs": 3
+            },
+            "assessDraft": {
+              "calls": 40,
+              "ms": 23,
+              "maxMs": 2
+            },
+            "validateDraftCandidate": {
+              "calls": 40,
+              "ms": 89,
+              "maxMs": 4
+            },
+            "renderFrozenReview": {
+              "calls": 40,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 40,
+              "ms": 123,
+              "maxMs": 5
+            },
+            "renderHome": {
+              "calls": 40,
+              "ms": 23,
+              "maxMs": 1
+            },
+            "render": {
+              "calls": 40,
+              "ms": 165,
+              "maxMs": 7
+            },
+            "readDestinationWorkspace": {
+              "calls": 59,
+              "ms": 108,
+              "maxMs": 3
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 30
+          },
+          "mutations": 137,
+          "creates": 59,
+          "replacements": {
+            "site-categories": 1,
+            "DIV": 5,
+            "destination-draft-conflicts": 5,
+            "draft-reconciliation-items": 5
+          },
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 1,
+              "ms": 24,
+              "maxMs": 24
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 2,
+            "atlas-authority-v1:readwrite": 1
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 9.4844,
+          "workingMiB": 1007.02,
+          "privateMiB": 806.65,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 10.1406,
+          "workingMiB": 1067.82,
+          "privateMiB": 861.75,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 5,
+          "median": 125.0,
+          "max": 125.0,
+          "samples": [
+            125.0,
+            125.0,
+            109.0,
+            125.0,
+            109.0
+          ]
+        },
+        "aggregateCpuPercent": 110.66
+      },
+      {
+        "case": "add-draft-5-to-25",
+        "seconds": 2.781,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 166,
+              "ms": 19,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 2171,
+              "ms": 602,
+              "maxMs": 2
+            },
+            "policyDestinationIndex": {
+              "calls": 575,
+              "ms": 305,
+              "maxMs": 3
+            },
+            "draftBaseline": {
+              "calls": 166,
+              "ms": 126,
+              "maxMs": 2
+            },
+            "readDestinationDraft": {
+              "calls": 407,
+              "ms": 740,
+              "maxMs": 8
+            },
+            "assessDraft": {
+              "calls": 166,
+              "ms": 68,
+              "maxMs": 3
+            },
+            "validateDraftCandidate": {
+              "calls": 166,
+              "ms": 353,
+              "maxMs": 4
+            },
+            "renderFrozenReview": {
+              "calls": 166,
+              "ms": 1,
+              "maxMs": 1
+            },
+            "renderBatch": {
+              "calls": 166,
+              "ms": 609,
+              "maxMs": 12
+            },
+            "renderHome": {
+              "calls": 166,
+              "ms": 178,
+              "maxMs": 82
+            },
+            "render": {
+              "calls": 166,
+              "ms": 928,
+              "maxMs": 167
+            },
+            "readDestinationWorkspace": {
+              "calls": 241,
+              "ms": 492,
+              "maxMs": 8
+            },
+            "destinationIndex": {
+              "calls": 1,
+              "ms": 79,
+              "maxMs": 79
+            },
+            "refreshView": {
+              "calls": 3,
+              "ms": 195,
+              "maxMs": 172
+            }
+          },
+          "messages": {
+            "GET_VIEW": 3
+          },
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 120,
+            "atlas-home-layout-v1:readonly": 3,
+            "atlas-home-layout-v1:readwrite": 1,
+            "atlas-destination-drafts-v1:readonly": 1
+          },
+          "mutations": 647,
+          "creates": 197,
+          "replacements": {
+            "DIV": 20,
+            "destination-draft-conflicts": 20,
+            "draft-reconciliation-items": 20,
+            "vault-changes": 1,
+            "vault-settings-rows": 1,
+            "home-layout-list": 1
+          },
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 3,
+              "ms": 21,
+              "maxMs": 10
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 6,
+            "atlas-authority-v1:readwrite": 3
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 10.1562,
+          "workingMiB": 1067.83,
+          "privateMiB": 861.75,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 12.3438,
+          "workingMiB": 1371.21,
+          "privateMiB": 1165.59,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 20,
+          "median": 125.0,
+          "max": 328.0,
+          "samples": [
+            125.0,
+            328.0,
+            125.0,
+            125.0,
+            125.0,
+            109.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            110.0,
+            125.0,
+            125.0,
+            140.0,
+            219.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0
+          ]
+        },
+        "aggregateCpuPercent": 78.66
+      },
+      {
+        "case": "add-draft-25-to-60",
+        "seconds": 4.828,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 285,
+              "ms": 27,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 4002,
+              "ms": 1135,
+              "maxMs": 6
+            },
+            "policyDestinationIndex": {
+              "calls": 992,
+              "ms": 464,
+              "maxMs": 2
+            },
+            "draftBaseline": {
+              "calls": 285,
+              "ms": 195,
+              "maxMs": 2
+            },
+            "readDestinationDraft": {
+              "calls": 707,
+              "ms": 1320,
+              "maxMs": 8
+            },
+            "assessDraft": {
+              "calls": 285,
+              "ms": 121,
+              "maxMs": 2
+            },
+            "validateDraftCandidate": {
+              "calls": 285,
+              "ms": 666,
+              "maxMs": 8
+            },
+            "renderFrozenReview": {
+              "calls": 285,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 285,
+              "ms": 1493,
+              "maxMs": 29
+            },
+            "renderHome": {
+              "calls": 285,
+              "ms": 155,
+              "maxMs": 2
+            },
+            "render": {
+              "calls": 285,
+              "ms": 1754,
+              "maxMs": 29
+            },
+            "readDestinationWorkspace": {
+              "calls": 422,
+              "ms": 835,
+              "maxMs": 9
+            },
+            "refreshView": {
+              "calls": 5,
+              "ms": 55,
+              "maxMs": 18
+            }
+          },
+          "messages": {
+            "GET_VIEW": 5
+          },
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 210,
+            "atlas-home-layout-v1:readonly": 5,
+            "atlas-destination-drafts-v1:readonly": 2
+          },
+          "mutations": 856,
+          "creates": 315,
+          "replacements": {
+            "DIV": 35,
+            "destination-draft-conflicts": 35,
+            "draft-reconciliation-items": 35
+          },
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 4,
+              "ms": 86,
+              "maxMs": 30
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 8,
+            "atlas-authority-v1:readwrite": 4
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 12.3594,
+          "workingMiB": 1354.52,
+          "privateMiB": 1148.52,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 16.2812,
+          "workingMiB": 1645.64,
+          "privateMiB": 1439.87,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 35,
+          "median": 140.0,
+          "max": 234.0,
+          "samples": [
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            140.0,
+            125.0,
+            125.0,
+            141.0,
+            125.0,
+            141.0,
+            125.0,
+            125.0,
+            140.0,
+            125.0,
+            141.0,
+            141.0,
+            125.0,
+            140.0,
+            125.0,
+            141.0,
+            140.0,
+            141.0,
+            125.0,
+            156.0,
+            141.0,
+            234.0,
+            141.0,
+            141.0,
+            140.0,
+            141.0,
+            140.0,
+            141.0,
+            141.0,
+            140.0,
+            141.0
+          ]
+        },
+        "aggregateCpuPercent": 81.23
+      },
+      {
+        "case": "rapid-edits-60-item-draft",
+        "seconds": 3.109,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 195,
+              "ms": 18,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 2414,
+              "ms": 658,
+              "maxMs": 6
+            },
+            "policyDestinationIndex": {
+              "calls": 727,
+              "ms": 339,
+              "maxMs": 2
+            },
+            "draftBaseline": {
+              "calls": 195,
+              "ms": 130,
+              "maxMs": 2
+            },
+            "readDestinationDraft": {
+              "calls": 532,
+              "ms": 1022,
+              "maxMs": 7
+            },
+            "assessDraft": {
+              "calls": 195,
+              "ms": 80,
+              "maxMs": 1
+            },
+            "validateDraftCandidate": {
+              "calls": 195,
+              "ms": 461,
+              "maxMs": 5
+            },
+            "renderFrozenReview": {
+              "calls": 195,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 195,
+              "ms": 901,
+              "maxMs": 31
+            },
+            "renderHome": {
+              "calls": 195,
+              "ms": 118,
+              "maxMs": 2
+            },
+            "render": {
+              "calls": 195,
+              "ms": 1090,
+              "maxMs": 33
+            },
+            "readDestinationWorkspace": {
+              "calls": 337,
+              "ms": 696,
+              "maxMs": 8
+            },
+            "refreshView": {
+              "calls": 3,
+              "ms": 45,
+              "maxMs": 19
+            }
+          },
+          "messages": {
+            "GET_VIEW": 3
+          },
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 168,
+            "atlas-home-layout-v1:readonly": 3,
+            "atlas-destination-drafts-v1:readonly": 1
+          },
+          "mutations": 257,
+          "creates": 36,
+          "replacements": {
+            "DIV": 12,
+            "destination-draft-conflicts": 12,
+            "draft-reconciliation-items": 12
+          },
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 3,
+              "ms": 43,
+              "maxMs": 21
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 6,
+            "atlas-authority-v1:readwrite": 3
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 16.2812,
+          "workingMiB": 1645.65,
+          "privateMiB": 1439.87,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 18.7812,
+          "workingMiB": 1642.1,
+          "privateMiB": 1434.18,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 12,
+          "median": 250.0,
+          "max": 328.0,
+          "samples": [
+            250.0,
+            265.0,
+            250.0,
+            250.0,
+            250.0,
+            250.0,
+            328.0,
+            250.0,
+            250.0,
+            250.0,
+            250.0,
+            266.0
+          ]
+        },
+        "aggregateCpuPercent": 80.41
+      },
+      {
+        "case": "30-page-navigation-actions",
+        "seconds": 0.328,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 30,
+              "ms": 6,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 120,
+              "ms": 32,
+              "maxMs": 2
+            },
+            "policyDestinationIndex": {
+              "calls": 60,
+              "ms": 23,
+              "maxMs": 2
+            },
+            "draftBaseline": {
+              "calls": 30,
+              "ms": 22,
+              "maxMs": 1
+            },
+            "readDestinationDraft": {
+              "calls": 30,
+              "ms": 51,
+              "maxMs": 3
+            },
+            "assessDraft": {
+              "calls": 30,
+              "ms": 16,
+              "maxMs": 2
+            },
+            "validateDraftCandidate": {
+              "calls": 30,
+              "ms": 67,
+              "maxMs": 3
+            },
+            "renderFrozenReview": {
+              "calls": 30,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 30,
+              "ms": 90,
+              "maxMs": 4
+            },
+            "renderHome": {
+              "calls": 30,
+              "ms": 26,
+              "maxMs": 1
+            },
+            "render": {
+              "calls": 30,
+              "ms": 132,
+              "maxMs": 6
+            }
+          },
+          "messages": {},
+          "transactions": {},
+          "mutations": 325,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 10,
+              "ms": 322,
+              "maxMs": 36
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 20,
+            "atlas-authority-v1:readwrite": 10
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 18.7812,
+          "workingMiB": 1642.1,
+          "privateMiB": 1434.18,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 19.5,
+          "workingMiB": 1647.0,
+          "privateMiB": 1436.17,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 30,
+          "median": 15.0,
+          "max": 16.0,
+          "samples": [
+            15.0,
+            16.0,
+            0.0,
+            15.0,
+            16.0,
+            0.0,
+            16.0,
+            15.0,
+            16.0,
+            0.0,
+            16.0,
+            15.0,
+            16.0,
+            0.0,
+            15.0,
+            16.0,
+            0.0,
+            16.0,
+            15.0,
+            0.0,
+            16.0,
+            16.0,
+            0.0,
+            15.0,
+            16.0,
+            0.0,
+            15.0,
+            16.0,
+            0.0,
+            16.0
+          ]
+        },
+        "aggregateCpuPercent": 219.15
+      },
+      {
+        "case": "30-second-idle-large-review",
+        "seconds": 30.015,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 31,
+              "ms": 6,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 186,
+              "ms": 60,
+              "maxMs": 2
+            },
+            "policyDestinationIndex": {
+              "calls": 93,
+              "ms": 48,
+              "maxMs": 2
+            },
+            "draftBaseline": {
+              "calls": 31,
+              "ms": 29,
+              "maxMs": 2
+            },
+            "readDestinationDraft": {
+              "calls": 62,
+              "ms": 137,
+              "maxMs": 4
+            },
+            "assessDraft": {
+              "calls": 31,
+              "ms": 23,
+              "maxMs": 2
+            },
+            "validateDraftCandidate": {
+              "calls": 31,
+              "ms": 100,
+              "maxMs": 5
+            },
+            "renderFrozenReview": {
+              "calls": 31,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 31,
+              "ms": 135,
+              "maxMs": 6
+            },
+            "renderHome": {
+              "calls": 31,
+              "ms": 23,
+              "maxMs": 2
+            },
+            "render": {
+              "calls": 31,
+              "ms": 194,
+              "maxMs": 10
+            },
+            "refreshView": {
+              "calls": 31,
+              "ms": 447,
+              "maxMs": 21
+            },
+            "readDestinationWorkspace": {
+              "calls": 31,
+              "ms": 65,
+              "maxMs": 3
+            }
+          },
+          "messages": {
+            "GET_VIEW": 31
+          },
+          "transactions": {
+            "atlas-home-layout-v1:readonly": 30,
+            "atlas-destination-drafts-v1:readonly": 31
+          },
+          "mutations": 33,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 30,
+              "ms": 287,
+              "maxMs": 18
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 60,
+            "atlas-authority-v1:readwrite": 30
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 19.6562,
+          "workingMiB": 1638.27,
+          "privateMiB": 1426.77,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 21.4219,
+          "workingMiB": 1098.6,
+          "privateMiB": 884.99,
+          "processes": 11
+        },
+        "aggregateCpuPercent": 5.88
+      },
+      {
+        "case": "remove-8-draft-items",
+        "seconds": 1.125,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 17,
+              "ms": 1,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 691,
+              "ms": 220,
+              "maxMs": 5
+            },
+            "policyDestinationIndex": {
+              "calls": 51,
+              "ms": 26,
+              "maxMs": 2
+            },
+            "draftBaseline": {
+              "calls": 17,
+              "ms": 16,
+              "maxMs": 2
+            },
+            "readDestinationDraft": {
+              "calls": 34,
+              "ms": 71,
+              "maxMs": 4
+            },
+            "assessDraft": {
+              "calls": 17,
+              "ms": 8,
+              "maxMs": 1
+            },
+            "validateDraftCandidate": {
+              "calls": 17,
+              "ms": 43,
+              "maxMs": 4
+            },
+            "renderFrozenReview": {
+              "calls": 17,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 17,
+              "ms": 250,
+              "maxMs": 34
+            },
+            "renderHome": {
+              "calls": 17,
+              "ms": 10,
+              "maxMs": 2
+            },
+            "render": {
+              "calls": 17,
+              "ms": 270,
+              "maxMs": 36
+            },
+            "readDestinationWorkspace": {
+              "calls": 17,
+              "ms": 39,
+              "maxMs": 3
+            },
+            "refreshView": {
+              "calls": 1,
+              "ms": 8,
+              "maxMs": 8
+            }
+          },
+          "messages": {
+            "GET_VIEW": 1
+          },
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 8,
+            "atlas-home-layout-v1:readonly": 1,
+            "atlas-destination-drafts-v1:readonly": 1
+          },
+          "mutations": 57,
+          "creates": 0,
+          "replacements": {
+            "destination-draft-conflicts": 8,
+            "draft-reconciliation-items": 8
+          },
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 1,
+              "ms": 7,
+              "maxMs": 7
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 2,
+            "atlas-authority-v1:readwrite": 1
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 21.4219,
+          "workingMiB": 1098.62,
+          "privateMiB": 885.04,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 21.9062,
+          "workingMiB": 1155.0,
+          "privateMiB": 942.36,
+          "processes": 11
+        },
+        "aggregateCpuPercent": 43.05
+      }
+    ],
+    "reopenCycles": [
+      {
+        "iteration": 0,
+        "ms": 282.0,
+        "before": {
+          "cpuSeconds": 21.9219,
+          "workingMiB": 1155.56,
+          "privateMiB": 943.32,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 22.3281,
+          "workingMiB": 1250.6,
+          "privateMiB": 1047.17,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 1,
+        "ms": 265.0,
+        "before": {
+          "cpuSeconds": 22.3281,
+          "workingMiB": 1250.67,
+          "privateMiB": 1047.17,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 22.7031,
+          "workingMiB": 1337.57,
+          "privateMiB": 1136.0,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 2,
+        "ms": 250.0,
+        "before": {
+          "cpuSeconds": 22.7031,
+          "workingMiB": 1337.6,
+          "privateMiB": 1136.0,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 23.0625,
+          "workingMiB": 1434.68,
+          "privateMiB": 1240.82,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 3,
+        "ms": 281.0,
+        "before": {
+          "cpuSeconds": 23.0625,
+          "workingMiB": 1434.69,
+          "privateMiB": 1240.82,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 23.3594,
+          "workingMiB": 1535.61,
+          "privateMiB": 1347.38,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 4,
+        "ms": 265.0,
+        "before": {
+          "cpuSeconds": 23.4062,
+          "workingMiB": 1535.62,
+          "privateMiB": 1347.38,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 23.7188,
+          "workingMiB": 1631.53,
+          "privateMiB": 1450.86,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 5,
+        "ms": 266.0,
+        "before": {
+          "cpuSeconds": 23.7188,
+          "workingMiB": 1631.53,
+          "privateMiB": 1450.86,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 24.0781,
+          "workingMiB": 1727.54,
+          "privateMiB": 1553.37,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      }
+    ],
+    "persistedSyntheticSummary": {
+      "count": 52,
+      "last": "Edited 11 11",
+      "revision": 536
+    },
+    "finalControllerStatus": "READY",
+    "instrumentation": "test-copy-only numeric AST function timing and native Windows process counters",
+    "limits": [
+      "Function times are inclusive wall times, not sampled CPU profiles.",
+      "RSS/private bytes are aggregate process snapshots and are not proof of retained JavaScript heap.",
+      "Accelerated repeated use does not reproduce multiple weeks of daily use."
+    ]
+  },
+  "finalBuildLifecycle": {
+    "firefox": "159.0",
+    "baseline": false,
+    "checks": [
+      "60 mixed Whitelist/Blacklist draft additions save without policy commands or permission changes",
+      "rapid typing and repeated staging retain the final edit and all 60 entries",
+      "idle review retains staged data and bounded refresh timers",
+      "local edits/removals/navigation never submit or confirm a Vault proposal",
+      "six close/reopen cycles retain the saved large draft and final edit without duplicate page timers/listeners",
+      "page listener counts remain stable through close/reopen; quiescent process memory is recorded separately from allocation peaks"
+    ],
+    "measurements": [
+      {
+        "case": "add-draft-0-to-5",
+        "seconds": 0.594,
+        "ui": {
+          "functions": {
+            "evaluate": {
+              "calls": 301,
+              "ms": 91,
+              "maxMs": 1
+            },
+            "policyDestinationIndex": {
+              "calls": 140,
+              "ms": 67,
+              "maxMs": 2
+            },
+            "draftBaseline": {
+              "calls": 41,
+              "ms": 21,
+              "maxMs": 2
+            },
+            "renderSettings": {
+              "calls": 40,
+              "ms": 8,
+              "maxMs": 1
+            },
+            "readDestinationDraft": {
+              "calls": 99,
+              "ms": 168,
+              "maxMs": 3
+            },
+            "assessDraft": {
+              "calls": 40,
+              "ms": 24,
+              "maxMs": 2
+            },
+            "validateDraftCandidate": {
+              "calls": 40,
+              "ms": 93,
+              "maxMs": 3
+            },
+            "renderFrozenReview": {
+              "calls": 40,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 40,
+              "ms": 122,
+              "maxMs": 6
+            },
+            "renderHome": {
+              "calls": 40,
+              "ms": 20,
+              "maxMs": 1
+            },
+            "render": {
+              "calls": 40,
+              "ms": 160,
+              "maxMs": 6
+            },
+            "readDestinationWorkspace": {
+              "calls": 59,
+              "ms": 101,
+              "maxMs": 3
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 30
+          },
+          "mutations": 137,
+          "creates": 59,
+          "replacements": {
+            "site-categories": 1,
+            "DIV": 5,
+            "destination-draft-conflicts": 5,
+            "draft-reconciliation-items": 5
+          },
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 1,
+              "ms": 28,
+              "maxMs": 28
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 2,
+            "atlas-authority-v1:readwrite": 1
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 9.7969,
+          "workingMiB": 1022.3,
+          "privateMiB": 825.28,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 10.6094,
+          "workingMiB": 1107.13,
+          "privateMiB": 906.33,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 5,
+          "median": 110.0,
+          "max": 125.0,
+          "samples": [
+            125.0,
+            110.0,
+            125.0,
+            109.0,
+            110.0
+          ]
+        },
+        "aggregateCpuPercent": 136.78
+      },
+      {
+        "case": "add-draft-5-to-25",
+        "seconds": 2.641,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 166,
+              "ms": 17,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 2167,
+              "ms": 579,
+              "maxMs": 2
+            },
+            "policyDestinationIndex": {
+              "calls": 575,
+              "ms": 288,
+              "maxMs": 2
+            },
+            "draftBaseline": {
+              "calls": 166,
+              "ms": 127,
+              "maxMs": 2
+            },
+            "readDestinationDraft": {
+              "calls": 407,
+              "ms": 715,
+              "maxMs": 6
+            },
+            "assessDraft": {
+              "calls": 166,
+              "ms": 71,
+              "maxMs": 2
+            },
+            "validateDraftCandidate": {
+              "calls": 166,
+              "ms": 359,
+              "maxMs": 7
+            },
+            "renderFrozenReview": {
+              "calls": 166,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 166,
+              "ms": 614,
+              "maxMs": 15
+            },
+            "renderHome": {
+              "calls": 166,
+              "ms": 164,
+              "maxMs": 78
+            },
+            "render": {
+              "calls": 166,
+              "ms": 903,
+              "maxMs": 149
+            },
+            "readDestinationWorkspace": {
+              "calls": 241,
+              "ms": 448,
+              "maxMs": 4
+            },
+            "destinationIndex": {
+              "calls": 1,
+              "ms": 75,
+              "maxMs": 75
+            },
+            "refreshView": {
+              "calls": 3,
+              "ms": 188,
+              "maxMs": 155
+            }
+          },
+          "messages": {
+            "GET_VIEW": 3
+          },
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 120,
+            "atlas-home-layout-v1:readonly": 3,
+            "atlas-destination-drafts-v1:readonly": 1,
+            "atlas-home-layout-v1:readwrite": 1
+          },
+          "mutations": 646,
+          "creates": 211,
+          "replacements": {
+            "DIV": 20,
+            "destination-draft-conflicts": 20,
+            "draft-reconciliation-items": 20,
+            "vault-changes": 1,
+            "vault-settings-rows": 1,
+            "home-layout-list": 1
+          },
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 2,
+              "ms": 50,
+              "maxMs": 27
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 4,
+            "atlas-authority-v1:readwrite": 2
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 10.6094,
+          "workingMiB": 1107.13,
+          "privateMiB": 906.33,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 12.8281,
+          "workingMiB": 1398.21,
+          "privateMiB": 1196.64,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 20,
+          "median": 125.0,
+          "max": 266.0,
+          "samples": [
+            266.0,
+            125.0,
+            125.0,
+            125.0,
+            109.0,
+            125.0,
+            125.0,
+            125.0,
+            110.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            140.0,
+            141.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0
+          ]
+        },
+        "aggregateCpuPercent": 84.01
+      },
+      {
+        "case": "add-draft-25-to-60",
+        "seconds": 4.86,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 285,
+              "ms": 29,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 4004,
+              "ms": 1103,
+              "maxMs": 5
+            },
+            "policyDestinationIndex": {
+              "calls": 993,
+              "ms": 451,
+              "maxMs": 2
+            },
+            "draftBaseline": {
+              "calls": 285,
+              "ms": 199,
+              "maxMs": 2
+            },
+            "readDestinationDraft": {
+              "calls": 708,
+              "ms": 1269,
+              "maxMs": 7
+            },
+            "assessDraft": {
+              "calls": 285,
+              "ms": 124,
+              "maxMs": 2
+            },
+            "validateDraftCandidate": {
+              "calls": 285,
+              "ms": 629,
+              "maxMs": 4
+            },
+            "renderFrozenReview": {
+              "calls": 285,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 285,
+              "ms": 1448,
+              "maxMs": 31
+            },
+            "renderHome": {
+              "calls": 285,
+              "ms": 148,
+              "maxMs": 2
+            },
+            "render": {
+              "calls": 285,
+              "ms": 1702,
+              "maxMs": 32
+            },
+            "readDestinationWorkspace": {
+              "calls": 423,
+              "ms": 805,
+              "maxMs": 7
+            },
+            "refreshView": {
+              "calls": 5,
+              "ms": 57,
+              "maxMs": 16
+            }
+          },
+          "messages": {
+            "GET_VIEW": 5
+          },
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 210,
+            "atlas-home-layout-v1:readonly": 5,
+            "atlas-destination-drafts-v1:readonly": 3
+          },
+          "mutations": 856,
+          "creates": 315,
+          "replacements": {
+            "DIV": 35,
+            "destination-draft-conflicts": 35,
+            "draft-reconciliation-items": 35
+          },
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 5,
+              "ms": 129,
+              "maxMs": 40
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 10,
+            "atlas-authority-v1:readwrite": 5
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 12.8281,
+          "workingMiB": 1398.29,
+          "privateMiB": 1196.65,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 16.7031,
+          "workingMiB": 1636.85,
+          "privateMiB": 1433.21,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 35,
+          "median": 140.0,
+          "max": 250.0,
+          "samples": [
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            141.0,
+            125.0,
+            125.0,
+            141.0,
+            125.0,
+            125.0,
+            140.0,
+            125.0,
+            141.0,
+            125.0,
+            141.0,
+            140.0,
+            125.0,
+            141.0,
+            140.0,
+            125.0,
+            141.0,
+            141.0,
+            140.0,
+            141.0,
+            250.0,
+            141.0,
+            140.0,
+            141.0,
+            140.0,
+            157.0,
+            140.0,
+            141.0,
+            156.0,
+            141.0
+          ]
+        },
+        "aggregateCpuPercent": 79.73
+      },
+      {
+        "case": "rapid-edits-60-item-draft",
+        "seconds": 3.14,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 195,
+              "ms": 27,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 2412,
+              "ms": 667,
+              "maxMs": 5
+            },
+            "policyDestinationIndex": {
+              "calls": 726,
+              "ms": 330,
+              "maxMs": 6
+            },
+            "draftBaseline": {
+              "calls": 195,
+              "ms": 130,
+              "maxMs": 2
+            },
+            "readDestinationDraft": {
+              "calls": 531,
+              "ms": 970,
+              "maxMs": 8
+            },
+            "assessDraft": {
+              "calls": 195,
+              "ms": 103,
+              "maxMs": 2
+            },
+            "validateDraftCandidate": {
+              "calls": 195,
+              "ms": 460,
+              "maxMs": 9
+            },
+            "renderFrozenReview": {
+              "calls": 195,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 195,
+              "ms": 891,
+              "maxMs": 33
+            },
+            "renderHome": {
+              "calls": 195,
+              "ms": 87,
+              "maxMs": 2
+            },
+            "render": {
+              "calls": 195,
+              "ms": 1047,
+              "maxMs": 35
+            },
+            "readDestinationWorkspace": {
+              "calls": 336,
+              "ms": 663,
+              "maxMs": 7
+            },
+            "refreshView": {
+              "calls": 3,
+              "ms": 43,
+              "maxMs": 18
+            }
+          },
+          "messages": {
+            "GET_VIEW": 3
+          },
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 168,
+            "atlas-home-layout-v1:readonly": 3
+          },
+          "mutations": 257,
+          "creates": 36,
+          "replacements": {
+            "DIV": 12,
+            "destination-draft-conflicts": 12,
+            "draft-reconciliation-items": 12
+          },
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 3,
+              "ms": 42,
+              "maxMs": 30
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 6,
+            "atlas-authority-v1:readwrite": 3
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 16.7031,
+          "workingMiB": 1636.86,
+          "privateMiB": 1433.21,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 19.1562,
+          "workingMiB": 1663.5,
+          "privateMiB": 1459.19,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 12,
+          "median": 250.0,
+          "max": 391.0,
+          "samples": [
+            235.0,
+            250.0,
+            250.0,
+            250.0,
+            250.0,
+            234.0,
+            250.0,
+            391.0,
+            250.0,
+            250.0,
+            250.0,
+            265.0
+          ]
+        },
+        "aggregateCpuPercent": 78.12
+      },
+      {
+        "case": "30-page-navigation-actions",
+        "seconds": 0.328,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 30,
+              "ms": 3,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 120,
+              "ms": 22,
+              "maxMs": 2
+            },
+            "policyDestinationIndex": {
+              "calls": 60,
+              "ms": 22,
+              "maxMs": 2
+            },
+            "draftBaseline": {
+              "calls": 30,
+              "ms": 20,
+              "maxMs": 3
+            },
+            "readDestinationDraft": {
+              "calls": 30,
+              "ms": 56,
+              "maxMs": 3
+            },
+            "assessDraft": {
+              "calls": 30,
+              "ms": 12,
+              "maxMs": 1
+            },
+            "validateDraftCandidate": {
+              "calls": 30,
+              "ms": 68,
+              "maxMs": 3
+            },
+            "renderFrozenReview": {
+              "calls": 30,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 30,
+              "ms": 96,
+              "maxMs": 4
+            },
+            "renderHome": {
+              "calls": 30,
+              "ms": 14,
+              "maxMs": 1
+            },
+            "render": {
+              "calls": 30,
+              "ms": 125,
+              "maxMs": 5
+            }
+          },
+          "messages": {},
+          "transactions": {},
+          "mutations": 328,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 10,
+              "ms": 322,
+              "maxMs": 38
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 20,
+            "atlas-authority-v1:readwrite": 10
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 19.1562,
+          "workingMiB": 1663.5,
+          "privateMiB": 1459.19,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 19.9688,
+          "workingMiB": 1663.81,
+          "privateMiB": 1455.65,
+          "processes": 11
+        },
+        "operationMs": {
+          "count": 30,
+          "median": 15.0,
+          "max": 16.0,
+          "samples": [
+            16.0,
+            15.0,
+            0.0,
+            16.0,
+            16.0,
+            15.0,
+            0.0,
+            16.0,
+            15.0,
+            16.0,
+            0.0,
+            16.0,
+            15.0,
+            0.0,
+            16.0,
+            16.0,
+            0.0,
+            15.0,
+            16.0,
+            0.0,
+            15.0,
+            16.0,
+            0.0,
+            16.0,
+            15.0,
+            0.0,
+            16.0,
+            16.0,
+            0.0,
+            15.0
+          ]
+        },
+        "aggregateCpuPercent": 247.74
+      },
+      {
+        "case": "30-second-idle-large-review",
+        "seconds": 30.0,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 30,
+              "ms": 7,
+              "maxMs": 1
+            },
+            "evaluate": {
+              "calls": 180,
+              "ms": 39,
+              "maxMs": 1
+            },
+            "policyDestinationIndex": {
+              "calls": 90,
+              "ms": 41,
+              "maxMs": 2
+            },
+            "draftBaseline": {
+              "calls": 30,
+              "ms": 28,
+              "maxMs": 2
+            },
+            "readDestinationDraft": {
+              "calls": 60,
+              "ms": 124,
+              "maxMs": 4
+            },
+            "assessDraft": {
+              "calls": 30,
+              "ms": 19,
+              "maxMs": 1
+            },
+            "validateDraftCandidate": {
+              "calls": 30,
+              "ms": 88,
+              "maxMs": 4
+            },
+            "renderFrozenReview": {
+              "calls": 30,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 30,
+              "ms": 118,
+              "maxMs": 6
+            },
+            "renderHome": {
+              "calls": 30,
+              "ms": 29,
+              "maxMs": 2
+            },
+            "render": {
+              "calls": 30,
+              "ms": 181,
+              "maxMs": 9
+            },
+            "refreshView": {
+              "calls": 30,
+              "ms": 419,
+              "maxMs": 46
+            },
+            "readDestinationWorkspace": {
+              "calls": 30,
+              "ms": 64,
+              "maxMs": 3
+            }
+          },
+          "messages": {
+            "GET_VIEW": 30
+          },
+          "transactions": {
+            "atlas-home-layout-v1:readonly": 30,
+            "atlas-destination-drafts-v1:readonly": 30
+          },
+          "mutations": 30,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 30,
+              "ms": 248,
+              "maxMs": 43
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 60,
+            "atlas-authority-v1:readwrite": 30
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 20.1094,
+          "workingMiB": 1660.2,
+          "privateMiB": 1452.41,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 21.7812,
+          "workingMiB": 1107.56,
+          "privateMiB": 898.13,
+          "processes": 11
+        },
+        "aggregateCpuPercent": 5.57
+      },
+      {
+        "case": "remove-8-draft-items",
+        "seconds": 1.14,
+        "ui": {
+          "functions": {
+            "renderSettings": {
+              "calls": 17,
+              "ms": 6,
+              "maxMs": 2
+            },
+            "evaluate": {
+              "calls": 691,
+              "ms": 207,
+              "maxMs": 2
+            },
+            "policyDestinationIndex": {
+              "calls": 51,
+              "ms": 31,
+              "maxMs": 3
+            },
+            "draftBaseline": {
+              "calls": 17,
+              "ms": 18,
+              "maxMs": 3
+            },
+            "readDestinationDraft": {
+              "calls": 34,
+              "ms": 72,
+              "maxMs": 4
+            },
+            "assessDraft": {
+              "calls": 17,
+              "ms": 7,
+              "maxMs": 1
+            },
+            "validateDraftCandidate": {
+              "calls": 17,
+              "ms": 47,
+              "maxMs": 5
+            },
+            "renderFrozenReview": {
+              "calls": 17,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 17,
+              "ms": 252,
+              "maxMs": 31
+            },
+            "renderHome": {
+              "calls": 17,
+              "ms": 12,
+              "maxMs": 2
+            },
+            "render": {
+              "calls": 17,
+              "ms": 277,
+              "maxMs": 33
+            },
+            "readDestinationWorkspace": {
+              "calls": 17,
+              "ms": 34,
+              "maxMs": 3
+            },
+            "refreshView": {
+              "calls": 1,
+              "ms": 15,
+              "maxMs": 15
+            }
+          },
+          "messages": {
+            "GET_VIEW": 1
+          },
+          "transactions": {
+            "atlas-destination-drafts-v1:readwrite": 8,
+            "atlas-home-layout-v1:readonly": 1,
+            "atlas-destination-drafts-v1:readonly": 1
+          },
+          "mutations": 57,
+          "creates": 0,
+          "replacements": {
+            "destination-draft-conflicts": 8,
+            "draft-reconciliation-items": 8
+          },
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        },
+        "background": {
+          "functions": {
+            "recheck": {
+              "calls": 1,
+              "ms": 6,
+              "maxMs": 6
+            }
+          },
+          "messages": {},
+          "transactions": {
+            "atlas-authority-v1:readonly": 2,
+            "atlas-authority-v1:readwrite": 1
+          },
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 0,
+          "maxTimers": 0,
+          "activeGlobalListeners": 0,
+          "tabsListeners": 1
+        },
+        "processBefore": {
+          "cpuSeconds": 21.7812,
+          "workingMiB": 1107.57,
+          "privateMiB": 898.14,
+          "processes": 11
+        },
+        "processAfter": {
+          "cpuSeconds": 22.2969,
+          "workingMiB": 1175.43,
+          "privateMiB": 967.68,
+          "processes": 11
+        },
+        "aggregateCpuPercent": 45.24
+      }
+    ],
+    "reopenCycles": [
+      {
+        "iteration": 0,
+        "ms": 266.0,
+        "before": {
+          "cpuSeconds": 22.2969,
+          "workingMiB": 1175.05,
+          "privateMiB": 967.5,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 22.6094,
+          "workingMiB": 1213.77,
+          "privateMiB": 1014.5,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 1,
+        "ms": 250.0,
+        "before": {
+          "cpuSeconds": 22.6094,
+          "workingMiB": 1213.77,
+          "privateMiB": 1014.5,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 22.9375,
+          "workingMiB": 1306.53,
+          "privateMiB": 1108.33,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 2,
+        "ms": 265.0,
+        "before": {
+          "cpuSeconds": 22.9375,
+          "workingMiB": 1306.59,
+          "privateMiB": 1108.33,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 23.2812,
+          "workingMiB": 1395.58,
+          "privateMiB": 1206.49,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 3,
+        "ms": 266.0,
+        "before": {
+          "cpuSeconds": 23.2812,
+          "workingMiB": 1395.59,
+          "privateMiB": 1206.5,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 23.625,
+          "workingMiB": 1491.25,
+          "privateMiB": 1308.97,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 4,
+        "ms": 250.0,
+        "before": {
+          "cpuSeconds": 23.625,
+          "workingMiB": 1491.32,
+          "privateMiB": 1308.97,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 23.9375,
+          "workingMiB": 1588.47,
+          "privateMiB": 1412.82,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 5,
+        "ms": 250.0,
+        "before": {
+          "cpuSeconds": 23.9375,
+          "workingMiB": 1588.47,
+          "privateMiB": 1412.82,
+          "processes": 11
+        },
+        "after": {
+          "cpuSeconds": 24.3438,
+          "workingMiB": 1685.07,
+          "privateMiB": 1516.44,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      }
+    ],
+    "quiescentSamples": [
+      {
+        "iteration": 0,
+        "memoryMinimized": false,
+        "process": {
+          "cpuSeconds": 24.9375,
+          "workingMiB": 1196.43,
+          "privateMiB": 1019.78,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 1,
+        "memoryMinimized": false,
+        "process": {
+          "cpuSeconds": 25.1719,
+          "workingMiB": 1080.73,
+          "privateMiB": 884.25,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 2,
+        "memoryMinimized": false,
+        "process": {
+          "cpuSeconds": 25.2969,
+          "workingMiB": 985.96,
+          "privateMiB": 772.24,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      },
+      {
+        "iteration": 3,
+        "memoryMinimized": false,
+        "process": {
+          "cpuSeconds": 25.4688,
+          "workingMiB": 979.78,
+          "privateMiB": 765.36,
+          "processes": 11
+        },
+        "resources": {
+          "functions": {},
+          "messages": {},
+          "transactions": {},
+          "mutations": 0,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 1,
+          "maxTimers": 1,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1
+        }
+      }
+    ],
+    "persistedSyntheticSummary": {
+      "count": 52,
+      "last": "Edited 11 11",
+      "revision": 536
+    },
+    "finalControllerStatus": "READY",
+    "instrumentation": "test-copy-only numeric AST function timing and native Windows process counters",
+    "limits": [
+      "Function times are inclusive wall times, not sampled CPU profiles.",
+      "RSS/private bytes are aggregate process snapshots and are not proof of retained JavaScript heap.",
+      "Accelerated repeated use does not reproduce multiple weeks of daily use."
+    ]
+  },
+  "nativeRegressionSuites": {
+    "batch": {
+      "firefox": "159.0",
+      "checks": [
+        "three Whitelist additions, two Blacklist additions, explicit removal and name/category/pin edit staged together without policy or waiting",
+        "editable draft survives closing UI and a full Firefox process restart; complete destination review and unchanged old-term Vault wait",
+        "one explicit confirmation commits entire candidate once; replay rejected; post-commit display failure survives full restart and retries only presentation",
+        "unrelated commit stales preserved draft; explicit reconciliation preview and acceptance do not create permission or submit automatically",
+        "custom Books category reused across editor and committed Home grouping without rewriting legacy records or changing category ordering controls",
+        "two native Atlas pages detect a changed shared draft, retain local work and explicitly reload without overwriting the other page",
+        "real draft transaction failure retains raw inputs and blocks submission; explicit local retry saves work without policy commands",
+        "final full process restart retains completed policy/display/pins and separately preserves the next editable unsubmitted draft",
+        "lost response plus unrelated proposal ID advancement has an explicit local discard after Core recovery; saved policy retained and no repeat proposal or confirmation"
+      ],
+      "fullFirefoxRestarts": 3,
+      "isolatedProfile": true,
+      "signedReleaseModified": false,
+      "coreSemanticsChanged": false
+    },
+    "curatedUpgrade": {
+      "firefox": "159.0",
+      "checks": [
+        "preserved signed baseline stores custom extra hosts, a manual Blacklist, removed defaults, pins and custom protected timing through real Vault waits",
+        "native update atomically adds curated destinations while retaining every custom host, manual Blacklist, pins and protected settings",
+        "old pending requests and frozen Vault proposal keep their timestamps and fail confirmation under existing Core revision rules; diagnostics reports exact migration outcomes",
+        "full Firefox restart retains the receipt and later Vault removal; startup never re-adds a subsequently removed curated hostname"
+      ],
+      "fullFirefoxRestarts": 2,
+      "migration": {
+        "id": "research-infrastructure-2026-10-v2",
+        "kind": "UPGRADED",
+        "policyRevisionBefore": 2,
+        "policyRevisionAfter": 3,
+        "added": [
+          "aalto.fi",
+          "about.gitlab.com",
+          "app.box.com",
+          "app.slack.com",
+          "app.zoom.us",
+          "aps.org",
+          "bctp.berkeley.edu",
+          "berkeley.edu",
+          "bitbucket.org",
+          "calendar.google.com",
+          "caltech.edu",
+          "cam.ac.uk",
+          "cds.cern.ch",
+          "cern.ch",
+          "chalmers.se",
+          "chebfun.org",
+          "cornell.edu",
+          "coursera.org",
+          "courses.maths.ox.ac.uk",
+          "dblp.org",
+          "deepl.com",
+          "desy.de",
+          "developer.mozilla.org",
+          "dlmf.nist.gov",
+          "doaj.org",
+          "docs.google.com",
+          "docs.julialang.org",
+          "docs.python.org",
+          "docs.scipy.org",
+          "drive.google.com",
+          "dropbox.com",
+          "dtu.dk",
+          "ed.ac.uk",
+          "edu.itp.phys.ethz.ch",
+          "edx.org",
+          "en.wikipedia.org",
+          "epfl.ch",
+          "epubs.siam.org",
+          "ethz.ch",
+          "excel.cloud.microsoft",
+          "fysik.su.se",
+          "gitlab.com",
+          "gu.se",
+          "harvard.edu",
+          "helsinki.fi",
+          "home.cern",
+          "home.edx.org",
+          "ias.edu",
+          "ictp.it",
+          "imperial.ac.uk",
+          "indico.cern.ch",
+          "indico.desy.de",
+          "indico.ictp.it",
+          "infoscience.epfl.ch",
+          "intra.kth.se",
+          "itp.phys.ethz.ch",
+          "julialang.org",
+          "keep.google.com",
+          "ki.se",
+          "kitp.ucsb.edu",
+          "kth.se",
+          "ku.dk",
+          "learning.edx.org",
+          "liu.se",
+          "ltu.se",
+          "lu.se",
+          "m365.cloud.microsoft",
+          "math.berkeley.edu",
+          "math.cornell.edu",
+          "math.mit.edu",
+          "math.stanford.edu",
+          "mathematics.stanford.edu",
+          "maths.ed.ac.uk",
+          "meet.google.com",
+          "mit.edu",
+          "nbi.ku.dk",
+          "nbia.nbi.ku.dk",
+          "netlib.org",
+          "newton.ac.uk",
+          "nodejs.org",
+          "nordita.org",
+          "notion.com",
+          "notion.so",
+          "npmjs.com",
+          "numpy.org",
+          "ocw.mit.edu",
+          "office.com",
+          "onedrive.cloud.microsoft",
+          "onedrive.live.com",
+          "online.kitp.ucsb.edu",
+          "openalex.org",
+          "osf.io",
+          "outlook.cloud.microsoft",
+          "ox.ac.uk",
+          "pcts.princeton.edu",
+          "people.fas.harvard.edu",
+          "people.maths.ox.ac.uk",
+          "people.phys.ethz.ch",
+          "people.sissa.it",
+          "perimeterinstitute.ca",
+          "phy.princeton.edu",
+          "phys.ethz.ch",
+          "physics.aalto.fi",
+          "physics.aps.org",
+          "physics.berkeley.edu",
+          "physics.cornell.edu",
+          "physics.dtu.dk",
+          "physics.harvard.edu",
+          "physics.kth.se",
+          "physics.mit.edu",
+          "physics.stanford.edu",
+          "physics.ucsb.edu",
+          "physics.uu.se",
+          "pirsa.org",
+          "pma.caltech.edu",
+          "pmc.ncbi.nlm.nih.gov",
+          "powerpoint.cloud.microsoft",
+          "princeton.edu",
+          "pubs.acs.org",
+          "pypi.org",
+          "royalsocietypublishing.org",
+          "scholar.harvard.edu",
+          "scipost.org",
+          "scipy.org",
+          "sethna.lassp.cornell.edu",
+          "sissa.it",
+          "sitp.stanford.edu",
+          "slack.com",
+          "stackoverflow.com",
+          "stanford.edu",
+          "su.se",
+          "support.google.com",
+          "support.microsoft.com",
+          "support.mozilla.org",
+          "sv.wikipedia.org",
+          "teams.cloud.microsoft",
+          "teams.microsoft.com",
+          "th-dep.web.cern.ch",
+          "theory-hamburg.desy.de",
+          "theory.caltech.edu",
+          "translate.google.com",
+          "trello.com",
+          "tum.de",
+          "ucsb.edu",
+          "uio.no",
+          "umu.se",
+          "user.it.uu.se",
+          "users.aalto.fi",
+          "uu.se",
+          "video.ias.edu",
+          "web.math.princeton.edu",
+          "web.mit.edu",
+          "web.stanford.edu",
+          "wikipedia.org",
+          "word.cloud.microsoft",
+          "workspace.google.com",
+          "www.aalto.fi",
+          "www.aps.org",
+          "www.berkeley.edu",
+          "www.caltech.edu",
+          "www.cam.ac.uk",
+          "www.cern.ch",
+          "www.chalmers.se",
+          "www.chebfun.org",
+          "www.cornell.edu",
+          "www.coursera.org",
+          "www.crossref.org",
+          "www.damtp.cam.ac.uk",
+          "www.deepl.com",
+          "www.desy.de",
+          "www.doi.org",
+          "www.dropbox.com",
+          "www.dtu.dk",
+          "www.ed.ac.uk",
+          "www.edx.org",
+          "www.epfl.ch",
+          "www.ethz.ch",
+          "www.feynmanlectures.caltech.edu",
+          "www.figma.com",
+          "www.fkf.mpg.de",
+          "www.fysik.lu.se",
+          "www.fysik.su.se",
+          "www.gu.se",
+          "www.harvard.edu",
+          "www.helsinki.fi",
+          "www.ias.edu",
+          "www.ictp.it",
+          "www.ifm.liu.se",
+          "www.imperial.ac.uk",
+          "www.it.uu.se",
+          "www.itp.phys.ethz.ch",
+          "www.ki.se",
+          "www.kitp.ucsb.edu",
+          "www.kth.se",
+          "www.ku.dk",
+          "www.lassp.cornell.edu",
+          "www.liu.se",
+          "www.ltu.se",
+          "www.lu.se",
+          "www.matfys.lu.se",
+          "www.math.harvard.edu",
+          "www.math.princeton.edu",
+          "www.maths.cam.ac.uk",
+          "www.maths.ed.ac.uk",
+          "www.maths.ox.ac.uk",
+          "www.microsoft.com",
+          "www.mit.edu",
+          "www.mn.uio.no",
+          "www.nat.tum.de",
+          "www.netlib.org",
+          "www.newton.ac.uk",
+          "www.nordita.org",
+          "www.notion.com",
+          "www.notion.so",
+          "www.npmjs.com",
+          "www.office.com",
+          "www.ox.ac.uk",
+          "www.perimeterinstitute.ca",
+          "www.ph.ed.ac.uk",
+          "www.ph.nat.tum.de",
+          "www.phy.cam.ac.uk",
+          "www.phys.ethz.ch",
+          "www.physics.helsinki.fi",
+          "www.physics.kth.se",
+          "www.physics.ox.ac.uk",
+          "www.physics.ucsb.edu",
+          "www.physics.uu.se",
+          "www.pks.mpg.de",
+          "www.princeton.edu",
+          "www.sissa.it",
+          "www.stanford.edu",
+          "www.su.se",
+          "www.tcm.phy.cam.ac.uk",
+          "www.theory.caltech.edu",
+          "www.tum.de",
+          "www.ucsb.edu",
+          "www.uio.no",
+          "www.umu.se",
+          "www.uu.se",
+          "www.wikipedia.org",
+          "www.zoom.com",
+          "www.zoom.us",
+          "www.zotero.org",
+          "www2.ph.ed.ac.uk",
+          "wwwf.imperial.ac.uk",
+          "zenodo.org",
+          "zoom.us",
+          "zotero.org"
+        ],
+        "alreadyPresent": [
+          "academic.oup.com",
+          "arxiv.org",
+          "cambridge.org",
+          "canvas.instructure.com",
+          "canvas.kth.se",
+          "chatgpt.com",
+          "claude.ai",
+          "crossref.org",
+          "dl.acm.org",
+          "doi.org",
+          "github.com",
+          "ieeexplore.ieee.org",
+          "inspirehep.net",
+          "iopscience.iop.org",
+          "journals.aps.org",
+          "jstor.org",
+          "learn.canvas.net",
+          "link.aps.org",
+          "link.springer.com",
+          "mail.google.com",
+          "microsoft365.com",
+          "nature.com",
+          "ncbi.nlm.nih.gov",
+          "onlinelibrary.wiley.com",
+          "orcid.org",
+          "outlook.com",
+          "outlook.live.com",
+          "outlook.office.com",
+          "outlook.office365.com",
+          "overleaf.com",
+          "pubmed.ncbi.nlm.nih.gov",
+          "pubs.aip.org",
+          "scholar.google.com",
+          "science.org",
+          "sciencedirect.com",
+          "semanticscholar.org",
+          "springer.com",
+          "student.ladok.se",
+          "webmail.kth.se",
+          "www.cambridge.org",
+          "www.github.com",
+          "www.jstor.org",
+          "www.microsoft365.com",
+          "www.nature.com",
+          "www.outlook.com",
+          "www.overleaf.com",
+          "www.science.org",
+          "www.sciencedirect.com",
+          "www.semanticscholar.org"
+        ],
+        "skippedBlacklisted": [
+          "figma.com"
+        ],
+        "skippedManaged": []
+      },
+      "customHostsPreserved": [
+        "root.localhost",
+        "outside-preset.localhost"
+      ],
+      "policyRevisionBefore": 2,
+      "policyRevisionAfter": 3,
+      "signedArtifactsModified": false,
+      "normalProfileAccessed": false
+    },
+    "uiStability": {
+      "firefox": "159.0",
+      "suite": "ui-stability-interactions",
+      "checks": [
+        "usage reordering retains the exact card, focused entry-point selector, selected hostname and open disclosure",
+        "retained entry-point selection sends the exact adapter command; this fixture withholds the external browser effect",
+        "120 identical storage notifications leave destination structure and attributes unchanged",
+        "an out-of-order failed poll cannot overwrite a newer verified operation or the active draft/caret",
+        "failed authority retains work/focus, disables launchers and read-only retries retain one timer before recovery",
+        "late diagnostics from a previous scope cannot replace newer results",
+        "failed layout saves retain unsaved work and recover only after acknowledged retry",
+        "actual Firefox toolbar activation reuses Sites without reloading or discarding the persistent editor",
+        "passive Journey indicator retains host/label for 60 seconds, mutates only countdown text and keeps its fixed Core deadline"
+      ],
+      "observations": [
+        {
+          "case": "usage-entry-point",
+          "cardSame": true,
+          "oldConnected": true,
+          "open": true,
+          "selected": "canvas.instructure.com",
+          "headingSame": true,
+          "focusSame": true
+        },
+        {
+          "case": "unchanged-storage-notifications",
+          "mutations": 3,
+          "attributes": 0,
+          "redundantAttributes": 0,
+          "childList": 3,
+          "added": 3,
+          "removed": 3,
+          "replacements": {},
+          "writes": {},
+          "regions": {
+            "diagnostics": 3
+          },
+          "messages": {
+            "GET_VIEW": 3
+          },
+          "creates": 0,
+          "layoutReads": 0,
+          "timerCreated": 3,
+          "timerFired": 2,
+          "activeTimers": 1,
+          "maxTimers": 1
+        },
+        {
+          "case": "retry-timer-ownership",
+          "mutations": 22,
+          "attributes": 22,
+          "redundantAttributes": 11,
+          "childList": 0,
+          "added": 0,
+          "removed": 0,
+          "replacements": {},
+          "writes": {},
+          "regions": {
+            "other": 22
+          },
+          "messages": {
+            "GET_VIEW": 11
+          },
+          "creates": 0,
+          "layoutReads": 0,
+          "timerCreated": 11,
+          "timerFired": 5,
+          "activeTimers": 1,
+          "maxTimers": 1
+        },
+        {
+          "case": "passive-indicator",
+          "seconds": 60.05,
+          "samples": [
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 4,
+                "added": 4,
+                "removed": 4
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:56"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 9,
+                "added": 9,
+                "removed": 9
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:51"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 14,
+                "added": 14,
+                "removed": 14
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:46"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 18,
+                "added": 18,
+                "removed": 18
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:41"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 22,
+                "added": 22,
+                "removed": 22
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:36"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 26,
+                "added": 26,
+                "removed": 26
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:31"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 30,
+                "added": 30,
+                "removed": 30
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:26"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 34,
+                "added": 34,
+                "removed": 34
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:21"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 39,
+                "added": 39,
+                "removed": 39
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:16"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 42,
+                "added": 42,
+                "removed": 42
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:11"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 47,
+                "added": 47,
+                "removed": 47
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:06"
+            },
+            {
+              "stats": {
+                "attributes": 0,
+                "childList": 51,
+                "added": 51,
+                "removed": 51
+              },
+              "hidden": false,
+              "probeClear": null,
+              "actualExists": true,
+              "hostStable": true,
+              "labelStable": true,
+              "time": "4:01"
+            }
+          ]
+        }
+      ]
+    },
+    "storageReliability": {
+      "firefox": "159.0",
+      "suite": "storage-reliability",
+      "baseline": false,
+      "checks": [
+        "steady browsing uses real persisted checkpoints; ordinary loads use readonly transactions",
+        "one native abort recovers through verified Core open before any Whitelist tab is replaced",
+        "real Greylist grant and frozen Vault proposal keep exact timestamps and policy across abort recovery",
+        "persistent abort performs at most one automatic recovery and then withholds browsing without a retry loop",
+        "explicit Recovery remains usable after the bounded automatic attempt fails",
+        "quota failure stays closed, reports a safe cause and retains saved authority without resetting or automatic retry",
+        "recovered authority still enforces the existing explicit Blacklist"
+      ],
+      "observations": [
+        {
+          "case": "five-second-steady-browsing",
+          "reads": 40,
+          "writes": 20
+        },
+        {
+          "case": "native-abort-after-fix",
+          "status": "READY",
+          "storage": {
+            "readTransactions": 173,
+            "writeTransactions": 86,
+            "committedWrites": 84,
+            "failedCommits": 1,
+            "lastFailure": {
+              "sequence": 1,
+              "operation": "COMMIT",
+              "stage": "TRANSACTION_ABORT",
+              "cause": "ABORTED"
+            }
+          }
+        },
+        {
+          "case": "quota-failure",
+          "storage": {
+            "readTransactions": 340,
+            "writeTransactions": 171,
+            "committedWrites": 165,
+            "failedCommits": 5,
+            "lastFailure": {
+              "sequence": 5,
+              "operation": "COMMIT",
+              "stage": "TRANSACTION_ABORT",
+              "cause": "QUOTA_EXCEEDED"
+            }
+          },
+          "status": "UNAVAILABLE"
+        }
+      ]
+    },
+    "freshGreylist": {
+      "firefox": "159.0",
+      "extensionVersion": "0.1.18",
+      "freshInstallWhitelistCount": 298,
+      "freshInstallBlacklistEmpty": true,
+      "setupRequired": false,
+      "freshRevision": 0,
+      "noCopiedRuntimeState": true,
+      "pendingRequestsRemainSeparateFromGrants": true,
+      "savedGrantVisible": true,
+      "countdownAdvances": true,
+      "rowAndFocusStable": true,
+      "smallScreenFits": true,
+      "unavailableStateHidesGrants": true,
+      "restartPreservesGrantAndPolicy": true,
+      "expiryRemovesRowAndPage": true,
+      "fixedExpiry": true,
+      "noRenewal": true
+    },
+    "journeyRetries": {
+      "firefox": "159.0",
+      "checks": [
+        "loaded root ends REACHED; actual Login starts a new Journey",
+        "immediate same-host auto-POST survives document/request ordering",
+        "same-host POST does not consume a hop or extend the fixed deadline",
+        "four same-tab Google denial/root re-entry/Login/return cycles",
+        "explicit cancellation and Restart action reach fresh root and fresh Login",
+        "two tabs keep independent authorization and indicators; denied synthetic request withheld",
+        "four-second root document delay survives timer checkpoints without losing permission",
+        "actual direct GET, cross-host POST and root script departures start fresh Journeys",
+        "first departure consumes hop one; subsequent redirects retain HTTP correlation",
+        "all direct-departure returns end the same Journey without renewed deadline",
+        "uncorrelated intermediate link stays Greylist and its destination request is withheld",
+        "typed Google stays Greylist during direct-departure Journey",
+        "same-tab root re-entry and legitimate direct Login succeed after each ended attempt",
+        "cross-domain confirmation POST and immediate auto-POST return with unchanged Journey ID/deadline",
+        "policy/configuration unchanged",
+        "no permanent trust, pending Access request or temporary grant created"
+      ]
+    }
+  },
+  "automated": {
+    "core": 204,
+    "extension": 416,
+    "failed": 0,
+    "skipped": 0,
+    "newDisplayLifecycleTests": 5,
+    "newYouTubeCatalogTest": 1,
+    "coreTypecheck": true,
+    "extensionTypecheck": true,
+    "developmentBuild": true,
+    "diffCheck": true
+  },
+  "integrity": {
+    "preservedCoreFiles": 23,
+    "preservedSignedReleaseFiles": 95,
+    "all118HashesMatch": true,
+    "hashEvidence": "curated-expansion-2026-10.json",
+    "signedVersionsVerifiedOffline": [
+      "0.1.13",
+      "0.1.14",
+      "0.1.15",
+      "0.1.16",
+      "0.1.17"
+    ],
+    "coreSourceChanged": false,
+    "authorizationSemanticsChanged": false,
+    "manifestVersionIdentityPermissionsChangedDuringAudit": false,
+    "dependenciesAdded": false,
+    "storageProtocolOrSchemaChangedDuringAudit": false,
+    "normalProfileAccessed": false,
+    "enterprisePoliciesChanged": false,
+    "signedArtifactsModified": false,
+    "mozillaSubmitted": false,
+    "releasePackaged": false
+  },
+  "limitations": [
+    "No spontaneous idle flicker reproduced: baseline and corrected review both create zero elements while unchanged.",
+    "No week-long leak established; accelerated close/reopen peaks are not retained-heap measurements.",
+    "Optional memory-minimization helper unavailable; four quiescent samples show natural memory reduction, not forced-GC results.",
+    "Observed favicon map grows with distinct hosts until page close; durable commit receipts accumulate for reconciliation. Neither was demonstrated to cause this reported degradation, and no speculative authorization/storage retention changes were made.",
+    "Native Windows only; macOS and real authenticated websites not exercised by these synthetic fixtures."
+  ],
+  "temporaryArtifacts": {
+    "disposableFirefoxProfilesCleaned": 10,
+    "taskInstrumentedRuntimeCopiesCleaned": true,
+    "sanitizedEvidenceRetained": true,
+    "approxGiBReclaimed": 1.27
+  }
+}

@@ -1,4 +1,5 @@
 import { assessDraft, readDestinationDraft, samePolicy } from './destination-draft.js';
+import { evaluate, isWhitelistRemoval } from '@atlas/core';
 export const emptyDestinationWorkspace = () => ({ version: 1, draft: null, receipt: null });
 export const draftDatabaseName = 'atlas-destination-drafts-v1';
 export function readDestinationWorkspace(input) {
@@ -12,18 +13,21 @@ export function readDestinationWorkspace(input) {
         if (!r || typeof r !== 'object')
             return null;
         const d = readDestinationDraft(r.draft);
-        if (!d || d.editor !== null || !d.changes.length || !['POLICY', 'DISPLAY'].includes(r.kind)
+        if (!d || d.editor !== null || !d.changes.length || !['POLICY', 'DISPLAY', 'REMOVAL'].includes(r.kind)
             || !['PREPARED', 'PROPOSED', 'APPLYING', 'DONE', 'KEPT', 'RESOLVED'].includes(r.phase)
             || !Number.isSafeInteger(r.expectedProposalId) || r.expectedProposalId < 1
             || r.proposalId !== null && (!Number.isSafeInteger(r.proposalId) || r.proposalId < 1)
             || !Number.isSafeInteger(r.baseConfigurationRevision) || r.baseConfigurationRevision < 0
             || r.owner !== null && (typeof r.owner !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(r.owner))
-            || !r.candidatePolicy || !Array.isArray(r.candidatePolicy.whitelist) || !Array.isArray(r.candidatePolicy.blacklist))
+            || !r.candidatePolicy || !Array.isArray(r.candidatePolicy.whitelist) || !Array.isArray(r.candidatePolicy.blacklist)
+            || evaluate('receipt-validation.example', r.candidatePolicy).reason === 'INVALID_POLICY')
             return null;
         const candidate = assessDraft(d, d.baseline).candidatePolicy;
         if (!candidate || !samePolicy(candidate, r.candidatePolicy))
             return null;
         if (r.kind === 'DISPLAY' && !samePolicy(d.baseline.policy, r.candidatePolicy))
+            return null;
+        if (r.kind === 'REMOVAL' && (r.proposalId !== null || !isWhitelistRemoval(d.baseline.policy, r.candidatePolicy)))
             return null;
     }
     return structuredClone(value);

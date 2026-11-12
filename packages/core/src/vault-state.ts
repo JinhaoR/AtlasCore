@@ -29,6 +29,7 @@ export function canonicalPolicy(value: unknown): Policy | null {
   return {
     whitelist: [...new Set(policy.whitelist)].sort(),
     blacklist: [...new Set(policy.blacklist)].sort(),
+    ...(policy.whitelistSubdomains === undefined ? {} : { whitelistSubdomains: [...new Set(policy.whitelistSubdomains)].sort() }),
   };
 }
 
@@ -38,7 +39,8 @@ function sameEntries(left: readonly string[], right: readonly string[]): boolean
 
 /** Both arguments have already been canonicalized. */
 export function samePolicy(left: Policy, right: Policy): boolean {
-  return sameEntries(left.whitelist, right.whitelist) && sameEntries(left.blacklist, right.blacklist);
+  return sameEntries(left.whitelist, right.whitelist) && sameEntries(left.blacklist, right.blacklist)
+    && sameEntries(left.whitelistSubdomains ?? [], right.whitelistSubdomains ?? []);
 }
 
 /** Explicit initialization only; never a fallback for damaged existing state. */
@@ -62,11 +64,14 @@ function readProposal(value: unknown): PolicyProposal | null {
     || !nonnegativeInteger(value.confirmBy)
     || value.readyAt <= value.createdAt || value.confirmBy <= value.readyAt) return null;
   const candidatePolicy = canonicalPolicy(value.candidatePolicy);
+  const scoped = candidatePolicy?.whitelistSubdomains !== undefined;
   // Stored proposals must already be canonical; validation must not repair reviewed contents.
-  if (candidatePolicy === null || !hasFields(value.candidatePolicy, ["whitelist", "blacklist"])
+  if (candidatePolicy === null || !hasFields(value.candidatePolicy, ["whitelist", "blacklist", ...(scoped ? ['whitelistSubdomains'] : [])])
     || !Array.isArray(value.candidatePolicy.whitelist) || !Array.isArray(value.candidatePolicy.blacklist)
     || !sameEntries(value.candidatePolicy.whitelist, candidatePolicy.whitelist)
-    || !sameEntries(value.candidatePolicy.blacklist, candidatePolicy.blacklist)) return null;
+    || !sameEntries(value.candidatePolicy.blacklist, candidatePolicy.blacklist)
+    || scoped && (!Array.isArray(value.candidatePolicy.whitelistSubdomains)
+      || !sameEntries(value.candidatePolicy.whitelistSubdomains, candidatePolicy.whitelistSubdomains!))) return null;
   return {
     id: value.id, basePolicyRevision: value.basePolicyRevision, candidatePolicy,
     ...(candidateConfiguration === undefined ? {} : { candidateConfiguration, baseConfigurationRevision: value.baseConfigurationRevision as number }),

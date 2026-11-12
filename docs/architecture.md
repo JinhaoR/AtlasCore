@@ -1,5 +1,71 @@
 # Atlas Core architecture
 
+The [Home category grid](home-organization.md#current-home-category-grid-2026-11-10)
+uses the existing layout CAS session for direct reordering and adds an independent
+`category-icons-v1` presentation record for local SVG choices. Older layout records
+are unchanged. No Core, adapter command, authorization or policy persistence
+contract changes; both records remain outside authority.
+
+The Firefox-only [Everyday controls](everyday-controls.md) work adds a read-only
+toolbar popup and optional native bookmark synchronization. Its independently
+revisioned presentation journal has no controller reference and cannot grant
+permission. All bookmark launches use the existing `OPEN_DESTINATION` gate.
+Core models, authorization, persistence contracts and revisions are unchanged.
+
+The [post-0.2.1 rendering review](ui-engineering-review.md) adds pure
+`evaluateMany(targets, policy)`: one complete policy normalization, then the same
+decisions as individual `evaluate` calls. This is a stateless batch API, not an
+authorization cache. Firefox uses it only for destination display projections;
+the planner/controller and persistence validation boundaries remain unchanged.
+
+The [0.2.1 startup/viewport repair](startup-layout-0.2.1.md) adds only presentation
+scroll ownership, native modal Home customization and a bounded optional icon
+asset cache. Core, commands, authority validation, deadlines and policy persistence
+are unchanged. Asset storage cannot establish authorization; cached icons are
+revalidated and failure falls back locally. Signed 0.2.0 stays frozen.
+
+The [0.2.0 visual redesign](visual-redesign-0.2.0.md) changes only the Firefox
+presentation: shared flat navy/cream/gold styles, top navigation, static compass
+pins and category shortcuts. Existing page/state owners, command bindings,
+storage schemas and authorization boundaries remain. The subsequent
+[compass refinement](visual-refinement-0.2.0.md) presents the selected category
+in the right workspace, reusing existing rows and saved collapse preferences.
+Only browser history stores that navigation choice; viewing a category never
+writes layout or authority. The compass never creates or interprets permission.
+The [management redesign](management-ux-0.2.0.md) adds presentation-only
+browse/detail/review selection and Settings section selection to browser history.
+It reuses the same persistent draft owner and command handlers; structured
+before/after tables are read-only projections. Diagnostics refresh independently
+of a failed main-view query within the same existing refresh loop.
+
+The [0.1.19 engineering review](engineering-review-0.1.19.md) assesses current
+module responsibilities and measured repeated work. Access-summary projection
+now shares one complete validation and omits expired/stale history before further
+Core assessments; it never authorizes effects or changes persisted records.
+
+The [immediate Whitelist-removal contract](whitelist-removal.md) adds a narrow
+Core-validated subtraction command through the existing planner/controller.
+No addition or other protected change can use it; ordinary Vault proposals retain
+their frozen contract. Firefox only selects and presents the Core-defined workflow.
+
+Development 0.1.19 adds the user-approved optional
+[`Policy.whitelistSubdomains` contract](whitelist-scopes.md). Existing entries and
+defaults remain exact. Broad matches are Core decisions, frozen and committed
+through ordinary Vault; additional descendants retain manual/managed blocking.
+The adapter uses its existing PSL only to validate the explicit selection, never
+to authorize browser events independently. Legacy two-list policies stay valid.
+
+The [editor follow-up](editor-reliability-0.1.19.md) separates raw-input
+coalescing from ordered staging/receipt writes. Terminal receipts retain full
+storage validation but no longer trigger unused permission-outcome rendering.
+
+The [0.1.18 performance audit](performance-audit-0.1.18.md) keeps display indexing
+separate from authorization: all-terms Sites/draft indexes validate once and group
+literal committed hosts, rather than evaluating a fabricated policy per row.
+Submission and browser effects still require fresh Core validation and persistence.
+Incremental rows, same-turn rendering coalescing and draft-connection cleanup are
+presentation changes; no authority, timing or storage protocol changes.
+
 The [UI stability pass](ui-stability.md) retains acknowledged DOM and presentation
 state during unchanged reads and housekeeping saves. It separates rendering from
 presentation synchronization and owns one visible-page polling loop. Core authority,
@@ -42,6 +108,12 @@ Status: Milestones 1 through 3, D11 Journeys, and D13 aggregate validation/plann
 
 ## Current package
 
+The [2026-10 curated expansion](curated-expansion.md) adds an explicitly approved
+one-time preset union in the Firefox repository before controller construction.
+It preserves the Core snapshot schema and normal policy-revision rules; its
+receipt is stored atomically outside the domain snapshot. Ordinary runtime edits
+continue through Vault. User-provided custom hosts and configuration survive.
+
 D23's [coherence review](code-review.md) validates these boundaries and corrects Firefox lifecycle/presentation issues. The small Core package and its public API remain unchanged.
 
 D24's [Firefox interface cleanup](ui-design.md#firefox-interface-cleanup-d24) simplifies navigation and Settings, and adds a saved minimized sidebar. These local presentation preferences carry no authority; planner, controller and repository contracts remain unchanged.
@@ -52,8 +124,8 @@ D24's [Firefox interface cleanup](ui-design.md#firefox-interface-cleanup-d24) si
 | --- | --- |
 | `models.ts` | Small readonly domain models and distinct decision variants. |
 | `target.ts` | Request normalization and the shared hostname validator. |
-| `policy.ts` | Validate and normalize both complete policy lists into fresh arrays. |
-| `evaluate.ts` | Validate inputs, check Blacklist first, then Whitelist, then return Greylist. |
+| `policy.ts` | Validate and copy both exact lists and optional explicit subdomain roots. |
+| `evaluate.ts` | Validate inputs, check exact Blacklist, exact Whitelist, selected DNS-label scope, then Greylist. Managed restrictions remain in the aggregate planner. |
 | `managed-blacklist.ts` | Compile and query injected managed deny data without downloading or storing it. |
 | `access-models.ts` | Pending requests, grants, access state/context, timing, and result variants. |
 | `access-state.ts` | Explicit initialization; validate and copy complete workflow state, configuration, and context. |
@@ -339,6 +411,7 @@ Implemented under the scope authorized on 2026-09-29: `AtlasSnapshot`, complete 
 | `CHECK_DOWNLOAD` | Prepare, start, advance or consume one ephemeral file operation using explicit source, context binding and prior intent. Return a distinct `DOWNLOAD` result; no candidate policy, grant or Journey. See [the download contract](firefox-downloads.md). |
 | `RECORD_JOURNEY_NAVIGATION` | Compose the existing trusted Journey-record operation with common authorization. An intermediate records adoption; a root records actual arrival. This primitive is not the future ADOPT/event protocol. The owner must establish which fact occurred. |
 | `START_ACCESS`, `CONFIRM_ACCESS`, `CANCEL_ACCESS` | Existing explicit Greylist transitions. |
+| `END_ACCESS` | Explicit removal of one active grant's complete scope, by its original request ID. |
 | `PROPOSE_POLICY`, `PROPOSE_SETTINGS`, `REVIEW_POLICY`, `CONFIRM_POLICY`, `CANCEL_POLICY` | Shared frozen Vault workflow; confirmation prepares a complete aggregate candidate. |
 | `START_JOURNEY`, `CANCEL_JOURNEY`, `CLOSE_JOURNEY_CONTEXT` | Existing context-bound Journey transitions. |
 | `OBSERVE_TIME` | Observe explicit time/revision and Journey endings without navigation or new permissions. |
@@ -499,6 +572,7 @@ The following operation names are the broader D12 proposal. Current D13/D18 impl
 | `RECHECK_CONTEXT` | Context ID and currently observed target. | Evaluate retained content without moving a Journey or counting a new hop. |
 | `START_JOURNEY`, `CANCEL_JOURNEY` | Context ID plus root target or Journey ID. | Explicit user intention. A continuation, reload, or return cannot create a fresh deadline. Repeated active Start retains current behavior and rejects renewal. |
 | `START_ACCESS`, `CONFIRM_ACCESS`, `CANCEL_ACCESS` | Target for Start; existing request ID for confirmation/cancellation. | Existing Greylist workflow. Terms come from committed snapshot configuration. Confirmation creates no navigation effect by itself. |
+| `END_ACCESS` | Existing grant's original request ID. | Commit removal of that grant only; recheck affected browser contexts after success. No automatic confirmation or renewal. |
 | `PROPOSE_POLICY`, `PROPOSE_SETTINGS`, `REVIEW_POLICY`, `CONFIRM_POLICY`, `CANCEL_POLICY` | Complete candidate policy or settings only at proposal creation; frozen proposal ID for later operations. | Existing Vault rules. Confirmation cannot replace reviewed contents and success waits for commit. |
 | `OBSERVE_TIME` | No page-provided timestamp. | Sample the injected clock, observe expiry, and request rechecks without generating confirmation or new attempts. |
 
@@ -553,6 +627,25 @@ Persisted `lastCommitId` and domain consumption markers can help recognize succe
 ### Failures, concurrency, and owner status
 
 Recommended owner states: `UNINITIALIZED`, `READY`, `COMMITTING`, `RECONCILING`, and `UNAVAILABLE`. Corrupt data is a structured cause of unavailability. Ordinary UI may display recovery information in any state; new governed authorization requires ready, validated authority.
+
+The [0.1.19 internal-fault follow-up](firefox-storage-reliability.md#0118-idle-internal_error-report-2026-10-30)
+adds optional memory-only `AtlasControllerView.internalFault` diagnostics. Its
+closed operation/stage/error codes and state counts never enter snapshot storage,
+planning, permission or automatic recovery. An unexpected exception still fails
+closed (COMMIT_UNKNOWN if a write is unresolved). No raw message or stack is
+retained; explicit recovery retains the explanation in that owner lifetime.
+The focused follow-up also exposes optional readonly `getActivity()` queue
+progress and a trusted `onInternalFault` diagnostic callback. Neither enters
+domain state or decisions; observer failure cannot change the closed outcome.
+Firefox alone sanitizes exact own-bundle numeric source locations and records
+bounded runtime events. See the owning reliability document for export/lifetime
+limits; this does not add automatic recovery of unexpected exceptions.
+
+The final [quality pass](quality-pass-0.1.19.md) removes repeated deep freezing of
+already validated immutable snapshots and JSON serialization for internal data
+comparison. Full repository validation, reconciliation and commits remain intact.
+Firefox optionally persists only bounded sanitized fault evidence in separate
+presentation storage; diagnostic data can never reconstruct authorization.
 
 | Failure | Required response |
 | --- | --- |
@@ -675,3 +768,17 @@ Each frontend needs its own storage and browser-event adapter. Sharing code does
 ## Avoid these additions without a new requirement
 
 Do not add a frontend, cloud service, remote configuration, authentication subsystem, adblocking engine, browser capability framework, plugin system, cryptographic protocol, event-sourced ledger or generic dependency graph as part of the Core foundation. None is necessary to prove the initial classification and deliberate-access behavior.
+## Early termination of temporary access (development)
+
+The user may explicitly end a current Access Grant through `END_ACCESS`, identified
+by its original request ID. Core removes that entire frozen exact-host scope in one
+candidate transition. The controller publishes success only after the ordinary CAS
+commit succeeds. It does not change policy, other grants, pending requests, revision
+numbers or their deadlines. A consumed request cannot confirm again; future access
+requires a new request and its full wait. Expired, stale or missing grants reject.
+The Firefox adapter rechecks retained documents and in-flight grant assessments
+after a successful end. Independent Whitelist/Journey authority retains its ordinary
+rules. Website messages and the read-only toolbar popup cannot end grants.
+
+This explicitly requested capability supersedes earlier presentation-only guidance
+that described active grants as non-revocable. It adds no new persistent schema.

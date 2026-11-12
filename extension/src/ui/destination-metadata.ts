@@ -1,4 +1,4 @@
-import { normalizeTarget, type AtlasSnapshot, type Policy } from '@atlas/core';
+import { evaluate, normalizeTarget, type AtlasSnapshot, type Policy } from '@atlas/core';
 
 export interface DestinationMetadata {
   readonly id: string; readonly label: string; readonly category: string;
@@ -44,16 +44,18 @@ export function readDestinationPreferences(value: unknown): DestinationPreferenc
     if (Number.isSafeInteger(item.proposalId) && item.proposalId > 0 && Number.isSafeInteger(item.basePolicyRevision) && item.basePolicyRevision >= 0
       && (item.destination === null || destination !== null) && (item.removedId === null || validDestinationId(item.removedId))
       && typeof item.pin === 'boolean' && policy && Array.isArray(policy.whitelist) && Array.isArray(policy.blacklist)
-      && policy.whitelist.length + policy.blacklist.length <= 10000 && [...policy.whitelist, ...policy.blacklist].every(hostname)) {
+      && policy.whitelist.length + policy.blacklist.length <= 10000 && [...policy.whitelist, ...policy.blacklist].every(hostname)
+      && evaluate('metadata-validation.example', policy).reason !== 'INVALID_POLICY') {
       pending = { proposalId: item.proposalId, basePolicyRevision: item.basePolicyRevision,
-        candidatePolicy: { whitelist: [...policy.whitelist], blacklist: [...policy.blacklist] }, destination, removedId: item.removedId, pin: item.pin };
+        candidatePolicy: { whitelist: [...policy.whitelist], blacklist: [...policy.blacklist],
+          ...(policy.whitelistSubdomains !== undefined ? { whitelistSubdomains: [...policy.whitelistSubdomains] } : {}) }, destination, removedId: item.removedId, pin: item.pin };
     }
   }
   return { version: 1, destinations: destinations as DestinationMetadata[], pending };
 }
 
-const samePolicy = (a: Policy, b: Policy) => ['whitelist', 'blacklist'].every(key =>
-  JSON.stringify([...a[key as keyof Policy]].sort()) === JSON.stringify([...b[key as keyof Policy]].sort()));
+const samePolicy = (a: Policy, b: Policy) => (['whitelist', 'blacklist', 'whitelistSubdomains'] as const).every(key =>
+  JSON.stringify([...(a[key] ?? [])].sort()) === JSON.stringify([...(b[key] ?? [])].sort()));
 
 /** An explicit display edit owns its named terms, including any retired metadata. */
 export function replaceDestinationMetadata(entries: readonly DestinationMetadata[], destination: DestinationMetadata | null, removedId: string | null): readonly DestinationMetadata[] {

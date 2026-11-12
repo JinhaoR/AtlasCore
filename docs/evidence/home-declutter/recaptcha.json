@@ -1,0 +1,69 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.2.7",
+  "firefox": "160.0",
+  "recaptcha": {
+    "publicOnly": true,
+    "observations": [
+      {
+        "atlasEnabled": true,
+        "hostname": "myanimelist.net",
+        "title": "Login - MyAnimeList.net",
+        "blockedMessage": false,
+        "challengePage": false,
+        "recaptchaAPI": "undefined",
+        "resourceHosts": [
+          "cdn.myanimelist.net",
+          "fonts.googleapis.com",
+          "btloader.com",
+          "www.google.com",
+          "myanimelist.net",
+          "cmp.inmobi.com",
+          "visit-server.inmobi-choice.io",
+          "api.cmp.inmobi.com",
+          "cdn.btloader.com",
+          "ad-delivery.net",
+          "ad.doubleclick.net",
+          "ab.dns-finder.com",
+          "cdn.api.btloader.com",
+          "api.btloader.com",
+          "www.googletagmanager.com",
+          "region1.google-analytics.com"
+        ],
+        "frameHosts": [
+          null,
+          null
+        ]
+      },
+      {
+        "atlasEnabled": false,
+        "hostname": "myanimelist.net",
+        "title": "Login - MyAnimeList.net",
+        "blockedMessage": false,
+        "challengePage": false,
+        "recaptchaAPI": "undefined",
+        "resourceHosts": [
+          "cdn.myanimelist.net",
+          "fonts.googleapis.com",
+          "btloader.com",
+          "www.google.com",
+          "myanimelist.net",
+          "cmp.inmobi.com",
+          "api.cmp.inmobi.com",
+          "ab.dns-finder.com",
+          "ad-delivery.net",
+          "ad.doubleclick.net",
+          "api.btloader.com",
+          "www.googletagmanager.com",
+          "region1.google-analytics.com"
+        ],
+        "frameHosts": [
+          null,
+          null
+        ]
+      }
+    ],
+    "limitation": "No account login or challenge completion. An isolated profile does not contain other installed blockers or privacy preferences."
+  },
+  "status": "PASS"
+}

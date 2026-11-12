@@ -1,3 +1,12 @@
+Atlas 0.2.0 locally bundles Cormorant Garamond and Source Sans 3 under the SIL
+Open Font License 1.1. Original copyright and full license texts are included at:
+ui/fonts/Cormorant-Garamond-OFL.txt
+ui/fonts/Source-Sans-3-OFL.txt
+Source URLs, retrieval date and SHA-256 hashes are recorded in ui/fonts/sources.json.
+Upstream projects: https://github.com/CatharsisFonts/Cormorant
+and https://github.com/adobe-fonts/source-sans
+These files are served only from the extension; no runtime font service is used.
+
 The Atlas Firefox UI bundles tldts and tldts-core 7.4.16.
 Source: https://github.com/remusao/tldts
 

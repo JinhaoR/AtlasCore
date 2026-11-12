@@ -1,5 +1,25 @@
 # Destination and Firefox polishing (D30)
 
+The final [0.1.19 quality pass](quality-pass-0.1.19.md) keeps one active editor
+instead of simultaneous committed detail/editor panes, makes staged review and
+completed receipts disclosures, and keeps routine editing feedback local. The
+workspace remains the sole draft owner; submission still requires durable review
+and the existing policy/Vault rules. `destination-editor.ts` owns form DOM and
+scope copy; `sites.ts` owns workflow transitions.
+
+The 2026-10-30 [Whitelist-removal rule](whitelist-removal.md) now lets strictly
+removal-only batches apply after review without a Vault wait. Additions and mixed
+batches retain one frozen proposal; legacy receipts and pending proposals keep
+their existing contracts. Core decides eligibility, not presentation metadata.
+
+Development 0.1.19 adds an explicitly chosen
+[Whitelist domain-and-subdomains scope](whitelist-scopes.md) through existing
+batch/Vault protection. It also repairs pristine Add-editor retargeting and lets
+Review preview staged changes while preserving an open editor; submitting still
+requires staging or closing that editor and acknowledged storage. Completed
+receipt performance and raw-input persistence are covered by the
+[0.1.19 follow-up](editor-reliability-0.1.19.md).
+
 Authorized on 2026-10-04. Core retains exact-host policy, existing grants, Journey transitions and Vault semantics. This pass changes Firefox effects and presentation.
 
 ## Model and ownership

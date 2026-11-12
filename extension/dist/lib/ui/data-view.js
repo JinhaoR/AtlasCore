@@ -8,5 +8,5 @@ export function collectionPresentation(controller, count, attempted, hasLastVeri
         return { phase: count === 0 ? 'EMPTY' : 'READY', stale: false, message: '' };
     const loading = !attempted || controller?.status === 'LOADING' || controller?.status === 'COMMITTING';
     return { phase: loading ? 'LOADING' : 'UNAVAILABLE', stale: hasLastVerified,
-        message: `${loading ? 'Loading verified destinations.' : 'Destinations are temporarily unavailable. Retry or open Policy & recovery.'}${hasLastVerified ? ' Showing last verified information; it may be out of date. Browsing actions are unavailable.' : ''}` };
+        message: `${loading ? 'Loading verified sites.' : 'Sites are temporarily unavailable. Retry or open Policy & recovery.'}${hasLastVerified ? ' Showing last verified information; it may be out of date. Browsing actions are unavailable.' : ''}` };
 }

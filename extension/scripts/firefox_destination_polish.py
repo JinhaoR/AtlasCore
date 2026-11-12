@@ -36,7 +36,7 @@ def run_destination_polish(client, ui_handle, ui_url, port, wait_for, hits, arti
         wait_for(lambda: client.script('return !document.getElementById("site-draft").hidden && !document.getElementById("propose-site").disabled;'), 'visible editable form ready')
         client.script('document.getElementById("site-form").requestSubmit();')
         try:
-            wait_for(lambda: client.script('return document.getElementById("site-draft").hidden && document.getElementById("destination-draft-status").textContent.startsWith("Saved editable draft");'), 'local change staged')
+            wait_for(lambda: client.script('return document.getElementById("site-draft").hidden && document.getElementById("destination-draft-status").textContent.match(/^Saved (?:editable draft|locally)/);'), 'local change staged')
         except AssertionError:
             print('Staging diagnostic:', client.script('return {hidden:document.getElementById("site-draft").hidden,disabled:document.getElementById("propose-site").disabled,fieldError:document.getElementById("site-field-error")?.textContent,status:document.getElementById("destination-draft-status").textContent};'), flush=True)
             capture('staging-failure')

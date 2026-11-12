@@ -90,25 +90,26 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     assert client.script('return !document.getElementById("destination-search").hidden;')
     wait_for(lambda: client.script('return document.querySelectorAll("#destination-list .destination-card").length > 0;'), 'destination cards')
     sidebar_authority = snapshot()
-    assert client.script('return [...document.querySelectorAll(".sidebar-nav button")].map(button => button.id);') == ['show-home', 'show-sites', 'show-settings']
-    assert client.script('return !document.getElementById("sidebar-toggle") && document.getElementById("atlas-sidebar").getBoundingClientRect().width === 60;')
+    assert client.script('return [...document.querySelectorAll(".sidebar-nav button")].map(button => button.id);') == ['show-home', 'show-sites', 'show-vault', 'show-settings']
+    assert client.script('return !document.getElementById("sidebar-toggle") && document.getElementById("atlas-sidebar").getBoundingClientRect().width > 600 && document.getElementById("atlas-sidebar").getBoundingClientRect().height < 180;')
     assert client.script('return [...document.querySelectorAll(".sidebar-nav button")].every(b => b.title === b.getAttribute("aria-label"));')
     # Legacy presentation preferences cannot restore the removed expanded layout.
     for preference in ['expanded', 'invalid preference', 'collapsed']:
         client.script('localStorage.setItem("atlas-sidebar-v1", arguments[0]);', preference)
         client.call('WebDriver:Refresh')
-        wait_for(lambda: client.script('return document.getElementById("status").dataset.ready === "true";'), 'permanent rail reload')
-        assert client.script('return !document.getElementById("sidebar-toggle") && document.getElementById("atlas-sidebar").getBoundingClientRect().width === 60;')
+        wait_for(lambda: client.script('return document.getElementById("status").dataset.ready === "true";'), 'top navigation reload')
+        assert client.script('return !document.getElementById("sidebar-toggle") && document.getElementById("atlas-sidebar").getBoundingClientRect().width > 600 && document.getElementById("atlas-sidebar").getBoundingClientRect().height < 180;')
     sidebar_after = snapshot()
     assert sidebar_after['policy'] == sidebar_authority['policy'] and sidebar_after['configuration'] == sidebar_authority['configuration']
     assert sidebar_after['policyRevision'] == sidebar_authority['policyRevision'] and sidebar_after['configurationRevision'] == sidebar_authority['configurationRevision']
-    checks.append('permanent 60px accessible rail, no expand control, legacy preference ignored across reload, unchanged authority')
-    print('PASS native sidebar: permanent rail, accessible controls and legacy preference compatibility', flush=True)
+    checks.append('accessible horizontal navigation, no expand control, legacy preference ignored across reload, unchanged authority')
+    print('PASS native navigation: top navigation, accessible controls and legacy preference compatibility', flush=True)
     wait_for(lambda: client.script('return document.querySelectorAll("#destination-list .destination-card").length > 0;'), 'destination cards after sidebar reload')
     assert client.script('return [...document.querySelectorAll(".service-mark")].every(mark => mark.textContent === "" && mark.querySelector("img.site-icon"));')
     icon_policy = snapshot()['policy']
     custom = client.message({'kind': 'OPEN_DESTINATION', 'url': f'http://root.localhost:{port}/icon-probe'})
     wait_for(lambda: any(c['tabId'] == custom['tabId'] and c['displayedHostname'] == 'root.localhost' for c in view()['contexts']), 'custom icon fixture arrives')
+    client.script('document.querySelector(".browse-categories").click();')
     client.script('const image = [...document.querySelectorAll(".site-icon")].find(image => image.dataset.hostname === "root.localhost"); image.scrollIntoView();')
     wait_for(lambda: client.script('const image = [...document.querySelectorAll(".site-icon")].find(image => image.dataset.hostname === "root.localhost"); return image.src.startsWith("blob:") && image.complete && image.naturalWidth > 0;'), 'custom hostname uses observed website icon')
     assert snapshot()['policy'] == icon_policy
@@ -121,19 +122,19 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
         wait_for(lambda: client.script('return !document.querySelector("#destination-list [data-pin-id=" + CSS.escape(arguments[0]) + "]").disabled;', pin_id), 'pin control ready')
         client.script('document.querySelector("#destination-list [data-pin-id=" + CSS.escape(arguments[0]) + "]").click();', pin_id)
         wait_for(lambda: client.script('return [...document.querySelectorAll("#pinned-list .destination-card")].some(card => card.dataset.destinationId === arguments[0]);', pin_id), 'pin saved and displayed')
+    client.script('document.getElementById("back-to-compass").click();')
     client.script('''
       const pin = document.querySelector('#pinned-list [data-pin-id="service:github.com"]');
       pin.focus(); pin.click();
     ''')
     assert client.script('''
       const focused = document.activeElement;
-      return focused.isConnected && focused.matches('#destination-list .pin-button')
-        && focused.dataset.pinId === 'service:github.com' && !focused.closest('[hidden]')
+      return focused.isConnected && focused.id === 'destination-search' && !focused.closest('[hidden]')
         && !document.querySelector('#pinned-list [data-pin-id="service:github.com"]');
     ''')
-    client.script('document.activeElement.click();')
+    client.script('document.querySelector(".browse-categories").click();document.querySelector(\'#destination-list [data-pin-id="service:github.com"]\').click();')
     wait_for(lambda: client.script('return document.querySelectorAll("#pinned-list .destination-card").length === 3;'), 'focused destination can be pinned again')
-    checks.append('unpinning a focused Pinned card moves focus to its visible destination pin')
+    checks.append('unpinning a focused compass label returns focus to visible search; All categories retains the explicit re-pin action')
     assert snapshot()['policy'] == authority_before_pins['policy']
     assert snapshot()['configuration'] == authority_before_pins['configuration']
     assert len(snapshot()['accessState']['grants']) == len(authority_before_pins['accessState']['grants'])
@@ -158,7 +159,7 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     assert client.script('return !document.getElementById("feedback").hidden && document.getElementById("feedback").dataset.tone==="success" && document.getElementById("feedback").getAttribute("role")==="status" && document.querySelectorAll("#pinned-list .destination-card").length === 3;')
     # Unpin focus can scroll down to its category. Bring Pinned back into view so
     # these newly rebuilt cards enter the normal lazy icon-loading path.
-    client.script('document.getElementById("show-home").click(); document.getElementById("pinned-section").scrollIntoView({block:"nearest"});')
+    client.script('const done=arguments[0];document.getElementById("show-home").click();requestAnimationFrame(()=>requestAnimationFrame(()=>{document.getElementById("back-to-compass").click();document.getElementById("pinned-section").scrollIntoView({block:"start"});done(true);}));', asynchronous=True)
     assert client.script('return [...document.querySelectorAll("#pinned-list .site-icon")].every(image => { const rect = image.getBoundingClientRect(); return rect.top < innerHeight && rect.bottom > 0; });'), 'pinned icon cards are visible before checking lazy loads'
     try:
         wait_for(lambda: client.script('return [...document.querySelectorAll("#pinned-list .site-icon")].every(image => image.src.startsWith("blob:") && image.complete && image.naturalWidth > 0);'), 'pinned public website icons render', 15)
@@ -187,21 +188,13 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     assert stable == {'cards': 0, 'pins': 0, 'sameCard': True, 'sameFocus': True}, stable
     client.script('document.getElementById("show-settings").click();')
     assert client.script('return !document.getElementById("settings").hidden && document.getElementById("show-settings").getAttribute("aria-current") === "page";')
-    for target, content in [('timing-settings', 'settings-form'), ('vault-section', 'vault-empty'), ('managed-section', 'managed-status'), ('diagnostics', 'diagnostic-scope')]:
-        if target == 'timing-settings':
-            assert client.script('return document.getElementById(arguments[0]).open;', target)
-            client.script('document.getElementById(arguments[0]).querySelector(":scope > summary").click();', target)
-        assert client.script('return document.getElementById(arguments[0]).tagName === "DETAILS" && !document.getElementById(arguments[0]).open;', target)
-        client.script('const summary = document.getElementById(arguments[0]).querySelector(":scope > summary"); summary.scrollIntoView({block:"center"}); summary.click();', target)
-        assert client.script('''
-          const detail = document.getElementById(arguments[0]); const content = document.getElementById(arguments[1]);
-          const position = detail.querySelector(':scope > summary').getBoundingClientRect();
-          return detail.open && content.getBoundingClientRect().height > 0
-            && position.top >= 0 && position.top < innerHeight
-            && document.getElementById('show-settings').getAttribute('aria-current') === 'page';
-        ''', target, content)
-        client.script('const summary = document.getElementById(arguments[0]).querySelector(":scope > summary"); summary.scrollIntoView({block:"center"}); summary.click();', target)
-        assert client.script('return !document.getElementById(arguments[0]).open;', target)
+    for target, content in [('timing-settings', 'settings-form'), ('curated-settings', 'preset-update'), ('managed-section', 'managed-status'), ('recovery-section', 'recover'), ('diagnostics', 'diagnostic-scope')]:
+        client.script("document.querySelector('[data-settings-panel=\"'+arguments[0]+'\"]').click();", target)
+        assert client.script('const p=document.getElementById(arguments[0]);return !p.hidden&&p.open&&document.getElementById(arguments[1]).getBoundingClientRect().height>0;', target, content)
+        assert client.script("return document.querySelectorAll('.settings-workspace > details:not([hidden])').length===1;")
+    client.script('document.getElementById("show-vault").click();')
+    assert client.script('return !document.getElementById("vault-section").hidden&&document.getElementById("settings").hidden;')
+    client.script("document.getElementById('show-settings').click();document.querySelector('[data-settings-panel=timing-settings]').click();")
     client.script('document.getElementById("show-home").click();')
     client.call('WebDriver:SetWindowRect', width=500, height=900)
     assert client.script('return document.documentElement.scrollWidth <= document.documentElement.clientWidth;'), 'small screen overflow'
@@ -220,12 +213,12 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     ''')
     print('Native narrow viewport:', narrow, flush=True)
     assert narrow['scrollWidth'] <= narrow['clientWidth'], narrow
-    assert [label['text'] for label in narrow['labels']] == ['Home', 'Sites & Access', 'Settings'], narrow
+    assert [label['text'] for label in narrow['labels']] == ['Home', 'All destinations', 'Vault', 'Settings'], narrow
     assert all(label['width'] > 0 and label['left'] >= 0 and label['right'] <= narrow['innerWidth'] and label['visibility'] == 'visible' for label in narrow['labels']), narrow
     checks.append(f'native narrow layout: requested 350px outer width, actual {narrow["innerWidth"]}px viewport, no horizontal overflow and fully visible Home/Settings labels')
     capture('home-narrow-screen')
     client.call('WebDriver:SetWindowRect', width=1280, height=1100)
-    wait_for(lambda: client.script('return Math.abs(document.getElementById("atlas-sidebar").getBoundingClientRect().width - 60) < 1;'), 'desktop restores collapsed sidebar after compact layout')
+    wait_for(lambda: client.script('return document.getElementById("atlas-sidebar").getBoundingClientRect().width > 600 && document.getElementById("atlas-sidebar").getBoundingClientRect().height < 180;'), 'desktop restores horizontal navigation after compact layout')
     checks.append('native Home/Settings navigation and actual settings disclosures, local pin persistence, ordinary cards, search shortcut, stable DOM and small-screen layout')
     print('PASS native UI polish: sidebar, saved pins, keyboard shortcut, stable cards and small-screen layout', flush=True)
     client.script('''
@@ -309,7 +302,7 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     ''', asynchronous=True)
     restart()
     after = snapshot()
-    assert client.script('return !document.getElementById("sidebar-toggle") && document.getElementById("atlas-sidebar").getBoundingClientRect().width === 60;'), 'permanent rail survives extension restart'
+    assert client.script('return !document.getElementById("sidebar-toggle") && document.getElementById("atlas-sidebar").getBoundingClientRect().width > 600 && document.getElementById("atlas-sidebar").getBoundingClientRect().height < 180;'), 'top navigation survives extension restart'
     wait_for(lambda: client.script('return document.querySelectorAll("#pinned-list .destination-card").length === 3;'), 'pins survive extension restart')
     assert after['configuration'] == before['configuration']
     assert after['policy'] == before['policy'] and after['policyRevision'] == before['policyRevision']
@@ -335,7 +328,7 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
       document.getElementById('journey-hops').value = '2'; document.getElementById('settings-form').requestSubmit();
     ''')
     pending = wait_for(lambda: snapshot()['vaultState']['pendingProposal'], 'native frozen settings proposal')
-    wait_for(lambda: client.script('return document.querySelectorAll("#vault-settings-rows tr").length > 0 && !document.getElementById("settings-nav-status").hidden && !document.getElementById("settings-pending").hidden && document.getElementById("vault-section").open && !document.getElementById("vault-panel").hidden;'), 'frozen human-readable timing review and Settings pending marker')
+    wait_for(lambda: client.script('return document.querySelectorAll("#vault-settings-rows tr").length > 0 && !document.getElementById("settings-nav-status").hidden && !document.getElementById("settings-pending").hidden && !document.getElementById("vault-panel").hidden;'), 'frozen human-readable timing review and Settings pending marker')
     capture('vault-review')
     assert pending['readyAt'] - pending['createdAt'] == 30000
     assert pending['confirmBy'] - pending['readyAt'] == 60000
@@ -351,7 +344,7 @@ def run_productization(client, ui_handle, ui_url, port, wait_for, artifacts=None
     wait_for(no_live_badges, 'restart removes unsupported live badge')
     view()
     client.script('document.getElementById("show-settings").click(); document.getElementById("review-pending").click();')
-    assert client.script('return document.getElementById("vault-section").open && document.activeElement.id === "vault-heading" && document.getElementById("show-settings").getAttribute("aria-current") === "page";')
+    assert client.script('return !document.getElementById("vault-section").hidden && document.activeElement.id === "vault-heading" && document.getElementById("show-vault").getAttribute("aria-current") === "page";')
     # Wait under old protection, then deliberately create a still-waiting old-term request
     # and an old Journey just before committing the settings change.
     wait_for(lambda: time.time() * 1000 >= pending['readyAt'] - 1000, 'old native Vault delay', 40)

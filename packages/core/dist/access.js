@@ -164,3 +164,21 @@ export function cancelAccess(requestId, input) {
         },
     };
 }
+/** Explicitly remove one grant's complete scope. Publication still requires commit. */
+export function endAccess(requestId, input) {
+    const prepared = prepareContext(input);
+    if (!prepared.ok)
+        return reject(prepared.reason, null);
+    const { state, now, policyRevision } = prepared.value;
+    if (!positiveInteger(requestId))
+        return reject("INVALID_REQUEST_ID", state);
+    const grant = state.grants.find(entry => entry.requestId === requestId);
+    if (!grant)
+        return reject("GRANT_NOT_FOUND", state);
+    if (grant.policyRevision !== policyRevision)
+        return reject("POLICY_CHANGED", state);
+    if (now >= grant.expiresAt)
+        return reject("GRANT_EXPIRED", state);
+    return { ok: true, type: "ENDED", requestId,
+        nextState: { ...state, grants: state.grants.filter(entry => entry.requestId !== requestId) } };
+}

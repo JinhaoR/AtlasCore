@@ -1,0 +1,32 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.2.6",
+  "firefox": "159.0.1",
+  "navigationFailure": {
+    "checks": [
+      {
+        "host": "video.localhost",
+        "retryOutcome": "GREYLIST"
+      },
+      {
+        "host": "denied.localhost",
+        "retryOutcome": "DENY"
+      },
+      {
+        "host": "www.video.localhost",
+        "retryOutcome": "ALLOW"
+      },
+      {
+        "host": "video.localhost",
+        "retryOutcome": "ALLOW",
+        "reason": "ACTIVE_GRANT",
+        "grantUnchanged": true
+      }
+    ],
+    "failedEvents": 4,
+    "unavailableRetryDisabled": true,
+    "retriesPreservePolicyConfigurationAndAccessTerms": true,
+    "cause": "synthetic tabs.update rejection; original Firefox cause unverified"
+  },
+  "status": "PASS"
+}

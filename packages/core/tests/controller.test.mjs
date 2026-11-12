@@ -38,6 +38,20 @@ async function pendingRequest() {
   fixture.clock.time = 10;
   return fixture;
 }
+
+test('published views share only deeply immutable validated data and isolate later repository mutation', async () => {
+  const { controller, repository } = await pendingRequest();
+  const first = controller.getView(), second = controller.getView();
+  assert.equal(first.snapshot, second.snapshot);
+  assert.ok(Object.isFrozen(first));
+  assert.throws(() => { first.snapshot.policy.whitelist.push('injected.example'); }, TypeError);
+  assert.throws(() => { first.snapshot.accessState.pendingRequests[0].readyAt = 0; }, TypeError);
+  assert.throws(() => { first.snapshot.configuration.accessTiming.waitMs = 0; }, TypeError);
+  repository.envelope.snapshot.policy.whitelist.unshift('external.example');
+  assert.deepEqual(controller.getView().snapshot.policy.whitelist, ['root.example']);
+  assert.equal((await controller.handle(check('external.example'))).type, 'BLOCKED');
+  assert.equal(controller.getView().reason, 'CORRUPT_STATE');
+});
 function prepare(snapshot, now, operation) {
   const plan = planAtlasOperation(operation, { snapshot, now, configuration });
   assert.notEqual(plan.candidateSnapshot, null);

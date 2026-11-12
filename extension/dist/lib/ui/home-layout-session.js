@@ -17,8 +17,10 @@ export class HomeLayoutSession {
     }
     current() { return reconcileHomeLayout(this.saved?.value ?? null, this.catalog); }
     requested() { return reconcileHomeLayout(this.draft ?? this.saved?.value ?? null, this.catalog); }
+    /** Without a catalog, preload saved preferences without initializing or migrating them. */
     refresh(catalog) {
-        this.catalog = catalog;
+        if (catalog !== undefined)
+            this.catalog = catalog;
         if (this.refreshing)
             return this.refreshing;
         if (this.busy)
@@ -59,6 +61,8 @@ export class HomeLayoutSession {
                 this.failure = null;
                 this.changed();
             }
+            if (catalog === undefined)
+                return;
             const reconciled = reconcileHomeLayout(latest.value, catalog);
             if (!same(reconciled, latest.value)) {
                 this.draft = reconciled;
@@ -84,14 +88,14 @@ export class HomeLayoutSession {
             }
         }
     }
-    async change(key, action) {
+    async change(key, action, available) {
         // A background read may start between rendering an enabled control and its
         // click. Wait for that read; never silently drop the user's layout action.
         if (this.refreshing)
             await this.refreshing;
         if (this.busy || !this.saved || this.conflict || this.failure === 'UNAVAILABLE')
             return false;
-        this.draft = changeHomeLayout(this.requested(), key, action, this.catalog.map(c => c.key));
+        this.draft = changeHomeLayout(this.requested(), key, action, available ?? this.catalog.map(c => c.key));
         this.busy = true;
         this.changed();
         try {

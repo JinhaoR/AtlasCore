@@ -22,7 +22,7 @@ def run_ui_reliability(client, ui_handle, ui_url, port, wait_for, artifacts):
 
     def submit_batch():
         client.script('document.getElementById("site-form").requestSubmit();')
-        wait_for(lambda: client.script('return document.getElementById("site-draft").hidden && document.getElementById("destination-draft-status").textContent.startsWith("Saved editable draft");'), 'local staged change saved')
+        wait_for(lambda: client.script('return document.getElementById("site-draft").hidden && document.getElementById("destination-draft-status").textContent.match(/^Saved (?:editable draft|locally)/);'), 'local staged change saved')
         client.script('document.getElementById("review-destination-draft").click();')
         wait_for(lambda: client.script('return !document.getElementById("submit-destination-draft").disabled;'), 'batch valid against verified authority')
         client.script('document.getElementById("submit-destination-draft").click();')
@@ -111,7 +111,7 @@ def run_ui_reliability(client, ui_handle, ui_url, port, wait_for, artifacts):
     client.script('document.getElementById("show-sites").click();')
     assert client.script('return !document.getElementById("sites-pending").hidden && document.getElementById("submit-destination-draft").disabled;')
     client.script('document.getElementById("sites-review-pending").click();')
-    assert client.script('return document.getElementById("vault-section").open;')
+    assert client.script('return !document.getElementById("vault-section").hidden;')
     confirm(pending)
     wait_for(lambda: client.script('return document.getElementById("feedback").textContent.includes("Vault change committed");'), 'committed feedback')
     checks.append('saved proposal and waiting/ready/committed states, pending Sites explanation and link, routine status semantics')

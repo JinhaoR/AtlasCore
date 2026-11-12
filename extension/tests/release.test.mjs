@@ -6,7 +6,7 @@ import { join, resolve } from 'node:path';
 import test from 'node:test';
 import { zipSync } from 'fflate';
 import { addonId, checkArchive, checkRuntimeFiles, cleanEnvironment, deterministicZip, parseCommand,
-  runtimeFiles, safePath, signRelease, signatureFiles, signingArguments, validateLockfile, validateManifest,
+  runtimeFiles, runtimeFilesFor, fontFiles, everydayRuntimeFiles, safePath, signRelease, signatureFiles, signingArguments, validateLockfile, validateManifest,
   validVersion, verifySignedArchive } from '../scripts/release.mjs';
 
 const hash = data => createHash('sha256').update(data).digest('hex');
@@ -58,6 +58,20 @@ test('runtime allowlist contains all required assets and excludes development ar
   }
   assert.equal(runtimeFiles.some(name => /node_modules|\.map$|tests|dist\/lib|\.env/.test(name)), false);
 });
+
+test('release typography is explicit and older signed runtime allowlists stay frozen', () => {
+  assert.equal(fontFiles.length, 9);
+  assert.ok(fontFiles.every(file => runtimeFilesFor('0.2.0').includes(file)));
+  for (const version of ['0.1.13', '0.1.18', '0.1.19']) {
+    const legacy = runtimeFilesFor(version);
+    assert.equal(legacy.length, 14);
+    assert.ok(fontFiles.every(file => !legacy.includes(file)));
+    checkRuntimeFiles(legacy, { version });
+    assert.throws(() => checkRuntimeFiles([...legacy, fontFiles[0]], { version }), /UNEXPECTED_RUNTIME_FILES/);
+  }
+  assert.throws(() => checkRuntimeFiles(runtimeFiles.filter(file => file !== fontFiles[0])), /UNEXPECTED_RUNTIME_FILES/);
+  assert.throws(() => checkRuntimeFiles([...runtimeFiles, 'ui/fonts/unapproved.woff2']), /UNEXPECTED_RUNTIME_FILES/);
+});
 test('archives use deterministic ordering and timestamps and reject changed/missing/extra files', () => {
   const files = { 'manifest.json': bytes('{}'), 'ui/main.js': bytes('runtime') };
   const expected = Object.fromEntries(Object.entries(files).map(([name, value]) => [name, hash(value)]));
@@ -67,6 +81,18 @@ test('archives use deterministic ordering and timestamps and reject changed/miss
   for (const bad of [{ ...files, '.env': bytes('secret') }, { ...files, 'ui/main.js': bytes('changed') }, { 'manifest.json': files['manifest.json'] }]) {
     assert.throws(() => checkArchive(deterministicZip(bad), expected), /ARCHIVE_CONTENT_MISMATCH/);
   }
+});
+
+test('0.2.4 adds only the four everyday UI assets and preserves every older signed inventory', () => {
+  for (const version of ['0.2.0', '0.2.1', '0.2.2', '0.2.3']) {
+    const previous = runtimeFilesFor(version);
+    assert.equal(previous.length, 23);
+    checkRuntimeFiles(previous, { version });
+    for (const file of everydayRuntimeFiles) assert.throws(() => checkRuntimeFiles([...previous, file], { version }), /UNEXPECTED_RUNTIME_FILES/);
+  }
+  assert.equal(runtimeFilesFor('0.2.4').length, 27);
+  checkRuntimeFiles(runtimeFilesFor('0.2.4'), { version: '0.2.4' });
+  for (const file of everydayRuntimeFiles) assert.throws(() => checkRuntimeFiles(runtimeFiles.filter(f => f !== file), { version: '0.2.4' }), /UNEXPECTED_RUNTIME_FILES/);
 });
 test('archive paths cannot escape their root or carry Windows absolute paths', () => {
   for (const name of ['../secret', '/absolute', 'C:/secret', 'a\\b', 'a//b', 'a/./b', 'a/../b', '']) assert.throws(() => safePath(name), /UNSAFE/);

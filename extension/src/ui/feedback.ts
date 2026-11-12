@@ -21,6 +21,8 @@ export function actionFeedback(kind: string, response: ActionResponse | undefine
       NO_POLICY_CHANGE: 'These terms already match active policy and settings. No proposal was created.',
       PROPOSAL_EXPIRED: 'The Vault confirmation window ended. Active policy is unchanged; cancel the expired proposal before preparing a new one.',
       REQUEST_EXPIRED: 'The access confirmation window ended. No grant was created; start a new request if needed.',
+      GRANT_NOT_FOUND: 'That temporary access is no longer active. Check the refreshed access list.',
+      GRANT_EXPIRED: 'That temporary access has already expired.',
       PROPOSAL_NOT_FOUND: 'That proposal is no longer pending. Review the current Vault state before trying again.',
       ALREADY_COMMITTED: 'That proposal has already been committed. Check the current policy; do not confirm it again.',
       POLICY_CHANGED: 'Policy changed since these terms were prepared. Review the current policy before starting a new request.',
@@ -45,6 +47,7 @@ export function actionFeedback(kind: string, response: ActionResponse | undefine
     if (kind === 'CANCEL_POLICY') return { tone: 'success', message: 'Vault proposal cancelled. Active policy and settings are unchanged.' };
     if (kind === 'START_ACCESS') return { tone: 'success', message: 'Access request saved. Wait, then return to confirm temporary access.' };
     if (kind === 'CONFIRM_ACCESS') return { tone: 'success', message: 'Temporary access confirmed and saved. Its original expiry applies.' };
+    if (kind === 'END_ACCESS') return { tone: 'success', message: 'Temporary access ended.' };
     if (kind === 'CANCEL_ACCESS') return { tone: 'success', message: 'Access request cancelled.' };
   }
   if (kind === 'RECOVER') return response.view?.controller?.status === 'READY'
@@ -54,6 +57,8 @@ export function actionFeedback(kind: string, response: ActionResponse | undefine
 }
 
 export function renderFeedback(node: HTMLElement, feedback: ActionFeedback): void {
+  // Acknowledged changes are shown in their controls; avoid routine success banners.
+  if(feedback.tone === 'success')feedback={...feedback,message:''};
   // Polling identical state must not repeatedly mutate a live region.
   if (node.dataset.tone !== feedback.tone) node.dataset.tone = feedback.tone;
   const role = feedback.tone === 'error' || feedback.tone === 'uncertain' ? 'alert' : 'status';

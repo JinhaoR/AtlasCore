@@ -3,6 +3,10 @@ import { reconcileHomeLayout } from './home-layout.js';
 import { openHomeLayoutRepository } from './home-layout-storage.js';
 import { HomeLayoutSession } from './home-layout-session.js';
 import { renderFeedback } from './feedback.js';
+import { categoryIconPicker } from './category-icon-picker.js';
+import { icon } from './destination-cards.js';
+import { CategoryIconSession, openCategoryIconRepository, defaultCategoryIcon } from './category-icons.js';
+import { CategoryOrderSession, openCategoryOrderRepository, categoryOrderKeys } from './category-order.js';
 const el = (id) => document.getElementById(id);
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 /** One presentation surface; successful writes alone change the Home arrangement. */
@@ -10,8 +14,61 @@ export function initializeHomeOrganization(changed, repository = () => openHomeL
     let session = null, catalog = [], verified = false;
     let failed = false, opening = false, disposed = false, rowsKey = '';
     let storage = null;
+    let ordering = null, orderFailed = false;
+    async function openOrder() {
+        try {
+            const repo = await openCategoryOrderRepository();
+            if (disposed) {
+                repo.close();
+                return;
+            }
+            ordering = new CategoryOrderSession(repo, changed);
+            orderFailed = false;
+            await ordering.refresh();
+        }
+        catch {
+            orderFailed = true;
+        }
+        if (!disposed)
+            changed();
+    }
+    const orderKeys = () => categoryOrderKeys(ordering?.saved?.value, catalog, layout());
+    async function reorder(key, target, visible) {
+        if (!ordering)
+            return;
+        const next = [...visible], from = next.indexOf(key), to = next.indexOf(target);
+        if (from < 0 || to < 0 || from === to)
+            return;
+        next.splice(to, 0, next.splice(from, 1)[0]);
+        await ordering.change({ version: 1, mode: 'custom', keys: [...next, ...orderKeys().filter(k => !next.includes(k))], catalog: layout() });
+    }
+    let icons = null, iconStorage = null, iconOpenFailed = false, iconsOpening = false;
+    const pickIcon = categoryIconPicker((key, value) => { void icons?.change(key, value); });
+    async function openIcons() {
+        if (iconsOpening || disposed)
+            return;
+        iconsOpening = true;
+        try {
+            iconStorage = await openCategoryIconRepository();
+            if (disposed) {
+                iconStorage.close();
+                return;
+            }
+            icons = new CategoryIconSession(iconStorage, () => { if (!disposed)
+                changed(); });
+            iconOpenFailed = false;
+            await icons.refresh();
+        }
+        catch {
+            iconOpenFailed = true;
+        }
+        finally {
+            iconsOpening = false;
+            if (!disposed)
+                changed();
+        }
+    }
     let deferredFocus = null;
-    let deferredHeading = null;
     async function open() {
         if (opening || disposed)
             return;
@@ -25,6 +82,9 @@ export function initializeHomeOrganization(changed, repository = () => openHomeL
             session = new HomeLayoutSession(storage, () => { if (!disposed)
                 changed(); });
             failed = false;
+            await session.refresh();
+            if (disposed)
+                return;
             if (verified)
                 await session.refresh(catalog);
         }
@@ -47,25 +107,31 @@ export function initializeHomeOrganization(changed, repository = () => openHomeL
             void session.refresh(catalog);
     }
     const layout = () => session?.current() ?? reconcileHomeLayout(null, catalog);
-    async function change(key, action) {
+    async function change(key, action, completeDirectory = false) {
         if (!session)
             return;
-        await session.change(key, action);
+        const visible = layout().categories.filter(c => (completeDirectory || c.visible) && catalog.some(item => item.key === c.key && (completeDirectory ? item.members.length > 0 : item.count > 0))).map(c => c.key);
+        await session.change(key, action, typeof action === 'object' ? visible : undefined);
         changed();
     }
-    function close() {
-        setProperty(el('home-customization'), 'hidden', true);
-        setAttribute(el('customize-home'), 'aria-expanded', 'false');
-        el('customize-home').focus({ preventScroll: true });
-    }
     function render() {
+        const sort = el('sites-category-order');
+        setProperty(sort, 'value', ordering?.saved?.value?.mode ?? 'custom');
+        setProperty(sort, 'disabled', !ordering?.saved || ordering.busy || ordering.conflict || !!ordering.failure || !!ordering.draft);
+        const orderIssue = orderFailed || !!ordering?.failure || !!ordering?.conflict;
+        setProperty(el('category-order-error'), 'hidden', !orderIssue);
+        setProperty(el('category-order-message'), 'textContent', ordering?.conflict
+            ? 'Another window saved a newer order. Your change is retained; load the saved order to reconcile.'
+            : 'Category order could not be saved or verified. Your change is retained; retry.');
+        setProperty(el('retry-category-order'), 'hidden', !!ordering?.conflict);
+        setProperty(el('reload-category-order'), 'hidden', !ordering?.conflict);
         const focus = document.activeElement;
         const focusCategory = focus?.closest('[data-layout-category]')?.dataset.layoutCategory;
         const focusAction = focus?.dataset.layoutAction;
-        const headingCategory = focus?.classList.contains('category-heading') ? focus.closest('[data-category-key]')?.dataset.categoryKey : undefined;
         const working = session?.requested() ?? layout(), available = new Map(catalog.map(c => [c.key, c]));
         const categories = working.categories.filter(c => available.has(c.key));
-        const key = JSON.stringify(categories);
+        const iconChoices = icons?.draft ?? icons?.saved?.value;
+        const key = JSON.stringify([categories, iconChoices]);
         if (key !== rowsKey) {
             rowsKey = key;
             const list = el('home-layout-list'), focus = document.activeElement;
@@ -76,35 +142,24 @@ export function initializeHomeOrganization(changed, repository = () => openHomeL
                 const row = existing.get(c.key) ?? document.createElement('li');
                 setProperty(row.dataset, 'layoutCategory', c.key);
                 if (!row.children.length) {
-                    const label = document.createElement('label');
-                    label.className = 'checkbox-label';
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    setProperty(checkbox.dataset, 'layoutAction', 'VISIBILITY');
-                    checkbox.addEventListener('change', () => void change(row.dataset.layoutCategory, 'VISIBILITY'));
-                    const name = document.createElement('span');
-                    name.className = 'layout-category-name';
-                    label.append(checkbox, name);
-                    const controls = document.createElement('span');
-                    controls.className = 'layout-order-actions';
-                    for (const direction of ['UP', 'DOWN']) {
-                        const button = document.createElement('button');
-                        button.type = 'button';
-                        button.className = 'secondary compact';
-                        setProperty(button, 'textContent', direction === 'UP' ? '↑' : '↓');
-                        setProperty(button.dataset, 'layoutAction', direction);
-                        button.addEventListener('click', () => void change(row.dataset.layoutCategory, direction));
-                        controls.append(button);
-                    }
-                    row.append(label, controls);
+                    const label = document.createElement('span');
+                    label.className = 'layout-category-name';
+                    const choice = document.createElement('button');
+                    choice.type = 'button';
+                    choice.className = 'category-icon-choice';
+                    choice.dataset.layoutAction = 'ICON';
+                    choice.setAttribute('aria-haspopup', 'dialog');
+                    choice.append(icon('category'));
+                    choice.addEventListener('click', () => pickIcon(choice, row.dataset.layoutCategory, choice.dataset.icon ?? ''));
+                    row.append(choice, label);
                 }
-                setProperty(row.querySelector('input'), 'checked', c.visible);
                 setProperty(row.querySelector('.layout-category-name'), 'textContent', c.label);
-                for (const button of row.querySelectorAll('button')) {
-                    const name = `Move ${c.label} ${button.dataset.layoutAction === 'UP' ? 'up' : 'down'}`;
-                    setAttribute(button, 'aria-label', name);
-                    setProperty(button, 'title', name);
-                }
+                const chosenIcon = iconChoices?.entries.find(e => e.key === c.key)?.icon;
+                setAttribute(row.querySelector('use'), 'href', `#icon-${chosenIcon ?? defaultCategoryIcon(c.label)}`);
+                const picker = row.querySelector('.category-icon-choice');
+                setProperty(picker.dataset, 'icon', chosenIcon ?? '');
+                setAttribute(picker, 'aria-label', `Choose icon for ${c.label}`);
+                setProperty(picker, 'title', `Choose icon for ${c.label}`);
                 return row;
             });
             // Reordering existing nodes retains their identity; restore keyboard focus if
@@ -115,32 +170,27 @@ export function initializeHomeOrganization(changed, repository = () => openHomeL
                     ?.querySelector(`[data-layout-action="${action}"]`)?.focus({ preventScroll: true });
         }
         const locked = !session?.saved || session.busy || session.conflict || session.failure === 'UNAVAILABLE';
-        if (locked && session?.busy) {
+        if (locked && session?.busy || icons?.busy) {
             if (focusCategory && focusAction)
                 deferredFocus = { category: focusCategory, action: focusAction };
-            if (headingCategory)
-                deferredHeading = headingCategory;
         }
-        for (const [index, row] of [...el('home-layout-list').children].entries()) {
+        for (const row of el('home-layout-list').children) {
             const category = available.get(row.dataset.layoutCategory);
-            setProperty(row, 'title', `${category?.count ?? 0} allowed destinations${category?.count === 0 ? ' · no Home row while empty' : ''}`);
+            setProperty(row.querySelector('.category-icon-choice'), 'disabled', !icons?.saved || icons.busy || icons.conflict || icons.failure === 'UNAVAILABLE');
+            setProperty(row, 'title', `${category?.count ?? 0} allowed sites${category?.count === 0 ? ' · no Home row while empty' : ''}`);
             for (const input of row.querySelectorAll('input'))
                 setProperty(input, 'disabled', locked);
-            for (const button of row.querySelectorAll('button'))
-                setProperty(button, 'disabled', locked
-                    || button.dataset.layoutAction === 'UP' && index === 0 || button.dataset.layoutAction === 'DOWN' && index === categories.length - 1);
         }
         const draft = session?.draft != null;
-        setProperty(el('customize-home'), 'textContent', draft && !session?.busy ? 'Customize Home · unsaved' : 'Customize Home');
         const unavailable = failed || session?.failure === 'UNAVAILABLE';
         const message = session?.conflict ? 'Another Atlas page saved a newer layout. Your arrangement is retained here. Load the saved layout before making further changes.'
             : unavailable ? 'Home preferences could not be verified. Saved policy is unaffected. Retry loading preferences.'
                 : session?.failure ? 'Your arrangement is not verified as saved. It is retained in this page; retry before closing the page. Home still uses the acknowledged layout.'
                     : session?.busy ? session.draft ? 'Saving Home layout…' : 'Loading Home preferences…'
                         : draft ? 'Your arrangement is awaiting a verified save. Home still uses the acknowledged layout.'
-                            : session?.saved ? 'Home layout saved. Hidden categories remain in Sites & Access; pins and search are unchanged.'
+                            : session?.saved ? 'Category order saved. Hidden categories remain in All sites and search; pins are unchanged.'
                                 : 'Loading Home preferences…';
-        renderFeedback(el('home-layout-status'), { message, tone: session?.conflict || session?.failure || failed ? 'error' : 'status' });
+        renderFeedback(el('home-layout-status'), { message: session?.conflict || session?.failure || failed ? message : '', tone: session?.conflict || session?.failure || failed ? 'error' : 'status' });
         setProperty(el('home-layout-warning'), 'hidden', !unavailable && !session?.failure && !session?.conflict);
         setProperty(el('home-layout-warning'), 'textContent', message);
         setProperty(el('retry-home-layout'), 'hidden', !failed && !session?.failure);
@@ -148,36 +198,27 @@ export function initializeHomeOrganization(changed, repository = () => openHomeL
         setProperty(el('load-saved-home-layout'), 'hidden', !session?.conflict);
         setProperty(el('load-saved-home-layout'), 'disabled', session?.busy === true);
         setProperty(el('home-layout-empty'), 'hidden', categories.length > 0);
-        for (const heading of document.querySelectorAll('.category-heading'))
-            setProperty(heading, 'disabled', locked);
-        if (!locked) {
+        const iconMessage = icons?.conflict ? 'Another Atlas page saved newer icons. Your choices are retained here. Load saved icons to reconcile.'
+            : iconOpenFailed || icons?.failure === 'UNAVAILABLE' ? 'Category icons could not be loaded. Retry; saved order and access rules are unchanged.'
+                : icons?.failure ? 'Icon changes are not verified as saved. Your choices are retained here; retry before closing.'
+                    : icons?.busy ? 'Saving category icon…' : icons?.saved ? 'Icons save automatically. Automatic uses the category name.' : 'Loading category icons…';
+        renderFeedback(el('category-icon-status'), { message: icons?.conflict || icons?.failure || iconOpenFailed ? iconMessage : '', tone: iconOpenFailed || icons?.failure || icons?.conflict ? 'error' : 'status' });
+        setProperty(el('retry-category-icons'), 'hidden', !iconOpenFailed && !icons?.failure);
+        setProperty(el('retry-category-icons'), 'disabled', iconsOpening || icons?.busy === true || icons?.conflict === true);
+        setProperty(el('load-saved-category-icons'), 'hidden', !icons?.conflict);
+        if (!locked && !icons?.busy) {
             // Firefox blurs a button when a save temporarily disables it. Return focus
             // only if it fell to body, so an explicit move or panel close wins.
-            if (document.activeElement === document.body) {
-                if (deferredFocus && !el('home-customization').closest('[hidden]')) {
+            if (document.activeElement === document.body || document.activeElement === el('home-settings')) {
+                if (deferredFocus && !el('home-settings').closest('[hidden]')) {
                     const row = [...el('home-layout-list').children].find(n => n.dataset.layoutCategory === deferredFocus.category);
                     const target = row?.querySelector(`[data-layout-action="${deferredFocus.action}"]`);
                     (target?.disabled ? row?.querySelector('input') : target)?.focus({ preventScroll: true });
                 }
-                else if (deferredHeading)
-                    [...document.querySelectorAll('.category-heading')]
-                        .find(h => h.closest('[data-category-key]')?.dataset.categoryKey === deferredHeading && !h.closest('[hidden]'))?.focus({ preventScroll: true });
             }
             deferredFocus = null;
-            deferredHeading = null;
         }
     }
-    el('customize-home').addEventListener('click', () => {
-        setProperty(el('home-customization'), 'hidden', false);
-        setAttribute(el('customize-home'), 'aria-expanded', 'true');
-        render();
-        el('home-customization').focus({ preventScroll: false });
-    });
-    el('close-home-customization').addEventListener('click', close);
-    el('home-customization').addEventListener('keydown', event => { if (event.key === 'Escape') {
-        event.preventDefault();
-        close();
-    } });
     el('retry-home-layout').addEventListener('click', () => {
         void (async () => {
             if (!session)
@@ -188,10 +229,27 @@ export function initializeHomeOrganization(changed, repository = () => openHomeL
         })();
     });
     el('load-saved-home-layout').addEventListener('click', () => {
-        if (window.confirm('Load the newer saved Home layout? The unsaved arrangement in this page will be discarded. Policy, destinations and pins will remain.'))
+        if (window.confirm('Load the newer saved Home layout? The unsaved arrangement in this page will be discarded. Policy, sites and pins will remain.'))
             void session?.useSaved(catalog).then(changed);
     });
-    window.addEventListener('pagehide', () => { disposed = true; storage?.close(); });
-    const initialized = open();
-    return { observe, layout, render, change, initialized, refresh: () => verified ? session?.refresh(catalog) : undefined, session: () => session };
+    el('retry-category-icons').addEventListener('click', () => { void (icons ? icons.retry() : openIcons()); });
+    el('load-saved-category-icons').addEventListener('click', () => {
+        if (window.confirm('Discard these unsaved icon choices and load the newer saved icons?'))
+            void icons?.useSaved();
+    });
+    window.addEventListener('pagehide', () => { disposed = true; storage?.close(); iconStorage?.close(); });
+    el('sites-category-order').addEventListener('change', () => {
+        const mode = el('sites-category-order').value;
+        void ordering?.change({ version: 1, mode, keys: orderKeys(), catalog: layout() });
+    });
+    el('retry-category-order').addEventListener('click', () => { void (ordering ? ordering.retry() : openOrder()); });
+    el('reload-category-order').addEventListener('click', () => { void ordering?.useSaved(); });
+    window.addEventListener('pagehide', () => ordering?.repository.close());
+    const initialized = Promise.all([open(), openIcons(), openOrder()]);
+    return { observe, layout, render, change, initialized,
+        reorder, orderKeys, orderMode: () => ordering?.saved?.value?.mode ?? 'custom',
+        icon: (key, label) => icons?.icon(key, label) ?? defaultCategoryIcon(label),
+        canMove: () => !!session?.saved && !session.busy && !session.conflict && !session.failure && !!ordering?.saved && !ordering.busy && !ordering.conflict && !ordering.draft && ordering.failure === null,
+        loading: () => opening || (!session?.saved && !failed && !session?.failure),
+        refresh: () => Promise.all([verified ? session?.refresh(catalog) : undefined, icons?.refresh(), ordering?.refresh()]), session: () => session };
 }

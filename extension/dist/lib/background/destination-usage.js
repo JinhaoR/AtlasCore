@@ -1,3 +1,4 @@
+import { evaluate } from '@atlas/core';
 import { destinationIndex } from '../ui/destinations.js';
 import { destinationId } from '../ui/home-model.js';
 import { destinationPreferencesKey, readDestinationPreferences } from '../ui/destination-metadata.js';
@@ -6,7 +7,12 @@ import { readDestinationUsage, recordDestinationLaunch, usagePreferencesKey } fr
 export function saveDestinationLaunch(storage, policy, hostname, at) {
     try {
         const metadata = readDestinationPreferences(JSON.parse(storage.getItem(destinationPreferencesKey) ?? 'null'));
-        const destination = destinationIndex(policy, metadata.destinations).find(entry => entry.hostnames.includes(hostname));
+        const decision = evaluate({ hostname }, policy);
+        if (decision.outcome !== 'ALLOW')
+            return;
+        const base = decision.reason === 'WHITELISTED_SCOPE' ? decision.scopeRoot : hostname;
+        const entries = destinationIndex(policy, metadata.destinations);
+        const destination = entries.find(entry => entry.hostnames.includes(hostname)) ?? entries.find(entry => entry.hostnames.includes(base));
         if (destination === undefined)
             return;
         const usage = readDestinationUsage(JSON.parse(storage.getItem(usagePreferencesKey) ?? 'null'));

@@ -9,20 +9,60 @@ import { verifyDistribution } from './verify-bundle.mjs';
 export const addonId = 'atlas-development@atlas.invalid';
 const extension = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const root = resolve(extension, '..');
-export const runtimeFiles = [
+const legacyRuntimeFiles = [
   'manifest.json', 'background.js', 'journey-indicator.js', 'ui/main.js',
   'ui/index.html', 'ui/style.css', 'ui/atlas.svg', 'ui/site.svg', 'THIRD-PARTY-NOTICES.txt',
   'data/stevenblack/hosts', 'data/stevenblack/metadata.json',
   'data/stevenblack/NOTICE.md', 'data/stevenblack/license.txt', 'data/stevenblack/upstream-readme.md',
 ].sort();
+// Fixed local typography assets. Older signed releases retain their original
+// allowlist; accepting fonts must never weaken verification of those releases.
+export const fontFiles = [
+  'cormorant-garamond-italic-latin-ext.woff2', 'cormorant-garamond-italic-latin.woff2',
+  'cormorant-garamond-normal-latin-ext.woff2', 'cormorant-garamond-normal-latin.woff2',
+  'source-sans-3-normal-latin-ext.woff2', 'source-sans-3-normal-latin.woff2',
+  'Cormorant-Garamond-OFL.txt', 'Source-Sans-3-OFL.txt', 'sources.json',
+].map(name => `ui/fonts/${name}`).sort();
+const typographyRuntimeFiles = [...legacyRuntimeFiles, ...fontFiles].sort();
+export const everydayRuntimeFiles = ['ui/popup.html', 'ui/popup.js', 'ui/popup.css', 'ui/startup.js'];
+export const runtimeFiles = [...typographyRuntimeFiles, ...everydayRuntimeFiles].sort();
+export function runtimeFilesFor(version) {
+  if (!validVersion(version)) fail('INVALID_RELEASE_VERSION');
+  const [major, minor, patch] = version.split('.').map(Number);
+  if (major > 0 || minor > 2 || minor === 2 && patch >= 4) return runtimeFiles;
+  return minor === 2 ? typographyRuntimeFiles : legacyRuntimeFiles;
+}
 const sourceDirectories = ['packages/core/src', 'packages/core/tests', 'extension/src', 'extension/tests'];
 const sourceFiles = [
   'packages/core/package.json', 'packages/core/package-lock.json', 'packages/core/tsconfig.json',
   'extension/package.json', 'extension/package-lock.json', 'extension/tsconfig.json',
   'extension/manifest.json', 'extension/build.mjs', 'extension/THIRD-PARTY-NOTICES.txt',
   'extension/scripts/release.mjs', 'extension/scripts/verify-bundle.mjs',
+  'extension/scripts/build-home-poc.mjs',
+  'extension/scripts/auth-evidence-observer.js',
   'extension/REVIEWER-BUILD.md', 'docs/firefox-private-release.md', 'docs/firefox-privacy.md', 'docs/firefox-backup.md',
   'docs/firefox-downloads.md', 'docs/home-organization.md', 'docs/visual-polish.md', 'docs/ui-stability.md',
+  'docs/firefox-storage-reliability.md',
+  'docs/release-candidate-0.1.19.md', 'docs/release-0.1.19.md',
+  'docs/release-candidate-0.2.0.md', 'docs/visual-redesign-0.2.0.md',
+  'docs/visual-refinement-0.2.0.md', 'docs/management-ux-0.2.0.md',
+  'docs/startup-layout-0.2.1.md', 'docs/release-candidate-0.2.1.md',
+  'docs/ui-engineering-review.md', 'docs/release-candidate-0.2.2.md',
+  'docs/compact-home.md', 'docs/release-candidate-0.2.3.md',
+  'docs/everyday-controls.md', 'docs/release-candidate-0.2.4.md',
+  'docs/release-candidate-0.2.5.md',
+  'docs/release-candidate-0.2.6.md',
+  'docs/release-candidate-0.2.7.md',
+  'docs/release-candidate-0.2.8.md', 'docs/curated-subdomains.md',
+  'docs/release-candidate-0.3.0.md',
+  'docs/firefox-home-newtab-poc.md',
+  'docs/whitelist-scopes.md', 'docs/whitelist-removal.md', 'docs/destination-polish.md',
+  'docs/editor-reliability-0.1.19.md', 'docs/engineering-review-0.1.19.md',
+  'docs/quality-pass-0.1.19.md', 'docs/development.md', 'docs/architecture.md', 'docs/foundation.md',
+  'docs/curated-expansion.md', 'docs/curated-destinations.md',
+  'docs/release-0.1.18.md', 'docs/performance-audit-0.1.18.md',
+  'docs/evidence/curated-expansion-2026-10.json', 'docs/evidence/curated-hosts-2026-10.json',
+  'docs/evidence/performance-audit-0.1.18.json', 'docs/evidence/firefox-idle-recurrence-0.1.18.json',
   ...runtimeFiles.filter(name => name.startsWith('data/')).map(name => `extension/${name}`),
 ];
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -166,7 +206,9 @@ async function collectSource() {
   names = [...new Set(names)].sort();
   // These trees are exclusively source/tests, not arbitrary private configuration.
   if (names.some(name => /(^|\/)(\.env[^/]*|node_modules|dist|release|profiles?|credentials?|secrets?)(\/|$)/i.test(name)
-    || !/\.(ts|mjs|json|md|txt|html|css|svg)$/.test(name) && !name.endsWith('/hosts'))) fail('UNEXPECTED_SOURCE_FILE');
+    || !/\.(ts|mjs|json|md|txt|html|css|svg)$/.test(name) && !name.endsWith('/hosts')
+      && name !== 'extension/scripts/auth-evidence-observer.js'
+      && !fontFiles.map(file => `extension/src/ui/assets/${file.slice(3)}`).includes(name))) fail('UNEXPECTED_SOURCE_FILE');
   return fileMap(root, names);
 }
 export function cleanEnvironment(environment, signing = false) {
@@ -240,17 +282,17 @@ function releasePaths(version) {
     unsigned: resolve(directory, `atlas-${version}-unsigned.zip`), source: resolve(directory, `atlas-${version}-source.zip`),
     receipt: resolve(directory, 'release.json') };
 }
-export function checkRuntimeFiles(names, { afterSigning = false } = {}) {
+export function checkRuntimeFiles(names, { afterSigning = false, version = '0.2.4' } = {}) {
   // web-ext saves this upload receipt locally after submitting. Never admit it
   // to unsigned/signed archives or pre-sign staging; it carries no runtime authority.
   const runtimeNames = afterSigning ? names.filter(name => name !== '.amo-upload-uuid') : names;
-  if (!same([...runtimeNames].sort(), runtimeFiles)) fail('UNEXPECTED_RUNTIME_FILES');
+  if (!same([...runtimeNames].sort(), runtimeFilesFor(version))) fail('UNEXPECTED_RUNTIME_FILES');
 }
 async function runtime(paths, options) {
-  checkRuntimeFiles(await listFiles(paths.addon), options);
+  checkRuntimeFiles(await listFiles(paths.addon), { ...options, version: paths.version });
   await verifyDistribution(paths.addon);
   validateManifest(await json(resolve(paths.addon, 'manifest.json')), paths.version);
-  return fileMap(paths.addon, runtimeFiles);
+  return fileMap(paths.addon, runtimeFilesFor(paths.version));
 }
 export async function buildRelease() {
   const paths = await current();
@@ -320,7 +362,7 @@ export async function verifySignedRelease(version) {
   const paths = releasePaths(version ?? (await json(resolve(extension, 'manifest.json'))).version);
   const receipt = await json(paths.receipt);
   if (receipt.schemaVersion !== 1 || receipt.version !== paths.version || receipt.addonId !== addonId || receipt.channel !== 'unlisted'
-    || !same(Object.keys(receipt.runtime).sort(), runtimeFiles)) fail('RELEASE_RECEIPT_INVALID');
+    || !same(Object.keys(receipt.runtime).sort(), runtimeFilesFor(paths.version))) fail('RELEASE_RECEIPT_INVALID');
   const staged = await runtime(paths, { afterSigning: true });
   if (!same(hashes(staged), receipt.runtime)) fail('RUNTIME_CHANGED: staged files do not match the saved release');
   const [unsignedBytes, sourceBytes] = await Promise.all([readFile(paths.unsigned), readFile(paths.source)]);

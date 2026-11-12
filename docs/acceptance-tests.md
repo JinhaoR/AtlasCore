@@ -1,5 +1,364 @@
 # Atlas Core acceptance scenarios
 
+## Home motion and access overview
+
+Run `compass-motion.test.mjs` against the built extension. Verify angle unwrapping,
+sample-frequency/radius independence, reversals, paused release, coarsened pointer
+timestamps, speed limits and frame-rate-independent friction. Native
+`python extension/scripts/firefox_compact_home.py --home-motion-only --signed-baseline 0.2.6`
+checks the ring gesture, matching compass/pin rotation, upright logos, settling,
+Escape, reduced motion and activation after dragging. `--home-motion-baseline
+--addon-dir <checkpoint-runtime>` records the previous presentation separately.
+
+Home must have no Current tab access control or implicit selected-tab Journey
+strip. Opening a pin must not choose Home's access context; explicit request
+links still select their exact owner. Greylist pending/grant rows fit two at
+desktop width, scroll beyond that without changing the surrounding geometry, and
+show the count next to their heading. Journeys remain separate and visible even
+if their context was previously selected. Unavailable authority keeps its truthful
+message and disables actions. Check normal, short, narrow and 125–200% zoomed
+Firefox windows without horizontal overflow. Existing policy, configuration,
+access terms, pin order, bookmarks and layout remain unchanged.
+
+See [evidence and fixture limitations](evidence/home-motion/README.md). Native
+status/launch replies in this focused layout fixture are injected only into the
+test control page; they do not establish new authorization behavior.
+
+## Browser navigation failure recovery
+
+For a selected context whose Firefox navigation fails before a request, show a
+navigation error and explicit site-home retry instead of “Choose a tab.” Retry
+uses the existing gate: unknown hosts remain Greylist, Blacklist wins, and allowed
+hosts or valid existing grants can proceed. No retry creates or renews a grant,
+widens apex/www scope, changes saved policy/settings or substitutes another tab.
+An expired grant returns to Greylist; a newer gate result wins over an older
+launch rejection. Unavailable authority and failed document removal keep actions
+disabled. Diagnostics contain closed failure codes, never raw browser errors or
+private URL parts. [Evidence](evidence/navigation-failure/README.md).
+
+Run `navigation-failure.test.mjs` against the built extension, and native
+`python extension/scripts/firefox_compact_home.py --navigation-failure-only
+--signed-baseline 0.2.6` in disposable Firefox. The native fault is injected;
+the HTTP retry, Core decisions and explicit wait/confirmation are real.
+
+## Everyday interaction refinement
+
+[Evidence](evidence/ux-toolbar-refinement/README.md) covers cursor-following
+category drag/insertion before save, cancellation, ring dragging with bounded
+friction, reduced motion, icon-picker keyboard focus, Vault inside Settings and
+quiet empty drafts. Check native zoom and internal scrolling without horizontal
+overflow or changes to saved order/authority.
+
+Toolbar synchronization connects with one permission action and no initial
+preview. Only direct supported toolbar bookmarks participate; folders and their
+contents remain untouched. Verify additive connection, duplicates, exact URLs,
+both directions of editing/order, explicit unpin deletion, repin, folder moves,
+permission loss, dirty-editor conflicts, failed journal persistence, uncertain
+native creation and restart. Bookmark membership never authorizes navigation.
+Legacy folder records remain readable; older builds cannot read toolbar records.
+
+## Direct Home category grid
+
+[Current contract and evidence](home-organization.md#current-home-category-grid-2026-11-10):
+all visible nonempty categories render in one scroll pane; native drag and Alt +
+arrows save order without opening sites. Escape/outside release cancel. Settings
+provides visibility and local icon picking, with acknowledged saves, failure retry
+and cross-page CAS conflict protection. Verify reload/restart, hidden and empty
+preferences, legacy history fallback, custom categories, 30-category overflow,
+125–200% zoom, unchanged pins/authority and quiet idle rendering. The directory,
+address form and customization modal are intentionally replaced.
+
+## Compact Home presentation
+
+See [the current compact Home contract](compact-home.md). Bookmark validation and
+atomic presentation CAS tests cover exact URLs, credential/scheme rejection, order,
+parent lifecycle, failed/uncertain writes, conflict review and restart. Category
+inspection must never write saved visibility/collapse or confer authorization.
+Native `firefox_compact_home.py` covers 0/1/6/8/10/overflow pins, hover/keyboard,
+rotation cancellation, conflicting control pages, failed saves, browser zoom,
+actual gated bookmark navigation and existing Greylist confirmation/deadlines.
+`--extras-only` covers long page lists, unavailable/duplicate icons and 30 crowded
+categories. Screenshots and sanitized measurements are in `evidence/compact-home`.
+No synthetic fault result establishes a fix for the historical INTERNAL_ERROR.
+
+## Post-0.2.1 rendering regression
+
+See [the engineering review](ui-engineering-review.md). Verify batch evaluation
+matches individual decisions for invalid input, Blacklist collisions and scopes,
+without mutation or retained authority. Directory outcomes must change with the
+policy even when metadata and row identity stay the same. Filters must not reuse
+an old Whitelist classification after Blacklisting.
+
+In isolated Firefox, compare the checkpoint and development build: directory
+row contents remain inside content-sized tracks at narrow widths and 125/150/200%
+zoom; long labels and thirty categories scroll without overlap. Saved hidden
+categories must not flash as visible defaults during reload. Pending initial
+reads use status/placeholder feedback; failed queries still show recovery and
+disable browsing actions. Retry, layout-save failures, restart, pin ordering,
+entry-point selection and stale-reply fences retain their existing behavior.
+Repeated category/section visits must preserve icon nodes and avoid refetching
+unchanged icons. Test-only probes are confined to disposable runtime copies.
+
+## Firefox Home/new-tab integration (0.2.1)
+
+Use [the experiment's native fixture and report](firefox-home-newtab-poc.md).
+Verify relative URLs across generated profiles, Ctrl+T/+ address-bar typing after
+Firefox's first-use notice, Home/new-window actions, full restart with restore
+on/off, policy-managed fresh install and signed-baseline upgrade. Pinned launches
+must still reach the ordinary gate; Blacklist/Greylist denials must prevent the
+local server request and create no grants. Ordinary build/release manifests must
+use only the two approved bare relative paths, with no new permissions.
+Distinguish stable temporary-overlay evidence from persistent
+unsigned Nightly tests and future signed-update confirmation behavior.
+
+## Startup and viewport repair (0.2.1)
+
+Use the [owning repair report](startup-layout-0.2.1.md) and retained native evidence.
+Compare first tab, reopen, restart, view navigation and category revisit separately.
+The initial shell must paint without optional assets; delayed first-view evidence
+must show truthful loading and reserved geometry. Repeated icons retain nodes and
+use the bounded optional asset cache without permission inputs. Corruption, expiry,
+quota failure and private-context disabling retain fallback behavior.
+
+Crowded categories and pins must scroll inside desktop workspaces, leaving the
+introduction and category controls fixed. Editor, complete review, Vault and Settings
+content remain keyboard reachable. Small/short/125/150/200% zoom layouts must fall
+back to normal flow without horizontal overflow. The Home dialog remains bounded,
+keeps Close and feedback visible, prevents underlying focus, supports Escape and
+preserves category/scroll/draft context. Save failure retains requested changes;
+retry and two-page CAS conflicts must keep acknowledged persistence semantics.
+Signed 0.2.0 upgrade/restart/rollback must preserve policy, settings, pins, categories,
+drafts and original request/grant/proposal deadlines. Prior releases stay unchanged.
+
+## Visual redesign (0.2.0)
+
+The [management-workspace pass](management-ux-0.2.0.md) must preserve an unfinished
+editor while switching directory/review, with review restored after asynchronous
+draft loading on reload. Errors and retry controls remain outside collapsed
+review; unknown save outcomes must not claim success or a definite failed write.
+Display-only saves use their existing acknowledgement path. A complete batch
+retains one frozen Vault wait and explicit confirmation. Settings section changes
+preserve edited fields, and Diagnostics works even if GET_VIEW fails. Native
+checks cover these paths, exact scopes, narrow Back navigation, keyboard/zoom,
+existing CAS conflicts/restart, and the full ordered pin overflow.
+
+The [second-pass refinement](visual-refinement-0.2.0.md) additionally verifies
+category Back/Forward/reload without layout writes, workspace filtering without
+altering collapse preferences, locally bundled fonts/licences/hashes, shared lazy
+directory icons and matched 1586 × 992 screenshots of all principal surfaces.
+
+The [visual report](visual-redesign-0.2.0.md) owns the surface inventory and native
+evidence. Preserve saved pin order, all categories and exact entry points across
+the static compass, overflow grid and narrow layout. Category shortcuts reuse
+nodes, follow saved category identity/order and do not expand or persist layout
+changes. Existing category controls, Sites/editor/draft/Vault, access summaries,
+recovery and diagnostics retain their behavior. Verify real Firefox widths and
+zoom, many pins, long labels, missing favicon fallback, keyboard/focus/caret,
+failed saves and reload/restart. Compare idle DOM mutations, writes and navigation
+timings with the preserved pre-change runtime. Assert readable token contrast;
+do not equate those checks with complete accessibility certification. Runtime
+authority, permissions, storage, asset providers and background work must remain
+unchanged. Fixtures and fault injection must stay outside the shipped bundle.
+
+## Final quality pass (0.1.19)
+
+The [owning report](quality-pass-0.1.19.md) records matched measurements and limits.
+Required regressions preserve every authoritative field during structural
+comparison, nested snapshot immutability and full repository validation. A tab
+read rejected after a recorded context closure must retire its obsolete arrival;
+a read failure in a live context must remain visible and remove unverified content.
+Diagnostic persistence must sanitize and bound data, survive background restart,
+make no healthy-idle writes, coalesce bursts and report failed retention without
+changing authority. UI checks cover one active editor, reversible staged review,
+preserved durable drafts/caret, and obsolete diagnostic replies. Native fixtures
+exercise real Vault/Greylist waits, restart, failed local saves, keyboard/zoom and
+extended accumulated-history/tab-lifecycle behavior. No fault injection proves
+the cause of the user's unreproduced intermittent exception.
+
+## Focused runtime reliability investigation (0.1.19)
+
+The [owning analysis](firefox-storage-reliability.md#focused-0119-reliability-investigation-2026-10-30)
+distinguishes semantic denials, caught controller faults, pending storage,
+adapter/background exceptions and process crashes. Required regressions:
+
+- A throwing diagnostic observer cannot change the conservative controller result,
+  consume pending work or replay a confirmation.
+- Queue progress remains readable during held storage; completion stays serialized.
+- Runtime records are bounded/deduplicated; export includes only allowlisted
+  classes and exact own-background numeric locations, never raw stack/message/URLs.
+- Failed view projection is separately reported and does not turn healthy Core
+  into INTERNAL_ERROR. Presentation never supplies replacement authority.
+- Native `--long-reliability-only`: synthetic expired/stale Access history and
+  2,500 ended Journeys, five-minute real idle loop, repeated Whitelist navigation,
+  actual held IndexedDB transaction, concurrent tab close, UI lifetimes and a new
+  background owner. No stale permission, unexplained fault or persistent queue.
+- Native `--internal-fault-only`: injected controller exceptions record precise
+  safe locations; explicit Recovery preserves policy and original frozen terms;
+  actual background unhandled rejections are reported independently.
+- Existing `--storage-reliability-only`, controller, repository, conflict and
+  unknown-write cases remain required. None of these injections establishes the
+  cause of the user's actual intermittent exception or a physical Firefox crash.
+
+See `docs/evidence/reliability-investigation-0.1.19.json` for executed results and
+limitations. No everyday profile, release installation or signing is involved.
+
+The [0.1.19 engineering review](engineering-review-0.1.19.md) adds parity checks
+between history-heavy summaries and individual Core decisions, including invalid
+expired records and rollback. Native evidence covers empty-workspace work counts,
+truthful unavailable Home copy, 60-item drafts, repeated page lifecycles, UI races
+and explicit internal-fault recovery. Authorization/persistence regressions remain
+required; see [verification tiers](development.md) for scoped iteration commands.
+
+## Immediate Whitelist removal (2026-10-30)
+
+Current verification passes **239 Core / 507 extension tests**, both typechecks
+and build. [The removal contract](whitelist-removal.md) and
+[evidence](evidence/whitelist-removal-0.1.19.json) cover strict Core-validated
+subtractions, review without waiting, stale/concurrent and persistence failures,
+frozen pending proposals, no automatic replay and no authority from receipts.
+Native Firefox159 verifies immediate exact/alias removal, retained-content
+withdrawal, two full restarts, real mixed-batch waiting and scope addition/removal.
+Additions, Blacklist changes and mixed batches retain Vault; old frozen proposals
+are not silently converted to immediate changes.
+
+## Idle internal-fault diagnosis (2026-10-30)
+
+**229 Core and 490 extension tests pass**; both TypeScript checks and the build
+pass. [The owning investigation](firefox-storage-reliability.md) and
+[evidence](evidence/firefox-internal-fault-0.1.19.json) distinguish the unidentified
+user trigger from deliberately injected exceptions. Native Firefox 159.0 compares
+preserved 0.1.18/current 0.1.19 with two idle errors, real saved grants/proposals,
+zero failed commits, actual content removal, explicit Recovery and unchanged
+policy/deadlines. Only current code retains operation/stage/class diagnostics.
+Unit tests cover hostile getters/privacy, fresh-open faults, no automatic retry,
+queued confirmation rejection, unresolved commit identity and stale-cause
+exclusion. Recording diagnostics never changes authority or recovery eligibility.
+
+## Destination editor follow-up and optional scopes (0.1.19)
+
+The [editor report](editor-reliability-0.1.19.md) and
+[scope contract](whitelist-scopes.md) own the current requirements. Verification
+passes **222 Core and 486 extension tests**, both TypeScript checks and the normal
+development build. Existing exact policies and runtime workflows keep their
+original semantics; only deliberately selected long-term scopes extend matching.
+
+- An untouched/restored Add form can switch to a selected committed destination.
+  Meaningful raw input/options, save failures and conflicts cannot be discarded.
+  Review previews staged terms with an open editor, but Submit cannot include
+  unstaged fields or skip acknowledged persistence/current Core validation.
+- Bursts save the newest raw editor with bounded queued writes. Stage/receipt
+  barriers remain ordered; stale callbacks cannot overwrite newer work. Terminal
+  receipts keep storage validation without unused outcome checks during display.
+  Unchanged policy contents do not trigger full preset-coverage recomputation.
+- Exact Whitelist remains the default. A selected primary-root scope covers only
+  its DNS-label subtree, including future descendants. Core/Vault tests cover
+  normalization, spoofed suffixes, malformed state, current revisions, immutable
+  review, successful atomic commit, failed/unknown outcomes and no implicit grants.
+  Manual Blacklist wins. Broad matches retain managed denial; only a separately
+  exact Whitelist term retains the existing managed exception. Firefox selection
+  rejects bare public/private suffixes with its existing PSL.
+- Fresh defaults omit all four Wikipedia hosts. Frozen v2 migration receipts
+  remain accepted without reapplication; v3 applies only to fresh/unmigrated
+  installations. Existing saved Wikipedia permissions and display identities,
+  custom hosts, restrictions, settings, pins and old drafts/receipts survive.
+
+Native Firefox **159.0**, in disposable profiles with controlled HTTP/DNS and real
+Vault waits, verifies scope opt-in, precommit denial, nested navigation, manual
+denial before HTTP, unrelated-host denial, background restart and protected scope
+removal. Separate real process upgrades from signed 0.1.17 and 0.1.18 each survive
+two full restarts; the .18 case retains an authentic saved draft and DONE Wikipedia
+receipt while preserving later removals and reporting stale terms truthfully.
+The 12-check storage suite retains transient recovery, conservative persistent/
+quota/clock failure handling and original grant/proposal deadlines.
+
+Matched instrumented before/after editor results are recorded in
+[sanitized evidence](evidence/editor-reliability-0.1.19.json). These synthetic
+samples do not establish daily-profile latency, a week-long heap leak, macOS
+behavior or new authenticated website compatibility. No ordinary profile,
+enterprise policy, extension identity or signed 0.1.13-0.1.18 artifact is modified.
+
+## 0.1.17 idle recurrence follow-up (2026-10-29)
+
+Development 0.1.18 passes **204 Core/430 extension tests**, both type checks and
+the build. Fourteen additional [storage regressions](firefox-storage-reliability.md)
+cover bounded readonly-abort recovery, no confirmation replay or renewed grants,
+post-commit verification, damaged-state diagnostics, getter isolation and the
+last controller reason surviving explicit Recovery. The signed 0.1.17 native
+baseline reproduces a read latch with zero failed commits; the corrected native
+suite also covers existing write/quota/Blacklist behavior and a synthetic clock
+interruption whose historical reason remains after recovery. This proves tested
+mechanisms, not the user's lost original error. Core clocks/authorization remain
+unchanged; installed profiles and signed artifacts are not edited.
+
+## 0.1.18 draft performance and rendering audit (2026-10-29)
+
+[Matched native evidence](performance-audit-0.1.18.md) covers 60 mixed staged
+changes, rapid edits, eight removals, 30 section switches, 30-second idle review
+and six view close/reopen cycles. Exact saved text and all surviving draft terms
+are verified without policy changes or implicit Vault submission. Keyed row
+regressions check retained controls and current targets; lifecycle tests check
+late-open disposal and save draining before close. No persistence debounce or
+authorization cache. The existing native batch, UI stability, storage-recovery
+and migration suites remain separate enforcement/durability evidence.
+
+The baseline already had zero idle element creation; no spontaneous idle flicker
+or week-long leak is claimed fixed. Function timings are inclusive wall times,
+and process snapshots are not retained heap measurements. See the owning audit
+and numeric evidence for comparisons, limits and quiescent-memory results.
+
+## Curated expansion and additive upgrade (2026-10-29)
+
+Development 0.1.18 expands the preset from 51 to 298 exact hosts across 123
+services, omitting only the two YouTube defaults before release. Existing saved
+YouTube permissions remain untouched. **204 Core and 416 extension tests** pass,
+including 18 migration regressions and catalog/display/lifecycle checks; both TypeScript checks and
+the development build pass. Coverage includes extra user hosts, manual/managed
+denial, one policy revision, retained configuration/workflow timestamps, concurrent
+connections, CAS fencing, aborted writes/retry, atomic fresh initialization,
+corrupt state/markers, restart/idempotence and subsequent deliberate removal.
+
+Isolated Firefox 159.0 upgrades the preserved signed 0.1.17 baseline using real
+Vault waits. Four groups and two complete process restarts verify that 248
+candidates are added, 49 are already present and one manually Blacklisted host is
+skipped, while two custom hosts, pins and modified timing survive. Old pending
+requests/proposals remain frozen and reject confirmation through ordinary Core
+revision checks. A subsequent Vault removal stays removed after restart. These
+counts belong to the synthetic fixture, not an inspection of the user's policy.
+
+The fresh-install native scenario independently verifies 298 hosts at revision
+zero without setup or copied runtime state, then real Greylist wait/confirmation,
+saved grant/countdown/focus, 500px layout, unavailable-state handling, background
+reload and expiry at the original deadline. Its older 51-host/empty-row fixture
+assumptions were updated to the current catalog and established Milestone C UI.
+
+[Catalog and public-host evidence](evidence/curated-hosts-2026-10.json) separates
+anonymous HTTP responses, automated-request blocks and unavailable probes. It
+includes current teaching references without claiming authenticated compatibility.
+[The migration contract](curated-expansion.md) makes accepted reintroduction and
+normal workflow invalidation explicit. Installed profiles, signed artifacts and
+enterprise policies are not edited; Core semantics and exact matching are unchanged.
+
+## 0.1.17 storage reliability release preparation (2026-10-26)
+
+The reviewed storage fix passes **204 Core and 391 extension tests**, both
+TypeScript checks and the development/release builds. The unsigned candidate
+passes integrity validation and Mozilla lint (zero errors, one existing Android
+warning). A fresh reviewer-source extraction with offline lockfile installs
+reproduces both archives byte for byte.
+
+Isolated Firefox 158.0.1 tests the staged 0.1.17 runtime: seven storage recovery
+groups, nine batch/Vault groups with three full process restarts, and nine
+UI/Journey interaction groups. All 76 preserved release files across signed
+0.1.13-0.1.16 and all 23 Core source files keep their pre-preparation hashes.
+All four older signed XPIs verify offline. No exceptional Whitelist migration,
+Mozilla submission, normal-profile or enterprise-policy change is included.
+
+[Release notes](release-0.1.17.md) explain the outage and implemented solution;
+[package evidence](evidence/firefox-release-0.1.17.json) records exact checks and
+hashes. This is isolated synthetic evidence, not a week-long production test or
+proof of recovery from every storage failure. Original failure-code uncertainty
+and receipt-retention limits remain documented in the storage report.
+
 ## Daily-use storage reliability (2026-10-21)
 
 The [storage report](firefox-storage-reliability.md) and
@@ -633,3 +992,46 @@ Extension **0.1.6** applies the existing approved explicit-alias scope to Amazon
 Seven `extension/tests/access-aliases.test.mjs` tests exercise the real controller and repository with fake browser events/time: one-cycle redirect; unchanged classification and no inferred aliases; www initiation and shared frozen request; manual/managed denial of either alias; failed/conflicted/unknown confirmation saves; legacy singleton scope preservation; restart and expiry. They also reject premature/duplicate confirmation, unrelated subdomains, lookalikes and other country domains. Existing Overleaf and preset tests pass. Totals: **191 Core and 137 extension tests passed**, with package builds and both type checks.
 
 Native Firefox 157.0 ran `firefox-greylist-alias.py` separately from each Amazon entry hostname in fresh profiles. The real UI listed both exact hosts before Start, required the cooldown, and needed one explicit Confirm click to display `www.amazon.se` with `ACTIVE_GRANT`. Each run retained one fixed-expiry grant, consumed its pending request, rejected premature/duplicate confirmation, preserved policy and created no Journey. The apex run also observed the actual HTTP redirect. [Sanitized evidence](evidence/firefox-greylist-alias-d26.json) records the observations. This is a public navigation authorization check; no shopping, credentials or authenticated flow was tested. Undeclared alias pairs still require separate explicit scopes, and older saved records never widen on reload.
+## Development: category declutter and explicit end of access
+
+See [native evidence](evidence/home-declutter/README.md). Open a populated category:
+all sites are present, the result region scrolls, and no Show all/fewer control or
+layout-preference write occurs. Select a new local icon, reload, and verify picker
+keyboard access at 125–200% zoom. During wheel motion, hover alone cannot open a
+chooser or flash labels; explicit activation and cancellation remain available.
+
+Start/wait/confirm a Greylist request, then End access. Its complete alias grant
+is removed only after commit; affected open tabs and released delayed responses
+are blocked. Check unrelated grants, allowed sites, policy and settings are
+preserved. Test wrong/expired/stale IDs, duplicate end/confirmation, failed,
+conflicting and unknown writes, and restart. A later request starts a full wait.
+Website-origin and read-only popup messages cannot issue END_ACCESS. Embedded
+challenge scripts/frames remain resources; top-level denial still applies.
+
+### Home simplification / folder mirror (development)
+
+- Required bookmark consent connects once through the journaled toolbar merge;
+  explicit disconnect and unresolved conflicts survive restart.
+- Native folders/children are never synchronization mutation targets; supported
+  exact nested URLs display with path labels and remain gated on launch. Icons
+  survive restart and reject stale concurrent writes. Overflow uses one folder.
+- Home legacy access links show the original context's request in the Greylist
+  strip. Waiting cancels; readiness alone grants nothing; Allow explicitly commits;
+  End terminates only the identified grant. Unavailable/expired state cannot act.
+- Single-column categories preserve preferences; one-row access overflow scrolls.
+  Native screenshots, keyboard/zoom checks and matched motion measurements live
+  in `docs/evidence/home-simplification`. Headless timing is not a GPU smoothness claim.
+
+## Bundled visual themes (development)
+
+- Default appearance matches the pre-extraction checkpoint; layout, pin geometry,
+  navigation and Core rules do not depend on the theme.
+- A bundled light palette covers main UI, forms, popovers, compass and access
+  states without component-specific application branches.
+- Selection saves only a closed presentation ID; failed/uncertain writes retain
+  work and the last acknowledged appearance. Cross-page updates use native
+  storage events. First-frame startup and full restart restore the saved theme.
+- Switching retains search, dirty editor/caret and pin nodes without fetching
+  icons, issuing background commands or adding a refresh loop.
+- Local fonts/licences, tested text/focus contrast, narrow windows and zoom remain
+  verified. See [contract](themes.md) and [evidence](evidence/themes/README.md).

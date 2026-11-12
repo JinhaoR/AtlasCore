@@ -15,7 +15,7 @@ async function fresh(t, newVersion) {
   return { factory, repository };
 }
 
-test('fresh friend installations save the approved 51-host policy before Core publishes READY', async t => {
+test('fresh installations save the expanded policy and receipt before Core publishes READY', async t => {
   const { repository } = await fresh(t);
   assert.equal((await repository.load()).type, 'UNINITIALIZED');
   await initializeDevelopmentPolicy(repository);
@@ -24,7 +24,8 @@ test('fresh friend installations save the approved 51-host policy before Core pu
   const { status, snapshot } = controller.getView();
   assert.equal(status, 'READY');
   assert.deepEqual(snapshot.policy, compileCuratedWhitelist());
-  assert.equal(snapshot.policy.whitelist.length, 51);
+  assert.equal(snapshot.policy.whitelist.length, compileCuratedWhitelist().whitelist.length);
+  assert.equal(repository.getCuratedUpgrade().kind, 'INITIALIZED');
   assert.deepEqual(snapshot.policy.blacklist, []);
   assert.equal(snapshot.policyRevision, 0, 'a new installation receives its own policy revision');
   assert.deepEqual(snapshot.accessState.grants, []);

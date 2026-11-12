@@ -39,7 +39,7 @@ export interface AccessContext {
     readonly now: number;
 }
 export type AccessContextError = "INVALID_POLICY" | "INVALID_STATE" | "INVALID_TIME" | "INVALID_POLICY_REVISION" | "CLOCK_ROLLBACK" | "POLICY_ROLLBACK";
-export type AccessError = AccessContextError | "INVALID_TARGET" | "INVALID_SCOPE" | "SCOPE_CONFLICT" | "INVALID_TIMING" | "INVALID_REQUEST_ID" | "REQUEST_NOT_FOUND" | "NOT_READY" | "REQUEST_EXPIRED" | "POLICY_CHANGED" | "NOT_GREYLIST" | "GRANT_ACTIVE" | "TIME_OVERFLOW" | "ID_EXHAUSTED";
+export type AccessError = AccessContextError | "INVALID_TARGET" | "INVALID_SCOPE" | "SCOPE_CONFLICT" | "INVALID_TIMING" | "INVALID_REQUEST_ID" | "REQUEST_NOT_FOUND" | "NOT_READY" | "REQUEST_EXPIRED" | "POLICY_CHANGED" | "NOT_GREYLIST" | "GRANT_ACTIVE" | "GRANT_NOT_FOUND" | "GRANT_EXPIRED" | "TIME_OVERFLOW" | "ID_EXHAUSTED";
 export type AccessDecision = Decision | {
     readonly outcome: "DENY";
     readonly reason: AccessContextError;
@@ -83,7 +83,7 @@ export type AccessTransition = {
     readonly nextState: AccessState;
 } | {
     readonly ok: true;
-    readonly type: "CANCELLED";
+    readonly type: "CANCELLED" | "ENDED";
     readonly requestId: number;
     readonly nextState: AccessState;
 } | {

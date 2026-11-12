@@ -1,0 +1,139 @@
+{
+  "task": "Atlas 0.2.0 management UX",
+  "status": "verified development build",
+  "checkpoint": {
+    "path": ".tools/management-0.2.0/checkpoint.zip",
+    "files": 612,
+    "sha256": "8f76fdc1ac8d49432b12c61efe473ee52cb4e9e3f321fa6b701e7649e9e663c3"
+  },
+  "tests": {
+    "core": 247,
+    "extension": 536,
+    "newManagementRegressions": 7,
+    "typescriptCoreAndExtension": "passed",
+    "developmentBuild": "passed",
+    "diffWhitespace": "passed"
+  },
+  "native": {
+    "firefox": "159.0",
+    "isolatedProfilesOnly": true,
+    "referenceViewport": {
+      "width": 1586,
+      "height": 992
+    },
+    "suites": [
+      "management",
+      "batch",
+      "home-organization",
+      "productization",
+      "quality-before",
+      "quality-after",
+      "visual-before",
+      "visual-after"
+    ],
+    "resultDirectory": "management-ux-0.2.0",
+    "actualNativeMinWidth": 500,
+    "minZoomedCssWidth": 250,
+    "maxZoom": 2,
+    "visualInspection": "directory, detail, editor, full review, failed save, Vault waiting/ready/completed, Settings sections, unavailable diagnostics, Home/category and pin overflow"
+  },
+  "performance": {
+    "uiSwitchMedianMs": {
+      "checkpoint": 9.0,
+      "current": 9.0,
+      "samplesPerRun": 12
+    },
+    "idleSeconds": 5,
+    "idleCheckpoint": {
+      "writes": 0,
+      "pinMutations": 0,
+      "pinIdentity": true
+    },
+    "idleCurrent": {
+      "writes": 0,
+      "pinMutations": 0,
+      "pinIdentity": true
+    },
+    "gatedNavigation": {
+      "samplesPerHistory": 15,
+      "checkpoint": [
+        125,
+        484
+      ],
+      "current": [
+        125,
+        547
+      ],
+      "historySizes": [
+        0,
+        2500
+      ]
+    },
+    "limitations": "Short synthetic observations; larger-history sample slower, no latency improvement or long-session reliability claim."
+  },
+  "boundaries": {
+    "coreAdapterStoragePresetChanges": false,
+    "versionIdentityPermissionsChanged": false,
+    "releaseFilesChecked": 134,
+    "releaseDifferences": [],
+    "backgroundSha256": "de6c935c6b4d7eb0bee696158dfc72609a96bb5957d6caedf78f8c7e0a2bc12b",
+    "preservedDomIds": 230,
+    "currentUniqueDomIds": 253,
+    "everydayProfileAccessed": false,
+    "enterprisePolicyChanged": false,
+    "releaseSignedSubmittedInstalledDeployed": false,
+    "committedOrPushed": false
+  },
+  "changedSinceCheckpoint": [
+    "docs/development.md",
+    "extension/dist/lib/ui/destination-editor.js",
+    "extension/scripts/firefox_curated_upgrade.py",
+    "extension/scripts/firefox_editor_followup.py",
+    "extension/scripts/firefox_performance_audit.py",
+    "extension/scripts/firefox_quality_pass.py",
+    "extension/scripts/firefox_subdomain_scope.py",
+    "extension/scripts/firefox_visual_redesign.py",
+    "extension/scripts/firefox_whitelist_removal.py",
+    "extension/src/ui/destination-editor.ts",
+    "README.md",
+    "docs/acceptance-tests.md",
+    "docs/architecture.md",
+    "docs/ui-design.md",
+    "extension/dist/lib/ui/main.js",
+    "extension/dist/lib/ui/sites.js",
+    "extension/dist/ui/index.html",
+    "extension/dist/ui/main.js",
+    "extension/dist/ui/main.js.map",
+    "extension/dist/ui/style.css",
+    "extension/scripts/firefox-e2e.py",
+    "extension/scripts/firefox_destination_batch.py",
+    "extension/scripts/firefox_destination_polish.py",
+    "extension/scripts/firefox_home_organization.py",
+    "extension/scripts/firefox_productization.py",
+    "extension/scripts/firefox_ui_reliability.py",
+    "extension/scripts/firefox_visual_polish.py",
+    "extension/src/ui/assets/index.html",
+    "extension/src/ui/assets/style.css",
+    "extension/src/ui/main.ts",
+    "extension/src/ui/sites.ts",
+    "extension/tests/support/ui-fixture.mjs",
+    "extension/tests/visual-polish.test.mjs"
+  ],
+  "newProductionModules": [
+    "extension/src/ui/destination-change-view.ts",
+    "extension/src/ui/settings-navigation.ts"
+  ],
+  "limits": [
+    "Timing fields retain seconds/hops and the existing access filter rather than copying proposed reference controls.",
+    "Long reviews scroll; narrow views stack; full screen-reader conformance and non-Windows rendering were not verified.",
+    "Website favicons retain existing online/fallback behavior and may be unavailable.",
+    "Historical intermittent INTERNAL_ERROR remains unresolved."
+  ],
+  "cleanup": {
+    "taskNativeProfilesRemoved": 18,
+    "prototypeProfileRemoved": true,
+    "redundantComparisonCopiesRemoved": true,
+    "checkpointRetained": true,
+    "knownBytesRemoved": 2531416178
+  }
+}

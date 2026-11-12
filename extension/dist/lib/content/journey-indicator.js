@@ -29,7 +29,7 @@ function show(input) {
         host.style.cssText = 'all:initial!important;position:fixed!important;right:12px!important;bottom:12px!important;z-index:2147483647!important;pointer-events:none!important;max-width:calc(100vw - 24px)!important;';
         const shadow = host.attachShadow({ mode: 'open' });
         const style = document.createElement('style');
-        style.textContent = ':host{color-scheme:light}div{display:flex;gap:8px;align-items:center;max-width:320px;padding:8px 12px;border:1px solid #d0c8b8;border-radius:6px;background:#faf7f0;color:#505b3e;font:13px/1.5 system-ui,sans-serif}span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}span:last-child{flex-shrink:0;font-variant-numeric:tabular-nums}';
+        style.textContent = ':host{color-scheme:dark}div{display:flex;gap:8px;align-items:center;max-width:320px;padding:8px 12px;border:1px solid #b69a65;border-radius:6px;background:#0c1825;color:#f3e8cf;font:13px/1.5 system-ui,sans-serif}span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}span:last-child{flex-shrink:0;font-variant-numeric:tabular-nums}';
         const pill = document.createElement('div');
         pill.setAttribute('aria-label', 'Atlas Journey');
         label = document.createElement('span');

@@ -14,7 +14,8 @@ test('identical feedback leaves live-region attributes and text unchanged', () =
   assert.equal(mutations, 0);
   assert.equal(node.attrs['aria-atomic'], 'true');
   assert.equal(node.attrs.role, 'status');
-  assert.equal(node.textContent, 'Saved.');
+  assert.equal(node.textContent, '');
+  assert.equal(node.hidden, true);
 });
 
 test('failure and uncertainty use alert semantics; acknowledged success uses status', () => {
@@ -61,12 +62,14 @@ test('invalid additional host retained inside a closed disclosure is revealed be
   assert.equal(f.proposals(), 0); assert.equal(f.sites.session().value.draft.changes.length, 0);
 });
 
-test('compact empty workspace only represents verified absence of local work', async t => {
+test('compact empty workspace hides completed history but retains unfinished work', async t => {
   const f = await sitesFixture(t); assert.equal(f.el('destination-draft-panel').dataset.workspace, 'empty');
   f.edit(); f.sites.render(true); assert.equal(f.el('destination-draft-panel').dataset.workspace, 'work');
   f.el('site-name').value = 'Edited'; await f.stage();
   assert.equal(f.el('destination-draft-panel').dataset.workspace, 'work');
-  await f.submit(); assert.equal(f.el('destination-draft-panel').dataset.workspace, 'work');
+  await f.submit(); assert.equal(f.el('destination-draft-panel').dataset.workspace, 'empty');
+  assert.equal(f.el('destination-receipt').hidden, true);
+  assert.equal(f.sites.session().value.receipt.phase, 'DONE');
 });
 
 test('an unavailable local draft cannot be styled as verified empty', async t => {
@@ -78,9 +81,9 @@ test('an unavailable local draft cannot be styled as verified empty', async t =>
 test('workspace labels distinguish an editable draft, frozen proposal and completed receipt', async t => {
   const f = await sitesFixture(t); assert.equal(f.el('destination-workspace-kind').textContent, 'No staged changes');
   f.edit(); f.el('site-access').value = 'BLACKLIST'; await f.stage();
-  assert.equal(f.el('destination-workspace-kind').textContent, 'Editable · no authority');
+  assert.equal(f.el('destination-workspace-kind').textContent, 'Prepared changes');
   await f.submit(); assert.equal(f.el('destination-workspace-kind').textContent, 'Frozen submission');
-  assert.equal(f.el('destination-draft-heading').textContent, 'Frozen destination batch');
+  assert.equal(f.el('destination-draft-heading').textContent, 'Submitted batch');
   assert.ok(f.controller.getView().snapshot.policy.whitelist.includes('root.example'));
   await f.confirm(); assert.equal(f.el('destination-workspace-kind').textContent, 'Completed local batch');
   assert.equal(f.proposals(), 1);
@@ -99,7 +102,7 @@ test('workspace badge cannot claim no staged changes before failed local storage
 test('readable decision labels distinguish policy denial from invalid authority without altering results', () => {
   const cases = [['ALLOW', 'WHITELISTED', 'Allowed'], ['DENY', 'BLACKLISTED', 'Blocked'],
     ['DENY', 'MANAGED_BLACKLISTED', 'Blocked'], ['DENY', 'INVALID_STATE', 'Unavailable'],
-    ['GREYLIST', 'UNLISTED', 'Greylist'], ['WAIT', 'PENDING_REQUEST', 'Waiting'],
+    ['GREYLIST', 'UNLISTED', 'Requires access request'], ['WAIT', 'PENDING_REQUEST', 'Waiting'],
     ['REQUIRE_CONFIRMATION', 'PENDING_REQUEST', 'Confirm access']];
   for (const [outcome, reason, label] of cases) {
     const decision = { outcome, reason }, before = structuredClone(decision);

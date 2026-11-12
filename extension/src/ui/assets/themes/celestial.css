@@ -1,0 +1,33 @@
+/* Celestial: enamel, engraved brass and the northern sky. Sources: ARTWORK.md. */
+:root[data-theme="celestial"] {
+  --color-scheme: dark;
+  --brand-artwork: url("themes/celestial/mark.svg");
+  --page: #081824;
+  --page-background: #081824;
+  --page-home-background: url("themes/celestial/historical-home.webp") center / cover no-repeat, #081824;
+  --page-workspace-background: url("themes/celestial/historical-workspace.webp") center / cover no-repeat, #081824;
+  --page-attachment: fixed;
+  --surface: #102735; --surface-disabled: #192a38; --surface-quiet: linear-gradient(120deg, #15313e, #0c222f);
+  --ink: #f4ead3; --muted: #b3bfc7; --accent: #d7ba7e; --accent-muted: #b3955c; --link: #bacfe0;
+  --border: #4c5b5d; --border-soft: #6a624b; --control-border: #8e927f;
+  --hover: #1b3142; --selected: #243947; --focus: #f3d293; --on-accent: #10202b; --accent-hover: #e8cd96;
+  --success: #bddac3; --success-surface: #18332c; --warning: #efcc8c; --warning-surface: #342d21;
+  --error: #f3b5a5; --error-surface: #39282b; --unavailable: #bdcbd8; --unavailable-surface: #223340;
+  --access-wait-ink: #efcc8c; --access-wait-border: #a48a55; --access-wait-surface: #342d21;
+  --access-active-ink: #bddac3; --access-active-border: #6e967a; --access-active-surface: #18332c;
+  --cancel-ink: #f3b5a5; --cancel-border: #a26759; --cancel-surface: #39282b; --cancel-hover: #4a2e30;
+  --icon-surface: radial-gradient(circle at 40% 30%, #fff8e7, #eddbb4); --icon-border: #b7a075;
+  --pin-surface: radial-gradient(circle at 40% 30%, #fff8e7 35%, #f3e5c7 72%, #dfc48d); --pin-hover: #fff4dc; --pin-ink: #182b38; --pin-border: #bb9a5c;
+  --pin-shadow: inset 0 0 0 2px #fdf2d5, inset 0 0 0 3px #b3955c66, 0 3px 8px #00000055;
+  --radius: 4px; --radius-card: 3px; --radius-search: 7px; --radius-dialog: 8px;
+  --category-shadow: inset 0 1px #e0c18320, inset 3px 0 #b3955c33, 0 3px 9px #00000020;
+  --search-shadow: inset 0 0 0 2px #081824, inset 0 0 0 3px #b3955c38, 0 3px 12px #00000026;
+  --search-surface: linear-gradient(110deg, #0a2434, #0a1e2d);
+  --weight-heading: 500; --weight-display: 500; --wordmark-spacing: .24em;
+  --backdrop: #030c16c4; --popover-shadow: 0 16px 44px #00000066; --floating-shadow: 0 10px 28px #00000055;
+  --compass-ring: transparent; --compass-tick: transparent; --compass-rose: #e1c58d;
+  --compass-rose-outline: #b7985e; --compass-rose-secondary: #203e4a; --compass-cardinal: #e1c58d;
+  --compass-ring-width: .85; --compass-opacity: 1;
+  --compass-artwork: url("themes/celestial/instrument.svg");
+  --compass-decoration: url("themes/celestial/orbit.svg");
+}

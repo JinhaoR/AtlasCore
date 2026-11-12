@@ -1,0 +1,66 @@
+{
+  "releaseFilesUnchanged": 438,
+  "generatedImplementationUnchanged": 92,
+  "approvedRoseUnchanged": true,
+  "sourceScansUnchanged": true,
+  "assetBytes": 1483360,
+  "assets": {
+    "extension/src/ui/assets/themes/celestial/chart.svg": {
+      "bytes": 15080,
+      "sha256": "b9e46ef2fa6ecbb140390d059c46af850c4b68c787ff77cdfc32c3015492e53e"
+    },
+    "extension/src/ui/assets/themes/celestial/directory.svg": {
+      "bytes": 7204,
+      "sha256": "1ebe283110392fc126023832e5da283ecc75ff3b3d3dc20a358022fe5790e30c"
+    },
+    "extension/src/ui/assets/themes/celestial/doppelmayr-1730.jpg": {
+      "bytes": 398124,
+      "sha256": "129658b4e95a637f7fa0f44f320863c2448a0406126f7a5c17217e7b7afb8d1d"
+    },
+    "extension/src/ui/assets/themes/celestial/hemisphere-ink.webp": {
+      "bytes": 134056,
+      "sha256": "269d66dab779f116d6db59f4d8a2b5bf6da227fbb6bc62be3b459f61e2ae7246"
+    },
+    "extension/src/ui/assets/themes/celestial/instrument.svg": {
+      "bytes": 15028,
+      "sha256": "3344bfe4e8363e551200e3930eb3cd6bb114d98dcaec049cb10c29d3206b03f3"
+    },
+    "extension/src/ui/assets/themes/celestial/mark.svg": {
+      "bytes": 275,
+      "sha256": "f440b03ee7d790b73bb90775787dacc475d6a36c488391af1a8549415304b1fb"
+    },
+    "extension/src/ui/assets/themes/celestial/orbit.svg": {
+      "bytes": 4143,
+      "sha256": "c4331fe400e5b41842dfb2e6ed8733904a06ea895eac5d1396a79f237b728bfc"
+    },
+    "extension/src/ui/assets/themes/parchment/aguiar-1492.jpg": {
+      "bytes": 447643,
+      "sha256": "aa0fa870fc8519d94ec9dbee1a7c0055f10f2fca533a2bcee40a993ce7dc59cf"
+    },
+    "extension/src/ui/assets/themes/parchment/atlantic-ink.webp": {
+      "bytes": 208718,
+      "sha256": "d531bb7d9c8084119413eec65f864dd0e1ceb0b21e052f169ffcf6d63da5d199"
+    },
+    "extension/src/ui/assets/themes/parchment/directory.svg": {
+      "bytes": 1659,
+      "sha256": "e87d51d2f3535279f1d9adc082d00401d3f04a46a9f6fb2567b1679e38c51e92"
+    },
+    "extension/src/ui/assets/themes/parchment/mark.svg": {
+      "bytes": 3494,
+      "sha256": "0e8cbb985345b29736dfc8c79ec9ce7b98e35bca910837ddb3ab662f92841cdd"
+    },
+    "extension/src/ui/assets/themes/parchment/mediterranean-ink.webp": {
+      "bytes": 213916,
+      "sha256": "2e116950012f7ad05b1558c22191cc9f1c377530b5b6243da60cbb772a0035bd"
+    },
+    "extension/src/ui/assets/themes/parchment/paper.svg": {
+      "bytes": 10254,
+      "sha256": "6abad6d9344a8414d9152db9d7b00a0538898fec8b5ed104bea085a74a2bfcda"
+    },
+    "extension/src/ui/assets/themes/parchment/rose.svg": {
+      "bytes": 23766,
+      "sha256": "bdfbbaf9c0a87353cdd8b6ac48513de465e83778d93dd223c3f3447718948efe"
+    }
+  },
+  "protectedFilesUnchanged": 551
+}

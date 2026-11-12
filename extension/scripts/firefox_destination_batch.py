@@ -29,7 +29,7 @@ def run_destination_batch(client, ui_handle, ui_url, wait_for, artifacts, restar
         input_value('site-category', category)
         client.script('document.getElementById("site-www").checked=arguments[0];document.getElementById("site-www").dispatchEvent(new Event("input"));', www)
         client.script('document.getElementById("site-form").requestSubmit();')
-        wait_for(lambda: client.script('return document.getElementById("site-draft").hidden && document.getElementById("destination-draft-status").textContent.startsWith("Saved editable draft");'), 'staged destination acknowledged')
+        wait_for(lambda: client.script('return document.getElementById("site-draft").hidden && document.getElementById("destination-draft-status").textContent.match(/^Saved (?:editable draft|locally)/);'), 'staged destination acknowledged')
 
     def review_submit():
         client.script('document.getElementById("review-destination-draft").click();')

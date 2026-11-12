@@ -1,4 +1,5 @@
 import { readHomeLayout, type HomeLayout } from './home-layout.js';
+import { readHomeBookmarks, type BookmarkRepository } from './home-bookmarks.js';
 
 export interface HomeLayoutEnvelope { readonly revision: number; readonly value: HomeLayout | null }
 export type HomeLayoutWrite = { readonly type: 'SAVED'; readonly envelope: HomeLayoutEnvelope }
@@ -11,6 +12,17 @@ export const homeLayoutDatabase = 'atlas-home-layout-v1';
 
 /** Presentation only. IndexedDB's transaction is the cross-window comparison fence. */
 export async function openHomeLayoutRepository(factory: IDBFactory = indexedDB, name = homeLayoutDatabase): Promise<HomeLayoutRepository> {
+  return openRecord(factory, name, 'current', readHomeLayout);
+}
+
+/** Separate CAS record: no pin/layout/authority transaction or migration. */
+export async function openBookmarkRepository(factory: IDBFactory = indexedDB, name = homeLayoutDatabase): Promise<BookmarkRepository> {
+  return openRecord(factory, name, 'bookmarks-v1', readHomeBookmarks);
+}
+
+export async function openRecord<T>(factory: IDBFactory, name: string, key: string, validate: (value: unknown) => T | null) {
+  type Envelope = { readonly revision: number; readonly value: T | null };
+  type Write = { readonly type: 'SAVED' | 'CONFLICT'; readonly envelope: Envelope } | { readonly type: 'FAILED' | 'UNCERTAIN' };
   const db = await new Promise<IDBDatabase>((resolve, reject) => {
     const request = factory.open(name, 1);
     let rejected = false;
@@ -19,34 +31,34 @@ export async function openHomeLayoutRepository(factory: IDBFactory = indexedDB, 
     request.onerror = request.onblocked = () => { rejected = true; reject(new Error('HOME_LAYOUT_UNAVAILABLE')); };
   });
   db.onversionchange = () => db.close();
-  const decode = (input: unknown): HomeLayoutEnvelope => {
+  const decode = (input: unknown): Envelope => {
     if (input === undefined) return { revision: 0, value: null };
-    const record = input as HomeLayoutEnvelope, value = readHomeLayout(record?.value);
+    const record = input as Envelope, value = validate(record?.value);
     if (!value || Object.keys(record).sort().join(',') !== 'revision,value' || !Number.isSafeInteger(record.revision) || record.revision < 1) throw new Error('HOME_LAYOUT_INVALID');
     return { revision: record.revision, value };
   };
   return {
-    load: () => new Promise((resolve, reject) => {
+    load: () => new Promise<Envelope>((resolve, reject) => {
       try {
-        const tx = db.transaction('layout', 'readonly'), request = tx.objectStore('layout').get('current');
-        let envelope: HomeLayoutEnvelope;
+        const tx = db.transaction('layout', 'readonly'), request = tx.objectStore('layout').get(key);
+        let envelope: Envelope;
         request.onsuccess = () => { try { envelope = decode(request.result); } catch (error) { reject(error); } };
         tx.oncomplete = () => { if (envelope) resolve(envelope); };
         tx.onerror = tx.onabort = () => reject(new Error('HOME_LAYOUT_UNAVAILABLE'));
       } catch { reject(new Error('HOME_LAYOUT_UNAVAILABLE')); }
     }),
-    save: (revision, value) => new Promise(resolve => {
-      const candidate = readHomeLayout(value);
+    save: (revision: number, value: T) => new Promise<Write>(resolve => {
+      const candidate = validate(value);
       if (!candidate || !Number.isSafeInteger(revision) || revision < 0 || revision >= Number.MAX_SAFE_INTEGER) { resolve({ type: 'FAILED' }); return; }
       try {
-        const tx = db.transaction('layout', 'readwrite'), store = tx.objectStore('layout'), request = store.get('current');
-        let result: HomeLayoutWrite = { type: 'FAILED' };
+        const tx = db.transaction('layout', 'readwrite'), store = tx.objectStore('layout'), request = store.get(key);
+        let result: Write = { type: 'FAILED' };
         request.onsuccess = () => {
-          let current: HomeLayoutEnvelope;
+          let current: Envelope;
           try { current = decode(request.result); } catch { tx.abort(); return; }
           if (revision !== current.revision) { result = { type: 'CONFLICT', envelope: current }; return; }
           const envelope = { revision: revision + 1, value: candidate };
-          try { store.put(envelope, 'current'); result = { type: 'SAVED', envelope }; }
+          try { store.put(envelope, key); result = { type: 'SAVED', envelope }; }
           catch { tx.abort(); }
         };
         tx.oncomplete = () => resolve(result);

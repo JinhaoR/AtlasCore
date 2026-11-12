@@ -1,0 +1,236 @@
+{
+  "version": "0.3.0",
+  "status": "VALIDATED_UNSIGNED_SIGNING_CANDIDATE",
+  "date": "2026-11-11",
+  "identity": "atlas-development@atlas.invalid",
+  "channel": "unlisted",
+  "node": "24.12.0",
+  "firefox": "160.0",
+  "artifacts": {
+    "atlas-0.3.0-unsigned.zip": {
+      "sha256": "42c2f6571cbc61f57410670b75953ad6102c0702c7f749ae379f6b70e0402572",
+      "bytes": 1621045,
+      "byteIdenticalReviewerRebuild": true
+    },
+    "atlas-0.3.0-source.zip": {
+      "sha256": "375433463322299e3257d5ebb52f42f95085f19adf3b2bc681a9fac3b5ab2984",
+      "bytes": 2174211,
+      "byteIdenticalReviewerRebuild": true
+    },
+    "release.json": {
+      "sha256": "69c32776fb0c316b9e98a4fc16262ac5bf369fd68cd29760844e505a06afb498",
+      "bytes": 34868,
+      "byteIdenticalReviewerRebuild": true
+    }
+  },
+  "integrity": {
+    "artifacts": {
+      "atlas-0.3.0-unsigned.zip": {
+        "sha256": "42c2f6571cbc61f57410670b75953ad6102c0702c7f749ae379f6b70e0402572",
+        "bytes": 1621045,
+        "byteIdenticalReviewerRebuild": true
+      },
+      "atlas-0.3.0-source.zip": {
+        "sha256": "375433463322299e3257d5ebb52f42f95085f19adf3b2bc681a9fac3b5ab2984",
+        "bytes": 2174211,
+        "byteIdenticalReviewerRebuild": true
+      },
+      "release.json": {
+        "sha256": "69c32776fb0c316b9e98a4fc16262ac5bf369fd68cd29760844e505a06afb498",
+        "bytes": 34868,
+        "byteIdenticalReviewerRebuild": true
+      }
+    },
+    "runtimeFileCount": 27,
+    "developmentRuntimeMatchesExceptSourceMapComments": true,
+    "manifestOnlyVersionChanged": true,
+    "lockfileOnlyVersionChanged": true,
+    "protectedSourceFilesUnchanged": 44,
+    "knownTestInstrumentationMarkersAbsent": true
+  },
+  "priorReleaseFilesUnchanged": 406,
+  "sourceReview": {
+    "comparedAgainst": "signed 0.2.8 reviewer source",
+    "changedFiles": [
+      "docs/firefox-private-release.md",
+      "docs/home-organization.md",
+      "docs/release-candidate-0.3.0.md",
+      "docs/ui-stability.md",
+      "extension/REVIEWER-BUILD.md",
+      "extension/manifest.json",
+      "extension/package-lock.json",
+      "extension/package.json",
+      "extension/scripts/release.mjs",
+      "extension/src/ui/assets/index.html",
+      "extension/src/ui/assets/style.css",
+      "extension/src/ui/home-greylist.ts",
+      "extension/src/ui/home-organization.ts",
+      "extension/src/ui/home-shortcuts.ts",
+      "extension/src/ui/home-workspace.ts",
+      "extension/src/ui/main.ts",
+      "extension/src/ui/site-directory.ts",
+      "extension/src/ui/sites.ts",
+      "extension/src/ui/ui-text.ts",
+      "extension/src/ui/viewport-scroll.ts",
+      "extension/tests/home-greylist.test.mjs",
+      "extension/tests/home-workspace.test.mjs",
+      "extension/tests/site-directory.test.mjs",
+      "extension/tests/support/ui-fixture.mjs",
+      "extension/tests/viewport-scroll.test.mjs"
+    ],
+    "priorReleaseFilesUnchanged": 406,
+    "newAuthorityOrStorageChanges": false,
+    "newPermissions": false
+  },
+  "lint": {
+    "count": 1,
+    "summary": {
+      "errors": 0,
+      "notices": 0,
+      "warnings": 1
+    },
+    "metadata": {
+      "id": "atlas-development@atlas.invalid",
+      "manifestVersion": 2,
+      "name": "Atlas",
+      "type": 1,
+      "version": "0.3.0",
+      "firefoxMinVersion": "140.0",
+      "firefoxStrictMinVersion": 140,
+      "experimentApiPaths": {},
+      "totalScannedFileSize": 1147748,
+      "emptyFiles": [],
+      "jsLibs": {},
+      "unknownMinifiedFiles": []
+    },
+    "errors": [],
+    "notices": [],
+    "warnings": [
+      {
+        "_type": "warning",
+        "code": "KEY_FIREFOX_ANDROID_UNSUPPORTED_BY_MIN_VERSION",
+        "message": "Manifest key not supported by the specified minimum Firefox for Android version",
+        "description": "\"strict_min_version\" requires Firefox for Android 140, which was released before version 142 introduced support for \"browser_specific_settings.gecko.data_collection_permissions\".",
+        "file": "manifest.json"
+      }
+    ]
+  },
+  "verification": {
+    "coreTests": 253,
+    "extensionTests": 667,
+    "coreTypecheck": "PASS",
+    "extensionTypecheck": "PASS",
+    "developmentBuild": "PASS",
+    "packageValidation": "PASS",
+    "cleanReviewerSourceRebuild": "BYTE_IDENTICAL",
+    "signedBaselineOfflineVerification": "PASS",
+    "signedBaselineSha256": "0a5b008aedf1a6e17cdca05edf725337d305c6bdbc13d61ec49f8a5e5420d201",
+    "upgradeRestartRollback": {
+      "firefox": "160.0",
+      "suite": "release-upgrade-rollback",
+      "baseline": "signed 0.2.8",
+      "steps": [
+        {
+          "step": "upgrade",
+          "version": "0.3.0",
+          "policySettingsPinsCategoriesDraftsPreserved": true,
+          "namedPagesPreserved": true,
+          "pendingProposalRequestGrantDeadlinesPreserved": true,
+          "categoryIconsPreserved": true,
+          "bookmarkConnectionPreserved": true
+        },
+        {
+          "step": "candidate-restart",
+          "version": "0.3.0",
+          "policySettingsPinsCategoriesDraftsPreserved": true,
+          "namedPagesPreserved": true,
+          "pendingProposalRequestGrantDeadlinesPreserved": true,
+          "categoryIconsPreserved": true,
+          "bookmarkConnectionPreserved": true
+        },
+        {
+          "step": "rollback",
+          "version": "0.2.8",
+          "policySettingsPinsCategoriesDraftsPreserved": true,
+          "namedPagesPreserved": true,
+          "pendingProposalRequestGrantDeadlinesPreserved": true,
+          "categoryIconsPreserved": true,
+          "bookmarkConnectionPreserved": true
+        }
+      ],
+      "fullFirefoxRestarts": 3,
+      "normalProfileAccessed": false,
+      "signedArtifactsModified": false,
+      "mechanism": "signed baseline plus temporary candidate overlay; restart without overlay restores the original signed baseline, without uninstalling"
+    },
+    "packagedHomeDirectory": {
+      "baseline": false,
+      "signedBaseline": "0.2.8",
+      "firefox": "160.0",
+      "homeDirectory": {
+        "greylist": {
+          "baseline": false,
+          "during": {
+            "opacity": "1",
+            "disabled": true
+          },
+          "opacities": [
+            "1"
+          ],
+          "samePin": true,
+          "unstartedDismissed": true,
+          "waitingCancelled": true,
+          "failedCancelRetained": true,
+          "explicitConfirmation": true,
+          "activeEnded": true,
+          "cancelledRowsStayRemovedAfterRefresh": true
+        },
+        "realPinLaunch": true,
+        "idleStable": true,
+        "zoom": [
+          1.25,
+          2
+        ],
+        "category": "University",
+        "siteCount": 122,
+        "floatingSearch": true,
+        "focusAndDirtyDraft": true,
+        "reload": true,
+        "sizes": [
+          [
+            1488,
+            1143
+          ],
+          [
+            980,
+            850
+          ],
+          [
+            540,
+            850
+          ]
+        ],
+        "restartPreservesPolicySettingsAndPresentation": true
+      },
+      "status": "PASS"
+    }
+  },
+  "fixtureMaintenance": "Extended baseline selector to signed 0.2.8; reused its required automatic bookmark connection; selected the open category picker rather than a separate hidden folder picker. No product changes needed during preparation.",
+  "limits": [
+    "Historical intermittent INTERNAL_ERROR remains unresolved.",
+    "Native tests use Windows Firefox 160 disposable temporary overlays, not an eventual Mozilla-signed 0.3.0 update or its consent prompts.",
+    "Known Firefox Android minimum-version lint warning remains; desktop Firefox is the tested target.",
+    "Narrow/high-zoom layouts retain labelled pin rows; legacy Home visibility/collapse preferences remain stored but do not conceal entries in All Sites.",
+    "No new performance, physical-display smoothness, other-platform or accessibility conformance claim."
+  ],
+  "actionsNotTaken": [
+    "sign",
+    "submit",
+    "deploy",
+    "everyday-profile access",
+    "enterprise-policy changes",
+    "commit",
+    "push"
+  ],
+  "cleanup": "Evidence retained; only task-created disposable profiles/runtime copies and clean reviewer extraction removed."
+}

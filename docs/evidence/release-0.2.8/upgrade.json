@@ -1,0 +1,38 @@
+{
+  "firefox": "160.0",
+  "suite": "release-upgrade-rollback",
+  "baseline": "signed 0.2.7",
+  "steps": [
+    {
+      "step": "upgrade",
+      "version": "0.2.8",
+      "policySettingsPinsCategoriesDraftsPreserved": true,
+      "namedPagesPreserved": true,
+      "pendingProposalRequestGrantDeadlinesPreserved": true,
+      "categoryIconsPreserved": true,
+      "bookmarkConnectionPreserved": true
+    },
+    {
+      "step": "candidate-restart",
+      "version": "0.2.8",
+      "policySettingsPinsCategoriesDraftsPreserved": true,
+      "namedPagesPreserved": true,
+      "pendingProposalRequestGrantDeadlinesPreserved": true,
+      "categoryIconsPreserved": true,
+      "bookmarkConnectionPreserved": true
+    },
+    {
+      "step": "rollback",
+      "version": "0.2.7",
+      "policySettingsPinsCategoriesDraftsPreserved": true,
+      "namedPagesPreserved": true,
+      "pendingProposalRequestGrantDeadlinesPreserved": true,
+      "categoryIconsPreserved": true,
+      "bookmarkConnectionPreserved": true
+    }
+  ],
+  "fullFirefoxRestarts": 3,
+  "normalProfileAccessed": false,
+  "signedArtifactsModified": false,
+  "mechanism": "signed baseline plus temporary candidate overlay; restart without overlay restores the original signed baseline, without uninstalling"
+}

@@ -106,7 +106,7 @@ def main():
     log = (run / 'firefox.log').open('w', encoding='utf8')
     process = subprocess.Popen([r'C:\Program Files\Mozilla Firefox\firefox.exe', '-headless', '-no-remote', '-profile', str(profile),
                                '-marionette', '--remote-allow-system-access', 'about:blank'],
-                               stdout=log, stderr=log, env={**os.environ, 'MOZ_HEADLESS': '1', 'MOZ_NO_REMOTE': '1'},
+                               stdout=log, stderr=log, env={**os.environ, 'MOZ_HEADLESS': '1', 'MOZ_NO_REMOTE': '1', 'MOZ_REMOTE_ALLOW_SYSTEM_ACCESS': '1'},
                                creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
     client = None
     try:

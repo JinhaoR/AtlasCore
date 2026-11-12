@@ -1,0 +1,40 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.2.8",
+  "firefox": "160.0",
+  "home": {
+    "pinHits": [
+      {
+        "id": "service:webmail.kth.se",
+        "hit": "compass-handle",
+        "works": false
+      },
+      {
+        "id": "service:chatgpt.com",
+        "hit": "compass-handle",
+        "works": false
+      },
+      {
+        "id": "service:github.com",
+        "hit": "compass-handle",
+        "works": false
+      },
+      {
+        "id": "service:overleaf.com",
+        "hit": "compass-handle",
+        "works": false
+      },
+      {
+        "id": "service:scholar.google.com",
+        "hit": "compass-handle",
+        "works": false
+      },
+      {
+        "id": "service:mail.google.com",
+        "hit": "compass-handle",
+        "works": false
+      }
+    ]
+  },
+  "status": "PASS"
+}

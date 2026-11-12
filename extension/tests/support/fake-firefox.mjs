@@ -17,7 +17,9 @@ export class FakeFirefox {
   failUpdate = false;
   failRemove = false;
   autoArriveUI = true;
-  runtime = { id: 'atlas-test', getURL: (path) => `moz-extension://atlas-test/${path}`, onMessage: new Event() };
+  controlMessages = [];
+  runtime = { id: 'atlas-test', getURL: (path) => `moz-extension://atlas-test/${path}`, onMessage: new Event(),
+    sendMessage: async message => { this.controlMessages.push(message); return { navigated: true }; } };
   webRequest = { onBeforeRequest: new Event(), onErrorOccurred: new Event(), onBeforeRedirect: new Event(),
     onBeforeSendHeaders: new Event(), onHeadersReceived: new Event(), onCompleted: new Event() };
   webNavigation = { onCommitted: new Event(), onHistoryStateUpdated: new Event(), onReferenceFragmentUpdated: new Event(), onCreatedNavigationTarget: new Event() };

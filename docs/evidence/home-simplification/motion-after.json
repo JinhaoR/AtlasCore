@@ -1,0 +1,32 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.2.7",
+  "firefox": "160.0",
+  "motion": {
+    "runs": [
+      {
+        "pinWrites": 0,
+        "allStyleWrites": 212,
+        "samples": 313,
+        "medianMs": 6.699999999999818,
+        "p95Ms": 6.960000000000036
+      },
+      {
+        "pinWrites": 0,
+        "allStyleWrites": 213,
+        "samples": 314,
+        "medianMs": 6.6200000000008,
+        "p95Ms": 6.960000000000946
+      },
+      {
+        "pinWrites": 0,
+        "allStyleWrites": 212,
+        "samples": 310,
+        "medianMs": 6.559999999999491,
+        "p95Ms": 6.960000000000946
+      }
+    ],
+    "note": "Headless native Firefox; synthetic pointer path, actual browser rAF timestamps. Not a physical-display GPU profile."
+  },
+  "status": "PASS"
+}

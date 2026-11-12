@@ -1,0 +1,468 @@
+{
+  "date": "2026-11-08",
+  "scope": "Development only; no version/release/signing/profile changes",
+  "firefox": "159.0.1",
+  "capacity": 10,
+  "rotation": "Retained: center-only, threshold, capture, release, Escape cancellation, lost capture; no animation/writes",
+  "tests": {
+    "extension": 557,
+    "core": 249,
+    "typescript": "both compilers passed as part of final build",
+    "build": "passed"
+  },
+  "checkpoint": {
+    "path": ".tools/compact-home/checkpoint.zip",
+    "sha256": "8a72b94f0b1afa8278a18c20c78ff52c2bd25db1be0062b51d3fe6326af111d2"
+  },
+  "unchangedProtectedHashes": 242,
+  "unchangedCoreAdapterAndIdentityFiles": 40,
+  "performance": {
+    "checkpointMedianMs": 11,
+    "finalMedianMs": 10,
+    "interpretation": "Short frame-bound interaction samples, no meaningful performance improvement established. Not a page-load or CPU benchmark."
+  },
+  "baseline": {
+    "baseline": true,
+    "firefox": "159.0.1",
+    "navigationMs": [
+      21,
+      11,
+      10,
+      11,
+      11,
+      9,
+      10,
+      12,
+      8,
+      9,
+      13,
+      12,
+      16,
+      13,
+      10
+    ],
+    "idle": {
+      "replacedNodes": 0,
+      "attributes": 0,
+      "additionalResources": 0,
+      "pinIdentity": true,
+      "viewRequests": 5,
+      "maxConcurrentViews": 1
+    },
+    "status": "PASS"
+  },
+  "final": {
+    "baseline": false,
+    "firefox": "159.0.1",
+    "navigationMs": [
+      19,
+      10,
+      9,
+      12,
+      11,
+      9,
+      9,
+      10,
+      10,
+      11,
+      9,
+      9,
+      9,
+      11,
+      11
+    ],
+    "idle": {
+      "replacedNodes": 0,
+      "attributes": 0,
+      "additionalResources": 0,
+      "pinIdentity": true,
+      "viewRequests": 5,
+      "maxConcurrentViews": 1
+    },
+    "capacity": [
+      {
+        "groups": 0,
+        "geometry": []
+      },
+      {
+        "groups": 1,
+        "geometry": [
+          {
+            "id": "service:webmail.kth.se",
+            "x": 996,
+            "y": 465.20001220703125,
+            "w": 56,
+            "h": 56
+          }
+        ]
+      },
+      {
+        "groups": 6,
+        "geometry": [
+          {
+            "id": "service:webmail.kth.se",
+            "x": 1128,
+            "y": 449.20001220703125,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:chatgpt.com",
+            "x": 1230.183349609375,
+            "y": 508.20001220703125,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:github.com",
+            "x": 1230.183349609375,
+            "y": 626.2000122070312,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:overleaf.com",
+            "x": 1128,
+            "y": 685.2000122070312,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:scholar.google.com",
+            "x": 1025.816650390625,
+            "y": 626.2000122070312,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:mail.google.com",
+            "x": 1025.816650390625,
+            "y": 508.20001220703125,
+            "w": 56,
+            "h": 56
+          }
+        ]
+      },
+      {
+        "groups": 8,
+        "geometry": [
+          {
+            "id": "service:webmail.kth.se",
+            "x": 1128,
+            "y": 449.20001220703125,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:chatgpt.com",
+            "x": 1211.433349609375,
+            "y": 483.76666259765625,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:github.com",
+            "x": 1246,
+            "y": 567.2000122070312,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:overleaf.com",
+            "x": 1211.433349609375,
+            "y": 650.63330078125,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:scholar.google.com",
+            "x": 1128,
+            "y": 685.2000122070312,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:mail.google.com",
+            "x": 1044.566650390625,
+            "y": 650.63330078125,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:arxiv.org",
+            "x": 1010,
+            "y": 567.2000122070312,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:claude.ai",
+            "x": 1044.566650390625,
+            "y": 483.76666259765625,
+            "w": 56,
+            "h": 56
+          }
+        ]
+      },
+      {
+        "groups": 10,
+        "geometry": [
+          {
+            "id": "service:webmail.kth.se",
+            "x": 1128,
+            "y": 449.20001220703125,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:chatgpt.com",
+            "x": 1197.36669921875,
+            "y": 471.73333740234375,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:github.com",
+            "x": 1240.2166748046875,
+            "y": 530.7333374023438,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:overleaf.com",
+            "x": 1240.2166748046875,
+            "y": 603.6666870117188,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:scholar.google.com",
+            "x": 1197.36669921875,
+            "y": 662.6666870117188,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:mail.google.com",
+            "x": 1128,
+            "y": 685.2000122070312,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:arxiv.org",
+            "x": 1058.63330078125,
+            "y": 662.6666870117188,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:claude.ai",
+            "x": 1015.7833251953125,
+            "y": 603.6666870117188,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:student.ladok.se",
+            "x": 1015.7833251953125,
+            "y": 530.7333374023438,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:doi.org",
+            "x": 1058.63330078125,
+            "y": 471.73333740234375,
+            "w": 56,
+            "h": 56
+          }
+        ]
+      },
+      {
+        "groups": 12,
+        "geometry": [
+          {
+            "id": "service:webmail.kth.se",
+            "x": 1128,
+            "y": 449.20001220703125,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:chatgpt.com",
+            "x": 1197.36669921875,
+            "y": 471.73333740234375,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:github.com",
+            "x": 1240.2166748046875,
+            "y": 530.7333374023438,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:overleaf.com",
+            "x": 1240.2166748046875,
+            "y": 603.6666870117188,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:scholar.google.com",
+            "x": 1197.36669921875,
+            "y": 662.6666870117188,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:mail.google.com",
+            "x": 1128,
+            "y": 685.2000122070312,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:arxiv.org",
+            "x": 1058.63330078125,
+            "y": 662.6666870117188,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:claude.ai",
+            "x": 1015.7833251953125,
+            "y": 603.6666870117188,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:student.ladok.se",
+            "x": 1015.7833251953125,
+            "y": 530.7333374023438,
+            "w": 56,
+            "h": 56
+          },
+          {
+            "id": "service:doi.org",
+            "x": 1058.63330078125,
+            "y": 471.73333740234375,
+            "w": 56,
+            "h": 56
+          }
+        ]
+      }
+    ],
+    "bookmarks": {
+      "revision": 1,
+      "value": {
+        "version": 1,
+        "groups": [
+          {
+            "parentId": "service:webmail.kth.se",
+            "pages": [
+              {
+                "id": "entry:webmail.kth.se",
+                "label": "Inbox and calendar",
+                "url": "https://webmail.kth.se/inbox?view=all%2Bnew#today"
+              },
+              {
+                "id": "d4fd7b8c-cbac-4d87-8b35-4025c28c6fd5",
+                "label": "Research notes",
+                "url": "https://example.org/notes?topic=physics#reading"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "interactions": [
+      "native hover transfer without focus theft; Enter/Space, Tab, Escape focus return, outside dismissal",
+      "native rotation/release outside handle, Escape cancellation and lost capture; upright icons; no writes",
+      "injected failed write retains editor and old Home; explicit retry acknowledges saved pages",
+      "conflicting control pages retain local draft; reviewed revision CAS reconciliation",
+      "background bookmark changes preserve open chooser and focused stable page",
+      "hidden categories searchable and in full directory; explicit browsing bypasses saved collapse without changing preferences",
+      "unpin/re-pin retains saved pages and uses existing independent pin persistence",
+      "unavailable parent pages remain editable for explicit cleanup, without launch or pin authority"
+    ],
+    "dimensions": [
+      {
+        "width": 1488,
+        "zoom": 1,
+        "scroll": 1488,
+        "client": 1488
+      },
+      {
+        "width": 1190,
+        "zoom": 1.25,
+        "scroll": 1190,
+        "client": 1190
+      },
+      {
+        "width": 992,
+        "zoom": 1.5,
+        "scroll": 992,
+        "client": 992
+      },
+      {
+        "width": 744,
+        "zoom": 2,
+        "scroll": 744,
+        "client": 744
+      },
+      {
+        "width": 800,
+        "zoom": 1,
+        "scroll": 800,
+        "client": 800
+      },
+      {
+        "width": 500,
+        "zoom": 1,
+        "scroll": 500,
+        "client": 500
+      },
+      {
+        "width": 250,
+        "zoom": 2,
+        "scroll": 250,
+        "client": 250
+      }
+    ],
+    "access": {
+      "checks": [
+        "exact full URL sent through OPEN_DESTINATION; path/query delivered, fragment retained; Blacklist target blocked without HTTP request despite trusted parent",
+        "real wait to readiness gives no permission; Home opens existing confirmation; original grant deadline displayed and expired action removed",
+        "synthetic unavailable authority retains presentation and disables launches without inventing permission"
+      ],
+      "grantDeadline": 1794148127226,
+      "retainedDraftSHA256": "c40f17e9e974092a193c03306048fbd6839d9cdd0804119e598bfb60c6c33b84",
+      "retainedEditorName": "Retained compact Home draft"
+    },
+    "restartPreserved": true,
+    "status": "PASS"
+  },
+  "stress": {
+    "baseline": false,
+    "firefox": "159.0.1",
+    "stress": [
+      "20 long named URLs, native scrolling chooser stays open; reorder/remove/save/reopen; small editor; all pages removed restores default single-target launcher",
+      "30 long category names, long destination labels, repeated render, duplicate/missing icons remain named and usable at 320/500/1000 pixels"
+    ],
+    "status": "PASS"
+  },
+  "limitations": [
+    "Headless Windows Firefox 159.0.1, not physical touch/screens or assistive-technology conformance.",
+    "Unsaved bookmark editor work remains local to the open page; save before restart.",
+    "Portable policy backup does not include bookmark IndexedDB records; private closed-browser profile backup does.",
+    "Historical intermittent INTERNAL_ERROR remains unresolved."
+  ],
+  "cleanup": {
+    "taskDirectoriesRemoved": 9,
+    "bytesRemoved": 4203408331,
+    "checkpointRetained": true
+  }
+}

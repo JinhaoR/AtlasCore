@@ -2,11 +2,26 @@
 
 Status: Milestones 1 through 3, D11 Journeys, and D13 aggregate planning implement pure domain logic. D14 adds a controller with repository/clock ports. D15 authorizes the first Firefox adapter and transactional repository; its scope and evidence are tracked in the adapter document. Context Whitelist and broader models remain deferred.
 
+**Optional scope decision (2026-10-29, development 0.1.19):** The user explicitly
+requests a selectable domain-and-all-subdomains Whitelist permission through
+Vault. This narrowly supersedes the earlier exact-only restriction for selected
+terms; existing entries, aliases, defaults and temporary grants remain exact.
+The user confirms that additional descendants retain managed blocking unless
+separately exactly Whitelisted; manual Blacklist always wins. No automatic
+promotion or organization inference. [whitelist-scopes.md](whitelist-scopes.md)
+owns the policy field, broad future-namespace risk, review and compatibility.
+
 **D30 settled direction (2026-10-04):** Firefox presents destinations/services while Core keeps exact-host authority. Sites policy changes use existing Vault; display metadata and local ranking carry no permissions. Journey timeout returns the owning tab to its recorded trusted origin under current policy, without automatic Journey renewal. Optional apex/www terms are disclosed in new/edit drafts and never migrate into saved policy silently. See [destination-polish.md](destination-polish.md) for the contract and evidence.
 
 **D31 settled direction (2026-10-04):** The user removes desktop sidebar expansion and requests a permanent icon rail. Home category previews adapt to available width, stay one row tall and show at most five destinations; explicit Show all may reveal more rows. Cards keep their height. This changes presentation only; policy, ranking and pins retain their existing rules. [ui-design.md](ui-design.md) owns the behavior and browser evidence.
 
 ## How to read status labels
+
+The user-authorized [final 0.1.19 quality pass](quality-pass-0.1.19.md) keeps
+authorization/history semantics unchanged. Its diagnostic retention is bounded
+presentation data, never recovery authority. Structural comparison and immutable
+wrapper reuse do not replace complete validation or persistence acknowledgement.
+The original intermittent runtime exception remains unidentified.
 
 **Requirements** describe the user's requested product and its essential correctness properties. **Decisions already made** record explicit direction or clarification. **Proposed architecture** records recommendations that still need adoption. **Open questions** identify behavior that must not be guessed during implementation.
 
@@ -40,6 +55,11 @@ The **Vault** is the concept governing protected changes to durable access rules
 
 Changes must be reviewed as concrete consequences. Changing the proposal must not reuse a confirmation for different contents. A proposed reduction to a protective delay must not take effect early enough to bypass the delay already protecting that change.
 
+The user-authorized [Whitelist-removal rule](whitelist-removal.md) permits strict
+Whitelist subtractions after explicit review and successful atomic persistence,
+without a cooldown. Additions, mixed policy batches, Blacklist and timing changes
+retain Vault. Existing frozen proposals are never silently changed.
+
 ### R5. A browser-independent decision engine
 
 Core answers: given a requested action, policy, access state and time, what should happen? Outcomes include allow, deny, wait and require confirmation. These are semantic outcomes; exact API names are proposed separately.
@@ -69,6 +89,35 @@ The interface needs stable decision reasons and the relevant deadlines. Presenta
 Build a fresh application-independent core using Zenith as a source of lessons. Do not migrate its implementation directly. Additional systems must solve an agreed Atlas requirement rather than reproduce historical machinery.
 
 ## Decisions already made
+
+**0.1.18 idle INTERNAL_ERROR (2026-10-30):** New evidence shows an unavailable
+controller with no failed commits while the user left a page untouched. This
+narrows the failure class but does not identify the exception or prove that a
+download/arrival caused it. Development 0.1.19 retains closed internal fault
+diagnostics across Recovery; it does not change permission, retry eligibility or
+unknown-outcome rules. [The owning investigation](firefox-storage-reliability.md)
+distinguishes fault injection from the still-unknown original trigger.
+
+**0.1.17 idle recurrence (2026-10-29):** Correct the separately reproduced
+readonly LOAD-abort recovery gap in the Firefox adapter, with the same owner,
+single-attempt and no-replay boundaries. Retain the last controller interruption
+across Recovery so non-storage causes remain diagnosable. The actual reported
+trigger is unknown. Clock rollback and unknown outcomes stay closed; no clock or
+Core semantics change. See [storage reliability](firefox-storage-reliability.md).
+
+**0.1.18 correction and audit (2026-10-29):** Omit both YouTube defaults from the
+same pending curated migration, without removing existing saved permissions or
+changing other catalog hosts. The [performance audit](performance-audit-0.1.18.md)
+owns measured display/lifecycle fixes. Display grouping cannot supply authority;
+preserve fresh Core validation, acknowledged writes and all existing recovery.
+
+**Curated expansion (2026-10-29):** The user explicitly approves the fixed academic
+and infrastructure catalog for fresh installations and a one-time additive upgrade
+for all existing installations, without installation identifiers. Previously
+removed curated entries may return unless Blacklisted; the current default-Greylist
+model remains unchanged. Preserve custom Whitelist entries and configuration,
+store one atomic receipt, and retain normal policy-revision invalidation. The
+[owning contract](curated-expansion.md) supersedes the earlier declined exception.
 
 **Daily-use storage reliability (2026-10-21):** Fix 0.1.16's latched unavailable
 state after a transient aborted write in the Firefox storage/adapter layer.

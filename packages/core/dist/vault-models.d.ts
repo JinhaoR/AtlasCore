@@ -61,6 +61,8 @@ export interface PolicyReview {
     readonly confirmBy: number;
     readonly phase: "WAITING" | "READY" | "EXPIRED";
     readonly whitelist: PolicyListChanges;
+    /** Explicit broad-scope terms; the infinite descendant set is not enumerated. */
+    readonly whitelistSubdomains?: PolicyListChanges;
     readonly blacklist: PolicyListChanges;
     readonly classifications: readonly PolicyClassificationChange[];
     readonly invalidatesAccess: boolean;

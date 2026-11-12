@@ -1,0 +1,120 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.2.5",
+  "firefox": "159.0.1",
+  "navigationMs": [
+    23,
+    13,
+    13,
+    12,
+    13,
+    12,
+    12,
+    12,
+    11,
+    12,
+    13,
+    11,
+    12,
+    12,
+    15
+  ],
+  "idle": {
+    "replacedNodes": 0,
+    "attributes": 0,
+    "additionalResources": 0,
+    "pinIdentity": true,
+    "viewRequests": 5,
+    "presentationRequests": 5,
+    "maxConcurrentViews": 1
+  },
+  "everyday": {
+    "compassOverflow": {
+      "client": 384,
+      "scroll": 384
+    },
+    "keyboardPanelScroll": true,
+    "stableDesktop": true,
+    "headlessToolbarClickOpenedPanel": false,
+    "popup": {
+      "status": "Atlas is ready",
+      "host": "No website selected",
+      "buttons": [
+        "Current site access \u2192",
+        "Home",
+        "Sites",
+        "Vault Protected changes",
+        "Settings"
+      ]
+    },
+    "popupKeyboardActivation": "Not verified: headless Marionette retains the underlying tab as its keyboard target.",
+    "popupRetainedEditor": true,
+    "permissionPrompt": [
+      {
+        "id": "addon-webext-permissions-notification",
+        "button": "Allow"
+      }
+    ],
+    "oneClickToolbarConnection": true,
+    "connectedGroups": 6,
+    "foldersExcluded": true,
+    "nativeEventRetainsDirtyEditor": true,
+    "bidirectional": true,
+    "unpinDeletesOnlyToolbarBookmark": true,
+    "noAuthorityChanges": true,
+    "restartPreserved": true,
+    "viewports": [
+      {
+        "window": 1488,
+        "zoom": 1.25,
+        "width": 1190,
+        "scroll": 1190,
+        "client": 1190
+      },
+      {
+        "window": 1488,
+        "zoom": 1.5,
+        "width": 992,
+        "scroll": 992,
+        "client": 992
+      },
+      {
+        "window": 1488,
+        "zoom": 2,
+        "width": 744,
+        "scroll": 744,
+        "client": 744
+      },
+      {
+        "window": 800,
+        "zoom": 1,
+        "width": 800,
+        "scroll": 800,
+        "client": 800
+      },
+      {
+        "window": 500,
+        "zoom": 1,
+        "width": 500,
+        "scroll": 500,
+        "client": 500
+      },
+      {
+        "window": 500,
+        "zoom": 2,
+        "width": 250,
+        "scroll": 250,
+        "client": 250
+      }
+    ],
+    "access": {
+      "checks": [
+        "exact full URL sent through OPEN_DESTINATION; path/query delivered, fragment retained; Blacklist target blocked without HTTP request despite trusted parent",
+        "real wait to readiness gives no permission; Home opens existing confirmation; original grant deadline displayed and expired action removed",
+        "synthetic unavailable authority retains presentation and disables launches without inventing permission"
+      ],
+      "grantDeadline": 1794336681902
+    }
+  },
+  "status": "PASS"
+}

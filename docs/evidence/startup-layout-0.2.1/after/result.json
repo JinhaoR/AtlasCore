@@ -1,0 +1,6619 @@
+{
+  "firefox": "159.0",
+  "suite": "startup-layout",
+  "baseline": false,
+  "startup": {
+    "initial": {
+      "started": 526,
+      "mode": "slow",
+      "requests": [],
+      "messages": [
+        {
+          "kind": "GET_VIEW",
+          "start": 559,
+          "end": 564,
+          "controller": null,
+          "startup": "LOADING"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 613,
+          "end": 616,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 620,
+          "end": 623,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 626,
+          "end": 629,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "PROPOSE_POLICY",
+          "start": 632,
+          "end": 646,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 648,
+          "end": 651,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "CONFIRM_POLICY",
+          "start": 653,
+          "end": 663,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 1564,
+          "end": 1570,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "REVIEW_POLICY",
+          "start": 1570,
+          "end": 1742,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 2825,
+          "end": 2828,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 3830,
+          "end": 3833,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 4834,
+          "end": 4837,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 5838,
+          "end": 5842,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 6844,
+          "end": 6847,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 7849,
+          "end": 7853,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 8856,
+          "end": 8859,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 9860,
+          "end": 9864,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 10865,
+          "end": 10868,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 11870,
+          "end": 11875,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 12877,
+          "end": 12880,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 13882,
+          "end": 13885,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 14886,
+          "end": 14889,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 15891,
+          "end": 15896,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 16899,
+          "end": 16901,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 17904,
+          "end": 17907,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 18908,
+          "end": 18911,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 19913,
+          "end": 19916,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 20918,
+          "end": 20921,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 21923,
+          "end": 21926,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 22928,
+          "end": 22932,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 23933,
+          "end": 23938,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 24940,
+          "end": 24944,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 25947,
+          "end": 25954,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 26954,
+          "end": 26961,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 27963,
+          "end": 27967,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 28969,
+          "end": 28974,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 29978,
+          "end": 29981,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "CONFIRM_POLICY",
+          "start": 30659,
+          "end": 30673,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 30675,
+          "end": 30678,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 30680,
+          "end": 30682,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 30684,
+          "end": 30686,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 30688,
+          "end": 30690,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 30692,
+          "end": 30695,
+          "controller": "READY",
+          "startup": "READY"
+        }
+      ],
+      "frames": [
+        {
+          "at": 559,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 576,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 628,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 679,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 729,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 779,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 830,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 880,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 931,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 981,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1031,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1082,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1132,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1182,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1232,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1283,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1333,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1383,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1433,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1484,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1534,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1741,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2254,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2304,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2355,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2405,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2455,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2506,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2556,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2607,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2658,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2708,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2759,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2810,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2860,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2910,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2960,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3011,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3061,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3111,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3161,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3212,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3265,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3315,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3365,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3416,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3466,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3516,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3566,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3617,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3667,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3718,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3768,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3818,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3868,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3919,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3969,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4019,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4069,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4119,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4169,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4219,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4270,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4320,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4371,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4421,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4472,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4521,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4527,
+          "ready": "true",
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        }
+      ],
+      "assignments": 122,
+      "readyAt": 2254,
+      "cardsAt": 2254,
+      "fontsAt": 564,
+      "profile": [
+        {
+          "part": "settings",
+          "at": 558,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 558,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 558,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 564,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 564,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 564,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 576,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 576,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 576,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 576,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 576,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 576,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 577,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 577,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 577,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 1742,
+          "ms": 2
+        },
+        {
+          "part": "sites",
+          "at": 1744,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 1744,
+          "ms": 79
+        },
+        {
+          "part": "settings",
+          "at": 1824,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 1824,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 1824,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 2257,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 2257,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 2257,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 2266,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 2266,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 2266,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 2267,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 2267,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 2267,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 2828,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 2828,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 2828,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 3833,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 3834,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 3834,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 4837,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 4837,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 4837,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 5842,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 5843,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 5843,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 6848,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 6848,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 6848,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 7854,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 7854,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 7854,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 8859,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 8859,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 8859,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 9864,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 9864,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 9864,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 10868,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 10869,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 10869,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 11875,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 11875,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 11875,
+          "ms": 2
+        },
+        {
+          "part": "settings",
+          "at": 12880,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 12880,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 12880,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 13885,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 13885,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 13885,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 14889,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 14890,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 14890,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 15896,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 15896,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 15896,
+          "ms": 2
+        },
+        {
+          "part": "settings",
+          "at": 16902,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 16902,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 16902,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 17907,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 17907,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 17907,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 18911,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 18911,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 18911,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 19916,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 19916,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 19916,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 20921,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 20922,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 20922,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 21927,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 21927,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 21927,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 22932,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 22932,
+          "ms": 1
+        },
+        {
+          "part": "home",
+          "at": 22933,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 23938,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 23938,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 23938,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 24944,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 24944,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 24944,
+          "ms": 2
+        },
+        {
+          "part": "settings",
+          "at": 25954,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 25954,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 25954,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 26962,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 26962,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 26962,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 27968,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 27969,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 27969,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 28975,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 28975,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 28975,
+          "ms": 2
+        },
+        {
+          "part": "settings",
+          "at": 29981,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 29981,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 29981,
+          "ms": 1
+        }
+      ],
+      "domAt": 559
+    },
+    "fresh": {
+      "started": 22,
+      "mode": "slow",
+      "requests": [
+        {
+          "hostname": "mail.google.com",
+          "image": false,
+          "at": 142,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "webmail.kth.se",
+          "image": false,
+          "at": 142,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "chatgpt.com",
+          "image": false,
+          "at": 142,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "github.com",
+          "image": false,
+          "at": 142,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "arxiv.org",
+          "image": false,
+          "at": 142,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "overleaf.com",
+          "image": false,
+          "at": 142,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "mail.google.com",
+          "image": true,
+          "at": 595,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "webmail.kth.se",
+          "image": true,
+          "at": 595,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "chatgpt.com",
+          "image": true,
+          "at": 595,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "github.com",
+          "image": true,
+          "at": 595,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "arxiv.org",
+          "image": true,
+          "at": 595,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "overleaf.com",
+          "image": true,
+          "at": 596,
+          "credentials": "omit"
+        }
+      ],
+      "messages": [
+        {
+          "kind": "GET_VIEW",
+          "start": 43,
+          "end": 47,
+          "controller": "LOADING",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 228,
+          "end": 231,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 1249,
+          "end": 1256,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 2258,
+          "end": 2262,
+          "controller": "READY",
+          "startup": "READY"
+        }
+      ],
+      "frames": [
+        {
+          "at": 43,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 132,
+          "ready": "true",
+          "cards": 6,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 183,
+          "ready": "true",
+          "cards": 6,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 250,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 300,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 351,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 401,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 451,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 501,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 552,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 602,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 653,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 704,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 753,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 804,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 854,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 905,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 955,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1006,
+          "ready": "true",
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1055,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1106,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1156,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1207,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1258,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1308,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1359,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1409,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1459,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1510,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1567,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1618,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1668,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1719,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1769,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1823,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1872,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1922,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1973,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2023,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2073,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2124,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2175,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2225,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2274,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2325,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2375,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2426,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2476,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2526,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2577,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2627,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2677,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2727,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2777,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2828,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        }
+      ],
+      "assignments": 135,
+      "readyAt": 132,
+      "cardsAt": 132,
+      "fontsAt": 46,
+      "profile": [
+        {
+          "part": "settings",
+          "at": 42,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 42,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 42,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 45,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 45,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 45,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 47,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 47,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 47,
+          "ms": 81
+        },
+        {
+          "part": "settings",
+          "at": 131,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 132,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 132,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 132,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 132,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 132,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 231,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 231,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 231,
+          "ms": 17
+        },
+        {
+          "part": "settings",
+          "at": 248,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 248,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 248,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 251,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 251,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 251,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 251,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 251,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 251,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 252,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 252,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 252,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 1256,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 1257,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 1257,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 2262,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 2262,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 2262,
+          "ms": 2
+        }
+      ],
+      "domAt": 43,
+      "shots": [
+        {
+          "at": 136,
+          "file": "fresh-0.png"
+        },
+        {
+          "at": 291,
+          "file": "fresh-0.15.png"
+        },
+        {
+          "at": 591,
+          "file": "fresh-0.45.png"
+        },
+        {
+          "at": 1347,
+          "file": "fresh-1.2.png"
+        },
+        {
+          "at": 2836,
+          "file": "fresh-2.7.png"
+        }
+      ]
+    },
+    "reopened": {
+      "started": 11,
+      "mode": "slow",
+      "requests": [],
+      "messages": [
+        {
+          "kind": "GET_VIEW",
+          "start": 31,
+          "end": 35,
+          "controller": "LOADING",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 213,
+          "end": 216,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 1234,
+          "end": 1236,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 2238,
+          "end": 2241,
+          "controller": "READY",
+          "startup": "READY"
+        }
+      ],
+      "frames": [
+        {
+          "at": 31,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 117,
+          "ready": "true",
+          "cards": 6,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 168,
+          "ready": "true",
+          "cards": 6,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 234,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 284,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 335,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 385,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 436,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 486,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 536,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 587,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 637,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 687,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 738,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 788,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 838,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 889,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 940,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 990,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1040,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1091,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1141,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1191,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1241,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1291,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1341,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1392,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1442,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1492,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1542,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1592,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1642,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1693,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1743,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1793,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1843,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1894,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1944,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1995,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2045,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2096,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2146,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2196,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2246,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2297,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2347,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2397,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2447,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2499,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2549,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2599,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2650,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2700,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2750,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2800,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        }
+      ],
+      "assignments": 135,
+      "readyAt": 117,
+      "cardsAt": 117,
+      "fontsAt": 35,
+      "profile": [
+        {
+          "part": "settings",
+          "at": 30,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 30,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 30,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 33,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 33,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 33,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 35,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 36,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 36,
+          "ms": 77
+        },
+        {
+          "part": "settings",
+          "at": 116,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 117,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 117,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 117,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 117,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 117,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 216,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 216,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 216,
+          "ms": 16
+        },
+        {
+          "part": "settings",
+          "at": 232,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 232,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 232,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 234,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 235,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 235,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 1237,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 1237,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 1237,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 2241,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 2241,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 2241,
+          "ms": 1
+        }
+      ],
+      "domAt": 31,
+      "shots": [
+        {
+          "at": 120,
+          "file": "reopened-0.png"
+        },
+        {
+          "at": 276,
+          "file": "reopened-0.15.png"
+        },
+        {
+          "at": 574,
+          "file": "reopened-0.45.png"
+        },
+        {
+          "at": 1329,
+          "file": "reopened-1.2.png"
+        },
+        {
+          "at": 2822,
+          "file": "reopened-2.7.png"
+        }
+      ]
+    },
+    "restart": {
+      "started": 493,
+      "mode": "slow",
+      "requests": [],
+      "messages": [
+        {
+          "kind": "GET_VIEW",
+          "start": 538,
+          "end": 544,
+          "controller": "LOADING",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 714,
+          "end": 716,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 1734,
+          "end": 1744,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 2746,
+          "end": 2754,
+          "controller": "READY",
+          "startup": "READY"
+        }
+      ],
+      "frames": [
+        {
+          "at": 538,
+          "ready": "false",
+          "cards": 0,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 616,
+          "ready": "true",
+          "cards": 6,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 666,
+          "ready": "true",
+          "cards": 6,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 735,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 785,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 835,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 886,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 936,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 987,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1037,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1087,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1138,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1188,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1239,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1288,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1339,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1389,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1439,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1490,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1540,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1590,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1640,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1691,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1743,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1793,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1843,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1894,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1945,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1997,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2047,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2097,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2148,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2198,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2249,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2299,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2349,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2399,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2450,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2500,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2550,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2600,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2651,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2701,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2754,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2804,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2855,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2905,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2956,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 3006,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 3056,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 3106,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 3156,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 3207,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 3258,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 3308,
+          "ready": "true",
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        }
+      ],
+      "assignments": 135,
+      "readyAt": 616,
+      "cardsAt": 616,
+      "fontsAt": 542,
+      "profile": [
+        {
+          "part": "settings",
+          "at": 536,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 536,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 536,
+          "ms": 2
+        },
+        {
+          "part": "settings",
+          "at": 540,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 540,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 540,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 544,
+          "ms": 3
+        },
+        {
+          "part": "sites",
+          "at": 547,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 547,
+          "ms": 67
+        },
+        {
+          "part": "settings",
+          "at": 616,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 616,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 616,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 616,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 616,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 616,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 716,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 717,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 717,
+          "ms": 16
+        },
+        {
+          "part": "settings",
+          "at": 733,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 733,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 733,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 735,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 735,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 735,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 1744,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 1744,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 1744,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 2755,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 2755,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 2755,
+          "ms": 2
+        }
+      ],
+      "domAt": 538,
+      "shots": [
+        {
+          "at": 620,
+          "file": "restart-0.png"
+        },
+        {
+          "at": 762,
+          "file": "restart-0.15.png"
+        },
+        {
+          "at": 1060,
+          "file": "restart-0.45.png"
+        },
+        {
+          "at": 1813,
+          "file": "restart-1.2.png"
+        },
+        {
+          "at": 3318,
+          "file": "restart-2.7.png"
+        }
+      ]
+    }
+  },
+  "revisit": {
+    "before": 0,
+    "after": 40
+  },
+  "crowded": {
+    "viewport": [
+      1586,
+      992
+    ],
+    "document": 992,
+    "main": {
+      "x": 0,
+      "y": 83.39999389648438,
+      "w": 1586,
+      "h": 908.5999755859375,
+      "client": 909,
+      "scroll": 909,
+      "top": 0,
+      "overflow": "auto"
+    },
+    "left": {
+      "y": 250.6999969482422
+    },
+    "categories": {
+      "x": 696.3333129882812,
+      "y": 290.3999938964844,
+      "w": 841.6666870117188,
+      "h": 632.5999755859375,
+      "client": 633,
+      "scroll": 10572,
+      "top": 0,
+      "overflow": "auto"
+    },
+    "toolbar": {
+      "y": 175.39999389648438
+    },
+    "pins": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0,
+      "client": 0,
+      "scroll": 0,
+      "top": 0,
+      "overflow": "visible"
+    }
+  },
+  "customization": {
+    "tag": "DIALOG",
+    "open": true,
+    "modal": true,
+    "top": 116,
+    "bottom": 876,
+    "height": 760,
+    "viewport": 992,
+    "focus": "home-customization-title"
+  },
+  "policyUnchanged": true,
+  "normalProfileAccessed": false,
+  "controlledIcons": "450ms credential-free homepage and image responses, no-store; no real website credentials or live URLs logged"
+}

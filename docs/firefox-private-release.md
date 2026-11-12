@@ -1,6 +1,167 @@
 # Private Firefox releases (D32)
 
-## 0.1.16 release candidate
+## 0.3.0 unsigned signing candidate
+
+The user authorizes the Home/All Sites redesign and post-0.2.8 UI repairs as
+unsigned 0.3.0. See [release notes](release-candidate-0.3.0.md). Full regressions,
+package/lint validation, clean reviewer-source reproduction and isolated signed
+0.2.8 upgrade/restart/rollback apply. Core, permissions, identity and storage
+formats remain unchanged; the same 27-file runtime inventory applies. Signing,
+submission, deployment and everyday-profile changes are separate actions.
+
+
+## 0.2.7 unsigned signing candidate
+
+The user authorizes packaging the completed Home motion/access overview and
+navigation-failure presentation fixes. [Release notes](release-candidate-0.2.7.md)
+describe scope and limitations. Signed 0.2.6 and all earlier artifacts remain
+frozen. Full regressions, package validation/lint, clean reviewer-source
+reproduction and isolated signed-0.2.6 upgrade/restart/rollback are required.
+The existing toolbar-sync record is compatible in both versions. Preparation
+never signs, submits, deploys or changes the everyday profile.
+
+## 0.2.6 unsigned signing candidate
+
+The latest user request authorizes packaging the completed interaction refinement
+and toolbar-only bookmark connection. [Release notes](release-candidate-0.2.6.md)
+describe unpin deletion, unchanged authority and the opt-in connection's downgrade
+limitation. Signed 0.2.5 and all earlier files remain frozen. Required checks are
+full regressions, package validation/lint, clean reviewer-source reproduction and
+isolated upgrade/restart/rollback from signed 0.2.5. Rollback of a newly opted-in
+toolbar connection is not claimed; the old build cannot read its extended record.
+Preparation never signs, submits, deploys or changes the everyday profile.
+
+## 0.2.5 unsigned signing candidate
+
+The user authorizes packaging the completed Home category grid, local category
+icons and direct Firefox bookmark connection. See [release notes](release-candidate-0.2.5.md)
+and [verification evidence](evidence/firefox-release-0.2.5.json). Signed 0.2.4
+and every older artifact remain frozen. The existing 27-file runtime inventory,
+permissions, extension identity and Core are unchanged. A separate presentation
+record stores category icon choices; existing layout and authority schemas stay
+unchanged. Build/validate, clean reviewer reproduction and isolated signed-0.2.4
+upgrade/rollback apply. No signing, submission, deployment or everyday-profile
+changes occur during preparation.
+
+## 0.2.4 unsigned signing candidate
+
+The user authorizes packaging the completed everyday controls and rendering
+polish. See [release notes](release-candidate-0.2.4.md) and
+[verification evidence](evidence/firefox-release-0.2.4.json). Signed 0.2.3 and every
+older artifact remain frozen. Optional `bookmarks` is requested only on connection;
+required permissions, identity and Core semantics are unchanged. The versioned
+runtime inventory adds only the popup HTML/CSS/JS and the small startup script.
+Build, validation, clean-source reproduction and isolated upgrade/rollback apply.
+No signing, Mozilla submission, installed-profile changes or deployment occurs.
+
+## 0.2.2 unsigned signing candidate
+
+The user authorizes packaging the completed rendering/architecture review as
+unsigned 0.2.2. It includes content-sized directory rows, stateless batch display
+evaluation and stable loading/layout presentation. See the
+[release notes](release-candidate-0.2.2.md), [engineering report](ui-engineering-review.md)
+and [verification evidence](evidence/firefox-release-0.2.2.json).
+Signed 0.2.1 and every prior release remain frozen. The established build,
+validation, clean reviewer reproduction and isolated upgrade/rollback checks apply.
+Preparation does not authorize Mozilla submission, signing or deployment.
+
+## Preserved 0.2.1 candidate (subsequently signed)
+
+The user authorizes the focused startup/viewport repair and the verified
+[Home/new-tab overrides](firefox-home-newtab-poc.md) as an unsigned 0.2.1
+candidate. The later signing-preparation request promotes the previously separate
+manifest-only experiment; no new permissions or authority behavior are added.
+Signed 0.2.0 and all prior release files are frozen. See
+[release notes](release-candidate-0.2.1.md), [repair contract](startup-layout-0.2.1.md)
+and [package evidence](evidence/firefox-release-0.2.1.json). The existing release
+build/validate, clean reviewer reproduction and offline signed verification
+processes remain unchanged. Preparation does not authorize signing, submission,
+deployment, enterprise-policy changes or access to the everyday Firefox profile.
+
+## Preserved 0.2.0 signing candidate (subsequently signed)
+
+The user authorizes preparation and validation of the unsigned 0.2.0 candidate,
+including isolated upgrade from signed 0.1.19 and rollback to that signed baseline.
+[Release notes](release-candidate-0.2.0.md) describe changes, compatibility,
+remaining limitations and the exact separate signing command.
+[Verification evidence](evidence/firefox-release-0.2.0.json) records the package,
+reviewer rebuild, repeated navigation measurements and isolated Firefox checks.
+All prior release files remain frozen. Preparation never submits, signs, deploys,
+changes browser policy or accesses the everyday profile.
+
+0.2.0 adds exactly nine named local typography/notice/provenance files to the
+runtime allowlist. Source archives admit only the six named WOFF2 files beyond
+the existing source types. Runtime/source hashes still cover every asset; older
+signed releases use their original fourteen-file allowlist for offline verification.
+
+## 0.1.19 unsigned release candidate
+
+The user authorizes final unsigned 0.1.19 preparation. See the
+[release candidate](release-candidate-0.1.19.md) for changes, upgrade compatibility,
+known limitations and exact later signing commands. Package validation evidence
+is recorded in [release evidence](evidence/firefox-release-0.1.19.json).
+Signed 0.1.13?0.1.18 remain frozen. Preparation does not authorize signing,
+submission, installation, deployment, commits, pushes or normal-profile changes.
+The intermittent INTERNAL_ERROR is not claimed fixed.
+
+## Preserved signed 0.1.18: historical preparation
+
+The user authorized unsigned **0.1.18** preparation on 2026-10-29. It includes the
+[curated expansion](curated-expansion.md): **298 exact hosts across 123 services**,
+one additive migration, [draft performance fixes](performance-audit-0.1.18.md),
+and the [idle-authority follow-up](firefox-storage-reliability.md). The extension
+ID remains `atlas-development@atlas.invalid`; Core, permissions, authority schema
+and protected timing settings are unchanged.
+
+The migration unions approved hosts with saved Whitelist entries, preserving
+custom hosts, manual Blacklist, configuration, pins, categories and editable drafts.
+It skips Blacklisted candidates and records a one-time atomic receipt. Previously
+removed curated hosts may return in this explicitly approved expansion; later
+removals stay removed. Both YouTube hosts are omitted from the new preset and
+migration, without removing existing saved permissions. Adding hosts increments
+the policy revision once; normal Core invalidation of old requests, grants,
+proposals and Journeys still applies. No workflow is rebased or renewed.
+
+The recovery change covers a reproduced readonly LOAD-abort latch and preserves
+the last authority reason across Recovery. It does not establish the trigger of
+the user's recovered 0.1.17 incident. Clock rollback checks, explicit confirmation
+and conservative unknown-outcome handling remain unchanged.
+
+Candidate artifacts belong in `extension/release/0.1.18/`: staged `addon/`,
+`atlas-0.1.18-unsigned.zip`, `atlas-0.1.18-source.zip` and `release.json`.
+[Release notes](release-0.1.18.md) describe update behavior and limits.
+[Package evidence](evidence/firefox-release-0.1.18.json) records release validation,
+artifact digests, reviewer-source reproduction and staged-runtime checks separately
+from the already-passing development tests. Complete these package checks before
+signing; development evidence alone is not a package verification result.
+
+Signed 0.1.13-0.1.17 remain frozen. Preparation does not sign, submit, install,
+deploy or modify enterprise policies. After separate Mozilla signing, verify the
+returned XPI offline, back up and update in place under the same ID without
+uninstalling. An unsigned ZIP is not a permanent Firefox installer. The existing
+0.1.17 archives contain its earlier storage fix, not the new catalog or follow-up.
+
+## 0.1.17 release (preserved)
+
+The user authorized preparing **0.1.17** on 2026-10-26 after reviewing the
+[storage reliability fix](firefox-storage-reliability.md). It replaces ordinary
+strict write transactions with readonly loads and adds one verified recovery
+after a confirmed transient aborted write, plus safe local failure diagnostics.
+The same Core owner validates and saves recovery; no confirmation is replayed.
+
+The candidate lives in `extension/release/0.1.17/`: `addon/`,
+`atlas-0.1.17-unsigned.zip`, `atlas-0.1.17-source.zip` and `release.json`.
+The reviewer archive includes the storage report and regression tests.
+[Release notes](release-0.1.17.md) and [package evidence](evidence/firefox-release-0.1.17.json)
+record verification. The extension ID, Core, authority schema, permissions, policy
+preset and saved state formats are unchanged. No exceptional Whitelist migration
+is included. Signed 0.1.13-0.1.16 artifacts remain frozen.
+
+Preparation does not sign, submit, install or deploy. After separate signing,
+verify the returned XPI offline, back up, and update in place without uninstalling.
+This candidate was subsequently signed; its existing artifacts remain frozen.
+
+## 0.1.16 release (preserved)
 
 The user authorized preparing **0.1.16** on 2026-10-13. It packages the completed
 [UI stability fixes](ui-stability.md), preserving 0.1.15 downloads and Milestones
@@ -15,9 +176,8 @@ The reviewer archive includes the UI stability report and regression tests.
 [Release notes](release-0.1.16.md) and [package evidence](evidence/firefox-release-0.1.16.json)
 record validation, archive reproduction and isolated staged-runtime checks.
 
-Preparation does not sign, submit, install or deploy. After separate Mozilla
-approval, run `release:verify-signed -- 0.1.16`, back up, and update Atlas in place
-using the same extension ID and existing deployment path. Do not uninstall it.
+This candidate was subsequently signed and used daily. Preserve its original
+artifacts; use `release:verify-signed -- 0.1.16` for offline verification.
 An unsigned ZIP cannot serve as a permanent Firefox installer.
 
 ## 0.1.15 release (preserved)
@@ -116,10 +276,10 @@ Use `npm.cmd` in PowerShell if execution policy blocks `npm.ps1`. The build comp
 both packages, checks pinned assets, runs Mozilla lint and produces:
 
 ```text
-extension/release/0.1.16/
+extension/release/0.1.19/
   addon/                          runtime only, manifest.json at root
-  atlas-0.1.16-unsigned.zip       unsigned submission package
-  atlas-0.1.16-source.zip         reviewer source and rebuild instructions
+  atlas-0.1.19-unsigned.zip       unsigned submission package
+  atlas-0.1.19-source.zip         reviewer source and rebuild instructions
   release.json                   source/runtime/archive hashes and lint report
   signed/                        downloaded XPI after signing
 ```
@@ -143,7 +303,7 @@ instructions for review. [Mozilla source requirements](https://extensionworkshop
    terminal environment. Keep credentials out of Git, files, logs and chat.
 4. Run `npm --prefix extension run release:sign`. It validates the release and invokes
    `web-ext sign --channel=unlisted`, attaching the matching source ZIP.
-5. Find the signed `.xpi` in `extension/release/0.1.16/signed/` for this candidate.
+5. Find the signed `.xpi` in `extension/release/0.1.19/signed/` for this candidate.
 
 PowerShell prompts keep the secret out of command history:
 
@@ -230,21 +390,20 @@ temporary loading, not permanent ordinary-Firefox installation.
 For each new submission choose an unused increasing version:
 
 ```sh
-# Current candidate is already 0.1.16. For a later release, first run
-# release:version with that unused increasing version.
+# The unsigned 0.2.0 candidate uses its already-selected version.
+# For later releases, first select an unused increasing version.
 npm --prefix packages/core test
 npm --prefix extension test
 npm --prefix extension run release:build
 npm --prefix extension run release:validate
-# Set credentials and explicitly submit when ready:
+# Separate authorized signing step; not part of preparation:
 npm --prefix extension run release:sign
 ```
 
 The version command synchronizes manifest/package/lockfile and preserves identity.
-For a future version, run it once before implementation/packaging. The current
-**0.1.16** candidate already has its version and archives: use `release:validate`
-before signing it; do not rerun `release:version -- 0.1.16` or rebuild signed
-0.1.13–0.1.15.
+Candidate **0.2.0** already has its version; unsigned archive preparation is
+authorized separately from signing and installation. Check its package evidence
+before signing. Do not rebuild or resubmit signed 0.1.13-0.1.17.
 Install the newer signed XPI over the old one; avoid uninstalling first, which may
 remove storage. Back up before updates. Never edit signed XPI contents. Build refuses
 to overwrite a local version that already contains a downloaded signed XPI.

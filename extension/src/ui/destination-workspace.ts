@@ -1,4 +1,4 @@
-import type { AtlasSnapshot } from '@atlas/core';
+import { isWhitelistRemoval, type AtlasSnapshot } from '@atlas/core';
 import { assessDraft, samePolicy, type DestinationDraft } from './destination-draft.js';
 import { emptyDestinationWorkspace, type DestinationReceipt, type DestinationWorkspace, type DraftRepository } from './draft-storage.js';
 
@@ -12,6 +12,7 @@ export class DestinationWorkspaceSession {
   failure: 'FAILED' | 'UNCERTAIN' | null = null;
   loadReason: 'INVALID' | 'UNAVAILABLE' | null = null;
   private queue: Promise<void> = Promise.resolve();
+  private editorWrite: { value: DestinationWorkspace } | null = null;
   constructor(readonly repository: DraftRepository, readonly changed: () => void) {}
 
   async load(): Promise<boolean> {
@@ -22,23 +23,49 @@ export class DestinationWorkspaceSession {
     } catch (error) { this.failure = 'FAILED'; this.loadReason = error instanceof Error && error.message === 'DRAFT_STORAGE_INVALID' ? 'INVALID' : 'UNAVAILABLE'; this.changed(); return false; }
   }
   set(value: DestinationWorkspace, explicitRetry = false): Promise<boolean> {
-    this.value = structuredClone(value); this.unsaved = true; this.changed();
+    const next = structuredClone(value);
+    // A stage, close, receipt or explicit retry seals any earlier editor slot.
+    // Later typing cannot replace a write on the other side of this barrier.
+    this.editorWrite = null;
+    this.value = next; this.unsaved = true; this.changed();
     if (!this.loaded || this.conflict || this.failure && !explicitRetry) return Promise.resolve(false);
     let saved = false;
     const captured = structuredClone(value);
     this.queue = this.queue.then(async () => {
-      if (this.conflict || this.failure && !explicitRetry) return;
-      const result = await this.repository.save(this.revision, captured);
-      if (result.type === 'SAVED') {
-        this.revision = result.envelope.revision; this.failure = null;
-        this.unsaved = JSON.stringify(this.value) !== JSON.stringify(captured); saved = true;
-      } else if (result.type === 'CONFLICT') this.conflict = true;
-      else this.failure = result.type;
-      this.changed();
+      saved = await this.write(captured, explicitRetry);
     }).catch(() => { this.failure = 'UNCERTAIN'; this.changed(); });
     return this.queue.then(() => saved);
   }
   setDraft(draft: DestinationDraft | null): Promise<boolean> { return this.set({ ...this.value, draft }); }
+
+  /** Raw inputs only. Persist the newest queued editor, never coalesce a stage or receipt. */
+  setEditor(editor: DestinationDraft['editor']): void {
+    const draft = this.value.draft;
+    // Stale input events cannot reopen a closed editor or change its destination.
+    if (!draft?.editor || editor && editor.id !== draft.editor.id) return;
+    if (editor === null) { void this.setDraft({ ...draft, editor: null }); return; }
+    const value = { ...this.value, draft: { ...draft, editor: structuredClone(editor) } };
+    this.value = value; this.unsaved = true; this.changed();
+    if (!this.loaded || this.conflict || this.failure) return;
+    if (this.editorWrite) { this.editorWrite.value = value; return; }
+    const slot = { value }; this.editorWrite = slot;
+    this.queue = this.queue.then(async () => {
+      // Once started, this snapshot is immutable. New input gets one later slot.
+      if (this.editorWrite === slot) this.editorWrite = null;
+      await this.write(structuredClone(slot.value), false);
+    }).catch(() => { this.failure = 'UNCERTAIN'; this.changed(); });
+  }
+
+  private async write(captured: DestinationWorkspace, explicitRetry: boolean): Promise<boolean> {
+    if (this.conflict || this.failure && !explicitRetry) return false;
+    const result = await this.repository.save(this.revision, captured);
+    if (result.type === 'SAVED') {
+      this.revision = result.envelope.revision; this.failure = null;
+      this.unsaved = JSON.stringify(this.value) !== JSON.stringify(captured);
+    } else if (result.type === 'CONFLICT') this.conflict = true;
+    else this.failure = result.type;
+    this.changed(); return result.type === 'SAVED';
+  }
   idle(): Promise<void> { return this.queue; }
   async refresh(): Promise<void> {
     if (!this.loaded || this.unsaved || this.failure || this.conflict) return;
@@ -72,6 +99,14 @@ export function receiptOutcome(receipt: DestinationReceipt, snapshot: AtlasSnaps
   if (!assessment.candidatePolicy || !samePolicy(assessment.candidatePolicy, receipt.candidatePolicy)) return 'INVALID';
   if (receipt.kind === 'DISPLAY') return snapshot.policyRevision === receipt.draft.baseline.policyRevision
     && samePolicy(snapshot.policy, receipt.candidatePolicy) ? 'COMMITTED' : 'INVALID';
+  if (receipt.kind === 'REMOVAL') {
+    if (!isWhitelistRemoval(receipt.draft.baseline.policy, receipt.candidatePolicy)) return 'INVALID';
+    // Desired complete terms at exactly the next revision prove they are active,
+    // not which writer applied them. No synthetic Vault marker is required.
+    return snapshot.policyRevision === receipt.draft.baseline.policyRevision + 1
+      && snapshot.configurationRevision === receipt.baseConfigurationRevision
+      && samePolicy(snapshot.policy, receipt.candidatePolicy) ? 'COMMITTED' : 'RESOLVED';
+  }
   const id = receipt.proposalId ?? receipt.expectedProposalId;
   const proposal = snapshot.vaultState.pendingProposal;
   if (proposal?.id === id && proposal.basePolicyRevision === receipt.draft.baseline.policyRevision

@@ -1,19 +1,177 @@
 # Atlas Core
 
+Current development includes historically researched **Celestial** and
+**Parchment** themes, selectable under Settings -> Pins & category icons -> Appearance.
+See the [theme developer guide](docs/themes.md) and
+[refined compositions, screenshots and verification](docs/evidence/theme-unity/README.md).
+Default and Light (test) remain available. This does not update the prepared
+0.3.0 candidate, change authority or deploy anything.
+
+
+The unsigned [0.3.0 signing candidate](docs/release-candidate-0.3.0.md) separates
+Home's search/compass/Greylist from the All Sites category directory and contextual
+editor. It includes the post-0.2.8 compass-click and cancellation-feedback repairs.
+Core and saved-state formats are unchanged. Preparation never signs or deploys;
+signed 0.2.8 and all earlier artifacts remain frozen. Earlier work follows.
+
+
+Current Home refinement repairs compass pins intercepted by the transparent drag
+surface and adjusts the centered layout, category viewport and compact Greylist
+strip. See [native interaction and layout evidence](docs/evidence/home-hierarchy/README.md).
+This remains development work; signed 0.2.8 and all earlier artifacts are frozen.
+
+Current development after signed **0.2.8** gives Greylist rows a consistent red
+Cancel button and prevents access actions from briefly dimming the compass pins.
+Cancelled rows are cleared only after acknowledged cancellation; failed saves
+remain visible for retry. See [the regression evidence](docs/evidence/greylist-controls/README.md).
+No version bump or release preparation is part of this repair.
+
+The preserved [0.2.8 signing candidate](docs/release-candidate-0.2.8.md), subsequently signed, packages
+the completed Home simplification, required toolbar bookmark connection,
+bundled-site subdomain migration and early termination of temporary access.
+Signed 0.2.8 and all earlier artifacts remain frozen. Signing and deployment are
+separate actions. The following sections describe the included development work.
+
+Current Home development adds a single category column, a larger compass with
+Firefox toolbar folders, and inline Greylist controls. Bookmark permission is now
+required; the existing toolbar synchronization connects automatically, respecting
+explicit disconnects and unresolved conflicts. See the
+[implementation and native evidence](docs/evidence/home-simplification/README.md).
+Core is unchanged in this refinement; signed releases and the version remain untouched.
+
+The current [bundled-site subdomain update](docs/curated-subdomains.md) widens
+still-allowed curated sites once on upgrade, preserves custom rules and shortcuts,
+and groups plain duplicate child entries. Literal Google service scopes do **not**
+include `google.com` or `www.google.com`. Signed artifacts remain frozen; this is
+development work without a version bump or deployment.
+
+Current development after signed **0.2.7** adds full scrollable category contents,
+28 local category icons, a compass hover repair, and explicit **End access** for
+temporary grants. See [the development evidence and browser limitations](docs/evidence/home-declutter/README.md).
+Grant removal uses Core/controller persistence; it never changes policy or renews
+permission. No version bump or release preparation is part of this pass. Signed
+0.2.7 and every older release remain frozen. The summaries below describe history.
+
+The unsigned [0.2.7 candidate](docs/release-candidate-0.2.7.md) packages the Home
+motion/access overview and navigation-failure presentation fixes. The compass
+turns with its pins, coasting follows measured angular movement, and Home has a
+bounded Greylist box without implicit tab selection. Failed Firefox launches
+show a truthful error and an explicit retry through the existing access gate.
+Core, permissions and storage formats are unchanged. Signed 0.2.6 and all older
+artifacts remain frozen. Preparation does not sign, submit, install or deploy.
+
+The preserved [0.2.6 candidate](docs/release-candidate-0.2.6.md), subsequently signed, adds animated category rearrangement, ring dragging
+with bounded inertia, a visual category-icon picker, Vault within Settings and
+quieter draft/status presentation. The optional bookmark connection now mirrors
+**direct Firefox toolbar bookmarks**; folders remain untouched, and unpinning
+removes matching synchronized toolbar bookmarks. See the
+[connection contract](docs/everyday-controls.md#current-toolbar-connection-2026-11-10-development).
+Everyday UI text is in [`extension/src/ui/ui-text.ts`](extension/src/ui/ui-text.ts);
+edit it and run the normal development build. Signed 0.2.5 and all older release
+artifacts remain frozen. Candidate preparation does not sign, submit or deploy.
+
+The preserved [0.2.5 candidate](docs/release-candidate-0.2.5.md), subsequently signed, simplifies
+[Home category browsing](docs/home-organization.md): one scrollable grid, direct
+drag/keyboard ordering and local category icons in Settings. The separate
+directory, address form and Home customization dialog are removed. Home's
+**Firefox bookmarks** action opens the existing optional connection directly;
+the detailed editor is available in Settings. Signed 0.2.4 and all earlier
+artifacts remain unchanged. Signing and deployment are separate actions.
+
+The preserved [0.2.4 candidate](docs/release-candidate-0.2.4.md), subsequently signed, packages
+[Everyday controls](docs/everyday-controls.md) and [rendering polish](docs/ui-stability.md): a
+read-only toolbar popup, clearer Sites/access wording, stationary desktop Home,
+search-to-add and an optional Firefox bookmark connection. Signed 0.2.3 and all
+older artifacts remain frozen. Core still decides every navigation; bookmark
+synchronization changes presentation only. Signing and deployment are separate.
+
+The unsigned [0.2.3 signing candidate](docs/release-candidate-0.2.3.md) packages
+[Compact Home](docs/compact-home.md): inline category browsing, named page
+bookmarks, a compact ten-pin compass and labelled overflow. Signed 0.2.2 and every
+older release remain frozen. No signing or deployment was performed.
+The following notes describe earlier release preparation.
+
+The unsigned [0.2.2 signing candidate](docs/release-candidate-0.2.2.md) packages the
+[rendering review](docs/ui-engineering-review.md): content-sized destination rows,
+batch display evaluation and quieter, truthful startup rendering. Signed 0.2.1
+and older releases remain frozen. Preparation does not sign, submit or deploy.
+The following 0.2.1 notes describe its earlier preparation.
+
+The validated [Firefox Home/new-tab integration](docs/firefox-home-newtab-poc.md)
+is now included in the unsigned 0.2.1 candidate at the user's request. Both use
+the existing Atlas Home through bare relative manifest paths. Firefox owns the
+first-use notices and the choice between homepage startup and session restore.
+
+The unsigned [0.2.1 signing candidate](docs/release-candidate-0.2.1.md) repairs
+[startup and viewport layout](docs/startup-layout-0.2.1.md): a stable initial shell,
+bounded icon asset reuse, desktop scroll workspaces and a native Home dialog.
+It retains the [0.2.0 visual design](docs/visual-redesign-0.2.0.md).
+Authorization and persistence rules are preserved. Signed 0.2.0 and prior releases remain frozen;
+preparation does not sign, submit, install or deploy. The historical intermittent
+INTERNAL_ERROR remains unresolved.
+
+The [management-workspace redesign](docs/management-ux-0.2.0.md) adds an adjacent
+destination editor, dedicated batch review and Vault, section-based Settings,
+visible save recovery and labelled pin overflow. Its capability inventory and
+native evidence document the retained operations and presentation boundaries.
+
+The preserved [0.1.19 release candidate](docs/release-candidate-0.1.19.md) and [package verification](docs/evidence/firefox-release-0.1.19.json) describe its separately completed release checks. The following 0.1.19 notes retain their historical context.
+
 An independent decision library for intentional web access. Core implements pure domain workflows and a framework-independent controller that coordinates commits through injected interfaces.
 
-The development [storage reliability fix](docs/firefox-storage-reliability.md)
-addresses 0.1.16's latched `WRITE_FAILED` outage after a transient IndexedDB abort.
+The final development [quality pass](docs/quality-pass-0.1.19.md) covers measured
+history-processing work, retained runtime diagnostics, tab-arrival lifecycle and
+simpler editing/review presentation. The real intermittent INTERNAL_ERROR cause
+remains unconfirmed; no automatic recovery or permission bypass is introduced.
+
+Development **0.1.19** fixes blank-editor selection and draft review, reduces
+[completed-batch/editor persistence work](docs/editor-reliability-0.1.19.md), and adds the explicitly selected
+[domain-and-subdomains Whitelist scope](docs/whitelist-scopes.md). Scopes are off
+by default, use Vault, and do not override manual or managed blocking on additional
+subdomains. Legacy policies remain exact unless deliberately changed.
+
+The [current preset](docs/curated-destinations.md) contains **294 exact hosts across
+122 services**, omitting Wikipedia and YouTube. Saved user permissions are not
+removed. The signed 0.1.18 expansion receipt remains valid without reapplying it;
+fresh and not-yet-migrated installations use the corrected v3 target set.
+[Development notes](docs/release-0.1.19.md) explain compatibility and boundaries.
+Whitelist-only [removals](docs/whitelist-removal.md) apply after review without a
+cooldown; additions and mixed batches keep Vault. Core revalidates and commits
+the subtraction before success. Pending frozen proposals cannot restore it.
+
+Signed 0.1.13-0.1.18 artifacts remain frozen. Building does not update installed
+Atlas; this work does not sign, submit or deploy 0.1.19.
+
+The earlier editor verification passed **239 Core and 507 extension tests**, both TypeScript checks,
+the development build, and isolated Firefox editor, scope, storage and upgrade
+regressions. [Evidence](docs/evidence/editor-reliability-0.1.19.json) records the
+synthetic timing results and their limits.
+
+The [engineering review](docs/engineering-review-0.1.19.md) removes repeated
+expired-history assessments and unused draft-baseline work without changing Core
+authorization. [Development guidance](docs/development.md) maps tasks to their
+modules and focused, subsystem and release verification commands.
+
+The [storage reliability follow-up](docs/firefox-storage-reliability.md) remains
+included. The user's earlier recovered idle trigger is still unknown; clock
+rollback protection and conservative uncertain-outcome handling remain unchanged.
+The 2026-10-30 screenshot narrows the new idle incident to INTERNAL_ERROR with no
+failed commits. Development adds privacy-safe operation/stage/error diagnostics
+across Recovery; the actual trigger is still unidentified. [Follow-up evidence](docs/evidence/firefox-internal-fault-0.1.19.json)
+separates controlled fault injection from an actual root-cause reproduction.
+
+The preserved **0.1.17 release** packages the [storage reliability fix](docs/firefox-storage-reliability.md)
+that addresses 0.1.16's latched `WRITE_FAILED` outage after a transient IndexedDB abort.
 Ordinary authority loads are readonly; one verified adapter recovery keeps healthy
 Whitelist pages open without replaying confirmations. Persistent/unknown failures
 remain conservative. Core and signed release artifacts are unchanged.
-Verification passes **204 Core and 391 extension tests**, both TypeScript checks,
+That release verified **204 Core and 391 extension tests**, both TypeScript checks,
 the development build and isolated Firefox storage/batch/UI regression suites.
 
 The development [UI stability pass](docs/ui-stability.md) removes unchanged DOM
 writes and preference-loading cycles, retains native controls, and adds matched
-60-second Firefox rendering regressions. The **0.1.16 unsigned release candidate**
-packages these fixes; [release notes](docs/release-0.1.16.md) describe verification.
+60-second Firefox rendering regressions. These fixes shipped in **0.1.16** and
+remain included in [0.1.17](docs/release-0.1.17.md).
 
 [Milestone B destination editing](docs/destination-polish.md#milestone-b-destination-batch-drafts)
 is implemented in the development build: persistent editable batches, one existing
@@ -21,12 +179,14 @@ Vault cycle, explicit stale-draft reconciliation and reusable custom categories.
 [Milestone A reliability](docs/ui-reliability.md) remains covered. **0.1.15** adds
 [bounded Download Intents](docs/firefox-downloads.md) through the
 existing planner/controller. [Milestone C Home organization](docs/home-organization.md)
-and [Milestone D visual polish](docs/visual-polish.md) are preserved, with
-**204 Core and 374 extension tests** passing in this development pass.
-Signed **0.1.13**, **0.1.14**, **0.1.15** and **0.1.16** release assets remain frozen.
+and [Milestone D visual polish](docs/visual-polish.md) are preserved; their original
+0.1.15 verification and screenshots remain in the owning reports.
+Signed **0.1.13-0.1.18** release assets remain frozen.
 The [release guide](docs/firefox-private-release.md) describes their packaging and
-verification. Version 0.1.16 is prepared for separate unlisted signing; no submission
-or installed Firefox update is performed by preparation.
+verification. The preserved signed [0.1.18 release](docs/firefox-private-release.md)
+contains the earlier catalog, performance and storage fixes; [package evidence](docs/evidence/firefox-release-0.1.18.json)
+records archive validation and reviewer-source reproduction. No submission or
+installed Firefox update is performed by preparation.
 
 Atlas Core is a decision engine for intentional access to the web. The user chooses an ordinary set of accessible destinations, requests temporary access to other destinations through deliberate friction, and changes long-term commitments through a protected workflow.
 
@@ -53,7 +213,7 @@ Supporting domains are **hidden from the normal site list, but may be displayed 
 
 One TypeScript Core package in `packages/core`, with no runtime dependencies. Policy evaluation returns `ALLOW`, `DENY`, or `GREYLIST`. The access workflow adds pending requests, waits, confirmation windows, explicit confirmation, cancellation, and expiring grants. Vault adds frozen proposals, review, and commit preparation for policy changes. Journeys authorize bounded intermediate navigation toward a Whitelisted root. Download Intents authorize a separate short-lived file operation without granting destination browsing. The controller serializes these operations and coordinates saves through repository/clock interfaces. Core contains no concrete clocks, timers, storage backends, or browser APIs. The separate `extension/` package supplies those Firefox adapters under D15.
 
-The original `SiteTarget`, `Policy`, `Decision`, `normalizeTarget`, and `evaluate` API is unchanged. Invalid input returns `DENY` with `INVALID_TARGET` or `INVALID_POLICY`; invalid normalization returns `null`. `evaluate` examines policy classification only: a temporary grant never makes a Greylist hostname Whitelisted.
+The policy API retains its original exact-host behavior and accepts the optional `whitelistSubdomains` field described in the scope contract. Invalid input returns `DENY` with `INVALID_TARGET` or `INVALID_POLICY`; invalid normalization returns `null`. `evaluate` examines policy classification only: a temporary grant never makes a Greylist hostname Whitelisted.
 
 ```ts
 import { evaluate, type Policy } from "@atlas/core";

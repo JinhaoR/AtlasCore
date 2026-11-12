@@ -1,0 +1,82 @@
+[
+  {
+    "file": "celestial-a.webp",
+    "bytes": 412774,
+    "size": [
+      2560,
+      1600
+    ],
+    "source": "de-wit-1680.jpg",
+    "sourceSha256": "752f8db2a8af9523f2bc57ca3f8f981de2b5580fcc58b01619ab30b8519f7578"
+  },
+  {
+    "file": "celestial-a-workspace.webp",
+    "bytes": 34304,
+    "size": [
+      2560,
+      1600
+    ],
+    "source": "de-wit-1680.jpg",
+    "sourceSha256": "752f8db2a8af9523f2bc57ca3f8f981de2b5580fcc58b01619ab30b8519f7578"
+  },
+  {
+    "file": "celestial-b.webp",
+    "bytes": 265028,
+    "size": [
+      2560,
+      1600
+    ],
+    "source": "vlasbloem-1675.jpg",
+    "sourceSha256": "bb52e9c160e471c5a8a7deb8f77d04366b2ba6e7ea6d20df06478bcfb74bcf19"
+  },
+  {
+    "file": "celestial-b-workspace.webp",
+    "bytes": 24974,
+    "size": [
+      2560,
+      1600
+    ],
+    "source": "vlasbloem-1675.jpg",
+    "sourceSha256": "bb52e9c160e471c5a8a7deb8f77d04366b2ba6e7ea6d20df06478bcfb74bcf19"
+  },
+  {
+    "file": "parchment-a.webp",
+    "bytes": 449534,
+    "size": [
+      2560,
+      1600
+    ],
+    "source": "oliva-17c.jpg",
+    "sourceSha256": "0a423bfd70a2bb35a88bc8acf1c26be8a164096ad0acdbac5ad1e186d8ef40b7"
+  },
+  {
+    "file": "parchment-a-workspace.webp",
+    "bytes": 75750,
+    "size": [
+      2560,
+      1600
+    ],
+    "source": "oliva-17c.jpg",
+    "sourceSha256": "0a423bfd70a2bb35a88bc8acf1c26be8a164096ad0acdbac5ad1e186d8ef40b7"
+  },
+  {
+    "file": "parchment-b.webp",
+    "bytes": 254392,
+    "size": [
+      2560,
+      1600
+    ],
+    "source": "prunes-1559.jpg",
+    "sourceSha256": "a34506b6d91dbbc9c0543cdfb51fe9ca87504d21481d507e57ee5c0f271eae82"
+  },
+  {
+    "file": "parchment-b-workspace.webp",
+    "bytes": 49828,
+    "size": [
+      2560,
+      1600
+    ],
+    "source": "prunes-1559.jpg",
+    "sourceSha256": "a34506b6d91dbbc9c0543cdfb51fe9ca87504d21481d507e57ee5c0f271eae82"
+  }
+]

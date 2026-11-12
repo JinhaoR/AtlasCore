@@ -1,0 +1,332 @@
+{
+  "version": "0.2.8",
+  "status": "VALIDATED_UNSIGNED_SIGNING_CANDIDATE",
+  "date": "2026-11-11",
+  "identity": "atlas-development@atlas.invalid",
+  "channel": "unlisted",
+  "node": "24.12.0",
+  "firefox": "160.0",
+  "artifacts": {
+    "atlas-0.2.8-unsigned.zip": {
+      "sha256": "6051a5026c045aa5eb2e8f837f9963724dbf2779a4d9ace19c3a5333d28fdd37",
+      "bytes": 1620965,
+      "byteIdenticalReviewerRebuild": true
+    },
+    "atlas-0.2.8-source.zip": {
+      "sha256": "0bbdcd37de4a965f94c25d0ab6260835f920df431914c5fd0cf431796c06ec38",
+      "bytes": 2167510,
+      "byteIdenticalReviewerRebuild": true
+    },
+    "release.json": {
+      "sha256": "2f2fe0a9dd8958055cad766e4a3c6497248d3b85f4f72dd79547f26d860de73c",
+      "bytes": 34761,
+      "byteIdenticalReviewerRebuild": true
+    }
+  },
+  "integrity": {
+    "artifacts": {
+      "atlas-0.2.8-unsigned.zip": {
+        "sha256": "6051a5026c045aa5eb2e8f837f9963724dbf2779a4d9ace19c3a5333d28fdd37",
+        "bytes": 1620965,
+        "byteIdenticalReviewerRebuild": true
+      },
+      "atlas-0.2.8-source.zip": {
+        "sha256": "0bbdcd37de4a965f94c25d0ab6260835f920df431914c5fd0cf431796c06ec38",
+        "bytes": 2167510,
+        "byteIdenticalReviewerRebuild": true
+      },
+      "release.json": {
+        "sha256": "2f2fe0a9dd8958055cad766e4a3c6497248d3b85f4f72dd79547f26d860de73c",
+        "bytes": 34761,
+        "byteIdenticalReviewerRebuild": true
+      }
+    },
+    "runtimeFileCount": 27,
+    "priorReleaseFilesUnchanged": 374,
+    "developmentRuntimeMatchesExceptSourceMaps": true,
+    "testInstrumentationScan": "PASS: known fixture markers absent; runtime allowlist enforced",
+    "lint": {
+      "count": 1,
+      "summary": {
+        "errors": 0,
+        "notices": 0,
+        "warnings": 1
+      },
+      "metadata": {
+        "id": "atlas-development@atlas.invalid",
+        "manifestVersion": 2,
+        "name": "Atlas",
+        "type": 1,
+        "version": "0.2.8",
+        "firefoxMinVersion": "140.0",
+        "firefoxStrictMinVersion": 140,
+        "experimentApiPaths": {},
+        "totalScannedFileSize": 1146993,
+        "emptyFiles": [],
+        "jsLibs": {},
+        "unknownMinifiedFiles": []
+      },
+      "errors": [],
+      "notices": [],
+      "warnings": [
+        {
+          "_type": "warning",
+          "code": "KEY_FIREFOX_ANDROID_UNSUPPORTED_BY_MIN_VERSION",
+          "message": "Manifest key not supported by the specified minimum Firefox for Android version",
+          "description": "\"strict_min_version\" requires Firefox for Android 140, which was released before version 142 introduced support for \"browser_specific_settings.gecko.data_collection_permissions\".",
+          "file": "manifest.json"
+        }
+      ]
+    }
+  },
+  "sourceReview": {
+    "comparedAgainst": "signed 0.2.7 reviewer source",
+    "changedFiles": [
+      "docs/architecture.md",
+      "docs/curated-expansion.md",
+      "docs/development.md",
+      "docs/everyday-controls.md",
+      "docs/firefox-backup.md",
+      "docs/firefox-privacy.md",
+      "docs/home-organization.md",
+      "docs/ui-stability.md",
+      "docs/whitelist-scopes.md",
+      "extension/REVIEWER-BUILD.md",
+      "extension/manifest.json",
+      "extension/package-lock.json",
+      "extension/package.json",
+      "extension/scripts/release.mjs",
+      "extension/src/adapter/firefox-adapter.ts",
+      "extension/src/background/startup.ts",
+      "extension/src/bookmarks/model.ts",
+      "extension/src/bookmarks/owner.ts",
+      "extension/src/presets/curated-whitelist.ts",
+      "extension/src/storage/indexeddb-repository.ts",
+      "extension/src/storage/runtime-journal.ts",
+      "extension/src/ui/assets/index.html",
+      "extension/src/ui/assets/popup.html",
+      "extension/src/ui/assets/style.css",
+      "extension/src/ui/bookmark-sync.ts",
+      "extension/src/ui/category-icon-picker.ts",
+      "extension/src/ui/category-icons.ts",
+      "extension/src/ui/destination-draft.ts",
+      "extension/src/ui/destinations.ts",
+      "extension/src/ui/feedback.ts",
+      "extension/src/ui/home-pins.ts",
+      "extension/src/ui/main.ts",
+      "extension/src/ui/presentation-client.ts",
+      "extension/src/ui/sites.ts",
+      "extension/src/ui/startup.ts",
+      "extension/src/ui/ui-text.ts",
+      "extension/src/ui/viewport-scroll.ts",
+      "extension/tests/bookmark-sync.test.mjs",
+      "extension/tests/category-icons.test.mjs",
+      "extension/tests/presets.test.mjs",
+      "extension/tests/startup-recovery.test.mjs",
+      "extension/tests/startup-shell.test.mjs",
+      "extension/tests/subdomain-scope.test.mjs",
+      "extension/tests/viewport-scroll.test.mjs",
+      "extension/tests/visual-polish.test.mjs",
+      "packages/core/src/access-models.ts",
+      "packages/core/src/access.ts",
+      "packages/core/src/atlas-controller.ts",
+      "packages/core/src/atlas-models.ts",
+      "packages/core/src/atlas-planner.ts",
+      "packages/core/src/index.ts"
+    ],
+    "addedFiles": [
+      "docs/curated-subdomains.md",
+      "docs/release-candidate-0.2.8.md",
+      "extension/src/bookmarks/toolbar-folders.ts",
+      "extension/src/presets/curated-scopes.ts",
+      "extension/src/ui/home-greylist.ts",
+      "extension/tests/curated-scopes.test.mjs",
+      "extension/tests/end-access.test.mjs",
+      "extension/tests/home-greylist.test.mjs",
+      "packages/core/tests/end-access.test.mjs"
+    ],
+    "manifestDelta": {
+      "optional_permissions": {
+        "before": [
+          "bookmarks"
+        ],
+        "after": null
+      },
+      "version": {
+        "before": "0.2.7",
+        "after": "0.2.8"
+      },
+      "permissions": {
+        "before": [
+          "tabs",
+          "webNavigation",
+          "webRequest",
+          "webRequestBlocking",
+          "http://*/*",
+          "https://*/*"
+        ],
+        "after": [
+          "bookmarks",
+          "tabs",
+          "webNavigation",
+          "webRequest",
+          "webRequestBlocking",
+          "http://*/*",
+          "https://*/*"
+        ]
+      }
+    },
+    "scope": "Core changes add explicit END_ACCESS only; adapter rechecks affected requests after commit; fixed atomic curated scope migration; presentation-only Home and bookmark changes. No new dependency, remote code, hidden command or identity change."
+  },
+  "verification": {
+    "coreTests": {
+      "passed": 253,
+      "failed": 0
+    },
+    "extensionTests": {
+      "passed": 660,
+      "failed": 0
+    },
+    "typechecks": "PASS: both packages",
+    "developmentBuild": "PASS",
+    "packageBuild": "PASS",
+    "releaseValidation": "PASS",
+    "reviewerSourceRebuild": "PASS: fresh extraction and locked npm ci; unsigned/source ZIPs and receipt byte-identical",
+    "runtimeAudit": {
+      "total": 0
+    },
+    "developmentToolchainAudit": {
+      "total": 6,
+      "low": 3,
+      "moderate": 1,
+      "high": 2,
+      "note": "Unchanged pinned toolchain; no automatic dependency updates applied."
+    },
+    "signedBaselineOfflineVerification": "PASS: 26 exact runtime hashes and manifest whitespace-only exception; known signature entries",
+    "finalDiffCheck": "PASS"
+  },
+  "native": {
+    "upgrade": {
+      "firefox": "160.0",
+      "suite": "release-upgrade-rollback",
+      "baseline": "signed 0.2.7",
+      "steps": [
+        {
+          "step": "upgrade",
+          "version": "0.2.8",
+          "policySettingsPinsCategoriesDraftsPreserved": true,
+          "namedPagesPreserved": true,
+          "pendingProposalRequestGrantDeadlinesPreserved": true,
+          "categoryIconsPreserved": true,
+          "bookmarkConnectionPreserved": true
+        },
+        {
+          "step": "candidate-restart",
+          "version": "0.2.8",
+          "policySettingsPinsCategoriesDraftsPreserved": true,
+          "namedPagesPreserved": true,
+          "pendingProposalRequestGrantDeadlinesPreserved": true,
+          "categoryIconsPreserved": true,
+          "bookmarkConnectionPreserved": true
+        },
+        {
+          "step": "rollback",
+          "version": "0.2.7",
+          "policySettingsPinsCategoriesDraftsPreserved": true,
+          "namedPagesPreserved": true,
+          "pendingProposalRequestGrantDeadlinesPreserved": true,
+          "categoryIconsPreserved": true,
+          "bookmarkConnectionPreserved": true
+        }
+      ],
+      "fullFirefoxRestarts": 3,
+      "normalProfileAccessed": false,
+      "signedArtifactsModified": false,
+      "mechanism": "signed baseline plus temporary candidate overlay; restart without overlay restores the original signed baseline, without uninstalling"
+    },
+    "scopes": {
+      "baseline": false,
+      "signedBaseline": "0.2.7",
+      "firefox": "160.0",
+      "curatedScopes": {
+        "added": [
+          "drive.google.com",
+          "kth.se"
+        ],
+        "skippedBlacklisted": [
+          "github.com"
+        ],
+        "skippedNotAllowedCount": 291,
+        "google": "GREYLIST",
+        "automaticSyncMaterializedDefaultPages": true,
+        "customPolicySettingsPinsPagesLayoutDraftsPreserved": true,
+        "plainChildGrouped": true,
+        "exactChildSearch": true,
+        "fullRestartIdempotent": true,
+        "signedRollbackPreservesMigratedPolicy": true
+      },
+      "status": "PASS"
+    },
+    "home": {
+      "baseline": false,
+      "signedBaseline": "0.2.7",
+      "firefox": "160.0",
+      "home": {
+        "automaticConnection": true,
+        "folderIcon": "tWLC3ECAdpRy",
+        "exactNestedPages": true,
+        "overflow": true,
+        "inlineWaitCancelConfirmEnd": true,
+        "folderLaunchGated": true,
+        "keyboardDismissal": true,
+        "iconFailureRetry": true,
+        "zoom": [
+          1.25,
+          1.5,
+          2
+        ],
+        "idle": {
+          "mutations": 0,
+          "requests": 0
+        },
+        "sizes": [
+          {
+            "width": 1280,
+            "scroll": 1280,
+            "height": 815
+          },
+          {
+            "width": 900,
+            "scroll": 900,
+            "height": 675
+          },
+          {
+            "width": 640,
+            "scroll": 640,
+            "height": 547
+          }
+        ],
+        "restartPreserved": true
+      },
+      "status": "PASS"
+    }
+  },
+  "limits": [
+    "Historical intermittent INTERNAL_ERROR remains unresolved.",
+    "Signed-update permission prompt requires eventual signed install; tests use disposable temporary overlays.",
+    "Migration trusts future descendants of eligible literal roots. Rolling back does not undo it.",
+    "New category icon names are not understood by 0.2.7; original icons remain editable on rollback.",
+    "Headless motion evidence proves fewer style writes, not physical GPU smoothness.",
+    "Known Android lint warning and development-only audit advisories remain."
+  ],
+  "actionsNotTaken": [
+    "sign",
+    "submit",
+    "deploy",
+    "everyday-profile access",
+    "enterprise-policy changes",
+    "commit",
+    "push"
+  ],
+  "cleanup": "Task-created disposable Firefox profiles/runtime copies and clean reviewer extraction removed after retaining evidence; logs retained."
+}

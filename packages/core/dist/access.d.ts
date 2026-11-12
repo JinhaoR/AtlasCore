@@ -7,3 +7,5 @@ export declare function startAccess(requestedSite: unknown, input: unknown, timi
 export declare function confirmAccess(requestId: unknown, input: unknown): AccessTransition;
 /** Cancelling a pending request never revokes or renews an already issued grant. */
 export declare function cancelAccess(requestId: unknown, input: unknown): AccessTransition;
+/** Explicitly remove one grant's complete scope. Publication still requires commit. */
+export declare function endAccess(requestId: unknown, input: unknown): AccessTransition;

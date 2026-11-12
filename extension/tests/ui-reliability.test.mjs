@@ -96,7 +96,7 @@ test('reconciliation of resolved presentation does not close another local edito
 test('Sites retains labelled stale rows after authority loss and recovers without fake empty state', async t => {
   const f = await sitesFixture(t), count = f.el('sites-list').children.length; f.available(false); f.sites.render(false);
   assert.equal(f.el('sites-list').children.length, count); assert.equal(f.el('sites-empty').hidden, true); assert.match(f.el('sites-status').textContent, /last verified/);
-  assert.equal(f.el('add-site').disabled, true); f.available(true); f.sites.render(true); assert.match(f.el('sites-status').textContent, /Committed policy/); await f.flush();
+  assert.equal(f.el('add-site').disabled, true); f.available(true); f.sites.render(true); assert.match(f.el('sites-status').textContent, /Current access rules/); await f.flush();
 });
 
 const searchPolicy = { whitelist: ['outlook.com', 'www.outlook.com', 'outlook.office.com', 'outlook.live.com', 'github.com', 'www.github.com'], blacklist: [] };

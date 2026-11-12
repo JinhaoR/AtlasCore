@@ -1,0 +1,951 @@
+{
+  "baseline": false,
+  "firefox": "159.0.1",
+  "polish": {
+    "baseline": false,
+    "reloads": [
+      {
+        "frames": [
+          {
+            "at": 17,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              991,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loading",
+            "phase": null
+          },
+          {
+            "at": 35,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              991,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loading",
+            "phase": "LOADING"
+          },
+          {
+            "at": 45,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              991,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 6,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": "READY"
+          },
+          {
+            "at": 55,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              991,
+              160,
+              32
+            ],
+            "categories": 6,
+            "cards": 0,
+            "pinsCount": 6,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": "READY"
+          }
+        ],
+        "costs": {
+          "renderSettings": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "renderHome": [
+            1,
+            0,
+            4,
+            4,
+            2,
+            2,
+            2,
+            2,
+            3,
+            1,
+            1
+          ]
+        },
+        "calls": {
+          "PRESENTATION_READ": 3,
+          "GET_VIEW": 5
+        },
+        "resources": 0,
+        "forceStatus": null
+      },
+      {
+        "frames": [
+          {
+            "at": 20,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              991,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loading",
+            "phase": null
+          },
+          {
+            "at": 35,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              991,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loading",
+            "phase": "LOADING"
+          },
+          {
+            "at": 43,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              991,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": "LOADING"
+          },
+          {
+            "at": 53,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              991,
+              160,
+              32
+            ],
+            "categories": 6,
+            "cards": 0,
+            "pinsCount": 6,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": "READY"
+          }
+        ],
+        "costs": {
+          "renderSettings": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "renderHome": [
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            7,
+            3,
+            2,
+            3,
+            3
+          ]
+        },
+        "calls": {
+          "PRESENTATION_READ": 3,
+          "GET_VIEW": 4
+        },
+        "resources": 0,
+        "forceStatus": null
+      },
+      {
+        "frames": [
+          {
+            "at": 16,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              991,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loading",
+            "phase": null
+          },
+          {
+            "at": 34,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              991,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loading",
+            "phase": "LOADING"
+          },
+          {
+            "at": 39,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              991,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": "LOADING"
+          },
+          {
+            "at": 47,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              991,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 6,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": "READY"
+          },
+          {
+            "at": 59,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              991,
+              160,
+              32
+            ],
+            "categories": 6,
+            "cards": 0,
+            "pinsCount": 6,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": "READY"
+          }
+        ],
+        "costs": {
+          "renderSettings": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "renderHome": [
+            1,
+            0,
+            5,
+            4,
+            3,
+            1,
+            3,
+            3,
+            2,
+            3,
+            3
+          ]
+        },
+        "calls": {
+          "PRESENTATION_READ": 3,
+          "GET_VIEW": 5
+        },
+        "resources": 0,
+        "forceStatus": null
+      }
+    ],
+    "pinLabels": {
+      "READY": {
+        "labels": [
+          "KTH Mail",
+          "ChatGPT",
+          "GitHub",
+          "Overleaf",
+          "Google Scholar",
+          "Gmail"
+        ],
+        "disabled": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "warning": false
+      },
+      "LOADING": {
+        "labels": [
+          "KTH Mail",
+          "ChatGPT",
+          "GitHub",
+          "Overleaf",
+          "Google Scholar",
+          "Gmail"
+        ],
+        "disabled": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "warning": false
+      },
+      "COMMITTING": {
+        "labels": [
+          "KTH Mail",
+          "ChatGPT",
+          "GitHub",
+          "Overleaf",
+          "Google Scholar",
+          "Gmail"
+        ],
+        "disabled": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "warning": false
+      },
+      "UNAVAILABLE": {
+        "labels": [
+          "KTH Mail \u00b7 Access unverified",
+          "ChatGPT \u00b7 Access unverified",
+          "GitHub \u00b7 Access unverified",
+          "Overleaf \u00b7 Access unverified",
+          "Google Scholar \u00b7 Access unverified",
+          "Gmail \u00b7 Access unverified"
+        ],
+        "disabled": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "warning": true
+      }
+    },
+    "idle": {
+      "nodes": 0,
+      "attrs": 0,
+      "resources": 0,
+      "samePin": true,
+      "calls": {
+        "GET_VIEW": 5,
+        "PRESENTATION_READ": 5
+      },
+      "costs": {
+        "renderSettings": [
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "renderHome": [
+          5,
+          3,
+          2,
+          2,
+          5
+        ]
+      }
+    },
+    "navigationMs": [
+      23,
+      14,
+      12,
+      11,
+      11,
+      12,
+      13,
+      12,
+      14,
+      13
+    ],
+    "workspaceGeometry": [
+      [
+        [
+          144,
+          279,
+          1200,
+          67
+        ],
+        [
+          1184,
+          991,
+          160,
+          32
+        ],
+        [
+          1003,
+          417,
+          320,
+          312
+        ]
+      ],
+      [
+        [
+          144,
+          279,
+          1200,
+          67
+        ],
+        [
+          1184,
+          991,
+          160,
+          32
+        ],
+        [
+          1003,
+          417,
+          320,
+          312
+        ]
+      ],
+      [
+        [
+          144,
+          279,
+          1200,
+          67
+        ],
+        [
+          1184,
+          991,
+          160,
+          32
+        ],
+        [
+          1003,
+          417,
+          320,
+          312
+        ]
+      ],
+      [
+        [
+          144,
+          279,
+          1200,
+          67
+        ],
+        [
+          1184,
+          991,
+          160,
+          32
+        ],
+        [
+          1003,
+          417,
+          320,
+          312
+        ]
+      ]
+    ],
+    "category": {
+      "cards": 32,
+      "visible": 12,
+      "scrollHeight": 1058,
+      "innerHeight": 1058
+    },
+    "countdown": [
+      {
+        "copy": [
+          144,
+          928,
+          882,
+          43
+        ],
+        "time": [
+          1038,
+          937,
+          160,
+          25
+        ],
+        "action": [
+          1210,
+          930,
+          134,
+          38
+        ],
+        "footer": [
+          1184,
+          991,
+          160,
+          32
+        ]
+      },
+      {
+        "copy": [
+          144,
+          928,
+          882,
+          43
+        ],
+        "time": [
+          1038,
+          937,
+          160,
+          25
+        ],
+        "action": [
+          1210,
+          930,
+          134,
+          38
+        ],
+        "footer": [
+          1184,
+          991,
+          160,
+          32
+        ]
+      },
+      {
+        "copy": [
+          144,
+          928,
+          882,
+          43
+        ],
+        "time": [
+          1038,
+          937,
+          160,
+          25
+        ],
+        "action": [
+          1210,
+          930,
+          134,
+          38
+        ],
+        "footer": [
+          1184,
+          991,
+          160,
+          32
+        ]
+      },
+      {
+        "copy": [
+          144,
+          928,
+          882,
+          43
+        ],
+        "time": [
+          1038,
+          937,
+          160,
+          25
+        ],
+        "action": [
+          1210,
+          930,
+          134,
+          38
+        ],
+        "footer": [
+          1184,
+          991,
+          160,
+          32
+        ]
+      }
+    ],
+    "sizes": [
+      {
+        "width": 1488,
+        "height": 1058,
+        "overflow": 0,
+        "mainOverflow": "auto",
+        "footerBottom": 1023.0999755859375,
+        "documentHeight": 1058
+      },
+      {
+        "width": 1150,
+        "height": 795,
+        "overflow": 0,
+        "mainOverflow": "visible",
+        "footerBottom": 802.4166870117188,
+        "documentHeight": 864
+      },
+      {
+        "width": 1190,
+        "height": 846,
+        "overflow": 0,
+        "mainOverflow": "visible",
+        "footerBottom": 804.2166748046875,
+        "documentHeight": 866
+      },
+      {
+        "width": 992,
+        "height": 705,
+        "overflow": 0,
+        "mainOverflow": "visible",
+        "footerBottom": 1022.433349609375,
+        "documentHeight": 1084
+      },
+      {
+        "width": 744,
+        "height": 529,
+        "overflow": 0,
+        "mainOverflow": "visible",
+        "footerBottom": 1017.5,
+        "documentHeight": 1080
+      },
+      {
+        "width": 600,
+        "height": 765,
+        "overflow": 0,
+        "mainOverflow": "visible",
+        "footerBottom": 1402.5,
+        "documentHeight": 1503
+      }
+    ],
+    "pages": {
+      "sites": [
+        {
+          "at": 18,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 0,
+          "cards": 0,
+          "pinsCount": 0,
+          "page": "sites",
+          "fonts": "loading",
+          "phase": null
+        },
+        {
+          "at": 37,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 0,
+          "cards": 0,
+          "pinsCount": 0,
+          "page": "sites",
+          "fonts": "loading",
+          "phase": "LOADING"
+        },
+        {
+          "at": 73,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 6,
+          "cards": 0,
+          "pinsCount": 6,
+          "page": "sites",
+          "fonts": "loaded",
+          "phase": "READY"
+        }
+      ],
+      "vault": [
+        {
+          "at": 17,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 0,
+          "cards": 0,
+          "pinsCount": 0,
+          "page": "vault",
+          "fonts": "loading",
+          "phase": null
+        },
+        {
+          "at": 34,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 0,
+          "cards": 0,
+          "pinsCount": 0,
+          "page": "vault",
+          "fonts": "loading",
+          "phase": "LOADING"
+        },
+        {
+          "at": 63,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 6,
+          "cards": 0,
+          "pinsCount": 6,
+          "page": "vault",
+          "fonts": "loaded",
+          "phase": "READY"
+        }
+      ],
+      "settings": [
+        {
+          "at": 17,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 0,
+          "cards": 0,
+          "pinsCount": 0,
+          "page": "settings",
+          "fonts": "loading",
+          "phase": null
+        },
+        {
+          "at": 37,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 0,
+          "cards": 0,
+          "pinsCount": 0,
+          "page": "settings",
+          "fonts": "loading",
+          "phase": "LOADING"
+        },
+        {
+          "at": 63,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 6,
+          "cards": 0,
+          "pinsCount": 6,
+          "page": "settings",
+          "fonts": "loaded",
+          "phase": "READY"
+        }
+      ]
+    }
+  },
+  "status": "PASS"
+}

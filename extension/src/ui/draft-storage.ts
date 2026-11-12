@@ -1,9 +1,9 @@
 import { assessDraft, readDestinationDraft, samePolicy, type DestinationDraft } from './destination-draft.js';
-import type { Policy } from '@atlas/core';
+import { evaluate, isWhitelistRemoval, type Policy } from '@atlas/core';
 
 /** Separate from authority and from active presentation. An intent is saved before contacting Core. */
 export interface DestinationReceipt {
-  readonly kind: 'POLICY' | 'DISPLAY'; readonly draft: DestinationDraft; readonly candidatePolicy: Policy;
+  readonly kind: 'POLICY' | 'DISPLAY' | 'REMOVAL'; readonly draft: DestinationDraft; readonly candidatePolicy: Policy;
   readonly expectedProposalId: number; readonly proposalId: number | null;
   readonly baseConfigurationRevision: number;
   readonly phase: 'PREPARED' | 'PROPOSED' | 'APPLYING' | 'DONE' | 'KEPT' | 'RESOLVED';
@@ -30,16 +30,18 @@ export function readDestinationWorkspace(input: unknown): DestinationWorkspace |
     const r = value.receipt;
     if (!r || typeof r !== 'object') return null;
     const d = readDestinationDraft(r.draft);
-    if (!d || d.editor !== null || !d.changes.length || !['POLICY', 'DISPLAY'].includes(r.kind)
+    if (!d || d.editor !== null || !d.changes.length || !['POLICY', 'DISPLAY', 'REMOVAL'].includes(r.kind)
       || !['PREPARED', 'PROPOSED', 'APPLYING', 'DONE', 'KEPT', 'RESOLVED'].includes(r.phase)
       || !Number.isSafeInteger(r.expectedProposalId) || r.expectedProposalId < 1
       || r.proposalId !== null && (!Number.isSafeInteger(r.proposalId) || r.proposalId < 1)
       || !Number.isSafeInteger(r.baseConfigurationRevision) || r.baseConfigurationRevision < 0
       || r.owner !== null && (typeof r.owner !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(r.owner))
-      || !r.candidatePolicy || !Array.isArray(r.candidatePolicy.whitelist) || !Array.isArray(r.candidatePolicy.blacklist)) return null;
+      || !r.candidatePolicy || !Array.isArray(r.candidatePolicy.whitelist) || !Array.isArray(r.candidatePolicy.blacklist)
+      || evaluate('receipt-validation.example', r.candidatePolicy).reason === 'INVALID_POLICY') return null;
     const candidate = assessDraft(d, d.baseline).candidatePolicy;
     if (!candidate || !samePolicy(candidate, r.candidatePolicy)) return null;
     if (r.kind === 'DISPLAY' && !samePolicy(d.baseline.policy, r.candidatePolicy)) return null;
+    if (r.kind === 'REMOVAL' && (r.proposalId !== null || !isWhitelistRemoval(d.baseline.policy, r.candidatePolicy))) return null;
   }
   return structuredClone(value);
 }

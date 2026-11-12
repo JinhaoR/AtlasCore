@@ -1,0 +1,177 @@
+{
+  "version": "0.2.2",
+  "status": "VALIDATED_UNSIGNED_SIGNING_CANDIDATE",
+  "date": "2026-11-03",
+  "identity": "atlas-development@atlas.invalid",
+  "channel": "unlisted",
+  "artifacts": {
+    "atlas-0.2.2-unsigned.zip": {
+      "path": "extension/release/0.2.2/atlas-0.2.2-unsigned.zip",
+      "sha256": "97a1965c1b7fb00dea53be119d943ee73447137120a77cabc8bbc49e422aee52",
+      "bytes": 1571834,
+      "reproducedByteForByte": true
+    },
+    "atlas-0.2.2-source.zip": {
+      "path": "extension/release/0.2.2/atlas-0.2.2-source.zip",
+      "sha256": "051d59f242eea99b41d377e805f5116b8a2a838a6f759c1f9a99596a7c3d6f87",
+      "bytes": 2037265,
+      "reproducedByteForByte": true
+    },
+    "release.json": {
+      "path": "extension/release/0.2.2/release.json",
+      "sha256": "79a16bd1c6bcb939c54f948686fe76c48aa5012ed02cec6b1fc00ad40d44f1e0",
+      "bytes": 29806,
+      "reproducedByteForByte": true
+    }
+  },
+  "review": {
+    "sourceChanges": [
+      "docs/architecture.md",
+      "docs/firefox-private-release.md",
+      "docs/release-candidate-0.2.2.md",
+      "docs/ui-engineering-review.md",
+      "docs/ui-stability.md",
+      "extension/REVIEWER-BUILD.md",
+      "extension/manifest.json",
+      "extension/package-lock.json",
+      "extension/package.json",
+      "extension/scripts/release.mjs",
+      "extension/src/ui/assets/index.html",
+      "extension/src/ui/assets/style.css",
+      "extension/src/ui/destinations.ts",
+      "extension/src/ui/home-organization.ts",
+      "extension/src/ui/main.ts",
+      "extension/src/ui/sites.ts",
+      "extension/tests/ui-performance.test.mjs",
+      "packages/core/src/evaluate.ts",
+      "packages/core/src/index.ts",
+      "packages/core/tests/evaluate-many.test.mjs"
+    ],
+    "productionChanges": [
+      "extension/src/ui/assets/index.html",
+      "extension/src/ui/assets/style.css",
+      "extension/src/ui/destinations.ts",
+      "extension/src/ui/home-organization.ts",
+      "extension/src/ui/main.ts",
+      "extension/src/ui/sites.ts",
+      "packages/core/src/evaluate.ts",
+      "packages/core/src/index.ts"
+    ],
+    "runtimeChanges": [
+      "background.js",
+      "manifest.json",
+      "ui/index.html",
+      "ui/main.js",
+      "ui/style.css"
+    ],
+    "manifestChanges": [
+      "version"
+    ],
+    "priorRelease": "signed 0.2.1",
+    "runtimeFileCount": 23,
+    "sourceFileCount": 232
+  },
+  "checks": {
+    "coreTests": {
+      "passed": 249,
+      "failed": 0
+    },
+    "extensionTests": {
+      "passed": 546,
+      "failed": 0
+    },
+    "typescript": "both packages passed in release builds",
+    "releaseBuild": "PASS",
+    "releaseValidate": "PASS",
+    "developmentBundleMatches": "all allowlisted files identical after removing development source-map comments",
+    "cleanReviewer": {
+      "lockedNpmCi": "PASS",
+      "releaseBuild": "PASS",
+      "releaseValidate": "PASS",
+      "coreTests": 249,
+      "extensionTests": 546,
+      "archiveAndReceiptByteIdentity": true,
+      "testSetupNote": "The optional test:built run first lacked development assets after release-only bundling. Generating the normal development bundle resolved the three missing-file failures; all tests then passed without changing sources."
+    },
+    "runtimeAudit": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "toolchainAudit": {
+      "info": 0,
+      "low": 1,
+      "moderate": 10,
+      "high": 2,
+      "critical": 0,
+      "total": 13
+    },
+    "lint": {
+      "count": 1,
+      "summary": {
+        "errors": 0,
+        "notices": 0,
+        "warnings": 1
+      },
+      "metadata": {
+        "id": "atlas-development@atlas.invalid",
+        "manifestVersion": 2,
+        "name": "Atlas",
+        "type": 1,
+        "version": "0.2.2",
+        "firefoxMinVersion": "140.0",
+        "firefoxStrictMinVersion": 140,
+        "experimentApiPaths": {},
+        "totalScannedFileSize": 925121,
+        "emptyFiles": [],
+        "jsLibs": {},
+        "unknownMinifiedFiles": []
+      },
+      "errors": [],
+      "notices": [],
+      "warnings": [
+        {
+          "_type": "warning",
+          "code": "KEY_FIREFOX_ANDROID_UNSUPPORTED_BY_MIN_VERSION",
+          "message": "Manifest key not supported by the specified minimum Firefox for Android version",
+          "description": "\"strict_min_version\" requires Firefox for Android 140, which was released before version 142 introduced support for \"browser_specific_settings.gecko.data_collection_permissions\".",
+          "file": "manifest.json"
+        }
+      ]
+    },
+    "runtimeAllowlistFiles": 23,
+    "reviewerSourceFiles": 232,
+    "runtimeExcludes": "test instrumentation, maps, native harnesses, module tree, profiles and credentials; intentional bounded production diagnostics retained",
+    "priorReleaseFilesVerifiedUnchanged": 190
+  },
+  "native": {
+    "firefox": "159.0.1",
+    "platform": "Windows",
+    "upgradeRollback": "firefox-release-0.2.2/upgrade-rollback.json",
+    "stagedUi": "firefox-release-0.2.2/staged-ui.json",
+    "scope": "isolated synthetic profiles; signed 0.2.1 upgrade, temporary 0.2.2 overlay and rollback; no everyday profile access",
+    "stagedUiSummary": "startup/restart, thirty categories, narrow windows, 125/150/200% zoom, scrolling, keyboard focus, modal save failure/retry and offline icon fallback"
+  },
+  "performanceEvidence": "ui-engineering-review.md and evidence/ui-engineering-review: repeated before/after development measurements; current staged timing is verification only, not a new comparative claim",
+  "limitations": [
+    "Historical intermittent INTERNAL_ERROR remains unresolved.",
+    "Cold-install readiness is variable.",
+    "New documents can briefly display fallback icons while cached bytes resolve.",
+    "Windows synthetic checks do not certify all platforms, physical trackpads, screen readers or every website.",
+    "Mozilla signed stable installation and live deployment are separate future steps."
+  ],
+  "operationsNotPerformed": [
+    "Mozilla submission",
+    "signing",
+    "deployment",
+    "enterprise policy changes",
+    "everyday Firefox profile access",
+    "git commit",
+    "git push"
+  ],
+  "signingCommand": "npm.cmd --prefix extension run release:sign",
+  "signedOutput": "extension/release/0.2.2/signed/*.xpi"
+}

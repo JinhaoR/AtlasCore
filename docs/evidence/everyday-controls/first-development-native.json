@@ -1,0 +1,30 @@
+{
+  "baseline": false,
+  "firefox": "159.0.1",
+  "navigationMs": [
+    24,
+    14,
+    14,
+    16,
+    16,
+    13,
+    14,
+    14,
+    14,
+    16,
+    13,
+    12,
+    15,
+    16,
+    12
+  ],
+  "idle": {
+    "replacedNodes": 0,
+    "attributes": 0,
+    "additionalResources": 0,
+    "pinIdentity": true,
+    "viewRequests": 5,
+    "maxConcurrentViews": 1
+  },
+  "status": "PASS"
+}

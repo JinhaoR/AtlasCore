@@ -1,0 +1,32 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.2.4",
+  "firefox": "159.0.1",
+  "navigationMs": [
+    21,
+    13,
+    11,
+    12,
+    11,
+    12,
+    13,
+    14,
+    11,
+    11,
+    13,
+    12,
+    12,
+    13,
+    14
+  ],
+  "idle": {
+    "replacedNodes": 0,
+    "attributes": 0,
+    "additionalResources": 0,
+    "pinIdentity": true,
+    "viewRequests": 5,
+    "presentationRequests": 5,
+    "maxConcurrentViews": 1
+  },
+  "status": "PASS"
+}

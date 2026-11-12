@@ -1,0 +1,9116 @@
+{
+  "firefox": "159.0.1",
+  "suite": "startup-layout",
+  "baseline": true,
+  "startup": {
+    "initial": {
+      "started": 676,
+      "mode": "slow",
+      "requests": [],
+      "messages": [
+        {
+          "kind": "GET_VIEW",
+          "start": 727,
+          "end": 732,
+          "controller": null,
+          "startup": "LOADING"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 781,
+          "end": 783,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 786,
+          "end": 788,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 791,
+          "end": 794,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "PROPOSE_POLICY",
+          "start": 797,
+          "end": 807,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 810,
+          "end": 812,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "CONFIRM_POLICY",
+          "start": 815,
+          "end": 831,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 1731,
+          "end": 1736,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "REVIEW_POLICY",
+          "start": 1736,
+          "end": 1892,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 2985,
+          "end": 2989,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 3991,
+          "end": 4001,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 5003,
+          "end": 5006,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 6008,
+          "end": 6013,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 7015,
+          "end": 7026,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 8028,
+          "end": 8040,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 9044,
+          "end": 9052,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 10054,
+          "end": 10057,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 11059,
+          "end": 11065,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 12067,
+          "end": 12080,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 13082,
+          "end": 13086,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 14088,
+          "end": 14098,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 15099,
+          "end": 15103,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 16105,
+          "end": 16109,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 17112,
+          "end": 17115,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 18117,
+          "end": 18120,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 19122,
+          "end": 19127,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 20130,
+          "end": 20136,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 21139,
+          "end": 21142,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 22145,
+          "end": 22148,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 23150,
+          "end": 23156,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 24158,
+          "end": 24161,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 25162,
+          "end": 25166,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 26169,
+          "end": 26173,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 27174,
+          "end": 27178,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 28179,
+          "end": 28183,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 29185,
+          "end": 29190,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 30192,
+          "end": 30195,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "CONFIRM_POLICY",
+          "start": 30830,
+          "end": 30847,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 30851,
+          "end": 30853,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 30855,
+          "end": 30857,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 30860,
+          "end": 30862,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 30864,
+          "end": 30868,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 30870,
+          "end": 30873,
+          "controller": "READY",
+          "startup": "READY"
+        }
+      ],
+      "frames": [
+        {
+          "at": 727,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 730,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 780,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 831,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 881,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 930,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 982,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1031,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1081,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1132,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1183,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1233,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1283,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1334,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1384,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1434,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1484,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1534,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1585,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1636,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1686,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1735,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 1891,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2540,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2590,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2641,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2691,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2741,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2791,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2842,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2892,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2942,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 2993,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3043,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3094,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3144,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3193,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3244,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3294,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3345,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3395,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3446,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3496,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3546,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3597,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3647,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3697,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3747,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3798,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3848,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3898,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 3949,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4000,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4051,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4101,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4152,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4202,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4252,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4302,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4354,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4404,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4454,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4505,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4558,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4609,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4659,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        },
+        {
+          "at": 4678,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 122,
+          "icons": 0,
+          "body": 1015,
+          "nav": [
+            0,
+            0,
+            1280,
+            83
+          ],
+          "hero": 770.5999755859375,
+          "pins": [
+            564,
+            175,
+            668,
+            771
+          ],
+          "category": null
+        }
+      ],
+      "assignments": 122,
+      "readyAt": 2540,
+      "cardsAt": 2540,
+      "fontsAt": 731,
+      "profile": [
+        {
+          "part": "settings",
+          "at": 726,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 726,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 726,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 732,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 732,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 732,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 748,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 748,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 748,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 748,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 748,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 748,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 749,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 749,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 749,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 1892,
+          "ms": 2
+        },
+        {
+          "part": "sites",
+          "at": 1894,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 1894,
+          "ms": 90
+        },
+        {
+          "part": "settings",
+          "at": 1984,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 1984,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 1984,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 2555,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 2555,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 2555,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 2563,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 2564,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 2564,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 2564,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 2565,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 2565,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 2989,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 2989,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 2989,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 4001,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 4001,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 4001,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 5006,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 5006,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 5006,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 6013,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 6014,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 6014,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 7026,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 7027,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 7027,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 8040,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 8041,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 8041,
+          "ms": 3
+        },
+        {
+          "part": "settings",
+          "at": 9052,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 9053,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 9053,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 10058,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 10058,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 10058,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 11065,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 11066,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 11066,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 12080,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 12080,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 12080,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 13086,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 13086,
+          "ms": 1
+        },
+        {
+          "part": "home",
+          "at": 13087,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 14098,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 14098,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 14098,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 15103,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 15103,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 15103,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 16109,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 16109,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 16109,
+          "ms": 2
+        },
+        {
+          "part": "settings",
+          "at": 17116,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 17116,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 17116,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 18120,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 18121,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 18121,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 19127,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 19127,
+          "ms": 1
+        },
+        {
+          "part": "home",
+          "at": 19128,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 20137,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 20137,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 20137,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 21142,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 21142,
+          "ms": 1
+        },
+        {
+          "part": "home",
+          "at": 21143,
+          "ms": 2
+        },
+        {
+          "part": "settings",
+          "at": 22148,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 22148,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 22148,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 23156,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 23156,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 23156,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 24161,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 24161,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 24161,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 25167,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 25167,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 25167,
+          "ms": 2
+        },
+        {
+          "part": "settings",
+          "at": 26173,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 26173,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 26173,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 27178,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 27178,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 27178,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 28183,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 28183,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 28183,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 29190,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 29190,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 29190,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 30195,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 30195,
+          "ms": 1
+        },
+        {
+          "part": "home",
+          "at": 30196,
+          "ms": 1
+        }
+      ],
+      "domAt": 727
+    },
+    "fresh": {
+      "started": 34,
+      "mode": "slow",
+      "requests": [
+        {
+          "hostname": "mail.google.com",
+          "image": false,
+          "at": 171,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "webmail.kth.se",
+          "image": false,
+          "at": 171,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "chatgpt.com",
+          "image": false,
+          "at": 171,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "github.com",
+          "image": false,
+          "at": 171,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "arxiv.org",
+          "image": false,
+          "at": 171,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "overleaf.com",
+          "image": false,
+          "at": 171,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "mail.google.com",
+          "image": true,
+          "at": 622,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "webmail.kth.se",
+          "image": true,
+          "at": 623,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "chatgpt.com",
+          "image": true,
+          "at": 623,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "github.com",
+          "image": true,
+          "at": 623,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "arxiv.org",
+          "image": true,
+          "at": 623,
+          "credentials": "omit"
+        },
+        {
+          "hostname": "overleaf.com",
+          "image": true,
+          "at": 623,
+          "credentials": "omit"
+        }
+      ],
+      "messages": [
+        {
+          "kind": "GET_VIEW",
+          "start": 60,
+          "end": 64,
+          "controller": "LOADING",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 257,
+          "end": 260,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 1265,
+          "end": 1267,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 2269,
+          "end": 2273,
+          "controller": "READY",
+          "startup": "READY"
+        }
+      ],
+      "frames": [
+        {
+          "at": 60,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 162,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [],
+          "cards": 6,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 212,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [],
+          "cards": 6,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 265,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 315,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 365,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 415,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 466,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 516,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 566,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 616,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 667,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 717,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 767,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 818,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 868,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 919,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 969,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1018,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1069,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1119,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1169,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1220,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1270,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1321,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1371,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1421,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1471,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1521,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1572,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1622,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1673,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1723,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1773,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1824,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1874,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1924,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1974,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2025,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2076,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2125,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2176,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2226,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2276,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2327,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2376,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2427,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2478,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2528,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2578,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2628,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2679,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2729,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2780,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2830,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        }
+      ],
+      "assignments": 135,
+      "readyAt": 162,
+      "cardsAt": 162,
+      "fontsAt": 64,
+      "profile": [
+        {
+          "part": "settings",
+          "at": 59,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 59,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 59,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 65,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 65,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 65,
+          "ms": 92
+        },
+        {
+          "part": "settings",
+          "at": 161,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 161,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 161,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 164,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 164,
+          "ms": 1
+        },
+        {
+          "part": "home",
+          "at": 165,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 165,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 165,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 165,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 260,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 260,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 260,
+          "ms": 4
+        },
+        {
+          "part": "settings",
+          "at": 264,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 264,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 264,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 265,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 265,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 265,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 266,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 266,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 266,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 268,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 268,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 268,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 1267,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 1268,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 1268,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 2274,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 2274,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 2274,
+          "ms": 2
+        }
+      ],
+      "domAt": 60,
+      "shots": [
+        {
+          "at": 165,
+          "file": "fresh-0.png"
+        },
+        {
+          "at": 305,
+          "file": "fresh-0.15.png"
+        },
+        {
+          "at": 604,
+          "file": "fresh-0.45.png"
+        },
+        {
+          "at": 1356,
+          "file": "fresh-1.2.png"
+        },
+        {
+          "at": 2858,
+          "file": "fresh-2.7.png"
+        }
+      ]
+    },
+    "reopened": {
+      "started": 11,
+      "mode": "slow",
+      "requests": [],
+      "messages": [
+        {
+          "kind": "GET_VIEW",
+          "start": 35,
+          "end": 40,
+          "controller": "LOADING",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 239,
+          "end": 241,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 1245,
+          "end": 1249,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 2250,
+          "end": 2258,
+          "controller": "READY",
+          "startup": "READY"
+        }
+      ],
+      "frames": [
+        {
+          "at": 36,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 144,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [],
+          "cards": 6,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 194,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [],
+          "cards": 6,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 247,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 297,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 347,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 397,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 448,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 498,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 548,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 598,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 649,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 699,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 749,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 799,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 849,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 900,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 949,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1000,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1051,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1101,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1151,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1202,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1251,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1302,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1352,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1402,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1453,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1503,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1553,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1603,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1653,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1704,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1755,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1804,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1855,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1905,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1955,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2006,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2056,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2106,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2156,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2207,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2257,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2308,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2359,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2409,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2459,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2509,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2559,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2610,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2660,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2710,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2760,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2811,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        }
+      ],
+      "assignments": 135,
+      "readyAt": 144,
+      "cardsAt": 144,
+      "fontsAt": 39,
+      "profile": [
+        {
+          "part": "settings",
+          "at": 34,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 34,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 34,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 40,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 40,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 40,
+          "ms": 99
+        },
+        {
+          "part": "settings",
+          "at": 143,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 143,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 143,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 145,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 145,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 145,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 146,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 146,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 146,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 241,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 241,
+          "ms": 1
+        },
+        {
+          "part": "home",
+          "at": 242,
+          "ms": 2
+        },
+        {
+          "part": "settings",
+          "at": 244,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 244,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 244,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 247,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 247,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 247,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 1249,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 1249,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 1249,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 2258,
+          "ms": 1
+        },
+        {
+          "part": "sites",
+          "at": 2259,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 2259,
+          "ms": 1
+        }
+      ],
+      "domAt": 36,
+      "shots": [
+        {
+          "at": 148,
+          "file": "reopened-0.png"
+        },
+        {
+          "at": 289,
+          "file": "reopened-0.15.png"
+        },
+        {
+          "at": 586,
+          "file": "reopened-0.45.png"
+        },
+        {
+          "at": 1339,
+          "file": "reopened-1.2.png"
+        },
+        {
+          "at": 2840,
+          "file": "reopened-2.7.png"
+        }
+      ]
+    },
+    "restart": {
+      "started": 507,
+      "mode": "slow",
+      "requests": [],
+      "messages": [
+        {
+          "kind": "GET_VIEW",
+          "start": 548,
+          "end": 557,
+          "controller": "COMMITTING",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 727,
+          "end": 730,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 1749,
+          "end": 1755,
+          "controller": "READY",
+          "startup": "READY"
+        },
+        {
+          "kind": "GET_VIEW",
+          "start": 2757,
+          "end": 2763,
+          "controller": "READY",
+          "startup": "READY"
+        }
+      ],
+      "frames": [
+        {
+          "at": 549,
+          "ready": "false",
+          "phase": "LOADING",
+          "recoveryBanner": true,
+          "categoryLabels": [],
+          "cards": 0,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 631,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [],
+          "cards": 6,
+          "icons": 0,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 681,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [],
+          "cards": 6,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 749,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 800,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 850,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 900,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 950,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1000,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1051,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1101,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1151,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1201,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1252,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1302,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1352,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1402,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1453,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1503,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1553,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1604,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1654,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1705,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1757,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1807,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1857,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1908,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 1959,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2009,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2059,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2110,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2160,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2210,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2260,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2311,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2362,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2412,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2462,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2512,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2562,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2612,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2662,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2713,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2765,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2815,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2866,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2916,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 2966,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 3017,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 3068,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 3118,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 3168,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 3218,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 3268,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        },
+        {
+          "at": 3319,
+          "ready": "true",
+          "phase": "READY",
+          "recoveryBanner": false,
+          "categoryLabels": [
+            "University",
+            "Scholar / Research",
+            "Writing",
+            "Development",
+            "Mail",
+            "AI"
+          ],
+          "cards": 129,
+          "icons": 6,
+          "body": 992,
+          "nav": [
+            0,
+            0,
+            1586,
+            83
+          ],
+          "hero": 747.5999755859375,
+          "pins": [
+            696,
+            175,
+            842,
+            748
+          ],
+          "category": null
+        }
+      ],
+      "assignments": 135,
+      "readyAt": 631,
+      "cardsAt": 631,
+      "fontsAt": 555,
+      "profile": [
+        {
+          "part": "settings",
+          "at": 547,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 547,
+          "ms": 1
+        },
+        {
+          "part": "home",
+          "at": 548,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 553,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 553,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 553,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 557,
+          "ms": 2
+        },
+        {
+          "part": "sites",
+          "at": 559,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 559,
+          "ms": 68
+        },
+        {
+          "part": "settings",
+          "at": 629,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 629,
+          "ms": 1
+        },
+        {
+          "part": "home",
+          "at": 630,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 630,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 630,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 630,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 730,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 730,
+          "ms": 1
+        },
+        {
+          "part": "home",
+          "at": 731,
+          "ms": 17
+        },
+        {
+          "part": "settings",
+          "at": 748,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 748,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 748,
+          "ms": 0
+        },
+        {
+          "part": "settings",
+          "at": 750,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 750,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 750,
+          "ms": 1
+        },
+        {
+          "part": "settings",
+          "at": 1755,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 1755,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 1755,
+          "ms": 2
+        },
+        {
+          "part": "settings",
+          "at": 2763,
+          "ms": 0
+        },
+        {
+          "part": "sites",
+          "at": 2763,
+          "ms": 0
+        },
+        {
+          "part": "home",
+          "at": 2763,
+          "ms": 1
+        }
+      ],
+      "domAt": 549,
+      "shots": [
+        {
+          "at": 633,
+          "file": "restart-0.png"
+        },
+        {
+          "at": 775,
+          "file": "restart-0.15.png"
+        },
+        {
+          "at": 1073,
+          "file": "restart-0.45.png"
+        },
+        {
+          "at": 1824,
+          "file": "restart-1.2.png"
+        },
+        {
+          "at": 3326,
+          "file": "restart-2.7.png"
+        }
+      ]
+    }
+  },
+  "rendering": {
+    "cases": {
+      "show-sites": [
+        {
+          "functions": {
+            "render": {
+              "calls": 2,
+              "ms": 96,
+              "maxMs": 96
+            },
+            "renderSettings": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "evaluate": {
+              "calls": 297,
+              "ms": 72,
+              "maxMs": 2
+            },
+            "policyDestinationIndex": {
+              "calls": 1,
+              "ms": 1,
+              "maxMs": 1
+            },
+            "renderFrozenReview": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderHome": {
+              "calls": 1,
+              "ms": 1,
+              "maxMs": 1
+            }
+          },
+          "messages": {},
+          "transactions": {},
+          "mutations": 271,
+          "creates": 757,
+          "replacements": {
+            "site-categories": 1
+          },
+          "activeTimers": 17,
+          "maxTimers": 17,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1,
+          "roundTripMs": 125.0
+        }
+      ],
+      "show-home": [
+        {
+          "functions": {
+            "render": {
+              "calls": 2,
+              "ms": 1,
+              "maxMs": 1
+            },
+            "renderSettings": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderFrozenReview": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderHome": {
+              "calls": 1,
+              "ms": 1,
+              "maxMs": 1
+            }
+          },
+          "messages": {},
+          "transactions": {},
+          "mutations": 12,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 17,
+          "maxTimers": 17,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1,
+          "roundTripMs": 0.0
+        },
+        {
+          "functions": {
+            "render": {
+              "calls": 2,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderSettings": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderFrozenReview": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderHome": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            }
+          },
+          "messages": {},
+          "transactions": {},
+          "mutations": 12,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 17,
+          "maxTimers": 17,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1,
+          "roundTripMs": 16.0
+        },
+        {
+          "functions": {
+            "render": {
+              "calls": 2,
+              "ms": 1,
+              "maxMs": 1
+            },
+            "renderSettings": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderFrozenReview": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderHome": {
+              "calls": 1,
+              "ms": 1,
+              "maxMs": 1
+            }
+          },
+          "messages": {},
+          "transactions": {},
+          "mutations": 13,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 17,
+          "maxTimers": 17,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1,
+          "roundTripMs": 16.0
+        }
+      ],
+      "show-settings": [
+        {
+          "functions": {
+            "render": {
+              "calls": 2,
+              "ms": 1,
+              "maxMs": 1
+            },
+            "renderSettings": {
+              "calls": 1,
+              "ms": 1,
+              "maxMs": 1
+            },
+            "renderFrozenReview": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderHome": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            }
+          },
+          "messages": {},
+          "transactions": {},
+          "mutations": 12,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 17,
+          "maxTimers": 17,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1,
+          "roundTripMs": 15.0
+        }
+      ],
+      "show-vault": [
+        {
+          "functions": {
+            "render": {
+              "calls": 2,
+              "ms": 1,
+              "maxMs": 1
+            },
+            "renderSettings": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderFrozenReview": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderBatch": {
+              "calls": 1,
+              "ms": 0,
+              "maxMs": 0
+            },
+            "renderHome": {
+              "calls": 1,
+              "ms": 1,
+              "maxMs": 1
+            }
+          },
+          "messages": {},
+          "transactions": {},
+          "mutations": 13,
+          "creates": 0,
+          "replacements": {},
+          "activeTimers": 17,
+          "maxTimers": 17,
+          "activeGlobalListeners": 9,
+          "tabsListeners": 1,
+          "roundTripMs": 0.0
+        }
+      ]
+    },
+    "rows": {
+      "count": 124,
+      "viewport": [
+        1586,
+        992
+      ],
+      "rows": [
+        {
+          "height": 40,
+          "scroll": 61,
+          "overflow": true,
+          "tracks": "24.7px 21.7px"
+        },
+        {
+          "height": 40,
+          "scroll": 61,
+          "overflow": true,
+          "tracks": "24.7px 21.7px"
+        },
+        {
+          "height": 40,
+          "scroll": 61,
+          "overflow": true,
+          "tracks": "24.7px 21.7px"
+        },
+        {
+          "height": 40,
+          "scroll": 61,
+          "overflow": true,
+          "tracks": "24.7px 21.7px"
+        },
+        {
+          "height": 40,
+          "scroll": 61,
+          "overflow": true,
+          "tracks": "24.7px 21.7px"
+        },
+        {
+          "height": 40,
+          "scroll": 61,
+          "overflow": true,
+          "tracks": "24.7px 21.7px"
+        },
+        {
+          "height": 40,
+          "scroll": 61,
+          "overflow": true,
+          "tracks": "24.7px 21.7px"
+        },
+        {
+          "height": 40,
+          "scroll": 61,
+          "overflow": true,
+          "tracks": "24.7px 21.7px"
+        }
+      ]
+    },
+    "filter": {
+      "functions": {
+        "evaluate": {
+          "calls": 48,
+          "ms": 13,
+          "maxMs": 1
+        },
+        "renderFrozenReview": {
+          "calls": 1,
+          "ms": 0,
+          "maxMs": 0
+        },
+        "renderBatch": {
+          "calls": 1,
+          "ms": 0,
+          "maxMs": 0
+        }
+      },
+      "messages": {},
+      "transactions": {},
+      "mutations": 91,
+      "creates": 0,
+      "replacements": {},
+      "activeTimers": 29,
+      "maxTimers": 29,
+      "activeGlobalListeners": 9,
+      "tabsListeners": 1,
+      "roundTripMs": 15.0
+    },
+    "customize": {
+      "functions": {},
+      "messages": {},
+      "transactions": {},
+      "mutations": 3,
+      "creates": 0,
+      "replacements": {},
+      "activeTimers": 29,
+      "maxTimers": 29,
+      "activeGlobalListeners": 9,
+      "tabsListeners": 1,
+      "roundTripMs": 0.0
+    },
+    "category": {
+      "functions": {
+        "render": {
+          "calls": 2,
+          "ms": 1,
+          "maxMs": 1
+        },
+        "renderSettings": {
+          "calls": 1,
+          "ms": 0,
+          "maxMs": 0
+        },
+        "renderFrozenReview": {
+          "calls": 1,
+          "ms": 0,
+          "maxMs": 0
+        },
+        "renderBatch": {
+          "calls": 1,
+          "ms": 0,
+          "maxMs": 0
+        },
+        "renderHome": {
+          "calls": 1,
+          "ms": 1,
+          "maxMs": 1
+        }
+      },
+      "messages": {},
+      "transactions": {},
+      "mutations": 22,
+      "creates": 0,
+      "replacements": {},
+      "activeTimers": 53,
+      "maxTimers": 53,
+      "activeGlobalListeners": 9,
+      "tabsListeners": 1,
+      "roundTripMs": 16.0
+    },
+    "repeatedNavigation": {
+      "functions": {
+        "render": {
+          "calls": 40,
+          "ms": 19,
+          "maxMs": 2
+        },
+        "renderSettings": {
+          "calls": 20,
+          "ms": 2,
+          "maxMs": 1
+        },
+        "renderFrozenReview": {
+          "calls": 20,
+          "ms": 0,
+          "maxMs": 0
+        },
+        "renderBatch": {
+          "calls": 20,
+          "ms": 0,
+          "maxMs": 0
+        },
+        "renderHome": {
+          "calls": 20,
+          "ms": 12,
+          "maxMs": 2
+        }
+      },
+      "messages": {
+        "GET_VIEW": 1
+      },
+      "transactions": {},
+      "mutations": 240,
+      "creates": 0,
+      "replacements": {},
+      "activeTimers": 52,
+      "maxTimers": 53,
+      "activeGlobalListeners": 9,
+      "tabsListeners": 1,
+      "roundTripMs": 109.0
+    },
+    "iconsRetained": true
+  },
+  "revisit": {
+    "beforeNewViews": 26,
+    "afterFirstVisit": 52,
+    "afterRepeat": 52,
+    "firstVisitAssignments": 289,
+    "repeatAssignments": 289,
+    "sameIconNodes": true
+  },
+  "crowded": {
+    "viewport": [
+      1586,
+      992
+    ],
+    "document": 992,
+    "main": {
+      "x": 0,
+      "y": 83.39999389648438,
+      "w": 1586,
+      "h": 908.5999755859375,
+      "client": 909,
+      "scroll": 909,
+      "top": 0,
+      "overflow": "auto"
+    },
+    "left": {
+      "y": 250.6999969482422
+    },
+    "categories": {
+      "x": 696.3333129882812,
+      "y": 290.3999938964844,
+      "w": 841.6666870117188,
+      "h": 632.5999755859375,
+      "client": 633,
+      "scroll": 10572,
+      "top": 0,
+      "overflow": "auto"
+    },
+    "toolbar": {
+      "y": 175.39999389648438
+    },
+    "pins": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0,
+      "client": 0,
+      "scroll": 0,
+      "top": 0,
+      "overflow": "visible"
+    }
+  },
+  "customization": {
+    "tag": "DIALOG",
+    "open": true,
+    "modal": true,
+    "top": 116,
+    "bottom": 876,
+    "height": 760,
+    "viewport": 992,
+    "focus": "home-customization-title"
+  },
+  "interactions": {},
+  "policyUnchanged": true,
+  "normalProfileAccessed": false,
+  "controlledIcons": "450ms credential-free homepage and image responses, no-store; no real website credentials or live URLs logged"
+}

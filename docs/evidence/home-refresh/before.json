@@ -1,0 +1,37 @@
+{
+  "baseline": false,
+  "firefox": "159.0.1",
+  "reloads": [
+    {
+      "readyAt": 160,
+      "count": 6,
+      "status": true,
+      "placeholder": "none"
+    },
+    {
+      "readyAt": 158,
+      "count": 6,
+      "status": true,
+      "placeholder": "none"
+    },
+    {
+      "readyAt": 169,
+      "count": 6,
+      "status": true,
+      "placeholder": "none"
+    },
+    {
+      "readyAt": 160,
+      "count": 6,
+      "status": true,
+      "placeholder": "none"
+    },
+    {
+      "readyAt": 165,
+      "count": 6,
+      "status": true,
+      "placeholder": "none"
+    }
+  ],
+  "status": "PASS"
+}

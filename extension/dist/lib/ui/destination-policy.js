@@ -31,6 +31,8 @@ export function destinationPolicyCandidate(policy, previousHosts, nextHosts, acc
     const removed = new Set([...previousHosts, ...nextHosts]);
     const whitelist = policy.whitelist.filter(host => !removed.has(host));
     const blacklist = policy.blacklist.filter(host => !removed.has(host));
+    const scopes = policy.whitelistSubdomains?.filter(host => !removed.has(host) || access === 'WHITELIST' && nextHosts.includes(host));
     return { whitelist: access === 'WHITELIST' ? [...whitelist, ...nextHosts] : whitelist,
-        blacklist: access === 'BLACKLIST' ? [...blacklist, ...nextHosts] : blacklist };
+        blacklist: access === 'BLACKLIST' ? [...blacklist, ...nextHosts] : blacklist,
+        ...(scopes !== undefined ? { whitelistSubdomains: [...scopes] } : {}) };
 }

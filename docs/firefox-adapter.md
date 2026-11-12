@@ -1,5 +1,24 @@
 # First Firefox adapter (D15)
 
+Current development adds `END_ACCESS` to the privileged control-page commands,
+backed by Core's explicit grant removal transition. After acknowledged commit the
+adapter rechecks open documents and invalidates released grant-backed requests,
+including new tabs still reporting about:blank. It uses the request generation
+fence and normal document-removal path. The popup remains read-only and website
+messages cannot issue this operation. Other authority, deadlines and policy stay
+unchanged; see [architecture](architecture.md#early-termination-of-temporary-access-development).
+
+The approved [Home/new-tab integration](firefox-home-newtab-poc.md) adds supported
+manifest overrides to the 0.2.1 candidate. Existing Home launchers,
+sender validation and Core gating remain unchanged; browser startup/session
+restore settings remain Firefox-owned.
+
+The [0.1.18 curated upgrade](curated-expansion.md) is a fixed, source-approved
+one-time policy union in the repository before controller construction. Its
+receipt commits with the new policy; existing custom entries/settings survive.
+No privileged UI migration command or authorization model is added. Core retains
+all runtime policy, cooldown, confirmation, revision and Journey decisions.
+
 Architecture recorded before implementation on 2026-09-30. This is a development WebExtension for ordinary top-level HTTP(S) navigation. AtlasCore remains the decision engine. Electron, Context Whitelist, provider databases, authentication handling, and resource filtering remain excluded.
 
 Development toward **0.1.15** adds the separate [Download Intent boundary](firefox-downloads.md).
@@ -69,7 +88,9 @@ Repository unit tests use IndexedDB emulation; native Firefox tests exercise the
 
 The [storage reliability fix](firefox-storage-reliability.md) separates ordinary
 readonly loads from strict atomic migration, records safe local failure causes
-and permits one verified recovery attempt after a proven transient aborted write.
+and permits one verified recovery attempt after a proven transient aborted read
+or write. The 0.1.18 follow-up retains one historical controller interruption
+across Recovery, including non-storage causes; this record grants no permission.
 It calls the same Core owner without replaying confirmations. Persistent, quota,
 corrupt and unknown outcomes retain conservative recovery boundaries.
 
@@ -91,6 +112,33 @@ Authorized on 2026-09-30: improve the Firefox interface, browsing flow, diagnost
 - Real-site checks use fresh isolated profiles and public sign-in entry points. Stop before submitting account identifiers, credentials, consent grants, or account-changing actions. Report public-page/redirect evidence separately from authenticated success. Live checks retain only sanitized diagnostic summaries; discard their browser profiles and suppress raw browser logs. Provider-specific selectors belong only in optional investigation scripts, never in the adapter.
 
 New evidence and any concrete event-handling fixes are recorded with the prototype tests and the real-site report. No account compatibility claim follows from a sign-in form merely appearing.
+
+### Failed browser navigation (development after signed 0.2.6)
+
+A selected context with `NAVIGATION_FAILED` or `NAVIGATION_DID_NOT_START` is a
+browser-effect failure, not an absent tab or a new access decision. The access
+page displays that failure and offers **Try site home again**, using the existing
+`OPEN_HOME` command for the same context. It opens only the retained origin's
+home; it never replays a POST, private path, query or a previous ALLOW. The normal
+blocking gate makes a fresh Core assessment. Unavailable authority disables the
+action; missing contexts cannot fall back to another tab, and outstanding/failed
+document removal does not offer this retry.
+
+No automatic retry, confirmation, grant renewal or scope expansion is introduced.
+A saved grant can still authorize the retry within its original lifetime. An apex
+and `www` host remain distinct unless already included in an explicitly approved
+scope. A late rejected browser effect cannot replace a newer navigation generation.
+Failed launch promises and launch watchdogs now emit the existing bounded `FAILED`
+diagnostic with closed reason codes; raw Firefox exceptions and full URLs remain
+excluded. A selected context still awaiting assessment gets checking copy rather
+than the no-selection prompt.
+
+The reported YouTube case had active temporary access. Its navigation-zero failure
+is consistent with `tabs.update` rejecting before Atlas's request gate saw a new
+request. The exact Firefox rejection cause was not captured and remains unknown.
+Controlled rejection tests reproduce the UI dead end and verify its recovery;
+they do not establish the original browser cause. See
+[verification evidence](evidence/navigation-failure/README.md).
 
 `GET_VIEW` and `GET_DIAGNOSTICS` are read-only private-UI messages and do not join the mutating queue. The former exposes the last verified snapshot, including a COMMITTING or RECONCILING status when applicable. UI can queue explicit intents from the last verified snapshot during transient LOADING/COMMITTING housekeeping; initial loading, failures and uncertainty remain disabled. This never executes a cached permission: the current controller must validate and commit every operation. `CLEAR_DIAGNOSTICS` clears only memory. Redirect diagnostics use informational `onBeforeRedirect`; the following target still needs its own blocking Core check. [Firefox redirect event](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/onBeforeRedirect).
 

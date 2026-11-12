@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compileManagedBlacklist } from '@atlas/core';
-import { temporaryAccessView } from '../dist/lib/adapter/temporary-access.js';
+import { compileManagedBlacklist, planAtlasOperation } from '@atlas/core';
+import { accessOverview } from '../dist/lib/adapter/temporary-access.js';
+const temporaryAccessView = (...args) => accessOverview(...args).temporaryAccess;
 import { fixture, deferred } from './support/fixture.mjs';
 
 async function confirm(controller, clock, hostname, scopeHostnames = [hostname]) {
@@ -105,4 +106,47 @@ test('verified saved grants remain visible during housekeeping without exposing 
   for (const status of ['LOADING', 'COMMITTING']) {
     assert.deepEqual(temporaryAccessView({ ...controller.getView(), status }, clock.time), verified);
   }
+});
+
+test('history-heavy overview agrees with individual Core decisions without changing records or deadlines', async t => {
+  const { controller, clock } = await fixture(t);
+  await confirm(controller, clock, 'active.example', ['active.example', 'denied.example']);
+  await controller.handle({ kind: 'START_ACCESS', target: { hostname: 'waiting.example' } });
+  const view = structuredClone(controller.getView()), snapshot = view.snapshot;
+  for (let i = 0; i < 100; i++) snapshot.accessState.grants.push({
+    requestId: snapshot.accessState.nextRequestId++, hostname: `expired-${i}.example`,
+    issuedAt: 1, expiresAt: 2, policyRevision: 0,
+  });
+  const before = structuredClone(view), managed = compileManagedBlacklist(['denied.example']);
+  for (const now of [clock.time, clock.time + 10, clock.time + 60, clock.time + 100]) {
+    const input = { snapshot, now, configuration: snapshot.configuration, managedBlacklist: managed };
+    const decide = hostname => planAtlasOperation({ kind: 'CHECK_NAVIGATION', target: { hostname },
+      context: { contextId: 'reference', journeyId: null } }, input).result;
+    const temporaryAccess = snapshot.accessState.grants.flatMap(g => {
+      const hostnames = (g.scopeHostnames ?? [g.hostname]).filter(h => {
+        const r = decide(h); return r.type === 'ASSESSMENT' && r.decision.reason === 'ACTIVE_GRANT' && r.decision.requestId === g.requestId;
+      });
+      return hostnames.length ? [{ requestId: g.requestId, hostnames, expiresAt: g.expiresAt }] : [];
+    }).sort((a,b) => a.expiresAt-b.expiresAt || a.requestId-b.requestId);
+    const pendingAccess = snapshot.accessState.pendingRequests.flatMap(p => {
+      const r = decide(p.hostname);
+      return r.type === 'ASSESSMENT' && ['WAIT', 'REQUIRE_CONFIRMATION'].includes(r.decision.outcome)
+        ? [{ requestId: p.id, hostnames: p.scopeHostnames ?? [p.hostname], readyAt: p.readyAt, confirmBy: p.confirmBy, outcome: r.decision.outcome }] : [];
+    }).sort((a,b) => a.readyAt-b.readyAt || a.requestId-b.requestId);
+    assert.deepEqual(accessOverview(view, now, managed), { temporaryAccess, pendingAccess });
+  }
+  assert.deepEqual(view, before);
+});
+
+test('expired and stale records are still fully validated before history is omitted', async t => {
+  const { controller, clock } = await fixture(t);
+  await confirm(controller, clock, 'expired.example');
+  const now = clock.time + 101, view = structuredClone(controller.getView());
+  view.snapshot.accessState.grants[0].expiresAt = -1;
+  assert.deepEqual(accessOverview(view, now), { pendingAccess: null, temporaryAccess: null });
+  const stale = structuredClone(controller.getView());
+  stale.snapshot.policyRevision++;
+  assert.deepEqual(accessOverview(stale, clock.time), { pendingAccess: [], temporaryAccess: [] });
+  assert.deepEqual(accessOverview(stale, clock.time - 1), { pendingAccess: null, temporaryAccess: null });
+  assert.deepEqual(accessOverview(controller.getView(), now, {}), { pendingAccess: null, temporaryAccess: null });
 });

@@ -1,4 +1,6 @@
 import { normalizeTarget, type Policy } from '@atlas/core';
+import { curatedScopeRoots } from './curated-scopes.js';
+import { curatedExpansion, expandedServiceDestinations } from './curated-expansion.js';
 
 export interface CuratedService {
   readonly label: string;
@@ -7,11 +9,13 @@ export interface CuratedService {
   readonly aliases?: readonly string[];
   /** Distinct useful entry points of the service, not claims of equivalence. */
   readonly destinations?: readonly string[];
+  /** Public provenance; presentation metadata only, never permission evidence. */
+  readonly sources?: readonly string[];
 }
 export interface CuratedGroup { readonly label: string; readonly services: readonly CuratedService[] }
 
 /** Initial product preset. Edit services here; generated Policy remains exact-host only. */
-export const curatedWhitelist: readonly CuratedGroup[] = [
+export const legacyCuratedWhitelist: readonly CuratedGroup[] = [
   { label: 'AI', services: [
     { label: 'ChatGPT', hostname: 'chatgpt.com' },
     { label: 'Claude', hostname: 'claude.ai' },
@@ -22,9 +26,6 @@ export const curatedWhitelist: readonly CuratedGroup[] = [
     { label: 'Outlook', hostname: 'outlook.com', aliases: ['www.outlook.com'],
       destinations: ['outlook.live.com', 'outlook.office.com', 'outlook.office365.com'] },
     { label: 'Microsoft 365', hostname: 'microsoft365.com', aliases: ['www.microsoft365.com'] },
-  ] },
-  { label: 'Video', services: [
-    { label: 'YouTube', hostname: 'youtube.com', aliases: ['www.youtube.com'] },
   ] },
   { label: 'Scholar / Research', services: [
     { label: 'Google Scholar', hostname: 'scholar.google.com' },
@@ -61,13 +62,30 @@ export const curatedWhitelist: readonly CuratedGroup[] = [
   ] },
 ];
 
+// Preserve established group/service identities and append reviewed services.
+export const curatedServiceCatalog: readonly CuratedGroup[] = [...legacyCuratedWhitelist, ...curatedExpansion]
+  .reduce<CuratedGroup[]>((groups, group) => {
+    const services = group.services.map(service => expandedServiceDestinations[service.hostname]
+      ? { ...service, destinations: [...(service.destinations ?? []), ...expandedServiceDestinations[service.hostname]!] } : service);
+    const index = groups.findIndex(existing => existing.label === group.label);
+    if (index < 0) groups.push({ ...group, services });
+    else groups[index] = { ...groups[index]!, services: [...groups[index]!.services, ...services] };
+    return groups;
+  }, []);
+
+/** Current default permissions. Retired services remain display metadata above
+ * so saved policies, pins and frozen draft baselines keep their identity. */
+export const curatedWhitelist: readonly CuratedGroup[] = curatedServiceCatalog
+  .map(group => ({ ...group, services: group.services.filter(service => service.hostname !== 'wikipedia.org') }))
+  .filter(group => group.services.length > 0);
+
 export function serviceHostnames(service: CuratedService): readonly string[] {
   return [service.hostname, ...(service.aliases ?? []), ...(service.destinations ?? [])];
 }
 
 /** Display metadata only; never makes a hostname available or equivalent. */
 export function serviceLabel(hostname: string): string {
-  for (const group of curatedWhitelist) for (const service of group.services) {
+  for (const group of curatedServiceCatalog) for (const service of group.services) {
     if (serviceHostnames(service).includes(hostname)) return service.label;
   }
   return hostname;
@@ -79,5 +97,5 @@ export function compileCuratedWhitelist(groups: readonly CuratedGroup[] = curate
     if (normalizeTarget({ hostname })?.hostname !== hostname) throw new TypeError('Invalid curated hostname');
     hostnames.add(hostname);
   }
-  return { whitelist: [...hostnames], blacklist: [] };
+  return { whitelist: [...hostnames], blacklist: [], whitelistSubdomains: curatedScopeRoots([...hostnames]) };
 }

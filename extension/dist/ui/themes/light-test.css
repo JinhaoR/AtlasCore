@@ -1,0 +1,16 @@
+/* Deliberately small contrast proof, not a separate layout or a new product design. */
+:root[data-theme="light-test"] {
+  --color-scheme: light;
+  --page: #f4f1e9; --surface: #ffffff; --surface-disabled: #e4e2dc;
+  --ink: #192b35; --muted: #50616a; --accent: #62501f; --accent-muted: #756139; --link: #265674;
+  --border: #9d9b90; --border-soft: #aaa79c; --control-border: #7c7c72;
+  --hover: #eae5d8; --selected: #e2dece; --focus: #23566b; --on-accent: #ffffff; --accent-hover: #51421a;
+  --success: #245135; --success-surface: #e0eee2; --warning: #654714; --warning-surface: #f7edcf;
+  --error: #832e24; --error-surface: #f8e5e0; --unavailable: #435566; --unavailable-surface: #e5ebef;
+  --access-wait-ink: #654714; --access-wait-border: #806421; --access-wait-surface: #f7edcf;
+  --access-active-ink: #245135; --access-active-border: #427147; --access-active-surface: #e0eee2;
+  --cancel-ink: #832e24; --cancel-border: #a45b4c; --cancel-surface: #f8e5e0; --cancel-hover: #eed4cd;
+  --icon-surface: #ffffff; --icon-border: #9d9b90;
+  --pin-surface: #ffffff; --pin-ink: #192b35;
+  --backdrop: #172a3566; --popover-shadow: 0 12px 40px #172a3533; --floating-shadow: 0 12px 32px #172a3533;
+}

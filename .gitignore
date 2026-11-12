@@ -1,5 +1,6 @@
 node_modules/
 .tools/
+extension/dev-home/
 __pycache__/
 extension/release/
 web-ext-artifacts/

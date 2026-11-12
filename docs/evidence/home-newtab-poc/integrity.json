@@ -1,0 +1,18 @@
+{
+  "protectedReleaseFiles": 188,
+  "allUnchanged": true,
+  "experimentalRuntimeDifferences": [
+    "manifest.json"
+  ],
+  "newPermissions": false,
+  "coreOrUiRuntimeChanges": false,
+  "extensionTests": {
+    "passed": 545,
+    "failed": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 1,
+    "warning": "Existing Android minimum-version warning"
+  }
+}

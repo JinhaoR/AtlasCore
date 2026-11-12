@@ -1,7 +1,15 @@
 import { readHomeLayout } from './home-layout.js';
+import { readHomeBookmarks } from './home-bookmarks.js';
 export const homeLayoutDatabase = 'atlas-home-layout-v1';
 /** Presentation only. IndexedDB's transaction is the cross-window comparison fence. */
 export async function openHomeLayoutRepository(factory = indexedDB, name = homeLayoutDatabase) {
+    return openRecord(factory, name, 'current', readHomeLayout);
+}
+/** Separate CAS record: no pin/layout/authority transaction or migration. */
+export async function openBookmarkRepository(factory = indexedDB, name = homeLayoutDatabase) {
+    return openRecord(factory, name, 'bookmarks-v1', readHomeBookmarks);
+}
+export async function openRecord(factory, name, key, validate) {
     const db = await new Promise((resolve, reject) => {
         const request = factory.open(name, 1);
         let rejected = false;
@@ -16,7 +24,7 @@ export async function openHomeLayoutRepository(factory = indexedDB, name = homeL
     const decode = (input) => {
         if (input === undefined)
             return { revision: 0, value: null };
-        const record = input, value = readHomeLayout(record?.value);
+        const record = input, value = validate(record?.value);
         if (!value || Object.keys(record).sort().join(',') !== 'revision,value' || !Number.isSafeInteger(record.revision) || record.revision < 1)
             throw new Error('HOME_LAYOUT_INVALID');
         return { revision: record.revision, value };
@@ -24,7 +32,7 @@ export async function openHomeLayoutRepository(factory = indexedDB, name = homeL
     return {
         load: () => new Promise((resolve, reject) => {
             try {
-                const tx = db.transaction('layout', 'readonly'), request = tx.objectStore('layout').get('current');
+                const tx = db.transaction('layout', 'readonly'), request = tx.objectStore('layout').get(key);
                 let envelope;
                 request.onsuccess = () => { try {
                     envelope = decode(request.result);
@@ -41,13 +49,13 @@ export async function openHomeLayoutRepository(factory = indexedDB, name = homeL
             }
         }),
         save: (revision, value) => new Promise(resolve => {
-            const candidate = readHomeLayout(value);
+            const candidate = validate(value);
             if (!candidate || !Number.isSafeInteger(revision) || revision < 0 || revision >= Number.MAX_SAFE_INTEGER) {
                 resolve({ type: 'FAILED' });
                 return;
             }
             try {
-                const tx = db.transaction('layout', 'readwrite'), store = tx.objectStore('layout'), request = store.get('current');
+                const tx = db.transaction('layout', 'readwrite'), store = tx.objectStore('layout'), request = store.get(key);
                 let result = { type: 'FAILED' };
                 request.onsuccess = () => {
                     let current;
@@ -64,7 +72,7 @@ export async function openHomeLayoutRepository(factory = indexedDB, name = homeL
                     }
                     const envelope = { revision: revision + 1, value: candidate };
                     try {
-                        store.put(envelope, 'current');
+                        store.put(envelope, key);
                         result = { type: 'SAVED', envelope };
                     }
                     catch {

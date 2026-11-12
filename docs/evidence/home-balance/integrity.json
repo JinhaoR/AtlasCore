@@ -1,0 +1,18 @@
+{
+  "releaseFilesChecked": 438,
+  "changedReleaseFiles": [],
+  "protectedSourceFilesComparedToCandidate": 44,
+  "protectedSourceUnchanged": true,
+  "version": "0.3.0",
+  "extensionId": "atlas-development@atlas.invalid",
+  "extensionTests": 676,
+  "coreTests": 253,
+  "developmentBuild": "PASS",
+  "disposableProfilesRemoved": [
+    "compact-home-native-crb9fpoc",
+    "compact-home-native-3xqw_j7r",
+    "compact-home-native-h886ygx3",
+    "compact-home-native-jssrn7c7",
+    "compact-home-native-7ht_w2ux"
+  ]
+}

@@ -163,7 +163,7 @@ def run_visual_polish(client, ui_handle, ui_url, port, wait_for, artifacts, base
         input_value('site-category', 'Research')
         input_value('site-access', 'BLACKLIST' if i in [2, 6] else 'WHITELIST')
         client.script('document.getElementById("site-form").requestSubmit();')
-        wait_for(lambda: client.script('return document.getElementById("site-draft").hidden && document.getElementById("destination-draft-status").textContent.startsWith("Saved editable draft");'), 'mixed batch item persisted')
+        wait_for(lambda: client.script('return document.getElementById("site-draft").hidden && document.getElementById("destination-draft-status").textContent.match(/^Saved (?:editable draft|locally)/);'), 'mixed batch item persisted')
     input_value('sites-search', 'black.localhost')
     wait_for(lambda: client.script('return document.querySelectorAll(".site-row").length===1;'), 'explicit removal target')
     client.script('document.querySelector(".site-row").click();document.getElementById("remove-site").click();')

@@ -1,0 +1,114 @@
+import type { CuratedGroup, CuratedService } from './curated-whitelist.js';
+
+// Reviewed static destinations. Every alias and departmental host is explicit.
+// Sources/probe results: docs/evidence/curated-hosts-2026-10.json.
+const site = (label: string, hostname: string, aliases: readonly string[] = [], destinations: readonly string[] = [], source?: string): CuratedService =>
+  ({ label, hostname, ...(aliases.length ? { aliases } : {}), ...(destinations.length ? { destinations } : {}),
+    sources: [source ?? `https://${hostname}/`] });
+
+/** Additional exact entry points of existing services; never inferred from ownership. */
+export const expandedServiceDestinations: Readonly<Record<string, readonly string[]>> = {
+  'journals.aps.org': ['aps.org', 'www.aps.org', 'physics.aps.org'],
+  'outlook.com': ['outlook.cloud.microsoft'],
+  'microsoft365.com': ['m365.cloud.microsoft', 'office.com', 'www.office.com', 'www.microsoft.com'],
+  'crossref.org': ['www.crossref.org'],
+  'doi.org': ['www.doi.org'],
+  'ncbi.nlm.nih.gov': ['www.ncbi.nlm.nih.gov'],
+};
+
+export const curatedExpansion: readonly CuratedGroup[] = [
+  { label: 'Scholar / Research', services: [
+    site('Zotero', 'zotero.org', ['www.zotero.org']),
+    site('Zenodo', 'zenodo.org'), site('OSF', 'osf.io'),
+    site('OpenAlex', 'openalex.org'), site('DOAJ', 'doaj.org'), site('DBLP', 'dblp.org'),
+    site('PubMed Central', 'pmc.ncbi.nlm.nih.gov'),
+    site('ACS Publications', 'pubs.acs.org'), site('Royal Society Publishing', 'royalsocietypublishing.org'),
+    site('SIAM Publications', 'epubs.siam.org'),
+    site('SciPost', 'scipost.org'),
+  ] },
+  { label: 'University', services: [
+    site('KTH', 'kth.se', ['www.kth.se'], ['intra.kth.se', 'www.physics.kth.se', 'physics.kth.se']),
+    site('Stockholm University', 'su.se', ['www.su.se'], ['fysik.su.se', 'www.fysik.su.se']),
+    site('Karolinska Institutet', 'ki.se', ['www.ki.se']),
+    site('Uppsala University', 'uu.se', ['www.uu.se'], ['physics.uu.se', 'www.physics.uu.se', 'www.it.uu.se', 'user.it.uu.se']),
+    site('Lund University', 'lu.se', ['www.lu.se'], ['www.fysik.lu.se', 'www.matfys.lu.se']),
+    site('Chalmers', 'chalmers.se', ['www.chalmers.se']),
+    site('University of Gothenburg', 'gu.se', ['www.gu.se']),
+    site('Linkoping University', 'liu.se', ['www.liu.se'], ['www.ifm.liu.se']),
+    site('Umea University', 'umu.se', ['www.umu.se']),
+    site('Lulea University of Technology', 'ltu.se', ['www.ltu.se']),
+    site('University of Copenhagen', 'ku.dk', ['www.ku.dk'], ['nbi.ku.dk', 'nbia.nbi.ku.dk']),
+    site('University of Oslo', 'uio.no', ['www.uio.no'], ['www.mn.uio.no']),
+    site('University of Helsinki', 'helsinki.fi', ['www.helsinki.fi'], ['www.physics.helsinki.fi']),
+    site('Aalto University', 'aalto.fi', ['www.aalto.fi'], ['physics.aalto.fi', 'users.aalto.fi']),
+    site('Technical University of Denmark', 'dtu.dk', ['www.dtu.dk'], ['physics.dtu.dk']),
+    site('University of Oxford', 'ox.ac.uk', ['www.ox.ac.uk'], ['www.physics.ox.ac.uk', 'www.maths.ox.ac.uk', 'people.maths.ox.ac.uk', 'courses.maths.ox.ac.uk']),
+    site('University of Cambridge', 'cam.ac.uk', ['www.cam.ac.uk'], ['www.phy.cam.ac.uk', 'www.damtp.cam.ac.uk', 'www.tcm.phy.cam.ac.uk', 'www.maths.cam.ac.uk']),
+    site('ETH Zurich', 'ethz.ch', ['www.ethz.ch'], ['phys.ethz.ch', 'www.phys.ethz.ch', 'itp.phys.ethz.ch', 'www.itp.phys.ethz.ch', 'edu.itp.phys.ethz.ch', 'people.phys.ethz.ch']),
+    site('EPFL', 'epfl.ch', ['www.epfl.ch'], ['infoscience.epfl.ch']),
+    site('Imperial College London', 'imperial.ac.uk', ['www.imperial.ac.uk'], ['wwwf.imperial.ac.uk']),
+    site('University of Edinburgh', 'ed.ac.uk', ['www.ed.ac.uk'], ['www.ph.ed.ac.uk', 'www2.ph.ed.ac.uk', 'www.maths.ed.ac.uk', 'maths.ed.ac.uk']),
+    site('Technical University of Munich', 'tum.de', ['www.tum.de'], ['www.ph.nat.tum.de', 'www.nat.tum.de']),
+    site('MIT', 'mit.edu', ['www.mit.edu'], ['physics.mit.edu', 'math.mit.edu', 'web.mit.edu']),
+    site('Harvard University', 'harvard.edu', ['www.harvard.edu'], ['physics.harvard.edu', 'www.math.harvard.edu', 'scholar.harvard.edu', 'people.fas.harvard.edu']),
+    site('Stanford University', 'stanford.edu', ['www.stanford.edu'], ['physics.stanford.edu', 'math.stanford.edu', 'mathematics.stanford.edu', 'sitp.stanford.edu', 'web.stanford.edu']),
+    site('Princeton University', 'princeton.edu', ['www.princeton.edu'], ['phy.princeton.edu', 'www.math.princeton.edu', 'web.math.princeton.edu', 'pcts.princeton.edu']),
+    site('Cornell University', 'cornell.edu', ['www.cornell.edu'], ['physics.cornell.edu', 'www.lassp.cornell.edu', 'sethna.lassp.cornell.edu', 'math.cornell.edu']),
+    site('UC Berkeley', 'berkeley.edu', ['www.berkeley.edu'], ['physics.berkeley.edu', 'math.berkeley.edu', 'bctp.berkeley.edu']),
+    site('Caltech', 'caltech.edu', ['www.caltech.edu'], ['pma.caltech.edu', 'www.theory.caltech.edu', 'theory.caltech.edu']),
+    site('UC Santa Barbara', 'ucsb.edu', ['www.ucsb.edu'], ['www.physics.ucsb.edu', 'physics.ucsb.edu']),
+  ] },
+  { label: 'Physics institutes', services: [
+    site('Nordita', 'nordita.org', ['www.nordita.org']),
+    site('Perimeter Institute', 'perimeterinstitute.ca', ['www.perimeterinstitute.ca']),
+    site('KITP', 'kitp.ucsb.edu', ['www.kitp.ucsb.edu'], ['online.kitp.ucsb.edu']),
+    site('ICTP', 'ictp.it', ['www.ictp.it'], ['indico.ictp.it']),
+    site('CERN', 'home.cern', [], ['cern.ch', 'www.cern.ch', 'th-dep.web.cern.ch', 'indico.cern.ch', 'cds.cern.ch']),
+    site('DESY', 'desy.de', ['www.desy.de'], ['theory-hamburg.desy.de', 'indico.desy.de']),
+    site('Institute for Advanced Study', 'ias.edu', ['www.ias.edu'], ['video.ias.edu']),
+    site('SISSA', 'sissa.it', ['www.sissa.it'], ['people.sissa.it']),
+    site('Max Planck Complex Systems', 'www.pks.mpg.de'),
+    site('Max Planck Solid State Research', 'www.fkf.mpg.de'),
+    site('Isaac Newton Institute', 'newton.ac.uk', ['www.newton.ac.uk']),
+  ] },
+  { label: 'Learning', services: [
+    site('MIT OpenCourseWare', 'ocw.mit.edu'),
+    site('Perimeter lecture archive', 'pirsa.org'),
+    site('Coursera', 'coursera.org', ['www.coursera.org']),
+    site('edX', 'edx.org', ['www.edx.org'], ['learning.edx.org', 'home.edx.org']),
+    site('Feynman Lectures', 'www.feynmanlectures.caltech.edu'),
+    site('NumPy', 'numpy.org'), site('SciPy', 'scipy.org', [], ['docs.scipy.org']),
+    site('Julia', 'julialang.org', [], ['docs.julialang.org']),
+    site('DLMF', 'dlmf.nist.gov'), site('Netlib', 'netlib.org', ['www.netlib.org']),
+    site('Chebfun', 'chebfun.org', ['www.chebfun.org']),
+  ] },
+  { label: 'Cloud storage', services: [
+    site('Google Drive', 'drive.google.com'),
+    site('OneDrive', 'onedrive.live.com', [], ['onedrive.cloud.microsoft']),
+    site('Dropbox', 'dropbox.com', ['www.dropbox.com']), site('Box', 'app.box.com'),
+  ] },
+  { label: 'Productivity', services: [
+    site('Google Docs, Sheets, Slides and Forms', 'docs.google.com'),
+    site('Google Calendar', 'calendar.google.com'), site('Google Keep', 'keep.google.com'),
+    site('Microsoft web documents', 'word.cloud.microsoft', [], ['excel.cloud.microsoft', 'powerpoint.cloud.microsoft']),
+    site('Notion', 'notion.so', ['www.notion.so'], ['notion.com', 'www.notion.com']),
+    site('Trello', 'trello.com'), site('Figma', 'figma.com', ['www.figma.com']),
+  ] },
+  { label: 'Communication', services: [
+    site('Google Meet', 'meet.google.com', [], ['workspace.google.com']),
+    site('Microsoft Teams', 'teams.microsoft.com', [], ['teams.cloud.microsoft']),
+    site('Slack', 'slack.com', [], ['app.slack.com']),
+    site('Zoom', 'zoom.us', ['www.zoom.us'], ['app.zoom.us', 'www.zoom.com']),
+  ] },
+  { label: 'Development', services: [
+    site('GitLab', 'gitlab.com', [], ['about.gitlab.com']), site('Bitbucket', 'bitbucket.org'),
+    site('Stack Overflow', 'stackoverflow.com'), site('MDN', 'developer.mozilla.org'),
+    site('Python documentation', 'docs.python.org'), site('PyPI', 'pypi.org'),
+    site('npm', 'npmjs.com', ['www.npmjs.com']), site('Node.js', 'nodejs.org'),
+  ] },
+  { label: 'Utilities', services: [
+    site('Wikipedia', 'wikipedia.org', ['www.wikipedia.org'], ['en.wikipedia.org', 'sv.wikipedia.org']),
+    site('Google Translate', 'translate.google.com'), site('DeepL', 'deepl.com', ['www.deepl.com']),
+    site('Mozilla Support', 'support.mozilla.org'), site('Google Support', 'support.google.com'), site('Microsoft Support', 'support.microsoft.com'),
+  ] },
+];

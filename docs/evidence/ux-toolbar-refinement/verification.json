@@ -1,0 +1,16 @@
+{
+  "releaseFilesCompared": 310,
+  "releaseDifferences": [],
+  "coreSourceFilesCompared": 24,
+  "coreDifferences": [],
+  "manifestAndPackageDifferences": [],
+  "version": "0.2.5",
+  "extensionId": "atlas-development@atlas.invalid",
+  "tests": {
+    "core": 249,
+    "extension": 621
+  },
+  "developmentBuild": "PASS",
+  "typeScript": "Both compilers passed in development build",
+  "releaseSigningOrDeployment": false
+}

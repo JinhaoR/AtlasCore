@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { IDBDatabase, IDBObjectStore } from 'fake-indexeddb';
 import { fixture, deferred } from './support/fixture.mjs';
-import { storageDiagnosticsCopy, storageFailureCopy } from '../dist/lib/ui/presentation.js';
+import { authorityInterruptionCopy, storageDiagnosticsCopy, storageFailureCopy } from '../dist/lib/ui/presentation.js';
 
 function failReceipt(t, name, count = 1) {
   const original = IDBObjectStore.prototype.add;
@@ -15,6 +15,25 @@ function failReceipt(t, name, count = 1) {
     return original.apply(this, args);
   };
   const restore = () => { IDBObjectStore.prototype.add = original; };
+  t.after(restore);
+  return { restore, failures: () => failures };
+}
+
+/** Abort the real queued readonly transaction, after handlers have been installed. */
+function failLoad(t, { count = 1, enabled = () => true } = {}) {
+  const original = IDBObjectStore.prototype.get;
+  let failures = 0;
+  IDBObjectStore.prototype.get = function (key) {
+    const request = original.call(this, key);
+    if (this.name === 'authority' && key === 'envelope' && this.transaction.mode === 'readonly'
+      && failures < count && enabled()) {
+      failures++;
+      const transaction = this.transaction;
+      queueMicrotask(() => transaction.abort());
+    }
+    return request;
+  };
+  const restore = () => { IDBObjectStore.prototype.get = original; };
   t.after(restore);
   return { restore, failures: () => failures };
 }
@@ -50,6 +69,133 @@ test('one aborted housekeeping write recovers before closing whitelisted documen
   assert.equal(health.lastFailure.cause, 'ABORTED');
   assert.equal(health.failedCommits, 1);
   assert.equal(JSON.stringify(health).includes('confidential'), false);
+});
+
+test('one aborted readonly housekeeping load recovers before replacing Whitelisted pages', async t => {
+  const f = await fixture(t);
+  await f.firefox.visit(1, 'https://root.example/');
+  await f.firefox.visit(2, 'https://root.example/other');
+  const before = f.controller.getView().snapshot;
+  const fault = failLoad(t);
+  f.clock.time++;
+  await f.adapter.refresh();
+  assert.equal(fault.failures(), 1);
+  assert.equal(f.controller.getView().status, 'READY');
+  assert.equal(f.firefox.updates.length, 0, 'a fresh verified reload must precede any document replacement');
+  assert.equal(f.adapter.view().contexts.every(c => c.latest.decision?.outcome === 'ALLOW'), true);
+  assert.deepEqual(f.controller.getView().snapshot.policy, before.policy);
+  assert.deepEqual(f.adapter.view().storage.lastFailure,
+    { sequence: 1, operation: 'LOAD', stage: 'TRANSACTION_ABORT', cause: 'ABORTED' });
+  assert.equal(f.adapter.view().storage.failedCommits, 0);
+});
+
+test('an aborted post-commit readonly verification load gets the same bounded recovery', async t => {
+  const f = await fixture(t);
+  await f.firefox.visit(1, 'https://root.example/');
+  const commit = f.repository.commit.bind(f.repository);
+  let written = false;
+  f.repository.commit = async request => { const result = await commit(request); written = result.type === 'COMMITTED'; return result; };
+  // The housekeeping write succeeds, its post-write readonly verification aborts.
+  const fault = failLoad(t, { enabled: () => written });
+  f.clock.time++;
+  await f.adapter.refresh();
+  assert.equal(fault.failures(), 1);
+  assert.equal(f.controller.getView().status, 'READY');
+  assert.equal(f.firefox.updates.length, 0);
+  assert.equal(f.adapter.view().contexts[0].latest.decision.outcome, 'ALLOW');
+});
+
+test('a readonly abort in the retained-page check recovers after successful housekeeping', async t => {
+  const f = await fixture(t);
+  await f.firefox.visit(1, 'https://root.example/');
+  let loads = 0;
+  const fault = failLoad(t, { enabled: () => ++loads === 3 });
+  f.clock.time++;
+  await f.adapter.refresh();
+  assert.equal(fault.failures(), 1, 'abort the retained check after initial load and post-write verification');
+  assert.equal(f.controller.getView().status, 'READY');
+  assert.equal(f.firefox.updates.length, 0);
+  assert.equal(f.adapter.view().contexts[0].latest.decision.outcome, 'ALLOW');
+});
+
+test('a damaged initialized marker cannot reuse a stale aborted-load diagnosis for recovery', async t => {
+  const f = await fixture(t);
+  await f.firefox.visit(1, 'https://root.example/');
+  const before = f.controller.getView().snapshot;
+  failLoad(t); f.clock.time++; await f.adapter.refresh();
+  assert.equal(f.controller.getView().status, 'READY');
+  const priorFailure = f.adapter.view().storage.lastFailure;
+  const opened = f.factory.open('atlas-authority-v1', 1);
+  const db = await new Promise((resolve, reject) => { opened.onsuccess = () => resolve(opened.result); opened.onerror = () => reject(opened.error); });
+  await new Promise((resolve, reject) => {
+    const tx = db.transaction('authority', 'readwrite');
+    tx.objectStore('authority').put(false, 'initialized');
+    tx.oncomplete = () => { db.close(); resolve(); }; tx.onabort = () => { db.close(); reject(tx.error); };
+  });
+  const load = f.repository.load.bind(f.repository); let loads = 0;
+  f.repository.load = () => { loads++; return load(); };
+  await f.adapter.refresh();
+  assert.equal(f.controller.getView().status, 'UNAVAILABLE');
+  assert.equal(loads, 1, 'data damage does not trigger a transient retry');
+  assert.equal(f.adapter.view().storage.lastFailure.cause, 'INVALID_DATA');
+  assert.equal(f.adapter.view().storage.lastFailure.stage, 'VALIDATION');
+  assert.ok(f.adapter.view().storage.lastFailure.sequence > priorFailure.sequence);
+  assert.deepEqual(f.controller.getView().snapshot.policy, before.policy);
+});
+
+test('persistent readonly abort performs one recovery attempt and cannot create an idle retry loop', async t => {
+  const f = await fixture(t);
+  await f.firefox.visit(1, 'https://root.example/');
+  const fault = failLoad(t, { count: Infinity });
+  f.clock.time++;
+  await f.adapter.refresh();
+  assert.equal(f.controller.getView().reason, 'STORAGE_UNAVAILABLE');
+  assert.equal(fault.failures(), 2, 'one interrupted load plus one bounded recovery load');
+  for (let i = 0; i < 8; i++) { f.clock.time++; await f.adapter.refresh(); }
+  assert.equal(fault.failures(), 2);
+  assert.equal((await f.firefox.request(2, 'https://root.example/')).cancel, true);
+  fault.restore(); await f.firefox.send({ kind: 'RECOVER' });
+  assert.equal(f.controller.getView().status, 'READY');
+});
+
+test('a read abort before explicit confirmation cannot be replayed into a grant', async t => {
+  const f = await fixture(t);
+  const started = await f.controller.handle({ kind: 'START_ACCESS', target: { hostname: 'grey.example' } });
+  f.clock.time += 10;
+  const before = f.controller.getView().snapshot;
+  failLoad(t);
+  const result = await f.controller.handle({ kind: 'CONFIRM_ACCESS', requestId: started.referenceId });
+  assert.equal(result.type, 'BLOCKED');
+  assert.equal(result.reason, 'STORAGE_UNAVAILABLE');
+  await f.adapter.refresh();
+  assert.equal(f.controller.getView().status, 'READY');
+  assert.deepEqual(f.controller.getView().snapshot.accessState.pendingRequests, before.accessState.pendingRequests);
+  assert.equal(f.controller.getView().snapshot.accessState.grants.length, 0);
+  assert.equal((await f.controller.handle({ kind: 'CONFIRM_ACCESS', requestId: started.referenceId })).type, 'COMMITTED');
+});
+
+test('a read abort after a committed confirmation preserves the one grant and never confirms again', async t => {
+  const f = await fixture(t);
+  const started = await f.controller.handle({ kind: 'START_ACCESS', target: { hostname: 'grey.example' } });
+  f.clock.time += 10;
+  const commit = f.repository.commit.bind(f.repository);
+  let committed = false;
+  f.repository.commit = async request => { const result = await commit(request); committed = result.type === 'COMMITTED'; return result; };
+  failLoad(t, { enabled: () => committed });
+  const result = await f.controller.handle({ kind: 'CONFIRM_ACCESS', requestId: started.referenceId });
+  assert.equal(result.type, 'BLOCKED');
+  assert.equal(result.reason, 'STORAGE_UNAVAILABLE');
+  const savedGrant = structuredClone(f.controller.getView().snapshot.accessState.grants[0]);
+  assert.ok(savedGrant, 'a COMMITTED receipt already acknowledges exactly one grant');
+  assert.equal(f.controller.getView().pendingCommitId, null);
+  f.clock.time++;
+  await f.adapter.refresh();
+  assert.equal(f.controller.getView().status, 'READY');
+  assert.deepEqual(f.controller.getView().snapshot.accessState.grants, [savedGrant]);
+  assert.equal(f.controller.getView().snapshot.accessState.pendingRequests.length, 0);
+  const repeated = await f.controller.handle({ kind: 'CONFIRM_ACCESS', requestId: started.referenceId });
+  assert.equal(repeated.reason, 'REQUEST_NOT_FOUND');
+  assert.deepEqual(f.controller.getView().snapshot.accessState.grants, [savedGrant]);
 });
 
 test('recovery also covers a transient failure in a per-tab retained-page check', async t => {
@@ -287,4 +433,141 @@ test('a superseding request during recovery cannot receive the old retained-page
   gate.resolve(); await refresh;
   assert.equal((await navigation).cancel, true);
   assert.equal(f.adapter.view().contexts[0].latest.decision.reason, 'BLACKLISTED');
+});
+
+test('clock interruption without a storage failure is retained after explicit successful recovery', async t => {
+  const f = await fixture(t);
+  await f.firefox.visit(1, 'https://root.example/');
+  const policy = structuredClone(f.controller.getView().snapshot.policy);
+  f.clock.time--;
+  await f.adapter.refresh();
+  const issue = f.adapter.view().authorityInterruption;
+  assert.equal(f.controller.getView().reason, 'CLOCK_ROLLBACK');
+  assert.deepEqual(issue, { status: 'UNAVAILABLE', reason: 'CLOCK_ROLLBACK', observedAt: f.clock.time,
+    checkpointAt: 1000, latestStorageFailure: null });
+  assert.equal(f.adapter.view().storage.failedCommits, 0);
+  assert.equal(f.adapter.view().storage.lastFailure, null);
+  assert.deepEqual((await f.firefox.send({ kind: 'GET_DIAGNOSTICS', tabId: null })).authorityInterruption, issue);
+  f.clock.time = 1002;
+  await f.firefox.send({ kind: 'RECOVER' });
+  assert.equal(f.controller.getView().status, 'READY');
+  assert.deepEqual(f.adapter.view().authorityInterruption, issue, 'recovery retains the explanation, not permission');
+  assert.deepEqual((await f.firefox.send({ kind: 'GET_DIAGNOSTICS', tabId: null })).authorityInterruption, issue);
+  assert.deepEqual(f.controller.getView().snapshot.policy, policy);
+});
+
+test('successful automatic read recovery preserves its interruption while current authority is READY', async t => {
+  const f = await fixture(t);
+  await f.firefox.visit(1, 'https://root.example/');
+  failLoad(t); f.clock.time++;
+  await f.adapter.refresh();
+  const view = f.adapter.view(), issue = view.authorityInterruption;
+  assert.equal(view.controller.status, 'READY');
+  assert.equal(issue.status, 'UNAVAILABLE');
+  assert.equal(issue.reason, 'STORAGE_UNAVAILABLE');
+  assert.deepEqual(issue.latestStorageFailure, { sequence: 1, operation: 'LOAD', stage: 'TRANSACTION_ABORT', cause: 'ABORTED' });
+  assert.equal(f.firefox.updates.length, 0);
+  for (let i = 0; i < 3; i++) { f.clock.time++; await f.adapter.refresh(); }
+  assert.deepEqual(f.adapter.view().authorityInterruption, issue);
+  assert.deepEqual((await f.firefox.send({ kind: 'GET_DIAGNOSTICS', tabId: null })).authorityInterruption, issue);
+});
+
+test('diagnostic provider getter exceptions cannot prevent interruption recording or healthy recovery', async t => {
+  const f = await fixture(t);
+  await f.firefox.visit(1, 'https://root.example/');
+  Object.defineProperty(f.repository, 'getDiagnostics', { configurable: true,
+    get() { throw Error('Synthetic confidential diagnostic provider failure'); } });
+  assert.equal(f.adapter.view().storage, null);
+  await f.adapter.refresh();
+  assert.equal(f.controller.getView().status, 'READY');
+  assert.equal(f.firefox.updates.length, 0);
+  f.clock.time--;
+  await f.adapter.refresh();
+  const issue = f.adapter.view().authorityInterruption;
+  assert.equal(issue.reason, 'CLOCK_ROLLBACK');
+  assert.equal(issue.latestStorageFailure, null);
+  assert.equal(JSON.stringify(issue).includes('confidential'), false);
+  f.clock.time = 1002;
+  await f.firefox.send({ kind: 'RECOVER' });
+  assert.equal(f.controller.getView().status, 'READY');
+  assert.deepEqual(f.adapter.view().authorityInterruption, issue);
+});
+
+test('throwing returned diagnostic getters cannot disrupt authorization or leak their exception', async t => {
+  const f = await fixture(t);
+  await f.firefox.visit(1, 'https://root.example/');
+  for (const nested of [false, true]) {
+    f.repository.getDiagnostics = () => {
+      const value = { readTransactions: 0, writeTransactions: 0, committedWrites: 0, failedCommits: 0,
+        lastFailure: { sequence: 1, operation: 'LOAD', stage: 'TRANSACTION_ABORT', cause: 'ABORTED' } };
+      Object.defineProperty(nested ? value.lastFailure : value, nested ? 'cause' : 'lastFailure', {
+        get() { throw Error('Synthetic confidential returned diagnostic getter'); },
+      });
+      return value;
+    };
+    assert.equal(f.adapter.view().storage, null);
+    f.clock.time++;
+    await f.adapter.refresh();
+    assert.equal(f.controller.getView().status, 'READY');
+    assert.equal(f.firefox.updates.length, 0);
+  }
+  f.clock.time--;
+  await f.adapter.refresh();
+  const diagnostics = await f.firefox.send({ kind: 'GET_DIAGNOSTICS', tabId: null });
+  assert.equal(diagnostics.storage, null);
+  assert.equal(diagnostics.authorityInterruption.reason, 'CLOCK_ROLLBACK');
+  assert.equal(diagnostics.authorityInterruption.latestStorageFailure, null);
+  assert.equal(JSON.stringify(diagnostics.authorityInterruption).includes('confidential'), false);
+});
+
+test('unknown commit interruption is recorded as RECONCILING and cannot auto-restore authority', async t => {
+  const f = await fixture(t), commit = f.repository.commit.bind(f.repository);
+  let calls = 0;
+  f.repository.commit = async request => { calls++; await commit(request); return { type: 'UNKNOWN', commitId: request.commitId }; };
+  f.clock.time++;
+  await f.adapter.refresh();
+  const issue = f.adapter.view().authorityInterruption;
+  assert.equal(issue.status, 'RECONCILING');
+  assert.equal(issue.reason, 'COMMIT_UNKNOWN');
+  assert.equal(issue.latestStorageFailure, null);
+  assert.ok(f.controller.getView().pendingCommitId);
+  for (let i = 0; i < 4; i++) { f.clock.time++; await f.adapter.refresh(); }
+  assert.equal(calls, 1);
+  assert.equal(f.controller.getView().status, 'RECONCILING');
+  assert.deepEqual(f.adapter.view().authorityInterruption, issue);
+  assert.deepEqual((await f.firefox.send({ kind: 'GET_DIAGNOSTICS', tabId: null })).authorityInterruption, issue);
+});
+
+test('a later independent incident replaces the retained explanation after a healthy cycle', async t => {
+  const f = await fixture(t);
+  let armed = true;
+  const fault = failLoad(t, { count: 2, enabled: () => {
+    if (!armed) return false;
+    armed = false; return true; // Each new incident fails once; its recovery read is healthy.
+  } });
+  f.clock.time++;
+  await f.adapter.refresh();
+  const first = f.adapter.view().authorityInterruption;
+  assert.equal(f.controller.getView().status, 'READY');
+  assert.equal(first.latestStorageFailure.sequence, 1);
+  f.clock.time++; armed = true;
+  await f.adapter.refresh();
+  const second = f.adapter.view().authorityInterruption;
+  assert.equal(fault.failures(), 2);
+  assert.equal(f.controller.getView().status, 'READY');
+  assert.equal(second.reason, 'STORAGE_UNAVAILABLE');
+  assert.equal(second.latestStorageFailure.sequence, 2);
+  assert.ok(second.observedAt > first.observedAt);
+  assert.notDeepEqual(second, first);
+});
+
+test('retained interruption copy names its reason and status without claiming current failure or permission', () => {
+  assert.equal(authorityInterruptionCopy(null), '');
+  assert.equal(authorityInterruptionCopy(undefined), '');
+  const issue = { reason: 'CLOCK_ROLLBACK', status: 'UNAVAILABLE', observedAt: 999, checkpointAt: 1000, latestStorageFailure: null };
+  const before = structuredClone(issue), copy = authorityInterruptionCopy(issue);
+  assert.match(copy, /CLOCK_ROLLBACK/);
+  assert.match(copy, /UNAVAILABLE/);
+  assert.match(copy, /retained across recovery/);
+  assert.deepEqual(issue, before);
 });

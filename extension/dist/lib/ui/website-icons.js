@@ -92,6 +92,14 @@ async function decodesImage(blob) {
         URL.revokeObjectURL(url);
     }
 }
+/** The same bounded image check is used for remote and locally cached assets. */
+export async function validatedWebsiteIcon(response) {
+    const bytes = await limitedBytes(response), type = bytes ? imageType(bytes) : null;
+    if (!bytes || !type)
+        return null;
+    const blob = new Blob([bytes.buffer], { type });
+    return await decodesImage(blob) ? blob : null;
+}
 /** Uses Firefox's observed icon, then the site's link metadata and conventional favicon.
  * A public-site favicon cache is the final online fallback. All downloads omit
  * cookies/credentials and referrers. URLs stay ephemeral in the UI.
@@ -106,12 +114,7 @@ export async function loadWebsiteIcon(hostname, observedIcon, fetcher = fetch) {
     const options = { credentials: 'omit', referrerPolicy: 'no-referrer', signal: controller.signal };
     const image = async (url) => {
         try {
-            const bytes = await limitedBytes(await fetcher(url, options));
-            const type = bytes ? imageType(bytes) : null;
-            if (!bytes || !type)
-                return null;
-            const blob = new Blob([bytes.buffer], { type });
-            return await decodesImage(blob) ? blob : null;
+            return await validatedWebsiteIcon(await fetcher(url, options));
         }
         catch {
             return null;

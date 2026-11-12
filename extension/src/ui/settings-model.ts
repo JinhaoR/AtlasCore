@@ -1,4 +1,19 @@
-import { readConfiguration, type AtlasConfiguration } from '@atlas/core';
+import { evaluate, readConfiguration, type AtlasConfiguration, type Policy } from '@atlas/core';
+
+/** Read-only settings summary, never authorization or command preparation.
+ * Key by complete contents: observation identities may change without new terms,
+ * and a mutable caller must not retain stale display information. */
+export function createPresetCoverage(hostnames: readonly string[]): (policy: Policy | undefined) => readonly string[] {
+  const terms = Object.freeze([...hostnames]);
+  let key: string | undefined, missing: readonly string[] = terms;
+  return policy => {
+    const nextKey = JSON.stringify(policy);
+    if (nextKey === key) return missing;
+    key = nextKey;
+    missing = Object.freeze(terms.filter(hostname => !policy || evaluate({ hostname }, policy).outcome !== 'ALLOW'));
+    return missing;
+  };
+}
 
 function seconds(milliseconds: number): string {
   const digits = String(milliseconds);
@@ -8,8 +23,8 @@ function seconds(milliseconds: number): string {
 }
 
 export const timingFields = [
-  { id: 'access-wait', label: 'Greylist wait', unit: 'seconds', value: (config: AtlasConfiguration) => seconds(config.accessTiming.waitMs) },
-  { id: 'access-window', label: 'Greylist confirmation', unit: 'seconds', value: (config: AtlasConfiguration) => seconds(config.accessTiming.confirmationWindowMs) },
+  { id: 'access-wait', label: 'access request wait', unit: 'seconds', value: (config: AtlasConfiguration) => seconds(config.accessTiming.waitMs) },
+  { id: 'access-window', label: 'access request confirmation', unit: 'seconds', value: (config: AtlasConfiguration) => seconds(config.accessTiming.confirmationWindowMs) },
   { id: 'grant-duration', label: 'Temporary access', unit: 'seconds', value: (config: AtlasConfiguration) => seconds(config.accessTiming.grantDurationMs) },
   { id: 'vault-wait', label: 'Vault wait', unit: 'seconds', value: (config: AtlasConfiguration) => seconds(config.vaultTiming.waitMs) },
   { id: 'vault-window', label: 'Vault confirmation', unit: 'seconds', value: (config: AtlasConfiguration) => seconds(config.vaultTiming.confirmationWindowMs) },

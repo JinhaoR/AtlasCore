@@ -1,0 +1,80 @@
+{
+  "renderer": {
+    "sessionId": "0e76ac2b-82b3-494a-ad23-83ed7342b5d4",
+    "capabilities": {
+      "acceptInsecureCerts": false,
+      "browserName": "firefox",
+      "browserVersion": "160.0",
+      "platformName": "windows",
+      "setWindowRect": true,
+      "unhandledPromptBehavior": "dismiss and notify",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+      "moz:buildID": "20261104181552",
+      "moz:headless": true,
+      "moz:platformVersion": "10.0",
+      "moz:processID": 25112,
+      "moz:profile": "C:\\Users\\jinhao\\Desktop\\Projects\\AtlasCore\\.tools\\direct-art-fyvfjy52\\profile",
+      "moz:shutdownTimeout": 73000,
+      "pageLoadStrategy": "normal",
+      "timeouts": {
+        "implicit": 0,
+        "pageLoad": 300000,
+        "script": 30000
+      },
+      "strictFileInteractability": false,
+      "moz:accessibilityChecks": false,
+      "moz:webdriverClick": true,
+      "moz:windowless": false,
+      "proxy": {}
+    }
+  },
+  "outputs": [
+    {
+      "file": "previews/01-oliva-context.svg",
+      "naturalSize": [
+        1920,
+        1200
+      ],
+      "output": [
+        1920,
+        1200
+      ]
+    },
+    {
+      "file": "previews/02-de-wit-context.svg",
+      "naturalSize": [
+        1920,
+        1200
+      ],
+      "output": [
+        1920,
+        1200
+      ]
+    },
+    {
+      "file": "previews/03-prunes-context.svg",
+      "naturalSize": [
+        1920,
+        1200
+      ],
+      "output": [
+        1920,
+        1200
+      ]
+    },
+    {
+      "file": "previews/04-blaeu-context.svg",
+      "naturalSize": [
+        1920,
+        1200
+      ],
+      "output": [
+        1920,
+        1200
+      ]
+    }
+  ],
+  "runtime": "C:\\Users\\jinhao\\Desktop\\Projects\\AtlasCore\\.tools\\direct-art-fyvfjy52",
+  "extensionInstalled": false,
+  "galleryImagesAndToggleVerified": true
+}

@@ -96,6 +96,7 @@ export function reviewPolicyProposal(proposalId: unknown, input: unknown): Polic
   const candidate = proposal.candidatePolicy;
   const hosts = [...new Set([
     ...policy.whitelist, ...policy.blacklist, ...candidate.whitelist, ...candidate.blacklist,
+    ...(policy.whitelistSubdomains ?? []), ...(candidate.whitelistSubdomains ?? []),
   ])].sort();
   const classifications: PolicyClassificationChange[] = [];
   for (const hostname of hosts) {
@@ -111,6 +112,8 @@ export function reviewPolicyProposal(proposalId: unknown, input: unknown): Polic
       readyAt: proposal.readyAt, confirmBy: proposal.confirmBy,
       phase: now >= proposal.confirmBy ? "EXPIRED" : now < proposal.readyAt ? "WAITING" : "READY",
       whitelist: listChanges(policy.whitelist, candidate.whitelist),
+      ...(policy.whitelistSubdomains === undefined && candidate.whitelistSubdomains === undefined ? {}
+        : { whitelistSubdomains: listChanges(policy.whitelistSubdomains ?? [], candidate.whitelistSubdomains ?? []) }),
       blacklist: listChanges(policy.blacklist, candidate.blacklist),
       classifications, invalidatesAccess: !samePolicy(candidate, policy),
       ...(configuration === undefined ? {} : { currentConfiguration: configuration,

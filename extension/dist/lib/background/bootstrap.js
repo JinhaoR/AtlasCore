@@ -3,5 +3,5 @@ import { compileCuratedWhitelist } from '../presets/curated-whitelist.js';
 export async function initializeDevelopmentPolicy(repository) {
     const loaded = await repository.load();
     if (loaded.type === 'UNINITIALIZED')
-        await repository.initialize(compileCuratedWhitelist());
+        await repository.initialize(compileCuratedWhitelist(), true);
 }

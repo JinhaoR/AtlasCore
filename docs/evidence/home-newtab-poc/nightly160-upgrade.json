@@ -1,0 +1,108 @@
+{
+  "mode": "persistent-unsigned",
+  "upgrade": true,
+  "baselineVersion": "0.2.0",
+  "policyCopy": "Only Atlas install_url changed to disposable local package",
+  "checks": {
+    "focusBeforeAutomationSelect": {
+      "focused": false,
+      "value": ""
+    },
+    "firstNewtabPrompts": [
+      {
+        "id": "extension-notification-panel",
+        "text": "Your new tab has changed.An extension,  Atlas, changed the page you see when you open a new tab.Learn more"
+      }
+    ],
+    "firstNewtabFocus": {
+      "focused": false,
+      "value": ""
+    },
+    "noticeButtons": [
+      {
+        "tag": "popupnotification",
+        "id": "extension-new-tab-notification",
+        "label": "Your new tab has changed.",
+        "buttonlabel": "Keep Changes",
+        "secondarybuttonlabel": "Manage New Tabs"
+      },
+      {
+        "tag": "toolbarbutton",
+        "id": "",
+        "label": null,
+        "buttonlabel": null,
+        "secondarybuttonlabel": null
+      },
+      {
+        "tag": "popupnotification",
+        "id": "extension-homepage-notification",
+        "label": "Your homepage has changed.",
+        "buttonlabel": "Keep Changes",
+        "secondarybuttonlabel": "Manage Homepage"
+      },
+      {
+        "tag": "popupnotification",
+        "id": "extension-tab-hide-notification",
+        "label": "Access Your Hidden Tabs",
+        "buttonlabel": "Keep Tabs Hidden",
+        "secondarybuttonlabel": "Disable Extension"
+      }
+    ],
+    "acknowledgedFocusBeforeSelect": {
+      "focused": true,
+      "value": ""
+    },
+    "typedValue": {
+      "value": "atlas focus probe",
+      "focused": true,
+      "active": "urlbar-input"
+    },
+    "ctrlTImmediateTyping": true,
+    "plusImmediateTyping": true,
+    "homepagePrompts": [
+      {
+        "id": "extension-notification-panel",
+        "text": "Your new tab has changed.An extension,  Atlas, changed the page you see when you open a new tab.Learn moreYour homepage has changed.An extension,  Atlas, changed what you see when you open your homepage and new windows.Learn more"
+      }
+    ],
+    "homeButton": true,
+    "newWindowHome": true,
+    "origin": "moz-extension://<disposable-profile>/ui/index.html",
+    "firefox": "160.0a1"
+  },
+  "initialStartupPage": "about:home",
+  "initialPrompts": [],
+  "baselineWhitelistCount": 294,
+  "firstUpgradeStartupPage": "about:home",
+  "firstUpgradePrompts": [],
+  "upgradePreservesPolicyPinsAndOrigin": true,
+  "gates": {
+    "pinnedAllowedPageReached": true,
+    "black.localhost": {
+      "decision": {
+        "outcome": "DENY",
+        "reason": "BLACKLISTED",
+        "target": {
+          "hostname": "black.localhost"
+        }
+      },
+      "effect": "REMOVED"
+    },
+    "unknown.localhost": {
+      "decision": {
+        "outcome": "GREYLIST",
+        "reason": "UNLISTED",
+        "target": {
+          "hostname": "unknown.localhost"
+        }
+      },
+      "effect": "REMOVED"
+    },
+    "noGrantsOrAccessRequestsCreated": true
+  },
+  "restartRestoreDisabledHome": true,
+  "restartPrompts": [],
+  "restoreSessionLabel": "Open previous windows and tabs",
+  "restartRestoreEnabledRetainsPreviousTab": true,
+  "ctrlTAfterRestart": true
+}

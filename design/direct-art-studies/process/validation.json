@@ -1,0 +1,23 @@
+{
+  "protectedFilesUnchanged": 1116,
+  "releaseFilesUnchanged": 438,
+  "downloadedSourcesHashVerified": 4,
+  "renderedAndRasterAssetsChecked": [
+    "fitted/01-oliva.jpg",
+    "softened/01-oliva.jpg",
+    "previews/01-oliva-context.png",
+    "fitted/02-de-wit.jpg",
+    "softened/02-de-wit.jpg",
+    "previews/02-de-wit-context.png",
+    "fitted/03-prunes.jpg",
+    "softened/03-prunes.jpg",
+    "previews/03-prunes-context.png",
+    "fitted/04-blaeu.jpg",
+    "softened/04-blaeu.jpg",
+    "previews/04-blaeu-context.png"
+  ],
+  "selfContainedSvgMockups": 4,
+  "noExtensionInstall": true,
+  "noAiImageGeneration": true,
+  "studySizeMiB": 66.93
+}

@@ -137,7 +137,7 @@ def scenario(run, addon, firefox, broken=False):
             snapshot = current['controller']['snapshot']
             assert current['startup']['status'] == 'READY'
             assert current['managed']['active'] and current['managed']['count'] >= 100000
-            assert len(snapshot['policy']['whitelist']) == 51
+            assert len(snapshot['policy']['whitelist']) >= 250
             assert 'student.ladok.se' in snapshot['policy']['whitelist'] and 'github.com' in snapshot['policy']['whitelist']
             assert snapshot['policy']['blacklist'] == [] and snapshot['policyRevision'] == 0
             assert snapshot['accessState']['grants'] == [] and snapshot['accessState']['pendingRequests'] == []
@@ -161,7 +161,7 @@ def scenario(run, addon, firefox, broken=False):
                                       'reload authority', 20)
             assert restored['controller']['snapshot']['policy'] == snapshot['policy']
             return {'firefox': version, 'mode': 'repaired-bundle' if broken else 'fresh-checkout',
-                    'whitelistHosts': 51, 'policyRevision': 0, 'startupFailure': failure,
+                    'whitelistHosts': len(snapshot['policy']['whitelist']), 'policyRevision': 0, 'startupFailure': failure,
                     'checks': ['verified managed data', 'saved first-run policy', 'no copied runtime permissions',
                                'repeated recovery preserves policy', 'reload retains policy']
                               + (['corrupt bundle stops before initialization', 'safe diagnostic', 'explicit UI startup retry'] if broken else [])}

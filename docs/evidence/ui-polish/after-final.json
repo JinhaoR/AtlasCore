@@ -1,0 +1,917 @@
+{
+  "baseline": false,
+  "firefox": "159.0.1",
+  "polish": {
+    "baseline": false,
+    "reloads": [
+      {
+        "frames": [
+          {
+            "at": 16,
+            "search": null,
+            "pins": null,
+            "footer": null,
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": null
+          },
+          {
+            "at": 23,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              851,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loading",
+            "phase": null
+          },
+          {
+            "at": 37,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              851,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loading",
+            "phase": "LOADING"
+          },
+          {
+            "at": 49,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              851,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 6,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": "READY"
+          },
+          {
+            "at": 62,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              851,
+              160,
+              32
+            ],
+            "categories": 6,
+            "cards": 0,
+            "pinsCount": 6,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": "READY"
+          }
+        ],
+        "costs": {
+          "renderSettings": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "renderHome": [
+            1,
+            0,
+            6,
+            3,
+            3,
+            2,
+            3,
+            3,
+            3,
+            3,
+            3
+          ]
+        },
+        "calls": {
+          "PRESENTATION_READ": 3,
+          "GET_VIEW": 5
+        },
+        "resources": 0,
+        "forceStatus": null
+      },
+      {
+        "frames": [
+          {
+            "at": 20,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              851,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loading",
+            "phase": null
+          },
+          {
+            "at": 35,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              851,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loading",
+            "phase": "LOADING"
+          },
+          {
+            "at": 46,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              851,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 6,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": "READY"
+          },
+          {
+            "at": 55,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              851,
+              160,
+              32
+            ],
+            "categories": 6,
+            "cards": 0,
+            "pinsCount": 6,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": "READY"
+          }
+        ],
+        "costs": {
+          "renderSettings": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          "renderHome": [
+            1,
+            0,
+            5,
+            4,
+            2,
+            3,
+            2,
+            2,
+            2,
+            4,
+            1
+          ]
+        },
+        "calls": {
+          "PRESENTATION_READ": 3,
+          "GET_VIEW": 5
+        },
+        "resources": 0,
+        "forceStatus": null
+      },
+      {
+        "frames": [
+          {
+            "at": 21,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              851,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loading",
+            "phase": null
+          },
+          {
+            "at": 38,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              851,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loading",
+            "phase": "LOADING"
+          },
+          {
+            "at": 44,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              851,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 0,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": "LOADING"
+          },
+          {
+            "at": 52,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              851,
+              160,
+              32
+            ],
+            "categories": 0,
+            "cards": 0,
+            "pinsCount": 6,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": "READY"
+          },
+          {
+            "at": 63,
+            "search": [
+              144,
+              279,
+              1200,
+              67
+            ],
+            "pins": [
+              1003,
+              417,
+              320,
+              312
+            ],
+            "footer": [
+              1184,
+              851,
+              160,
+              32
+            ],
+            "categories": 6,
+            "cards": 0,
+            "pinsCount": 6,
+            "page": "home",
+            "fonts": "loaded",
+            "phase": "READY"
+          }
+        ],
+        "costs": {
+          "renderSettings": [
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "renderHome": [
+            2,
+            0,
+            4,
+            1,
+            2,
+            4,
+            2,
+            2,
+            2,
+            3,
+            2
+          ]
+        },
+        "calls": {
+          "PRESENTATION_READ": 3,
+          "GET_VIEW": 5
+        },
+        "resources": 0,
+        "forceStatus": null
+      }
+    ],
+    "pinLabels": {
+      "READY": {
+        "labels": [
+          "KTH Mail",
+          "ChatGPT",
+          "GitHub",
+          "Overleaf",
+          "Google Scholar",
+          "Gmail"
+        ],
+        "disabled": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "warning": false
+      },
+      "LOADING": {
+        "labels": [
+          "KTH Mail",
+          "ChatGPT",
+          "GitHub",
+          "Overleaf",
+          "Google Scholar",
+          "Gmail"
+        ],
+        "disabled": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "warning": false
+      },
+      "COMMITTING": {
+        "labels": [
+          "KTH Mail",
+          "ChatGPT",
+          "GitHub",
+          "Overleaf",
+          "Google Scholar",
+          "Gmail"
+        ],
+        "disabled": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "warning": false
+      },
+      "UNAVAILABLE": {
+        "labels": [
+          "KTH Mail \u00b7 Access unverified",
+          "ChatGPT \u00b7 Access unverified",
+          "GitHub \u00b7 Access unverified",
+          "Overleaf \u00b7 Access unverified",
+          "Google Scholar \u00b7 Access unverified",
+          "Gmail \u00b7 Access unverified"
+        ],
+        "disabled": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "warning": true
+      }
+    },
+    "idle": {
+      "nodes": 0,
+      "attrs": 0,
+      "resources": 0,
+      "samePin": true,
+      "calls": {
+        "GET_VIEW": 5,
+        "PRESENTATION_READ": 5
+      },
+      "costs": {
+        "renderSettings": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "renderHome": [
+          4,
+          3,
+          2,
+          2,
+          5
+        ]
+      }
+    },
+    "navigationMs": [
+      23,
+      14,
+      13,
+      12,
+      11,
+      12,
+      12,
+      12,
+      14,
+      12
+    ],
+    "category": {
+      "cards": 32,
+      "visible": 12,
+      "scrollHeight": 1058,
+      "innerHeight": 1058
+    },
+    "countdown": [
+      {
+        "copy": [
+          144,
+          787,
+          882,
+          43
+        ],
+        "time": [
+          1038,
+          796,
+          160,
+          25
+        ],
+        "action": [
+          1210,
+          790,
+          134,
+          38
+        ],
+        "footer": [
+          1184,
+          851,
+          160,
+          32
+        ]
+      },
+      {
+        "copy": [
+          144,
+          787,
+          882,
+          43
+        ],
+        "time": [
+          1038,
+          796,
+          160,
+          25
+        ],
+        "action": [
+          1210,
+          790,
+          134,
+          38
+        ],
+        "footer": [
+          1184,
+          851,
+          160,
+          32
+        ]
+      },
+      {
+        "copy": [
+          144,
+          787,
+          882,
+          43
+        ],
+        "time": [
+          1038,
+          796,
+          160,
+          25
+        ],
+        "action": [
+          1210,
+          790,
+          134,
+          38
+        ],
+        "footer": [
+          1184,
+          851,
+          160,
+          32
+        ]
+      },
+      {
+        "copy": [
+          144,
+          787,
+          882,
+          43
+        ],
+        "time": [
+          1038,
+          796,
+          160,
+          25
+        ],
+        "action": [
+          1210,
+          790,
+          134,
+          38
+        ],
+        "footer": [
+          1184,
+          851,
+          160,
+          32
+        ]
+      }
+    ],
+    "sizes": [
+      {
+        "width": 1488,
+        "height": 1058,
+        "overflow": 0,
+        "mainOverflow": "hidden",
+        "footerBottom": 882.7000122070312,
+        "documentHeight": 1058
+      },
+      {
+        "width": 1150,
+        "height": 795,
+        "overflow": 0,
+        "mainOverflow": "visible",
+        "footerBottom": 802.4166870117188,
+        "documentHeight": 864
+      },
+      {
+        "width": 1190,
+        "height": 846,
+        "overflow": 0,
+        "mainOverflow": "visible",
+        "footerBottom": 804.2166748046875,
+        "documentHeight": 866
+      },
+      {
+        "width": 992,
+        "height": 705,
+        "overflow": 0,
+        "mainOverflow": "visible",
+        "footerBottom": 1022.433349609375,
+        "documentHeight": 1084
+      },
+      {
+        "width": 744,
+        "height": 529,
+        "overflow": 0,
+        "mainOverflow": "visible",
+        "footerBottom": 1017.5,
+        "documentHeight": 1080
+      },
+      {
+        "width": 600,
+        "height": 765,
+        "overflow": 0,
+        "mainOverflow": "visible",
+        "footerBottom": 1402.5,
+        "documentHeight": 1503
+      }
+    ],
+    "pages": {
+      "sites": [
+        {
+          "at": 22,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 0,
+          "cards": 0,
+          "pinsCount": 0,
+          "page": "sites",
+          "fonts": "loading",
+          "phase": null
+        },
+        {
+          "at": 42,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 0,
+          "cards": 0,
+          "pinsCount": 0,
+          "page": "sites",
+          "fonts": "loading",
+          "phase": "LOADING"
+        },
+        {
+          "at": 78,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 6,
+          "cards": 0,
+          "pinsCount": 6,
+          "page": "sites",
+          "fonts": "loading",
+          "phase": "READY"
+        },
+        {
+          "at": 82,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 6,
+          "cards": 0,
+          "pinsCount": 6,
+          "page": "sites",
+          "fonts": "loaded",
+          "phase": "READY"
+        }
+      ],
+      "vault": [
+        {
+          "at": 15,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 0,
+          "cards": 0,
+          "pinsCount": 0,
+          "page": "vault",
+          "fonts": "loading",
+          "phase": null
+        },
+        {
+          "at": 35,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 0,
+          "cards": 0,
+          "pinsCount": 0,
+          "page": "vault",
+          "fonts": "loading",
+          "phase": "LOADING"
+        },
+        {
+          "at": 59,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 6,
+          "cards": 0,
+          "pinsCount": 6,
+          "page": "vault",
+          "fonts": "loading",
+          "phase": "READY"
+        },
+        {
+          "at": 71,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 6,
+          "cards": 0,
+          "pinsCount": 6,
+          "page": "vault",
+          "fonts": "loaded",
+          "phase": "READY"
+        }
+      ],
+      "settings": [
+        {
+          "at": 15,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 0,
+          "cards": 0,
+          "pinsCount": 0,
+          "page": "settings",
+          "fonts": "loading",
+          "phase": null
+        },
+        {
+          "at": 33,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 0,
+          "cards": 0,
+          "pinsCount": 0,
+          "page": "settings",
+          "fonts": "loading",
+          "phase": "LOADING"
+        },
+        {
+          "at": 57,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 6,
+          "cards": 0,
+          "pinsCount": 6,
+          "page": "settings",
+          "fonts": "loading",
+          "phase": "READY"
+        },
+        {
+          "at": 68,
+          "search": null,
+          "pins": null,
+          "footer": null,
+          "categories": 6,
+          "cards": 0,
+          "pinsCount": 6,
+          "page": "settings",
+          "fonts": "loaded",
+          "phase": "READY"
+        }
+      ]
+    }
+  },
+  "status": "PASS"
+}

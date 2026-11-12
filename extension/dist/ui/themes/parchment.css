@@ -1,0 +1,36 @@
+/* Parchment: Oliva's chart, Aguiar-derived rose and warm vellum. ARTWORK.md. */
+:root[data-theme="parchment"] {
+  --color-scheme: light;
+  --page: #efe1c4;
+  --page-background: #f3e8ce;
+  --page-home-background: url("themes/parchment/historical-home.webp") center / cover no-repeat, #f1e4c8;
+  --page-workspace-background: url("themes/parchment/historical-workspace.webp") center / cover no-repeat, #f1e4c8;
+  --page-attachment: fixed;
+  --surface: #fcf3e0; --surface-disabled: #e5d7ba; --surface-quiet: linear-gradient(110deg, #fbf2df, #efe0c2);
+  --ink: #342d24; --muted: #6a5b45; --accent: #74402e; --accent-muted: #876847; --link: #2f5860;
+  --border: #ad9670; --border-soft: #b29973; --control-border: #8e7959;
+  --hover: #e9dabb; --selected: #e4d3ad; --focus: #65441d; --on-accent: #fff5df; --accent-hover: #5b3f17;
+  --success: #37563b; --success-surface: #e3e9d3; --warning: #73501d; --warning-surface: #f5e6bb;
+  --error: #8a392c; --error-surface: #f5dfd3; --unavailable: #63594c; --unavailable-surface: #e5dfd0;
+  --access-wait-ink: #73501d; --access-wait-border: #9e7c38; --access-wait-surface: #f5e6bb;
+  --access-active-ink: #37563b; --access-active-border: #71815d; --access-active-surface: #e3e9d3;
+  --cancel-ink: #8a392c; --cancel-border: #ac7661; --cancel-surface: #f5dfd3; --cancel-hover: #eccfc0;
+  --icon-surface: radial-gradient(circle at 40% 30%, #fff9e9, #eddbb4); --icon-border: #b69a67;
+  --pin-surface: radial-gradient(circle at 40% 30%, #fff8e6 35%, #f6e9cc 72%, #e2c99b); --pin-hover: #fffaf0; --pin-ink: #352b20; --pin-border: #947546;
+  --pin-shadow: inset 0 0 0 2px #fdf3db, inset 0 0 0 3px #ac8d555e, 0 3px 7px #71532b26;
+  --font-title: 'Cormorant Garamond', Georgia, serif;
+  --weight-heading: 600; --weight-display: 500; --heading-display: 64px; --heading-compact: 46px;
+  --heading-dialog: 38px; --heading-vault: 46px; --heading-spacing: -.035em; --wordmark-spacing: .16em;
+  --radius: 2px; --radius-card: 2px; --radius-panel: 3px; --radius-search: 3px; --radius-dialog: 4px;
+  --category-shadow: inset 0 0 0 3px #f9f0db, inset 0 0 0 4px #b59c7066, 0 2px 4px #6a472212;
+  --search-shadow: inset 0 0 0 3px #f8ecd4, inset 0 0 0 4px #af96616b, 0 3px 10px #6a47221a;
+  --search-surface: linear-gradient(110deg, #fcf3df, #f7ecd4);
+  --font-search: var(--font-title); --search-font-style: italic; --search-font-weight: 600;
+  --backdrop: #43351d66; --popover-shadow: 0 12px 32px #58401f26; --floating-shadow: 0 8px 24px #58401f26;
+  --compass-ring: transparent; --compass-ring-width: .8; --compass-ring-dash: none;
+  --compass-tick: transparent; --compass-tick-length: 8; --compass-tick-dash: none;
+  --compass-rose: transparent; --compass-rose-secondary: transparent; --compass-rose-outline: transparent;
+  --compass-cardinal: transparent; --compass-opacity: 1;
+  --compass-artwork: url("themes/parchment/rose.svg"); --brand-artwork: url("themes/parchment/mark.svg");
+  --compass-field: none;
+}

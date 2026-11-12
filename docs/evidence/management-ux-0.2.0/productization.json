@@ -1,0 +1,19 @@
+{
+  "firefox": "159.0",
+  "productization": {
+    "checks": [
+      "accessible horizontal navigation, no expand control, legacy preference ignored across reload, unchanged authority",
+      "native online website icons, observed favicon on a custom host, decoded image rendering and no letter tiles",
+      "unpinning a focused compass label returns focus to visible search; All categories retains the explicit re-pin action",
+      "native narrow layout: requested 350px outer width, actual 500px viewport, no horizontal overflow and fully visible Home/Settings labels",
+      "native Home/Settings navigation and actual settings disclosures, local pin persistence, ordinary cards, search shortcut, stable DOM and small-screen layout",
+      "native local search, aliases, blacklist exclusion, keyboard selection and ordinary gate",
+      "native atomic schema-1 migration, unchanged policy/runtime terms and frozen pending policy wait",
+      "native per-tab badge/title, cancellation, expiry and restart clearing",
+      "native old-term settings wait, explicit confirmation, atomic activation and frozen Access/Journey terms",
+      "native committed settings and pending proposal restart",
+      "Home/Settings preserve policy, managed list, Vault, diagnostics and recovery tools"
+    ],
+    "configurationRevision": 1
+  }
+}

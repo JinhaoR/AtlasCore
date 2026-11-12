@@ -1,0 +1,184 @@
+{
+  "version": "0.2.1",
+  "status": "VALIDATED_UNSIGNED_SIGNING_CANDIDATE",
+  "date": "2026-11-03",
+  "identity": "atlas-development@atlas.invalid",
+  "channel": "unlisted",
+  "environment": {
+    "node": "24.12.0",
+    "npm": "11.6.4",
+    "firefox": "159.0.1",
+    "platform": "Windows"
+  },
+  "artifacts": {
+    "atlas-0.2.1-unsigned.zip": {
+      "sha256": "bdf4c283ad35833099e2e8f9106fd23c7859c2cd2dffef7ad96b9b65406cad8b",
+      "bytes": 1571539,
+      "reproducedExactly": true
+    },
+    "atlas-0.2.1-source.zip": {
+      "sha256": "3181458375f1a4d5315fbf38b792b881ca87f62d0fa28eae93a5646fac2e443e",
+      "bytes": 2027618,
+      "reproducedExactly": true
+    },
+    "release.json": {
+      "sha256": "65ef22db5e7b860148f7992fdc4835ae14adca4e5c3d4dc1be04aea8821132d7",
+      "bytes": 29476,
+      "reproducedExactly": true
+    }
+  },
+  "runtimeHashes": {
+    "THIRD-PARTY-NOTICES.txt": "bed266a708af2a3db424b6a917b45aa4556798019f070836ab2273f4ceea725c",
+    "background.js": "5fd940c5994cb509cb7786d23ae34daacc8a75d81bf0c1952fcd348ac77be9a1",
+    "data/stevenblack/NOTICE.md": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291",
+    "data/stevenblack/hosts": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76",
+    "data/stevenblack/license.txt": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b",
+    "data/stevenblack/metadata.json": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f",
+    "data/stevenblack/upstream-readme.md": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69",
+    "journey-indicator.js": "eeeedef1785008ed6a07d6ee1c779e0a9e8b3819aba8e4b2db0cd6f497f532b4",
+    "manifest.json": "d1e1c0d684e28154b498e25cfdcc5e24208d0e853a59631093c6e9f851a0cdd8",
+    "ui/atlas.svg": "33c5ea70fb57d4e0f720448432e2cdf04aee9f3513176f312aa38417465ecda9",
+    "ui/fonts/Cormorant-Garamond-OFL.txt": "60700d351cac4650c51f3f9db318d2a420f8b45052dba2715eb5fec41f0f6956",
+    "ui/fonts/Source-Sans-3-OFL.txt": "09746787287a289323b0ec3cff4d1a4a801331b82b7207c1e186f5d26619a392",
+    "ui/fonts/cormorant-garamond-italic-latin-ext.woff2": "cd5bf126b2c84ab41b254a6a9a1ffb5c326a0f9f82c22fb4704daa31c9aaa415",
+    "ui/fonts/cormorant-garamond-italic-latin.woff2": "6f2f5c3b1abc3d0bb035a927f66a90ca873f94fc31c4966c8d024142c2036e55",
+    "ui/fonts/cormorant-garamond-normal-latin-ext.woff2": "cfa9a397d86f66c5c51775a2500a712d5f632a04f0c5eca6930dfaf612d4566d",
+    "ui/fonts/cormorant-garamond-normal-latin.woff2": "d80df8ff5aecd299a61549f9e29ab1ed0b9b05f4ea71d50fe978e07d5240b235",
+    "ui/fonts/source-sans-3-normal-latin-ext.woff2": "a85a7459bdb3cdc1136751e151a506bae653fc29ada3ca86237477df6f1b59e6",
+    "ui/fonts/source-sans-3-normal-latin.woff2": "19143dca075972bc84e3fd9eab7416dd40cc565dccb2435a044bdfabe060c7d5",
+    "ui/fonts/sources.json": "27d5be4a319bfa1d1710d3369d5b59c3a0db314c3d432e3eb9294b0e2246d8eb",
+    "ui/index.html": "6abe68f284e4ac19d73040bce2383543c2d13688a2c48f3d04e4eec30cafa129",
+    "ui/main.js": "f9ccbc077db9c05474adfd61425b5a204f5e7fb525373219f618f80351755208",
+    "ui/site.svg": "fcd2e4fe69244ea89534b64ce25ddd34d09298d6b0a84afcf37aadbbb4bfc49f",
+    "ui/style.css": "6741fd88e48d58b79f1e1256eaf8ee13a862a959c921466889de3e81e0f1871e"
+  },
+  "changes": [
+    "Previously verified 0.2.1 startup/viewport repairs",
+    "Promoted manifest-only Home/new-tab overrides: both ui/index.html, no fragment or hardcoded UUID"
+  ],
+  "checks": {
+    "coreTests": 247,
+    "extensionTests": 545,
+    "failures": 0,
+    "coreTypecheck": true,
+    "extensionTypecheck": true,
+    "developmentBuild": true,
+    "releaseBuild": true,
+    "releaseValidate": true,
+    "reviewerFreshLockedInstalls": true,
+    "reviewerBuildValidateAndFullTests": true,
+    "reviewerBothArchivesAndReceiptByteIdentical": true,
+    "developmentRuntimeMatchesAll23Assets": true,
+    "developmentDifference": "sourceMappingURL trailers only; maps and lib modules excluded",
+    "runtimeAssets": 23,
+    "sourceFiles": 229,
+    "testInstrumentationExcluded": true,
+    "existingBoundedProductionDiagnosticsRetained": true,
+    "signedVersionsVerifiedOffline": [
+      "0.1.13",
+      "0.1.14",
+      "0.1.15",
+      "0.1.16",
+      "0.1.17",
+      "0.1.18",
+      "0.1.19",
+      "0.2.0"
+    ],
+    "protectedExistingReleaseFiles": 162,
+    "protectedDifferences": [],
+    "lint": {
+      "errors": 0,
+      "notices": 0,
+      "warnings": 1
+    },
+    "dependencyAudit": {
+      "runtime": 0,
+      "unchangedDevelopment": {
+        "low": 1,
+        "moderate": 10,
+        "high": 2,
+        "total": 13
+      },
+      "automaticFixApplied": false
+    }
+  },
+  "sourceReview": {
+    "comparison": "Previous unsigned 0.2.1 candidate, retained in .tools/release-home-0.2.1/previous-unsigned-0.2.1.zip",
+    "runtimeChanges": [
+      "manifest.json"
+    ],
+    "sourceChanges": [
+      "docs/firefox-home-newtab-poc.md",
+      "docs/firefox-private-release.md",
+      "docs/release-candidate-0.2.1.md",
+      "docs/startup-layout-0.2.1.md",
+      "extension/REVIEWER-BUILD.md",
+      "extension/manifest.json",
+      "extension/package.json",
+      "extension/scripts/build-home-poc.mjs",
+      "extension/scripts/release.mjs",
+      "extension/tests/home-overrides.test.mjs"
+    ],
+    "coreAdapterBackgroundStoragePresetAndUiUnchangedFromPreviousCandidate": true,
+    "manifestChanges": "Two bare relative Home/newtab override entries only",
+    "priorSignedBaselineReview": "firefox-release-0.2.1-startup-only.json"
+  },
+  "native": {
+    "currentStagedSignedUpgradeRestartRollback": "home-newtab-poc/staged-upgrade-rollback.json",
+    "currentStagedHomeNewtabAndNavigationGate": "home-newtab-poc/staged-firefox159-home.json",
+    "priorPersistentUnsignedNightlyFresh": "home-newtab-poc/nightly160-fresh.json",
+    "priorPersistentUnsignedNightlyUpgrade": "home-newtab-poc/nightly160-upgrade.json",
+    "priorStartupViewportEvidence": "startup-layout-0.2.1/staged/result.json",
+    "priorHomeOrganization": "startup-layout-0.2.1/home-organization.json",
+    "priorManagement": "startup-layout-0.2.1/management.json",
+    "distinction": "Current staged Windows Firefox 159.0.1 temporary-overlay and upgrade/rollback checks. Previously verified persistent unsigned Nightly 160.0a1 restart/session-restore results apply to the same runtime and manifest semantics; signed stable confirmation is still a post-signing check."
+  },
+  "limitations": [
+    "Historical intermittent INTERNAL_ERROR remains unresolved.",
+    "Firefox first-use homepage/new-tab notices may take focus; Keep Changes acknowledges.",
+    "Policy installation/update can finish after the initial launch page is chosen.",
+    "Homepage launch requires browser.startup.page=1; enabled session restore restores prior tabs.",
+    "Stable unsigned temporary overlays do not persist; full persistent unsigned startup evidence uses isolated Nightly. Future signed stable upgrade prompts remain to verify.",
+    "Non-Windows, physical trackpad, screen-reader conformance and every authentication flow remain unverified.",
+    "Private browsing stays disabled by the existing manifest.",
+    "Optional icon cache can fail or be evicted; existing fallbacks remain.",
+    "Locked toolchain retains 13 development-only audit entries; runtime audit is zero."
+  ],
+  "boundaries": {
+    "mozillaSubmission": false,
+    "signing": false,
+    "deployment": false,
+    "normalProfileAccessed": false,
+    "enterprisePolicyModified": false,
+    "commitOrPush": false
+  },
+  "signingCommand": "npm.cmd --prefix extension run release:sign",
+  "expectedSignedOutput": "extension/release/0.2.1/signed/*.xpi",
+  "cleanup": {
+    "removed": [
+      {
+        "path": ".tools\\firefox-e2e-m61_w8_t",
+        "bytes": 155791298
+      },
+      {
+        "path": ".tools\\firefox-e2e-co77176a",
+        "bytes": 99607128
+      },
+      {
+        "path": ".tools\\home-overrides-gwg6p5cn",
+        "bytes": 711308122
+      },
+      {
+        "path": ".tools\\release-home-0.2.1\\firefox",
+        "bytes": 606295949
+      },
+      {
+        "path": ".tools\\release-home-0.2.1\\reviewer",
+        "bytes": 154099864
+      }
+    ],
+    "bytes": 1727102361,
+    "unrelatedToolsRemoved": false,
+    "previousUnsignedCandidateCheckpointRetained": true
+  }
+}

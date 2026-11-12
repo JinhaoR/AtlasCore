@@ -51,11 +51,15 @@ export type AtlasOperation = DownloadOperation | {
     readonly target: SiteTarget;
     readonly scopeHostnames?: readonly string[];
 } | {
-    readonly kind: "CONFIRM_ACCESS" | "CANCEL_ACCESS";
+    readonly kind: "CONFIRM_ACCESS" | "CANCEL_ACCESS" | "END_ACCESS";
     readonly requestId: number;
 } | {
     readonly kind: "PROPOSE_POLICY";
     readonly candidatePolicy: Policy;
+} | {
+    readonly kind: "REMOVE_WHITELIST";
+    readonly candidatePolicy: Policy;
+    readonly basePolicyRevision: number;
 } | {
     readonly kind: "PROPOSE_SETTINGS";
     readonly candidateConfiguration: AtlasConfiguration;
@@ -73,7 +77,7 @@ export type AtlasOperation = DownloadOperation | {
 } | {
     readonly kind: "OBSERVE_TIME";
 };
-export type AtlasError = AtlasSnapshotError | AccessError | VaultError | JourneyError | "INVALID_CONTEXT" | "INVALID_CONFIGURATION" | "INVALID_OPERATION" | "INVALID_MANAGED_BLACKLIST" | "MANAGED_BLACKLISTED";
+export type AtlasError = AtlasSnapshotError | AccessError | VaultError | JourneyError | "INVALID_CONTEXT" | "INVALID_CONFIGURATION" | "INVALID_OPERATION" | "INVALID_MANAGED_BLACKLIST" | "MANAGED_BLACKLISTED" | "NOT_WHITELIST_REMOVAL";
 export type AtlasNavigationDecision = AccessDecision | JourneyDecision | {
     readonly outcome: "DENY";
     readonly reason: "MANAGED_BLACKLISTED";

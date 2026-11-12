@@ -1,3 +1,11 @@
+export function authorityInterruptionCopy(issue) {
+    if (!issue)
+        return '';
+    const fault = issue.internalFault;
+    return `Last authority interruption this session: ${issue.reason} · ${issue.status} (retained across recovery).`
+        + (fault ? ` Core fault ${fault.sequence}: ${fault.operation} · ${fault.stage} · ${fault.error}.`
+            + (fault.stateCounts ? ` State counts: ${fault.stateCounts.journeys} Journeys, ${fault.stateCounts.requests} requests, ${fault.stateCounts.grants} grants.` : '') : '');
+}
 /** Local storage observations are explanations, never authorization inputs. */
 export function storageFailureCopy(storage) {
     const failure = storage?.lastFailure;
@@ -33,8 +41,8 @@ export function journeyEndCopy(reason) {
         case 'ROOT_NOT_WHITELISTED': return 'The policy changed or could no longer authorize this Journey.';
         case 'CONTEXT_CLOSED': return 'The browsing context closed.';
         case 'REACHED':
-        case 'RETURNED': return 'You reached your destination.';
-        case 'DESTINATION_CHANGED': return 'You reached another Whitelisted destination.';
+        case 'RETURNED': return 'You reached your site.';
+        case 'DESTINATION_CHANGED': return 'You reached another Allowed site.';
         default: return 'Your Journey ended.';
     }
 }
@@ -48,18 +56,38 @@ export function accessOutcomeLabel(decision) {
     if (!decision)
         return 'No decision';
     return { ALLOW: 'Allowed', DENY: decision.reason === 'BLACKLISTED' || decision.reason === 'MANAGED_BLACKLISTED' ? 'Blocked' : 'Unavailable',
-        GREYLIST: 'Greylist', WAIT: 'Waiting', REQUIRE_CONFIRMATION: 'Confirm access' }[decision.outcome];
+        GREYLIST: 'Requires access request', WAIT: 'Waiting', REQUIRE_CONFIRMATION: 'Confirm access' }[decision.outcome];
 }
 export function accessCopy(decision) {
     if (decision === null)
         return { title: 'Choose a tab', description: 'Select a website to see its access status.', tone: 'neutral' };
     switch (decision.outcome) {
-        case 'GREYLIST': return { title: 'Take a moment before continuing', description: 'This site is outside your Pure Whitelist. Start a request, then return to confirm temporary access.', tone: 'wait' };
+        case 'GREYLIST': return { title: 'Take a moment before continuing', description: 'This site is outside your allowed sites. Start a request, then return to confirm temporary access.', tone: 'wait' };
         case 'WAIT': return { title: 'Your waiting period is running', description: 'You can leave this page and come back. When the wait ends, you still need to confirm.', tone: 'wait' };
         case 'REQUIRE_CONFIRMATION': return { title: 'Ready when you are', description: 'Confirm to open the site home with temporary access. Your policy stays the same.', tone: 'ready' };
-        case 'DENY': return { title: decision.reason === 'BLACKLISTED' || decision.reason === 'MANAGED_BLACKLISTED' ? 'This site is blocked' : 'Access is unavailable', description: decision.reason === 'BLACKLISTED' ? 'Your Blacklist prevents access to this destination.' : decision.reason === 'MANAGED_BLACKLISTED' ? 'The managed StevenBlack list blocks this destination. Temporary access and Journey cannot override it.' : 'Atlas could not authorize this navigation. Check the decision details below.', tone: decision.reason === 'BLACKLISTED' || decision.reason === 'MANAGED_BLACKLISTED' ? 'blocked' : 'unavailable' };
-        case 'ALLOW': return { title: 'You can continue', description: decision.reason === 'WHITELISTED' ? 'This destination is in your Pure Whitelist.' : decision.reason === 'ACTIVE_JOURNEY' ? 'This navigation is covered by your current Journey. Its original deadline still applies.' : 'Temporary access is active. This site remains Greylist.', tone: 'ready' };
+        case 'DENY': return { title: decision.reason === 'BLACKLISTED' || decision.reason === 'MANAGED_BLACKLISTED' ? 'This site is blocked' : 'Access is unavailable', description: decision.reason === 'BLACKLISTED' ? 'Your blocked-site rule prevents access to this site.' : decision.reason === 'MANAGED_BLACKLISTED' ? 'The managed StevenBlack list blocks this site. Temporary access and Journey cannot override it.' : 'Atlas could not authorize this navigation. Check the decision details below.', tone: decision.reason === 'BLACKLISTED' || decision.reason === 'MANAGED_BLACKLISTED' ? 'blocked' : 'unavailable' };
+        case 'ALLOW': return { title: 'You can continue', description: decision.reason === 'WHITELISTED' ? 'This site is in your allowed sites.' : decision.reason === 'WHITELISTED_SCOPE' ? `This site is covered by your saved domain scope for ${decision.scopeRoot}.` : decision.reason === 'ACTIVE_JOURNEY' ? 'This navigation is covered by your current Journey. Its original deadline still applies.' : 'Temporary access is active. After it expires, this site will require another access request.', tone: 'ready' };
     }
+}
+/** A selected tab can have a failed browser effect without a Core assessment.
+ * Do not present that as a missing tab, or turn the failure into permission.
+ */
+export function accessContextCopy(context) {
+    const result = context?.latest;
+    const decision = result?.type === 'ASSESSMENT' ? result.decision : null;
+    if (!context || decision)
+        return { ...accessCopy(decision), label: accessOutcomeLabel(decision), retryHome: false };
+    if (result?.type === 'ADAPTER_ERROR'
+        && (result.reason === 'NAVIGATION_FAILED' || result.reason === 'NAVIGATION_DID_NOT_START')) {
+        return { title: 'The site did not open', label: 'Navigation failed', tone: 'unavailable',
+            description: 'Firefox could not complete this navigation. Try opening the site home again; Atlas will check access as usual.',
+            retryHome: context.hostname !== null && context.effect !== 'FAILED' && context.effect !== 'REMOVING' };
+    }
+    if (result === null)
+        return { title: 'Checking site access', label: 'Checking', tone: 'neutral',
+            description: 'Atlas has not yet received an access decision for this tab.', retryHome: false };
+    return { title: 'Access is unavailable', label: 'Unavailable', tone: 'unavailable',
+        description: 'Atlas could not verify access for this tab. Check the decision details below.', retryHome: false };
 }
 export function countdown(deadline, now) {
     const seconds = Math.max(0, Math.ceil((deadline - now) / 1000));

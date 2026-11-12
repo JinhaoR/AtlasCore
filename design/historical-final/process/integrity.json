@@ -1,0 +1,29 @@
+{
+  "existingFilesChecked": 1039,
+  "releaseFilesUnchanged": 438,
+  "coreAndApplicationSourceUnchanged": true,
+  "generatedJavaScriptMapsHTMLAndManifestUnchanged": true,
+  "approvedArtworkUnchanged": [
+    "celestial/instrument.svg",
+    "celestial/orbit.svg",
+    "celestial/mark.svg",
+    "parchment/rose.svg",
+    "parchment/mark.svg"
+  ],
+  "themeSourceAndDevelopmentAssetsMatch": true,
+  "pinGeometryMatchesPreviousNativeEvidence": true,
+  "versionUnchanged": true,
+  "changedExistingFiles": [
+    "extension/scripts/firefox_theme_prototypes.py",
+    "extension/scripts/verify-bundle.mjs",
+    "extension/tests/themes.test.mjs",
+    "extension/dist/ui/themes/ARTWORK.md",
+    "extension/dist/ui/themes/celestial.css",
+    "extension/dist/ui/themes/parchment.css",
+    "extension/src/ui/assets/themes/ARTWORK.md",
+    "extension/src/ui/assets/themes/celestial.css",
+    "extension/src/ui/assets/themes/parchment.css"
+  ],
+  "newBundledArtworkBytes": 1369643,
+  "newPaintedBackgroundBytes": 972362
+}

@@ -64,6 +64,8 @@ export type AccessError = AccessContextError
   | "POLICY_CHANGED"
   | "NOT_GREYLIST"
   | "GRANT_ACTIVE"
+  | "GRANT_NOT_FOUND"
+  | "GRANT_EXPIRED"
   | "TIME_OVERFLOW"
   | "ID_EXHAUSTED";
 
@@ -113,7 +115,7 @@ export type AccessTransition =
   }
   | {
     readonly ok: true;
-    readonly type: "CANCELLED";
+    readonly type: "CANCELLED" | "ENDED";
     readonly requestId: number;
     readonly nextState: AccessState;
   }

@@ -1,0 +1,70 @@
+{
+  "releaseFilesUnchanged": 438,
+  "protectedFilesUnchanged": 175,
+  "changedExistingFiles": [
+    "extension/src/ui/assets/style.css",
+    "extension/src/ui/assets/themes/celestial.css",
+    "extension/src/ui/assets/themes/default.css",
+    "extension/src/ui/assets/themes/parchment.css",
+    "extension/src/ui/assets/themes/celestial/chart.svg",
+    "extension/src/ui/assets/themes/celestial/orbit.svg",
+    "extension/src/ui/assets/themes/parchment/mark.svg",
+    "extension/src/ui/assets/themes/parchment/paper.svg",
+    "extension/src/ui/assets/themes/parchment/rose.svg",
+    "extension/dist/ui/style.css",
+    "extension/dist/ui/themes/celestial.css",
+    "extension/dist/ui/themes/default.css",
+    "extension/dist/ui/themes/parchment.css",
+    "extension/dist/ui/themes/celestial/chart.svg",
+    "extension/dist/ui/themes/celestial/orbit.svg",
+    "extension/dist/ui/themes/parchment/mark.svg",
+    "extension/dist/ui/themes/parchment/paper.svg",
+    "extension/dist/ui/themes/parchment/rose.svg",
+    "extension/scripts/firefox_greylist_layout.py",
+    "extension/scripts/firefox_theme_prototypes.py",
+    "extension/scripts/verify-bundle.mjs",
+    "extension/tests/themes.test.mjs",
+    "docs/themes.md"
+  ],
+  "artwork": {
+    "celestial\\chart.svg": {
+      "bytes": 13189,
+      "sha256": "c7a6c6e65d97dcd66f667bc45e74cb497fe4e33ef26dca0eac712458ba2bde4b"
+    },
+    "celestial\\doppelmayr-1730.jpg": {
+      "bytes": 398124,
+      "sha256": "129658b4e95a637f7fa0f44f320863c2448a0406126f7a5c17217e7b7afb8d1d"
+    },
+    "celestial\\instrument.svg": {
+      "bytes": 15028,
+      "sha256": "3344bfe4e8363e551200e3930eb3cd6bb114d98dcaec049cb10c29d3206b03f3"
+    },
+    "celestial\\mark.svg": {
+      "bytes": 275,
+      "sha256": "f440b03ee7d790b73bb90775787dacc475d6a36c488391af1a8549415304b1fb"
+    },
+    "celestial\\orbit.svg": {
+      "bytes": 4143,
+      "sha256": "c4331fe400e5b41842dfb2e6ed8733904a06ea895eac5d1396a79f237b728bfc"
+    },
+    "parchment\\aguiar-1492.jpg": {
+      "bytes": 447643,
+      "sha256": "aa0fa870fc8519d94ec9dbee1a7c0055f10f2fca533a2bcee40a993ce7dc59cf"
+    },
+    "parchment\\mark.svg": {
+      "bytes": 3494,
+      "sha256": "0e8cbb985345b29736dfc8c79ec9ce7b98e35bca910837ddb3ab662f92841cdd"
+    },
+    "parchment\\paper.svg": {
+      "bytes": 8776,
+      "sha256": "7d018c505c27ebc4659baa3ca62172e9318648aceb552afa7197847652d796ad"
+    },
+    "parchment\\rose.svg": {
+      "bytes": 23766,
+      "sha256": "bdfbbaf9c0a87353cdd8b6ac48513de465e83778d93dd223c3f3447718948efe"
+    }
+  },
+  "artworkBytes": 914438,
+  "checkpoint": ".tools/theme-art/checkpoint.zip",
+  "protectedScope": "All source TypeScript and all generated runtime JavaScript/JSON, including manifest, present in the checkpoint."
+}

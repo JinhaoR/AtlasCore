@@ -1,0 +1,36 @@
+/* Theme contract and complete fallback. Only visual custom properties belong here.
+   Layout, interactive geometry and motion remain in style.css. See docs/themes.md. */
+:root {
+  --color-scheme: dark;
+  --page: #0c1825; --page-background: var(--page);
+  --surface: #111f2e; --surface-disabled: #192838; --border: #3e4a51; --border-soft: #34424d;
+  --ink: #f3e8cf; --muted: #b4b9bc; --accent: #d0b27b; --accent-muted: #b69a65; --link: #b2c8df;
+  --hover: #203040; --selected: #24333c; --control-border: #7f8074; --focus: #f3cf86;
+  --on-accent: #0c1825; --accent-hover: #e4c994;
+  --success: #b0d3b7; --success-surface: #192f2d; --warning: #e4c48a; --warning-surface: #302b22;
+  --error: #f1b09d; --error-surface: #352830; --unavailable: #bac8d3; --unavailable-surface: #24303b;
+  --access-wait-ink: #f0ce81; --access-wait-border: #a58b54; --access-wait-surface: #302a1d;
+  --access-active-ink: #c6e7ba; --access-active-border: #678b67; --access-active-surface: #1b3029;
+  --cancel-ink: #ffc3b6; --cancel-border: #a96050; --cancel-surface: #38201f; --cancel-hover: #4b2825;
+  --icon-surface: #f9f5eb; --icon-border: #c4b28c;
+  --pin-surface: #f3e8cf; --pin-hover: var(--pin-surface); --pin-ink: #142331;
+  --pin-border: var(--accent-muted); --pin-border-width: 1px; --pin-shadow: none;
+  --font-body: 'Source Sans 3', system-ui, sans-serif;
+  --font-title: 'Cormorant Garamond', Georgia, serif;
+  --font-mono: ui-monospace, 'Cascadia Code', monospace;
+  --text-small: 14px; --text-body: 16px; --text-control: 15px; --text-label: 14px;
+  --weight-heading: 500; --weight-display: 600; --weight-control: 550;
+  --heading-1: 54px; --heading-2: 29px; --heading-3: 25px;
+  --heading-display: 68px; --heading-compact: 50px; --heading-dialog: 42px; --heading-vault: 52px; --subtitle-size: 29px;
+  --heading-spacing: -.02em; --wordmark-spacing: .2em;
+  --radius: 6px; --radius-card: 8px; --radius-dialog: 12px; --radius-panel: 10px; --radius-search: 18px; --border-width: 1px;
+  --backdrop: #020b14b8; --popover-shadow: 0 12px 40px #0008; --floating-shadow: 0 12px 32px #0008;
+  --compass-ring: var(--accent-muted); --compass-ring-width: 1; --compass-ring-dash: none;
+  --compass-tick: var(--accent-muted); --compass-tick-length: 13; --compass-tick-dash: 1 139.3;
+  --compass-rose: var(--accent-muted); --compass-rose-secondary: var(--page); --compass-rose-outline: var(--accent-muted);
+  --compass-cardinal: var(--accent-muted); --compass-font: var(--font-title); --compass-weight: 500; --compass-text-size: 26px;
+  --compass-opacity: .8; --compass-decoration: none;
+  --compass-artwork: none; --brand-artwork: normal; --surface-quiet: transparent;
+  --page-attachment: scroll; --category-shadow: none; --search-shadow: none; --search-surface: transparent;
+  --compass-field: none; --font-search: var(--font-body); --search-font-style: normal; --search-font-weight: 400;
+}

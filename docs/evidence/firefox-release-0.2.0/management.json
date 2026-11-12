@@ -1,0 +1,114 @@
+{
+  "firefox": "159.0",
+  "suite": "management-ux",
+  "referenceViewport": {
+    "width": 1586,
+    "height": 992
+  },
+  "checks": [
+    "adjacent detail and editor",
+    "acknowledged display-only save",
+    "two-change structured review",
+    "failed save visible from list and retry",
+    "unfinished editor retained through sidebar and history/reload",
+    "real waiting and explicit confirmation",
+    "one frozen proposal",
+    "complete receipt",
+    "Settings sections and Back retain edits",
+    "narrow return preserves filter",
+    "native Tab order"
+  ],
+  "dimensions": [
+    {
+      "page": "sites",
+      "width": 1586,
+      "zoom": 1,
+      "overflow": false
+    },
+    {
+      "page": "settings",
+      "width": 1586,
+      "zoom": 1,
+      "overflow": false
+    },
+    {
+      "page": "vault",
+      "width": 1586,
+      "zoom": 1,
+      "overflow": false
+    },
+    {
+      "page": "sites",
+      "width": 820,
+      "zoom": 1,
+      "overflow": false
+    },
+    {
+      "page": "settings",
+      "width": 820,
+      "zoom": 1,
+      "overflow": false
+    },
+    {
+      "page": "vault",
+      "width": 820,
+      "zoom": 1,
+      "overflow": false
+    },
+    {
+      "page": "sites",
+      "width": 500,
+      "zoom": 1,
+      "overflow": false
+    },
+    {
+      "page": "settings",
+      "width": 500,
+      "zoom": 1,
+      "overflow": false
+    },
+    {
+      "page": "vault",
+      "width": 500,
+      "zoom": 1,
+      "overflow": false
+    },
+    {
+      "page": "sites",
+      "width": 1440,
+      "zoom": 2,
+      "overflow": false
+    },
+    {
+      "page": "settings",
+      "width": 1440,
+      "zoom": 2,
+      "overflow": false
+    },
+    {
+      "page": "vault",
+      "width": 1440,
+      "zoom": 2,
+      "overflow": false
+    },
+    {
+      "page": "sites",
+      "width": 500,
+      "zoom": 2,
+      "overflow": false
+    },
+    {
+      "page": "settings",
+      "width": 500,
+      "zoom": 2,
+      "overflow": false
+    },
+    {
+      "page": "vault",
+      "width": 500,
+      "zoom": 2,
+      "overflow": false
+    }
+  ],
+  "normalProfileAccessed": false
+}

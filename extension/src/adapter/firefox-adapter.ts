@@ -1,18 +1,22 @@
 import {
-  normalizeTarget, type AtlasController, type AtlasControllerResponse, type AtlasControllerView,
+  evaluate, normalizeTarget, type AtlasController, type AtlasControllerResponse, type AtlasControllerView,
   type AtlasNavigationContext, type Journey, type JourneyContinuation, type SiteTarget,
   type DownloadIntent, type DownloadOperation,
 } from '@atlas/core';
 import type { InitializableRepository, RepositoryDiagnostics } from '../storage/indexeddb-repository.js';
-import { Diagnostics, type DiagnosticEntry } from './diagnostics.js';
+import { Diagnostics, type DiagnosticEntry, type AuthorityInterruption } from './diagnostics.js';
+import { RuntimeDiagnostics } from './runtime-diagnostics.js';
 import type { ManagedBlacklistManager, ManagedView } from '../managed/manager.js';
 import { compileCuratedWhitelist } from '../presets/curated-whitelist.js';
+import type { CuratedUpgradeReceipt } from '../presets/curated-upgrade.js';
 import { equivalentServiceHostnames } from '../presets/access-aliases.js';
 import { journeyIndicator, journeyPresentation, journeyRetry } from './journey-indicator.js';
-import { temporaryAccessView, pendingAccessView, type TemporaryAccess, type PendingTemporaryAccess } from './temporary-access.js';
+import { accessOverview, type TemporaryAccess, type PendingTemporaryAccess } from './temporary-access.js';
 import { canonicalDiscoveryOrigin, canonicalEntryCounterpart, type CanonicalEntryDiscovery } from './canonical-entry.js';
 import { startupFailure, StartupError, type StartupStatus } from './startup-status.js';
 import { downloadRedirectUrl, hasUserActivation, isAttachment, isHttpRedirect } from './download-response.js';
+import { toolbarRequest, type ToolbarStatus } from './toolbar.js';
+import { presentationCommands } from '../bookmarks/model.js';
 
 export interface AdapterHost {
   readonly controller: AtlasController;
@@ -73,6 +77,8 @@ export interface AdapterView {
   readonly controller: AtlasControllerView | null;
   readonly managed: ManagedView | null;
   readonly storage: RepositoryDiagnostics | null;
+  readonly authorityInterruption: AuthorityInterruption | null;
+  readonly curatedUpgrade: CuratedUpgradeReceipt | null;
   readonly temporaryAccess: readonly TemporaryAccess[] | null;
   readonly pendingAccess: readonly PendingTemporaryAccess[] | null;
   readonly contexts: readonly {
@@ -92,16 +98,24 @@ function destination(url: string): Destination | null {
 const withoutFragment = (url: string) => url.split('#', 1)[0]!;
 const allowed = (result: Response): result is Extract<AtlasControllerResponse, { type: 'ASSESSMENT' }> =>
   result.type === 'ASSESSMENT' && result.decision.outcome === 'ALLOW';
+// This classifies only a fresh Core result; it never matches a hostname itself.
+const whitelisted = (result: Response): result is Extract<AtlasControllerResponse, { type: 'ASSESSMENT' }> =>
+  allowed(result) && ['WHITELISTED', 'WHITELISTED_SCOPE'].includes(result.decision.reason);
 const error = (reason: string): Response => ({ type: 'ADAPTER_ERROR', reason });
 
 /** Browser facts and effects only. Every permission is obtained from the shared Core controller. */
 export class FirefoxAdapter {
   private readonly contexts = new Map<number, Context>();
   private queue: Promise<unknown> = Promise.resolve();
+  private queued = 0;
+  private activeSince: number | null = null;
+  private completed = 0;
   private host: AdapterHost | null = null;
   private startup: StartupStatus = { status: 'LOADING' };
   private refreshPending: Promise<void> | null = null;
   private storageRecoveryUsed = false;
+  private authorityInterruption: AuthorityInterruption | null = null;
+  private interruptionKey = '';
   private stopped = false;
   private nextNavigation = 0;
   private nextAccessScope = 0;
@@ -119,6 +133,7 @@ export class FirefoxAdapter {
     private readonly unschedule: (id: number) => void = (id) => clearTimeout(id),
     private readonly discoverCanonicalEntry?: CanonicalEntryDiscovery,
     private readonly onDestinationLaunch?: (hostname: string, at: number) => void,
+    private readonly runtimeDiagnostics = new RuntimeDiagnostics(api.runtime.getURL('background.js'), now),
   ) {
     this.uiUrl = api.runtime.getURL('ui/index.html');
     // Listeners are installed synchronously, before loading authority.
@@ -141,7 +156,6 @@ export class FirefoxAdapter {
     api.tabs.onRemoved.addListener(this.closed);
     api.tabs.onUpdated.addListener(this.updated);
     api.runtime.onMessage.addListener(this.message);
-    api.browserAction.onClicked.addListener(this.toolbar);
     this.ready = this.loadHost();
   }
 
@@ -170,22 +184,43 @@ export class FirefoxAdapter {
   }
 
   private run<T>(work: () => Promise<T> | T): Promise<T> {
+    this.queued++;
     const next = this.queue.then(async () => {
-      await this.ready;
-      try { return await work(); }
-      finally {
-        const status = this.host?.controller.getView().status;
-        if (status === 'UNAVAILABLE' || status === 'RECONCILING') {
-          for (const context of this.contexts.values()) if (context.latest !== null) this.publish(context, context.latest);
+      this.queued--;
+      try { this.activeSince = this.now(); } catch { this.activeSince = null; }
+      try {
+        await this.ready;
+        try { return await work(); }
+        finally {
+          const authority = this.host?.controller.getView();
+          this.rememberAuthorityInterruption(authority);
+          const status = authority?.status;
+          if (status === 'UNAVAILABLE' || status === 'RECONCILING') {
+            for (const context of this.contexts.values()) if (context.latest !== null) this.publish(context, context.latest);
+          }
         }
-      }
+      } finally { this.activeSince = null; this.completed++; }
     });
-    this.queue = next.catch(() => undefined);
+    this.queue = next.catch(error => { this.runtimeDiagnostics.record('ADAPTER_QUEUE', error); });
     return next;
   }
 
   /** Wait for queued adapter effects; read-only views deliberately do not wait. */
   whenIdle(): Promise<unknown> { return this.queue; }
+
+  /** Out-of-band observation remains available while an asynchronous queue is held. */
+  private runtimeView() {
+    const controller = this.host?.controller;
+    const view = controller?.getView();
+    return { ...this.runtimeDiagnostics.read(),
+      adapter: { queued: this.queued, activeSince: this.activeSince, completed: this.completed,
+        contexts: this.contexts.size, refreshPending: this.refreshPending !== null },
+      controller: { status: view?.status ?? null, reason: view?.reason ?? null,
+        policyRevision: view?.snapshot?.policyRevision ?? null,
+        configurationRevision: view?.snapshot?.configurationRevision ?? null,
+        pendingCommit: view?.pendingCommitId !== null && view?.pendingCommitId !== undefined,
+        activity: controller?.getActivity?.() ?? null } };
+  }
 
   /** Only schedules publication; managed membership and precedence remain in Core. */
   publishManagedUpdate(work: () => Promise<boolean>): Promise<boolean> { return this.run(work); }
@@ -385,7 +420,7 @@ export class FirefoxAdapter {
       // Browser provenance establishes one departure from the actual loaded root,
       // never authentication purpose. Core revalidates its current Whitelist status.
       const rootDeparture = context.timeoutReturn === null && sourceDocument !== null && context.displayed === sourceDocument
-        && sourceAuthority !== null && allowed(sourceAuthority) && sourceAuthority.decision.reason === 'WHITELISTED'
+        && sourceAuthority !== null && whitelisted(sourceAuthority)
         && initiator?.origin === sourceDocument.origin
         && flight.destination !== null && flight.destination.target.hostname !== sourceDocument.target.hostname
         && (active === null || active.phase === 'ENDED'
@@ -442,7 +477,7 @@ export class FirefoxAdapter {
       if (allowed(result)) {
         flight.released = true;
         flight.authority = result;
-        if (launchIntent && result.decision.reason === 'WHITELISTED') {
+        if (launchIntent && whitelisted(result)) {
           this.recordLaunch(flight.destination!.target.hostname);
           flight.launchRecorded = true;
         }
@@ -649,7 +684,7 @@ export class FirefoxAdapter {
     const root = destination(`${origin.origin}/`);
     if (root === null || root.target.hostname !== journey.rootHostname) return false;
     const result = await this.check(context, root.target);
-    if (!this.live(context, generation) || !allowed(result) || result.decision.reason !== 'WHITELISTED') return false;
+    if (!this.live(context, generation) || !whitelisted(result)) return false;
     context.timeoutReturn = { journeyId: journey.id, hostname: root.target.hostname, awaitingRequest: true };
     context.displayed = null;
     context.displayedDecision = null;
@@ -725,7 +760,15 @@ export class FirefoxAdapter {
         }
         return;
       }
-      const tab = await this.api.tabs.get(details.tabId);
+      let tab: browser.tabs.Tab;
+      try { tab = await this.api.tabs.get(details.tabId); }
+      catch (failure) {
+        // A close/superseding event can retire this context while Firefox is
+        // resolving the tab read. There is no arrival left to reconcile. A
+        // failure for a still-live generation remains an observable failure.
+        if (!this.live(context, generation)) return;
+        throw failure;
+      }
       if (!this.live(context, generation) || tab.url === undefined
         || withoutFragment(tab.url) !== withoutFragment(details.url)) return;
       // Firefox resets per-tab browserAction properties on document navigation.
@@ -787,8 +830,8 @@ export class FirefoxAdapter {
         && (details.transitionType === 'typed' || details.transitionType === 'auto_bookmark');
       // Missing origin metadata is not evidence of user intent. Only a real committed
       // browser-attested destination can clear the guard outside explicit Atlas commands.
-      if (allowed(result) && result.decision.reason === 'WHITELISTED' && userArrival) context.timeoutReturn = null;
-      if (allowed(result) && result.decision.reason === 'WHITELISTED' && matched && !flight.launchRecorded
+      if (whitelisted(result) && userArrival) context.timeoutReturn = null;
+      if (whitelisted(result) && matched && !flight.launchRecorded
         && context.timeoutReturn === null && userArrival) this.recordLaunch(observed.target.hostname);
       if (!allowed(result)) await this.removeContent(context, generation);
     }).catch(() => {
@@ -848,15 +891,6 @@ export class FirefoxAdapter {
   private updated = (_tabId: number, change: browser.tabs._OnUpdatedChangeInfo): void => {
     if (change.status === 'complete') void this.refresh();
   };
-  private toolbar = (tab: browser.tabs.Tab): void => {
-    void this.run(async () => {
-      const url = `${this.uiUrl}?view=control${tab.id === undefined ? '' : `&tab=${tab.id}`}`;
-      const existing = (await this.api.tabs.query({})).find((candidate) =>
-        candidate.url?.split(/[?#]/, 1)[0] === this.uiUrl && new URL(candidate.url).searchParams.get('view') !== 'access');
-      if (existing?.id !== undefined) await this.api.tabs.update(existing.id, { active: true });
-      else await this.api.tabs.create({ url, active: true });
-    }).catch(() => undefined);
-  };
 
   /** Coalesce timer/lifecycle checks so a slow backend cannot create an unbounded timer queue. */
   refresh(): Promise<void> {
@@ -876,20 +910,64 @@ export class FirefoxAdapter {
   private async recoverTransientStorage(): Promise<boolean> {
     const host = this.host;
     const view = host?.controller.getView();
+    this.rememberAuthorityInterruption(view);
     const failure = this.storageDiagnostics()?.lastFailure;
     if (!host || this.storageRecoveryUsed || view?.status !== 'UNAVAILABLE'
-      || view.reason !== 'WRITE_FAILED' || view.pendingCommitId !== null
-      || failure?.operation !== 'COMMIT' || failure.stage !== 'TRANSACTION_ABORT'
+      || view.pendingCommitId !== null
+      || !(view.reason === 'WRITE_FAILED' && failure?.operation === 'COMMIT'
+        || view.reason === 'STORAGE_UNAVAILABLE' && failure?.operation === 'LOAD')
+      || failure?.stage !== 'TRANSACTION_ABORT'
       || (failure.cause !== 'ABORTED' && failure.cause !== 'IO_ERROR')) return false;
     this.storageRecoveryUsed = true;
     // Same owner, time floor and repository. Core reloads/validates complete
     // authority and saves recovery housekeeping before returning READY.
     await host.controller.open();
-    return host.controller.getView().status === 'READY';
+    const recovered = host.controller.getView();
+    this.rememberAuthorityInterruption(recovered);
+    return recovered.status === 'READY';
+  }
+
+  private rememberAuthorityInterruption(current?: AtlasControllerView): void {
+    // Observability must not throw, resample Core time or trigger a recovery.
+    try {
+      const view = current ?? this.host?.controller.getView();
+      if (view?.status === 'READY') { this.interruptionKey = ''; return; }
+      if (!view || (view.status !== 'UNAVAILABLE' && view.status !== 'RECONCILING') || view.reason === null) return;
+      const failure = this.storageDiagnostics()?.lastFailure ?? null;
+      const fault = view.internalFault;
+      const relatedFault = fault && (view.reason === 'INTERNAL_ERROR' && fault.pendingCommitId === null
+        || view.reason === 'COMMIT_UNKNOWN' && view.pendingCommitId !== null && fault.pendingCommitId === view.pendingCommitId)
+        ? fault : undefined;
+      const key = JSON.stringify([view.status, view.reason, failure?.sequence, relatedFault?.sequence]);
+      if (key === this.interruptionKey) return;
+      let at: number | null = null;
+      try { const now = this.now(); if (Number.isSafeInteger(now) && now >= 0) at = now; } catch { /* Clock failure is itself diagnostic. */ }
+      const snapshot = view.snapshot;
+      this.authorityInterruption = Object.freeze({ status: view.status, reason: view.reason, observedAt: at,
+        checkpointAt: snapshot ? Math.max(snapshot.accessState.lastObservedAt, snapshot.vaultState.lastObservedAt,
+          snapshot.journeyState.lastObservedAt) : null, latestStorageFailure: failure,
+        ...(relatedFault === undefined ? {} : { internalFault: relatedFault }) });
+      this.interruptionKey = key;
+    } catch { /* No diagnostic can disable otherwise healthy authority. */ }
   }
 
   private storageDiagnostics(): RepositoryDiagnostics | null {
-    try { return this.host?.repository.getDiagnostics?.() ?? null; }
+    try {
+      const source = this.host?.repository.getDiagnostics?.();
+      if (!source) return null;
+      const failure = source.lastFailure;
+      // Read optional diagnostic getters inside the guard and publish only the
+      // closed fields. Observability must never break healthy authorization.
+      return Object.freeze({ readTransactions: source.readTransactions, writeTransactions: source.writeTransactions,
+        committedWrites: source.committedWrites, failedCommits: source.failedCommits,
+        lastFailure: failure ? Object.freeze({ sequence: failure.sequence, operation: failure.operation,
+          stage: failure.stage, cause: failure.cause }) : null });
+    }
+    catch { return null; }
+  }
+
+  private curatedUpgrade(): CuratedUpgradeReceipt | null {
+    try { return this.host?.repository.getCuratedUpgrade?.() ?? null; }
     catch { return null; }
   }
 
@@ -903,7 +981,7 @@ export class FirefoxAdapter {
     return result.type === 'BLOCKED' && await this.recoverTransientStorage() ? assess() : result;
   }
 
-  private async recheck(): Promise<void> {
+  private async recheck(endedGrant?: number): Promise<void> {
     if (this.host?.controller.getView().status === 'READY') this.storageRecoveryUsed = false;
     const generations = new Map([...this.contexts.values()].map(context => [context.tabId, context.generation]));
     await this.recoverTransientStorage();
@@ -914,6 +992,18 @@ export class FirefoxAdapter {
       this.downloadTargets.delete(tabId);
     for (const context of this.contexts.values()) {
       const flight = context.flight;
+      // Revoke a released grant-backed request even if Firefox still reports an
+      // about:blank/control-page URL. Waiting for a document URL would miss it.
+      if (endedGrant !== undefined && flight?.authority?.type === 'ASSESSMENT'
+        && flight.authority.decision.reason === 'ACTIVE_GRANT'
+        && flight.authority.decision.requestId === endedGrant) {
+        ++context.generation;
+        context.flight = null;
+        this.publish(context, error('RECHECK_REQUIRED'));
+        await this.loseJourney(context);
+        await this.removeContent(context, context.generation);
+        continue;
+      }
       const intent = flight?.download?.intent;
       if (flight && intent && flight.download?.exceptional && !flight.fileResponse
         && (observation?.type !== 'OBSERVED' || !this.downloadLive(context, flight)
@@ -1019,8 +1109,7 @@ export class FirefoxAdapter {
       const existing = this.preparedAccessScope(context);
       if (existing !== null) return { work: existing.work };
       const aliases = equivalentServiceHostnames(context.requested.target.hostname);
-      const hostnames = aliases.filter(host => !snapshot.policy.whitelist.includes(host)
-        || snapshot.policy.blacklist.includes(host));
+      const hostnames = aliases.filter(host => evaluate({ hostname: host }, snapshot.policy).outcome !== 'ALLOW');
       const discoveryOrigin = canonicalDiscoveryOrigin(context.requested.origin);
       const discover = aliases.length === 1 && discoveryOrigin !== null && this.discoverCanonicalEntry !== undefined;
       const scope: PreparedAccessScope = {
@@ -1042,7 +1131,7 @@ export class FirefoxAdapter {
               ? canonicalEntryCounterpart(discoveryOrigin!, `https://${partner}/`) : null;
             const counterpart = sanitized === partner ? sanitized : null;
             const members = counterpart === null ? hostnames : [...hostnames, counterpart]
-              .filter(host => !current.policy.whitelist.includes(host) || current.policy.blacklist.includes(host));
+              .filter(host => evaluate({ hostname: host }, current.policy).outcome !== 'ALLOW');
             scope.preview = Object.freeze({ ...scope.preview, status: 'READY', hostnames: Object.freeze(members),
               source: counterpart === null ? 'EXACT' : 'CANONICAL_REDIRECT' });
           })).then(() => undefined);
@@ -1057,8 +1146,9 @@ export class FirefoxAdapter {
     const controller = this.host?.controller.getView() ?? null;
     return { startup: this.startup, controller, managed: this.host?.managed?.getView(controller?.snapshot?.policy.whitelist) ?? null,
       storage: this.storageDiagnostics(),
-      temporaryAccess: temporaryAccessView(controller, this.now(), this.host?.managed?.getBlacklist()),
-      pendingAccess: pendingAccessView(controller, this.now(), this.host?.managed?.getBlacklist()),
+      authorityInterruption: this.authorityInterruption,
+      curatedUpgrade: this.curatedUpgrade(),
+      ...accessOverview(controller, this.now(), this.host?.managed?.getBlacklist()),
       contexts: [...this.contexts.values()].map((context) => ({ tabId: context.tabId,
         contextId: context.id, navigationId: context.navigationId,
         hostname: context.requested?.target.hostname ?? null,
@@ -1079,30 +1169,63 @@ export class FirefoxAdapter {
       return Promise.resolve({ presentation: context && observed?.target.hostname === context.displayed?.target.hostname
         ? this.pageJourney(context) : null });
     }
+    if (sender.id === this.api.runtime.id && sender.url?.split(/[?#]/, 1)[0] === this.api.runtime.getURL('ui/popup.html') && (sender.frameId ?? 0) === 0) {
+      if (!toolbarRequest(input)) return Promise.resolve({ error: 'INVALID_COMMAND' });
+      const context = this.contexts.get(input.tabId);
+      if (input.kind === 'GET_TOOLBAR_STATUS') {
+        const ready = this.host?.controller.getView().status === 'READY';
+        const journey = ready && context ? this.journey(context) : null;
+        const status: ToolbarStatus = { ready, tabId: input.tabId, contextId: context?.id ?? null,
+          hostname: context?.requested?.target.hostname ?? null,
+          decision: ready && context?.latest?.type === 'ASSESSMENT' ? context.latest.decision : null,
+          journey: journey && journey.phase !== 'ENDED' ? { hostname: journey.rootHostname, expiresAt: journey.expiresAt } : null };
+        return Promise.resolve({ status });
+      }
+      return this.run(async () => {
+        if (input.page === 'access' && (!context || context.id !== input.contextId || this.contexts.get(input.tabId) !== context)) return { error: 'CONTEXT_CLOSED' };
+        const tabs = await this.api.tabs.query({});
+        const source = tabs.find(t => t.id === input.tabId);
+        if (!source && input.page === 'access') return { error: 'CONTEXT_CLOSED' };
+        const existing = tabs.find(t => t.windowId === source?.windowId && t.url?.split(/[?#]/, 1)[0] === this.uiUrl
+          && new URL(t.url).searchParams.get('view') !== 'access');
+        if (existing?.id !== undefined) {
+          // runtime.sendMessage reaches extension pages (tabs.sendMessage only reaches content scripts).
+          const result=await this.api.runtime.sendMessage({ kind: 'CONTROL_NAVIGATE', controlTabId: existing.id, page: input.page, tabId: input.tabId });
+          if(!result?.navigated)return {error:'CONTROL_UNAVAILABLE'};
+          await this.api.tabs.update(existing.id, { active: true });
+        } else await this.api.tabs.create({ url: `${this.uiUrl}?view=control&tab=${input.tabId}#${input.page}`, active: true });
+        return { opened: true };
+      }).catch(() => ({ error: 'CONTROL_UNAVAILABLE' }));
+    }
     if (sender.id !== this.api.runtime.id || sender.url === undefined
       || sender.url.split(/[?#]/, 1)[0] !== this.uiUrl || (sender.frameId ?? 0) !== 0) return false;
     // A trusted extension page still must use a closed, explicit command shape.
     if (input === null || typeof input !== 'object' || Array.isArray(input)
       || !Object.hasOwn(input, 'kind') || !('kind' in input) || typeof input.kind !== 'string') return Promise.resolve({ error: 'INVALID_COMMAND' });
     const command = input as Record<string, unknown>;
+    if (presentationCommands.includes(command.kind as string)) return false;
     const keys: Record<string, readonly string[]> = {
       GET_VIEW: [], RECOVER: [], SETUP: ['policy'], OPEN_JOURNEY: ['url'], OPEN_DESTINATION: ['url'],
       START_JOURNEY: ['tabId'], CANCEL_JOURNEY: ['tabId'], START_ACCESS: ['tabId'],
       PREPARE_ACCESS: ['tabId'],
       RESTART_JOURNEY: ['tabId', 'journeyId'],
-      CONFIRM_ACCESS: ['requestId'], CANCEL_ACCESS: ['requestId'], OPEN_HOME: ['tabId'],
+      CONFIRM_ACCESS: ['requestId'], CANCEL_ACCESS: ['requestId'], END_ACCESS: ['requestId'], OPEN_HOME: ['tabId'],
       CONFIRM_ACCESS_AND_OPEN: ['tabId', 'requestId'], GET_DIAGNOSTICS: ['tabId'], CLEAR_DIAGNOSTICS: [],
       PROPOSE_CURATED_DEFAULTS: [], REVIEW_POLICY: ['proposalId'], CONFIRM_POLICY: ['proposalId'], CANCEL_POLICY: ['proposalId'],
       PROPOSE_SETTINGS: ['candidateConfiguration'], PROPOSE_POLICY: ['candidatePolicy'],
+      REMOVE_WHITELIST: ['candidatePolicy', 'basePolicyRevision'],
     };
     const fields = command.kind === 'START_ACCESS' && Object.hasOwn(command, 'scopeId')
       ? ['tabId', 'scopeId'] : command.kind === 'PROPOSE_POLICY' && Object.hasOwn(command, 'basePolicyRevision')
         ? ['candidatePolicy', 'basePolicyRevision'] : Object.hasOwn(keys, command.kind as string) ? keys[command.kind as string] : undefined;
     if (fields === undefined || Object.keys(command).length !== fields.length + 1
       || fields.some((field) => !Object.hasOwn(command, field))) return Promise.resolve({ error: 'INVALID_COMMAND' });
-    if (command.kind === 'GET_VIEW') return Promise.resolve({ view: this.view() });
+    if (command.kind === 'GET_VIEW') {
+      try { return Promise.resolve({ view: this.view() }); }
+      catch (error) { this.runtimeDiagnostics.record('VIEW', error); return Promise.resolve({ error: 'ADAPTER_FAILURE' }); }
+    }
     if (command.kind === 'GET_DIAGNOSTICS') return Promise.resolve(command.tabId === null || Number.isSafeInteger(command.tabId)
-      ? { entries: this.diagnostics.read(command.tabId as number | null), storage: this.storageDiagnostics() } : { error: 'INVALID_CONTEXT' });
+      ? { entries: this.diagnostics.read(command.tabId as number | null), storage: this.storageDiagnostics(), authorityInterruption: this.authorityInterruption, curatedUpgrade: this.curatedUpgrade(), runtime: this.runtimeView() } : { error: 'INVALID_CONTEXT' });
     if (command.kind === 'CLEAR_DIAGNOSTICS') { this.diagnostics.clear(); return Promise.resolve({ entries: [] }); }
     if (command.kind === 'PREPARE_ACCESS') return this.prepareAccessScope(command.tabId)
       .catch(() => ({ error: 'SCOPE_PREPARATION_FAILED', view: this.view() }));
@@ -1111,6 +1234,7 @@ export class FirefoxAdapter {
 
   private async command(command: Record<string, unknown>): Promise<unknown> {
     if (command.kind === 'RECOVER') {
+      this.rememberAuthorityInterruption();
       // Failed startup has no controller to reconcile. Retry construction once,
       // through the same serialized queue used by all privileged commands.
       if (this.host === null) await this.loadHost();
@@ -1133,14 +1257,22 @@ export class FirefoxAdapter {
       const policy = controller.getView().snapshot?.policy;
       if (observed.type !== 'OBSERVED' || policy === undefined) return { result: observed, view: this.view() };
       const result = await controller.handle({ kind: 'PROPOSE_POLICY', candidatePolicy: {
-        whitelist: [...new Set([...policy.whitelist, ...compileCuratedWhitelist().whitelist])],
+        ...policy, whitelist: [...new Set([...policy.whitelist, ...compileCuratedWhitelist().whitelist
+          .filter(host => evaluate({ hostname: host }, policy).outcome !== 'ALLOW')])],
         blacklist: policy.blacklist,
+        whitelistSubdomains: [...new Set([...(policy.whitelistSubdomains ?? []),
+          ...(compileCuratedWhitelist().whitelistSubdomains ?? []).filter(host => !policy.blacklist.includes(host))])],
       } });
       return { result, view: this.view() };
     }
     if (command.kind === 'REVIEW_POLICY' || command.kind === 'CONFIRM_POLICY' || command.kind === 'CANCEL_POLICY') {
       const result = await controller.handle({ kind: command.kind, proposalId: command.proposalId });
       if (command.kind === 'CONFIRM_POLICY' && result.type === 'COMMITTED') await this.recheck();
+      return { result, view: this.view() };
+    }
+    if (command.kind === 'REMOVE_WHITELIST') {
+      const result = await controller.handle(command);
+      if (result.type === 'COMMITTED') await this.recheck();
       return { result, view: this.view() };
     }
     if (command.kind === 'PROPOSE_SETTINGS' || command.kind === 'PROPOSE_POLICY') {
@@ -1190,8 +1322,9 @@ export class FirefoxAdapter {
       } else await this.api.tabs.remove(tab.id);
       return { result, tabId: tab.id, view: this.view() };
     }
-    if (command.kind === 'CONFIRM_ACCESS' || command.kind === 'CANCEL_ACCESS') {
+    if (command.kind === 'CONFIRM_ACCESS' || command.kind === 'CANCEL_ACCESS' || command.kind === 'END_ACCESS') {
       result = await controller.handle({ kind: command.kind, requestId: command.requestId });
+      if (command.kind === 'END_ACCESS' && result.type === 'COMMITTED') await this.recheck(command.requestId as number);
       return { result, view: this.view() };
     }
     if (!Number.isSafeInteger(command.tabId)) return { error: 'INVALID_CONTEXT' };
@@ -1207,7 +1340,7 @@ export class FirefoxAdapter {
       const generation = context.generation;
       // A fresh current Core assessment/checkpoint must succeed before any browser effect.
       result = await this.check(context, { hostname: retry.rootHostname });
-      if (!allowed(result) || result.decision.reason !== 'WHITELISTED' || !this.live(context, generation))
+      if (!whitelisted(result) || !this.live(context, generation))
         return { result, opened: false, view: this.view() };
       const origin = context.rootOrigin?.journeyId === retry.journeyId ? context.rootOrigin.origin : `https://${retry.rootHostname}`;
       context.requested = destination(`${origin}/`);
@@ -1237,7 +1370,7 @@ export class FirefoxAdapter {
       const policy = controller.getView().snapshot?.policy;
       const prepared = this.preparedAccessScope(context);
       let scopeHostnames = prepared?.preview.hostnames ?? equivalentServiceHostnames(context.requested.target.hostname)
-        .filter((host) => !policy?.whitelist.includes(host) || policy.blacklist.includes(host));
+        .filter((host) => !policy || evaluate({ hostname: host }, policy).outcome !== 'ALLOW');
       if (this.discoverCanonicalEntry !== undefined || Object.hasOwn(command, 'scopeId')) {
         const generation = context.generation;
         const current = await this.check(context, context.requested.target);
@@ -1284,6 +1417,7 @@ export class FirefoxAdapter {
         void this.run(async () => {
           if (!this.live(context, generation) || !context.launching) return;
           this.publish(context, error('NAVIGATION_DID_NOT_START'));
+          this.trace('FAILED', context);
           await this.loseJourney(context);
           await this.removeContent(context, generation);
         });
@@ -1294,6 +1428,7 @@ export class FirefoxAdapter {
         context.launching = false;
         this.clearRemoval(context);
         this.publish(context, error('NAVIGATION_FAILED'));
+        this.trace('FAILED', context);
         void this.run(() => this.loseJourney(context));
       }
     });
@@ -1316,6 +1451,5 @@ export class FirefoxAdapter {
     this.api.tabs.onRemoved.removeListener(this.closed);
     this.api.tabs.onUpdated.removeListener(this.updated);
     this.api.runtime.onMessage.removeListener(this.message);
-    this.api.browserAction.onClicked.removeListener(this.toolbar);
   }
 }

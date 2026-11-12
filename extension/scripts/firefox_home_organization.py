@@ -30,7 +30,7 @@ def run_home_organization(client, ui_handle, ui_url, port, wait_for, artifacts, 
             r.onsuccess=()=>done(r.result??null);tx.oncomplete=()=>db.close();};q.onerror=()=>done(null);''', asynchronous=True)
 
     def stable():
-        wait_for(lambda: client.script('return document.getElementById("status").dataset.ready==="true" && document.getElementById("home-layout-status").textContent.startsWith("Home layout saved") && (arguments[0]===null || document.getElementById("sites-status").textContent.endsWith("revision "+arguments[0]));', expected_revision), 'current authority and acknowledged Home layout', 20)
+        wait_for(lambda: client.script('return document.getElementById("status").dataset.ready==="true" && document.getElementById("home-layout-status").textContent.startsWith("Home layout saved") && (arguments[0]===null || document.getElementById("sites-section").hidden || document.getElementById("sites-status").textContent.endsWith("revision "+arguments[0]));', expected_revision), 'current authority and acknowledged visible Home/Sites layout', 20)
 
     def groups():
         return client.script('return [...document.querySelectorAll("#destination-list .service-group")].map(g=>g.dataset.categoryKey);')
@@ -72,6 +72,7 @@ def run_home_organization(client, ui_handle, ui_url, port, wait_for, artifacts, 
         stable()
 
     seed(metadata)
+    client.script('document.querySelector(".browse-categories").click();')
     assert groups() == [f'category {i:02d}' for i in range(5)]
     assert all(c['visible'] and not c['collapsed'] for c in saved()['value']['categories'] if c['key'].startswith('category '))
     passed('five populated legacy metadata categories migrate visibly without policy or metadata changes')
@@ -180,13 +181,14 @@ def run_home_organization(client, ui_handle, ui_url, port, wait_for, artifacts, 
     passed('usage ranking and repeated Home timer rerenders retain category order, header identity and search focus')
     capture('milestone-c-home')
 
+    client.script('document.querySelector(".browse-categories").click();')
     for width in [500, 800, 1280, 1800]:
         client.call('WebDriver:SetWindowRect', width=width, height=1000)
         wait_for(lambda: client.script('return document.getElementById("destinations").getBoundingClientRect().width>0;'), 'resized Home')
         sample = client.script('''const cards=[...document.querySelectorAll('#destination-list .destination-card')].filter(c=>!c.hidden&&!c.closest('[hidden]'));
           return {width:innerWidth,columns:Number(document.getElementById('destinations').dataset.columns),overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+1,
           heights:[...new Set(cards.map(c=>c.getBoundingClientRect().height))],visible:cards.length};''')
-        assert not sample['overflow'] and 1 <= sample['columns'] <= 5 and all(abs(h-56)<1 for h in sample['heights']), sample
+        assert not sample['overflow'] and 1 <= sample['columns'] <= 5 and all(abs(h-85)<1 for h in sample['heights']), sample
         layouts.append(sample)
     # Firefox's actual full-page zoom, rather than CSS transforms or pretend viewport values.
     client.call('WebDriver:SetWindowRect', width=1280, height=1000)
@@ -210,6 +212,7 @@ def run_home_organization(client, ui_handle, ui_url, port, wait_for, artifacts, 
     wait_for(lambda: client.script('return !document.getElementById("site-draft").hidden && document.activeElement.id==="site-name";'), 'editor beside selected row')
     selection = client.script('return window.__selectedId;')
     list_scroll = client.script('return document.getElementById("sites-list").scrollTop;')
+    print('SITES before navigation scroll', list_scroll, flush=True)
     input_value('site-name', 'Retained Milestone C edit')
     client.script('document.getElementById("show-home").click();document.getElementById("show-sites").click();')
     assert client.script('return document.getElementById("site-name").value==="Retained Milestone C edit" && document.querySelector(".site-row[aria-pressed=true]").dataset.destinationId===arguments[0];', selection)
@@ -217,7 +220,9 @@ def run_home_organization(client, ui_handle, ui_url, port, wait_for, artifacts, 
     wait_for(lambda: client.script('return document.body.dataset.section==="sites" && document.querySelector(".site-row[aria-pressed=true]").dataset.destinationId===arguments[0];', selection), 'browser Back restores Sites')
     client.call('WebDriver:Refresh'); stable()
     wait_for(lambda: client.script('return document.body.dataset.section==="sites" && document.querySelector(".site-row[aria-pressed=true]")?.dataset.destinationId===arguments[0] && document.getElementById("site-name").value==="Retained Milestone C edit";', selection), 'Sites reload restores selection and existing persistent editor')
-    assert abs(client.script('return document.getElementById("sites-list").scrollTop;')-list_scroll)<5
+    restored_scroll = client.script('return document.getElementById("sites-list").scrollTop;')
+    print('SITES restored scroll', restored_scroll, flush=True)
+    assert abs(restored_scroll-list_scroll)<5, {'before':list_scroll,'after':restored_scroll}
     client.script('document.getElementById("cancel-site-draft").click();')
     wait_for(lambda: client.script('return document.getElementById("site-draft").hidden && document.activeElement.dataset.destinationId===arguments[0];', selection), 'close editor restores selected row focus')
     client.script('document.getElementById("edit-site").click();')
@@ -227,7 +232,7 @@ def run_home_organization(client, ui_handle, ui_url, port, wait_for, artifacts, 
     assert groups() == current_order
     assert client.script('return document.activeElement.dataset.destinationId===arguments[0];', selection)
     # Enter and leave the existing Vault review without submitting any new authorization.
-    client.script('document.getElementById("show-settings").click();document.getElementById("vault-section").open=true;document.getElementById("return-to-sites").click();')
+    client.script('document.getElementById("show-vault").click();document.getElementById("return-to-sites").click();')
     assert client.script('return document.body.dataset.section==="sites" && document.querySelector(".site-row[aria-pressed=true]").dataset.destinationId===arguments[0];', selection)
     passed('Sites keeps complete hidden destinations, long-list selection/scroll, persistent B editor, browser Back and reload; close/save/Vault return restore selected-row context without authority changes')
     capture('milestone-c-sites')

@@ -1,0 +1,11 @@
+{
+  "releaseFilesChecked": 374,
+  "releaseDifferences": [],
+  "coreTests": 253,
+  "extensionTests": 636,
+  "version": "0.2.7",
+  "manifestUnchanged": true,
+  "extensionId": "atlas-development@atlas.invalid",
+  "testInstrumentationInRuntime": false,
+  "disposableRuntimesRemoved": 10
+}

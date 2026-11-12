@@ -3,12 +3,21 @@ import {
   type AtlasConfiguration,
   type AtlasCommitRequest, type AtlasCommitResolution, type AtlasCommitResult,
   type AtlasEnvelope, type AtlasLoadResult, type AtlasRepository,
+  type ManagedBlacklist,
 } from '@atlas/core';
 
 import { configuration as defaultConfiguration } from "../background/configuration.js";
+import { curatedUpgradeId, curatedUpgradeKey, curatedUpgradeHosts, initialCuratedReceipt, planCuratedUpgrade, readCuratedUpgradeReceipt,
+  type CuratedUpgradeReceipt, type CuratedUpgradeResult } from '../presets/curated-upgrade.js';
+import { legacyCuratedUpgradeId, legacyCuratedUpgradeKey } from '../presets/curated-upgrade-v2.js';
+import { curatedScopeKey, initialCuratedScopes, initialCuratedScopeReceipt, planCuratedScopes, readCuratedScopeReceipt,
+  type CuratedScopeResult } from '../presets/curated-scopes.js';
 
 export interface InitializableRepository extends AtlasRepository {
-  initialize(policy: unknown): Promise<boolean>;
+  initialize(policy: unknown, fromCuratedPreset?: boolean): Promise<boolean>;
+  applyCuratedUpgrade(managed?: ManagedBlacklist): Promise<CuratedUpgradeResult>;
+  applyCuratedScopes(): Promise<CuratedScopeResult>;
+  getCuratedUpgrade(): CuratedUpgradeReceipt | null;
   close(): void;
   getDiagnostics?(): RepositoryDiagnostics;
 }
@@ -22,7 +31,7 @@ export interface RepositoryDiagnostics {
   readonly failedCommits: number;
   readonly lastFailure: {
     readonly sequence: number;
-    readonly operation: 'LOAD' | 'INITIALIZE' | 'COMMIT' | 'RESOLVE';
+    readonly operation: 'LOAD' | 'INITIALIZE' | 'COMMIT' | 'RESOLVE' | 'CURATED_UPGRADE';
     readonly stage: 'TRANSACTION_OPEN' | 'TRANSACTION_ABORT' | 'VALIDATION';
     readonly cause: StorageFailureCause;
   } | null;
@@ -81,6 +90,7 @@ class IndexedDBRepository implements InitializableRepository {
   private failedCommits = 0;
   private failureSequence = 0;
   private lastFailure: RepositoryDiagnostics['lastFailure'] = null;
+  private curatedReceipt: CuratedUpgradeReceipt | null = null;
   constructor(private readonly database: IDBDatabase, private readonly newVersion: () => string, private readonly bootstrap: AtlasConfiguration) {}
 
   close(): void { this.database.close(); }
@@ -148,7 +158,12 @@ class IndexedDBRepository implements InitializableRepository {
           } else if (initialized.result === true && envelope.result !== undefined) {
             // Core validates every byte of the envelope/snapshot before publishing authority.
             resolve({ type: 'READY', envelope: loaded });
-          } else resolve({ type: 'UNAVAILABLE' });
+          } else {
+            // Record this validation failure rather than leaving an older abort
+            // diagnostic that could misclassify damaged authority as transient.
+            this.failed('LOAD', 'VALIDATION', 'INVALID_DATA');
+            resolve({ type: 'UNAVAILABLE' });
+          }
         };
         transaction.onabort = () => {
           this.failed('LOAD', 'TRANSACTION_ABORT', invalidMigration ? 'INVALID_DATA' : failureCause(transaction.error, 'ABORTED'));
@@ -158,12 +173,17 @@ class IndexedDBRepository implements InitializableRepository {
     });
   }
 
-  initialize(policy: unknown): Promise<boolean> {
+  getCuratedUpgrade(): CuratedUpgradeReceipt | null { return this.curatedReceipt; }
+
+  initialize(policy: unknown, fromCuratedPreset = false): Promise<boolean> {
     const validated = validateAtlasSnapshot({
       policy, policyRevision: 0, configuration: this.bootstrap, configurationRevision: 0, accessState: createAccessState(),
       vaultState: createVaultState(), journeyState: createJourneyState(),
     });
     if (!validated.ok) return Promise.resolve(false);
+    if (fromCuratedPreset && (validated.snapshot.policy.blacklist.length
+      || JSON.stringify([...(validated.snapshot.policy.whitelistSubdomains ?? [])].sort()) !== JSON.stringify(initialCuratedScopes)
+      || JSON.stringify([...validated.snapshot.policy.whitelist].sort()) !== JSON.stringify(curatedUpgradeHosts))) return Promise.resolve(false);
     return new Promise((resolve) => {
       try {
         const transaction = this.transaction('readwrite');
@@ -171,19 +191,149 @@ class IndexedDBRepository implements InitializableRepository {
         const authority = transaction.objectStore('authority');
         const initialized = authority.get('initialized');
         const envelope = authority.get('envelope');
-        envelope.onsuccess = () => {
-          if (initialized.result !== false || envelope.result !== undefined) return;
+        const curatedMarker = authority.get(curatedUpgradeKey);
+        const legacyMarker = authority.get(legacyCuratedUpgradeKey);
+        const scopeMarker = authority.get(curatedScopeKey);
+        scopeMarker.onsuccess = () => {
+          if (initialized.result !== false || envelope.result !== undefined || curatedMarker.result !== undefined
+            || legacyMarker.result !== undefined || scopeMarker.result !== undefined) return;
           try {
             const storageVersion = this.version();
             authority.put({ schemaVersion: 2, storageVersion, lastCommitId: null,
               snapshot: validated.snapshot } satisfies AtlasEnvelope, 'envelope');
             authority.put(true, 'initialized');
+            if (fromCuratedPreset) {
+              authority.put(initialCuratedReceipt(), curatedUpgradeKey);
+              authority.put(initialCuratedScopeReceipt(), curatedScopeKey);
+            }
             applied = true;
           } catch { transaction.abort(); }
         };
-        transaction.oncomplete = () => resolve(applied);
+        transaction.oncomplete = () => {
+          if (applied && fromCuratedPreset) this.curatedReceipt = initialCuratedReceipt();
+          resolve(applied);
+        };
         transaction.onabort = () => { this.failed('INITIALIZE', 'TRANSACTION_ABORT', failureCause(transaction.error, 'ABORTED')); resolve(false); };
       } catch (error) { this.failed('INITIALIZE', 'TRANSACTION_OPEN', failureCause(error)); resolve(false); }
+    });
+  }
+
+  /** Startup only, before a controller owns this connection. Policy and receipt
+   * commit together; any older controller is fenced by the new storage version. */
+  applyCuratedUpgrade(managed?: ManagedBlacklist): Promise<CuratedUpgradeResult> {
+    this.curatedReceipt = null;
+    return this.curatedUpgrade(managed, 'readonly');
+  }
+
+  private curatedUpgrade(managed: ManagedBlacklist | undefined, mode: 'readonly' | 'readwrite'): Promise<CuratedUpgradeResult> {
+    return new Promise(resolve => {
+      let transaction: IDBTransaction;
+      try { transaction = this.transaction(mode); }
+      catch (error) { this.failed('CURATED_UPGRADE', 'TRANSACTION_OPEN', failureCause(error)); resolve({ type: 'UNAVAILABLE' }); return; }
+      const store = transaction.objectStore('authority');
+      const initialized = store.get('initialized'), current = store.get('envelope'), marker = store.get(curatedUpgradeKey);
+      const legacyMarker = store.get(legacyCuratedUpgradeKey);
+      const scopeMarker = store.get(curatedScopeKey);
+      let result: CuratedUpgradeResult = { type: 'UNAVAILABLE' };
+      let needsWrite = false;
+      let caughtFailure: StorageFailureCause | null = null;
+      scopeMarker.onsuccess = () => {
+        try {
+          if (initialized.result === false && current.result === undefined && marker.result === undefined && legacyMarker.result === undefined && scopeMarker.result === undefined) {
+            result = { type: 'UNINITIALIZED' }; return;
+          }
+          const envelope: unknown = current.result;
+          if (initialized.result !== true || !envelope || typeof envelope !== 'object') return;
+          const value = envelope as AtlasEnvelope;
+          if (Object.keys(value).length !== 4 || value.schemaVersion !== 2
+            || typeof value.storageVersion !== 'string' || !/^[a-z0-9_.:-]{1,256}$/i.test(value.storageVersion)
+            || (value.lastCommitId !== null && (typeof value.lastCommitId !== 'string' || !/^[a-z0-9_.:-]{1,256}$/i.test(value.lastCommitId)))
+            || !validateAtlasSnapshot(value.snapshot).ok) return;
+          // Validate every known marker before trusting it. A valid legacy v2
+          // receipt retires this expansion: never re-add a user's later removals.
+          let applied: CuratedUpgradeReceipt | null = null;
+          if (scopeMarker.result !== undefined) {
+            const scope = readCuratedScopeReceipt(scopeMarker.result);
+            if (!scope || scope.policyRevisionAfter > value.snapshot.policyRevision
+              || marker.result === undefined && legacyMarker.result === undefined) return;
+          }
+          for (const [request, id] of [[legacyMarker, legacyCuratedUpgradeId], [marker, curatedUpgradeId]] as const) {
+            if (request.result === undefined) continue;
+            const receipt = readCuratedUpgradeReceipt(request.result);
+            if (!receipt || receipt.id !== id || receipt.policyRevisionAfter > value.snapshot.policyRevision) return;
+            applied = receipt;
+          }
+          if (applied) { result = { type: 'ALREADY_APPLIED', receipt: applied }; return; }
+          // The write path rereads everything under its own transaction fence.
+          if (mode === 'readonly') { needsWrite = true; return; }
+          const planned = planCuratedUpgrade(value.snapshot, managed);
+          if (!planned) return;
+          const storageVersion = this.version();
+          if (storageVersion === value.storageVersion) { transaction.abort(); return; }
+          store.put({ ...value, storageVersion, snapshot: planned.snapshot } satisfies AtlasEnvelope, 'envelope');
+          store.put(planned.receipt, curatedUpgradeKey);
+          result = { type: 'APPLIED', receipt: planned.receipt };
+        } catch (error) { caughtFailure = failureCause(error); transaction.abort(); }
+      };
+      transaction.oncomplete = () => {
+        if (needsWrite) { resolve(this.curatedUpgrade(managed, 'readwrite')); return; }
+        if ('receipt' in result) this.curatedReceipt = result.receipt;
+        else if (result.type === 'UNAVAILABLE') this.failed('CURATED_UPGRADE', 'VALIDATION', 'INVALID_DATA');
+        resolve(result);
+      };
+      transaction.onabort = () => { this.failed('CURATED_UPGRADE', 'TRANSACTION_ABORT', caughtFailure ?? failureCause(transaction.error, 'ABORTED')); resolve({ type: 'UNAVAILABLE' }); };
+    });
+  }
+
+  /** Independent fixed scope migration; never replay a removed scope on later startup. */
+  applyCuratedScopes(): Promise<CuratedScopeResult> { return this.curatedScopes('readonly'); }
+
+  private curatedScopes(mode: 'readonly' | 'readwrite'): Promise<CuratedScopeResult> {
+    return new Promise(resolve => {
+      let transaction: IDBTransaction;
+      try { transaction = this.transaction(mode); }
+      catch (error) { this.failed('CURATED_UPGRADE', 'TRANSACTION_OPEN', failureCause(error)); resolve({ type: 'UNAVAILABLE' }); return; }
+      const store = transaction.objectStore('authority');
+      const initialized = store.get('initialized'), current = store.get('envelope');
+      const old = store.get(curatedUpgradeKey), legacy = store.get(legacyCuratedUpgradeKey), marker = store.get(curatedScopeKey);
+      let result: CuratedScopeResult = { type: 'UNAVAILABLE' }, needsWrite = false;
+      let caughtFailure: StorageFailureCause | null = null;
+      marker.onsuccess = () => {
+        try {
+          if (initialized.result === false && current.result === undefined && marker.result === undefined
+            && old.result === undefined && legacy.result === undefined) { result = { type: 'UNINITIALIZED' }; return; }
+          const value = current.result as AtlasEnvelope | undefined;
+          if (initialized.result !== true || !value || typeof value !== 'object'
+            || Object.keys(value).length !== 4 || value.schemaVersion !== 2
+            || typeof value.storageVersion !== 'string' || !/^[a-z0-9_.:-]{1,256}$/i.test(value.storageVersion)
+            || (value.lastCommitId !== null && (typeof value.lastCommitId !== 'string' || !/^[a-z0-9_.:-]{1,256}$/i.test(value.lastCommitId)))
+            || !validateAtlasSnapshot(value.snapshot).ok) return;
+          for (const [request, id] of [[old, curatedUpgradeId], [legacy, legacyCuratedUpgradeId]] as const) {
+            if (request.result === undefined) continue;
+            const receipt = readCuratedUpgradeReceipt(request.result);
+            if (!receipt || receipt.id !== id || receipt.policyRevisionAfter > value.snapshot.policyRevision) return;
+          }
+          if (marker.result !== undefined) {
+            const receipt = readCuratedScopeReceipt(marker.result);
+            if (receipt && receipt.policyRevisionAfter <= value.snapshot.policyRevision) result = { type: 'ALREADY_APPLIED', receipt };
+            return;
+          }
+          if (mode === 'readonly') { needsWrite = true; return; }
+          const planned = planCuratedScopes(value.snapshot);
+          if (!planned) return;
+          const storageVersion = this.version();
+          if (storageVersion === value.storageVersion) { transaction.abort(); return; }
+          store.put({ ...value, storageVersion, snapshot: planned.snapshot } satisfies AtlasEnvelope, 'envelope');
+          store.put(planned.receipt, curatedScopeKey);
+          result = { type: 'APPLIED', receipt: planned.receipt };
+        } catch (error) { caughtFailure = failureCause(error); transaction.abort(); }
+      };
+      transaction.oncomplete = () => {
+        if (needsWrite) { resolve(this.curatedScopes('readwrite')); return; }
+        if (result.type === 'UNAVAILABLE') this.failed('CURATED_UPGRADE', 'VALIDATION', 'INVALID_DATA');
+        resolve(result);
+      };
+      transaction.onabort = () => { this.failed('CURATED_UPGRADE', 'TRANSACTION_ABORT', caughtFailure ?? failureCause(transaction.error, 'ABORTED')); resolve({ type: 'UNAVAILABLE' }); };
     });
   }
 

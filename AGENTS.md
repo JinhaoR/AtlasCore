@@ -1,143 +1,232 @@
-# Atlas Core agent instructions
+# AtlasCore agent instructions
 
-These instructions guide work in the independent AtlasCore repository.
+## Current theme development
 
-## Read first
+Current development adds the Celestial and Parchment design prototypes through
+the existing bundled CSS theme mechanism, preserving the default appearance.
+See [themes.md](docs/themes.md) and [native evidence](docs/evidence/theme-prototypes/README.md).
+Theme values are presentation only;
+layout/interaction geometry and Core authority remain application-owned. Preserve
+prepared 0.3.0 and every prior release. No version bump, packaging, signing,
+deployment or everyday-profile changes are authorized for this work. The release
+and earlier refinement paragraphs below retain their historical status.
 
-Read [README.md](README.md), [foundation.md](docs/foundation.md) and [first-steps.md](docs/first-steps.md). Before implementation, also read the relevant [architecture](docs/architecture.md), [lessons](docs/lessons-from-zenith.md) and [acceptance scenarios](docs/acceptance-tests.md).
 
-Do not assume access to the original conversation or that another session remembers it. Keep important decisions in repository documents.
+## Start here
 
-## Requirements
+Read [README.md](README.md) for current status and commands, and the requirements
+in [foundation.md](docs/foundation.md). Then read the owning contract and relevant
+architecture/acceptance sections for the change. Use the task map in
+[development.md](docs/development.md) to find them. Read
+[lessons-from-zenith.md](docs/lessons-from-zenith.md) when touching enforcement,
+correlation or persistence. [first-steps.md](docs/first-steps.md) is historical;
+do not restart completed milestones or run its old setup steps.
 
-- Atlas Core decides intentional access; it does not render, navigate, filter network traffic, manage website credentials, or implement browser security.
-- Keep domain logic independent of browser APIs, UI frameworks, filesystem APIs and networking. Storage implementations belong outside the domain logic.
-- Preserve Whitelist/Blacklist/Greylist meaning, Blacklist precedence for governed actions, explicit confirmation, scoped grants and protected policy changes.
-- Do not add shortcuts around waiting, confirmation, current-policy checks or successful persistence.
-- Treat invalid or unavailable authorization state conservatively. Do not silently create a fresh permissive policy over damaged state.
-- All frontends must use the same semantic decisions. They may adapt platform events, not invent independent access rules.
-- Keep website-supplied data outside privileged policy commands. Importing a library in an untrusted context does not make that context authoritative.
-- Never place credentials, cookies, tokens, private profiles or credential-bearing URLs in fixtures or logs.
+Current user instructions supersede historical guidance. Keep important decisions
+in the owning repository document; do not depend on conversation memory. Identify
+conflicting current contracts before changing behavior. Resolve only blocking
+product questions, and never request renewed approval for an already approved rule.
 
-## Decisions already made
+## Invariants
 
-- This is a fresh project. Do not import Zenith code, migrations, framework restrictions or its historical dependency/attribution graphs.
-- Future Firefox and Electron use must be possible without putting those platforms inside Core.
-- Supporting domains are hidden from the normal destination list but may appear during controlled login steps. See the foundation before designing their authorization rules.
-- Cooldown and confirmation are the product's primary friction. Do not make a password system a prerequisite for this Core.
+- AtlasCore decides; adapters execute. Keep one pure TypeScript Core package and
+  one Firefox adapter. Core contains no browser, UI, filesystem, networking or
+  real-clock calls. It does not implement TLS, OAuth, cookies or authentication.
+- Preserve default Greylist, manual Blacklist precedence, explicit confirmation,
+  fixed deadlines, scoped grants, current revisions and successful persistence.
+  Invalid/unavailable authority fails closed; never initialize over damaged state.
+- Keep website-origin data outside privileged commands. A library import, claimed
+  origin or cached UI collection is not authority. All frontends use Core decisions.
+- A candidate or pure domain success is not a committed policy. Keep atomic CAS,
+  unknown-outcome reconciliation and explicit confirmation; never auto-replay it.
+- Presentation metadata, pins, usage, Home layout and draft previews never grant
+  permission. Failed saves retain unsaved work and truthful recovery feedback.
+- Exact hostnames remain the default. No implicit apex/www equivalence, wildcard
+  rules, provider trust, supporting-domain database, learned relationships,
+  Context Whitelist or link inheritance. Electron remains deferred.
+- Do not copy Zenith code. Do not add workflow frameworks, UI frameworks,
+  unrelated packages or dependencies without a demonstrated need.
+- Never log credentials, cookies, tokens, private profiles or credential URLs.
+  Diagnostics use closed codes and bounded hostname-only navigation history.
 
-## Proposed architecture
+## Current contracts (use these, not older milestone descriptions)
 
-Milestones 1 through 3 implement TypeScript policy evaluation, pure Greylist access transitions, and frozen Vault proposals with commit preparation. D11 adds bounded Pure Whitelist Journeys; D13/D14 add planning and commit coordination. D15 implements the Firefox adapter in `extension/`; D16 adds its prototype interface and diagnostics. D17 adds curated services with explicit aliases and a separately compiled managed Blacklist; its precedence and lifecycle are in `docs/managed-policy.md`. Boundaries are in `docs/firefox-adapter.md`; public-site evidence and gaps are in `docs/firefox-real-sites.md`. D19 adds protected timing configuration through Vault, local destination search and per-tab Journey presentation; see `docs/productization.md`. Keep D18 Journey authorization stable unless real use reveals a reproducible failure or practical bypass. Core remains platform-independent and time is explicit. Domain success is not a persistence acknowledgement; a Vault candidate is not active policy. Electron and Context Whitelist remain deferred. Do not add a supporting-domain database, learned relationships, trust graphs, or link inheritance.
+| Area | Owning contract and essential boundary |
+| --- | --- |
+| Policy/planner/controller | [architecture.md](docs/architecture.md), [foundation.md](docs/foundation.md): complete state validation, explicit time, commit before publication. |
+| Whitelist subtraction | [whitelist-removal.md](docs/whitelist-removal.md): explicitly reviewed strict removal of existing exact/scope terms can commit without waiting. Additions, mixed batches, Blacklist and timing changes retain Vault. Pending proposals remain frozen and become stale; do not silently split batches or create a general bypass. |
+| Optional subdomain scope | [whitelist-scopes.md](docs/whitelist-scopes.md): default off, explicit choice; additions use Vault. Manual Blacklist wins. Broad scope cannot bypass managed blocking; only a separate exact Whitelist entry can. Legacy rules remain exact. |
+| Firefox gate | [firefox-adapter.md](docs/firefox-adapter.md): top-level navigation, actual effects, context/request generations, ordinary gated launchers. Resources are not user navigation. |
+| Journey | [firefox-journey-polish.md](docs/firefox-journey-polish.md): bounded browser-attested first departure from a loaded Whitelisted root; subsequent unfamiliar steps require HTTP redirect or attested POST from the loaded current intermediate. Preserve fixed lifetime/hops/context. No provider trust. Expiry return has a renewal veto. |
+| Download Intent | [firefox-downloads.md](docs/firefox-downloads.md): separate ephemeral operation with browser-attested activation and response correlation; unfamiliar HTML needs ordinary authorization. No shared Journey, permanent grant or inheritance. |
+| Greylist aliases | [firefox-stabilization.md](docs/firefox-stabilization.md): explicit aliases or bounded credential-free HTTPS apex/www discovery before Start; disclose/freeze exact scope. Saved requests/grants never widen. |
+| Managed blocking/defaults | [managed-policy.md](docs/managed-policy.md): pinned feed bytes verified at build/startup, Core owns precedence. Missing initialized authority is not first run. |
+| Curated migration | [curated-expansion.md](docs/curated-expansion.md): user-approved one-time additive union for all installs, no device IDs; preserve custom hosts, Blacklist and settings. Current v3 excludes Wikipedia/YouTube. Frozen v2 receipts remain valid without reapplying. Previously removed entries may return only in the expressly approved initial expansion; saved permissions are never automatically removed. |
+| Draft/Vault editing | [destination-polish.md](docs/destination-polish.md), [editor-reliability-0.1.19.md](docs/editor-reliability-0.1.19.md): persistent editable batches and separate frozen receipts. Preserve dirty fields, stale/conflict checks, acknowledgement-only saves and display-only retry. |
+| Home and controls | [home-organization.md](docs/home-organization.md): one scrollable category grid, drag/keyboard ordering, icons and visibility in Settings; replaces the separate directory, address form and customization modal. Stable pins and category identity/order/visibility/collapse stay independent of authority. [ui-design.md](docs/ui-design.md) and [visual-polish.md](docs/visual-polish.md) retain earlier presentation history. |
+| Everyday controls / bookmarks | [everyday-controls.md](docs/everyday-controls.md): read-only toolbar popup with closed shortcuts; stationary desktop category/search panel; optional native bookmark sync under one serialized presentation owner. Durable external-operation intent, CAS and explicit conflict review; no bookmark-based authorization. Supersedes the earlier no-popup and expanding-category layout. |
+| Rendering | [ui-stability.md](docs/ui-stability.md): one visible-page refresh owner, quiet unchanged reads/setters, stable DOM identity, epoch-fenced replies and cleanup on close. [quality-pass-0.1.19.md](docs/quality-pass-0.1.19.md) owns the final owner extraction, compact editing/review, structural comparison and bounded diagnostic retention. |
+| Storage/recovery | [firefox-storage-reliability.md](docs/firefox-storage-reliability.md): readonly ordinary loads; strict atomic migration/commit. One same-owner recovery only for confirmed transient LOAD/COMMIT abort, never unknown outcomes. Do not clamp clocks. The user's idle INTERNAL_ERROR trigger remains unknown; closed stage/class diagnostics are diagnosis, not a proven fix. No speculative history pruning or internal-fault auto-recovery. |
 
-Keep one small Core package and the separate authorized Firefox adapter package. Prefer pure functions, explicit dependencies and a small public API. Avoid service frameworks, generic workflow engines, plugin systems and unrelated package proliferation.
+## Current development refinement
 
-D20 refines Firefox presentation; `docs/ui-design.md` owns sidebar/search/cards/pins. Presentation preferences carry no policy authority.
+Current work after the prepared 0.3.0 candidate refines Home balance and the
+All Sites category ordering. Keep all release artifacts, including 0.3.0, frozen.
+Home centers below navigation with a logo/title and up to two Greylist rows.
+All Sites supports Custom, Alphabetical and Most used via a separate CAS
+presentation record; dropping a category selects Custom. See the current section
+of `docs/home-organization.md` and `docs/evidence/home-balance/README.md`.
+No version change, packaging, signing, deployment or everyday-profile edits.
+The following preparation instructions describe completed work.
 
-D22 fixes Journey arrival/retry ordering and adds the explicitly approved first browser-attested departure from a loaded Whitelisted root. D25 also approves bounded POST continuation from the loaded current intermediate, with exact browser origin and saved authority. Later unfamiliar steps require HTTP redirect or POST evidence. See `docs/firefox-journey-polish.md`; no provider trust is inferred.
+Prepare unsigned **0.3.0** from the completed Home/All Sites redesign and post-0.2.8
+interaction repairs. The user authorizes versioning, packaging, verification and
+isolated signed-0.2.8 upgrade/restart/rollback tests. Preserve every previous release.
+Do not sign, submit, deploy, commit, push or change the everyday Firefox profile.
+See `docs/release-candidate-0.3.0.md`. Development boundaries below are historical.
 
-D23's logic/structure/UI review is recorded in `docs/code-review.md`. Timing display and draft conversion belong to `extension/src/ui/settings-model.ts`; they carry no authorization. Preserve drafts across unavailable authority and retire departed browser source evidence promptly.
 
-D26 separates explicit Greylist access aliases from the curated Whitelist, fixing Amazon's canonical redirect without Whitelisting it. `docs/firefox-stabilization.md` owns the scope and evidence. Saved scopes never widen on reload.
+Current work separates Home (search, compass, access summaries) from All Sites
+(category directory and contextual native editor dialog). See the current section
+of `docs/home-organization.md` and `docs/evidence/home-directory/README.md`.
+Preserve saved layout/pin/draft data and existing Core gates. Signed 0.2.8 and all
+older release files are frozen; this task does not authorize a version bump,
+packaging, signing, deployment or everyday-profile changes. Earlier preparation
+instructions below are historical.
 
-D27 shows committed temporary access on Home and seeds the user's approved 51-host Whitelist only in genuinely empty development installations. `docs/ui-design.md` and `docs/managed-policy.md` own presentation and first-run behavior. Existing or damaged authority is never replaced by defaults.
 
-D28 prepares new Greylist scopes from a bounded, credential-free public apex/`www` redirect check before Start. Standard HTTP and HTTPS entries inspect the same hostname over HTTPS while preserving the original navigation. The user approved live request preparation; discovered partners are disclosed exact terms, never permanent aliases. `docs/firefox-stabilization.md` owns the boundaries. Existing requests/grants never widen.
+Current development refines Home proportions and repairs pointer activation of
+compass pins. The transformed pin layer must sit above the rotation handle while
+empty ring space passes through to it. See `docs/evidence/home-hierarchy/README.md`.
+This is presentation-only work after signed 0.2.8; no version bump, packaging,
+signing or everyday-profile changes are authorized. Earlier work follows.
 
-D29 protects pinned managed-feed bytes across Git checkout and verifies source/shipped bundles during build. Startup failures expose safe stage codes; explicit Recovery retries failed construction or reconciles the existing controller without resetting authority. `docs/managed-policy.md` owns the contract; older Windows checkouts may require re-checking out the two public hosts assets after pulling.
+Current work after signed **0.2.8** is the Greylist cancellation/compass-flash
+presentation repair. Separate red Cancel controls dismiss an unstarted prompt,
+cancel a pending request, or end an active grant using existing commands.
+Committed cancellation clears the original selected route; failed/uncertain
+outcomes stay visible. Core and release artifacts are unchanged. Do not package,
+bump the version, sign, deploy or touch the everyday profile for this repair.
+See `docs/evidence/greylist-controls/README.md`. The paragraphs below are history.
 
-D24 simplifies Firefox navigation to Home/Settings with native disclosures and a saved minimized sidebar; `docs/ui-design.md` owns the presentation contract. Sidebar/pin preferences remain separate from authoritative storage.
+Prepare unsigned **0.2.8** from the completed Home simplification, curated
+subdomain scopes and early grant termination. The user's signing-preparation
+request authorizes packaging, verification and isolated signed-0.2.7 upgrade,
+restart and rollback checks. Signed 0.2.7 and all earlier artifacts remain frozen.
+Do not sign, submit, deploy, commit, push or change the everyday Firefox profile.
+See `docs/release-candidate-0.2.8.md`. The development paragraphs below are history.
 
-D30 adds Sites & Access, compact Home launchers, local service usage ranking and a 60px sidebar rail. Exact permission changes still use Vault; display-only edits use local preferences. Optional apex/www pairs use a Public Suffix List in the extension, never fuzzy Core matching or migration broadening. Saved Journey expiry returns the owning tab to its recorded trusted origin, with an automatic-return renewal veto. `docs/destination-polish.md` owns these boundaries and evidence.
+The current development refinement supersedes the older toolbar-only/optional
+bookmark scope: bookmarks permission is required with automatic connection;
+Firefox toolbar folders are mirrored read-only, with local icon choices. Explicit
+disconnect/conflicts are preserved. Home has one category column and inline
+Greylist controls; legacy access URLs resolve to Home, never a replacement tab.
+Core commands, release assets and version remain unchanged. See the latest
+sections of `home-organization.md` and `everyday-controls.md`.
 
-D31 removes sidebar expansion and sizes Home preview rows to available width, up to five fixed-height cards. Legacy sidebar preferences are ignored; policy and pins are preserved. `docs/ui-design.md` owns the presentation and evidence.
 
-Development toward 0.1.15 adds a separate ephemeral Download Intent through the
-planner/controller; `docs/firefox-downloads.md` owns the scope and evidence. Keep
-browser correlation in the adapter, fixed deadlines and deny precedence in Core,
-and unfamiliar HTML under normal navigation authorization. Preserve signed 0.1.14
-assets; this milestone does not authorize signing or publication.
+Current work: the user explicitly approves [curated subdomain scopes](docs/curated-subdomains.md)
+for all bundled sites and a one-time existing-install migration, excluding any
+expansion to `www.google.com`. Preserve customized/pinned subdomain shortcuts and
+merge plain display duplicates. Preserve exact managed-block exceptions internally.
+This overrides the historical exact-only curated default, not Core precedence.
+Signed 0.2.7 and earlier releases remain frozen. No packaging/version/signing is
+authorized by this development task.
 
-Milestone C adds saved Home category order, visibility and complete collapse in a
-separate revision-checked presentation repository, plus links to existing access
-workflows and per-page Sites navigation context. `docs/home-organization.md` owns
-the contract and evidence. Pins/search keep their complete index; layout is never
-an authorization input. Milestone D's user-authorized visual consistency pass is
-owned by `docs/visual-polish.md`; it preserves all A/B/C behavior and release boundaries.
+The current user request is development polish after signed **0.2.7**: show entire
+opened categories, expand local icons, investigate wheel hover glitches, investigate
+Firefox suggestions and MyAnimeList reCAPTCHA, and explicitly end temporary grants.
+Early grant termination is now authorized; see `docs/architecture.md`. No version
+change, packaging, signing or deployment is authorized in this pass. Signed 0.2.7
+and every earlier artifact are frozen. The release instructions below are history.
 
-The user subsequently authorizes preparing the 0.1.15 unsigned release candidate.
-`docs/firefox-private-release.md` owns packaging, reviewer-source reproduction and
-in-place update instructions. Keep signed 0.1.14 frozen; preparation does not
-authorize Mozilla signing/submission or changes to installed Firefox.
+Prepare unsigned **0.2.7** from the completed Home motion/access overview and
+navigation-failure presentation fix. The user's signing-preparation request
+authorizes packaging, verification and isolated signed-0.2.6 upgrade/restart/
+rollback tests. Signed **0.2.6** and every older artifact are frozen. Do not sign,
+submit, deploy, commit, push or change the everyday Firefox profile. See
+`docs/release-candidate-0.2.7.md`. The following paragraphs retain earlier history.
 
-## Open questions and authority
+The latest user request authorizes UI interaction refinement only: animated
+category drag previews, outer-ring dragging with bounded friction, visual icon
+selection, Vault inside Settings and centralized UI copy. Direct toolbar bookmarks
+replace new folder connections; the user explicitly selected toolbar-only scope
+and deletion of synchronized toolbar bookmarks on unpin. Folders stay untouched.
+See the current sections in `home-organization.md` and `everyday-controls.md`.
+The user's subsequent signing-preparation request authorizes unsigned **0.2.6**
+packaging, verification and isolated signed-0.2.5 upgrade/rollback tests. Signed
+0.2.5 and all older artifacts remain frozen. Do not sign, submit, install into the
+everyday profile, deploy, commit or push. See `docs/release-candidate-0.2.6.md`.
+The release boundaries below retain their preparation history.
 
-Milestone A's focused UI reliability repairs are owned by `docs/ui-reliability.md`.
-Presentation saves publish only acknowledged values; failed/uncertain saves retain
-drafts and explicit display-only retries. Cached collections carry no authority.
-Preserve the frozen signed 0.1.13 release. Milestone B adds extension-local,
-versioned destination drafts and separate frozen batch/display receipts through
-the existing Vault commands. `docs/destination-polish.md` owns draft persistence,
-reconciliation, category identity and display-only recovery. Categories remain
-presentation; Home organization is owned by Milestone C and visual polish is now
-authorized by Milestone D without changing functionality or authority.
+## Release boundaries
 
-D32 adds private Firefox release tooling; `docs/firefox-private-release.md` owns
-identity, privacy declarations, source archives and unlisted signing. Preserve
-`atlas-development@atlas.invalid`. Build/validation never submit; signing requires
-credentials and explicit user authorization. Release tooling stays outside Core.
-`docs/firefox-backup.md` owns temporary-to-signed migration instructions.
-After signing, use `release:verify-signed` to check preserved artifacts offline;
-never rebuild/resubmit a signed version to fix verifier code. D32 permits only
-manifest whitespace changes outside strings, known signature files, and local
-`.amo-upload-uuid` in post-sign staging. All runtime hashes remain enforced.
+Prepare unsigned **0.2.5** from the completed Home category grid and direct
+Firefox bookmark connection, following [release notes](docs/release-candidate-0.2.5.md).
+Signed **0.2.4** and all earlier artifacts are frozen. Packaging, verification
+and isolated signed-0.2.4 upgrade/rollback are authorized; signing, submission,
+deployment, commits and everyday-profile changes are not. Earlier instructions
+below describe their historical preparation.
 
-Local Windows deployment tooling is separate in `scripts/`; its contract and
-isolated tests are in `docs/windows-deployment.md`. It reuses signed-release
-verification, validates existing policy without editing it, and atomically replaces
-only the managed XPI after UAC and hash checks. Development never authorizes live
-deployment, profile changes, or signing.
+Prepare unsigned **0.2.4** from completed Everyday controls and rendering polish,
+following [release notes](docs/release-candidate-0.2.4.md). Signed **0.2.3** and all
+older artifacts are frozen. Packaging, verification and isolated signed-0.2.3
+upgrade/rollback are authorized; signing, submission, deployment, commits and
+everyday-profile changes are not. Older instructions below retain their history.
 
-The development UI stability pass is owned by `docs/ui-stability.md`. Keep one
-visible-page refresh loop, silent unchanged presentation reads and stable DOM
-identity. Retained UI data only queues intent through the ordinary Core gate;
-initial loading, failure and uncertainty remain conservative. Signed 0.1.15 stays
-frozen and no release/deployment operation is authorized by this pass.
+Prepare unsigned **0.2.3** from completed [Compact Home](docs/compact-home.md),
+following the [release notes](docs/release-candidate-0.2.3.md). Signed **0.2.2** and
+every older artifact are frozen. Packaging, verification and isolated signed-0.2.2
+upgrade/rollback tests are authorized; signing, submission, deployment and everyday
+profile changes are not. Earlier release preparation guidance follows.
 
-The user subsequently authorizes unsigned 0.1.16 release preparation containing
-the UI stability fixes. `docs/firefox-private-release.md` owns packaging and
-verification. Keep signed 0.1.13–0.1.15 frozen; signing, submission and installed
-Firefox changes remain separate user operations.
+Prepare unsigned **0.2.2** from the completed
+[rendering/architecture review](docs/ui-engineering-review.md), following the
+[release notes](docs/release-candidate-0.2.2.md). The user authorizes packaging,
+verification and isolated signed-0.2.1 upgrade/rollback tests. Signed **0.2.1** and
+every older artifact are frozen. Do not sign, submit, deploy, edit enterprise
+policies or touch the everyday profile. The following 0.2.1 instructions describe
+the completed earlier task.
 
-Current user instructions take precedence over this packet. Requirements and settled decisions are distinguished from proposals in the foundation. Historical Zenith behavior is not authority for Atlas.
+Develop **0.2.1** for the focused [startup/viewport repair](docs/startup-layout-0.2.1.md)
+and the now-approved [Firefox Home/new-tab overrides](docs/firefox-home-newtab-poc.md).
+The user's signing-preparation request promotes the verified manifest-only experiment
+into the unsigned candidate. Use bare extension-relative `ui/index.html` paths;
+Firefox owns notices and startup/session-restore settings. No signing is authorized.
+Signed **0.2.0** and every older release are frozen. The user approves a new
+unsigned 0.2.1 candidate after verification; do not rebuild signed 0.2.0.
+The **0.2.0** presentation-only visual redesign is owned by
+[visual-redesign-0.2.0.md](docs/visual-redesign-0.2.0.md). The new flat navy/cream/gold
+top navigation and static compass supersede the older palette/rail presentation;
+all authorization, persistence and interaction outcomes remain unchanged. Preserve
+every prior release, including the signed **0.1.19–0.2.0** assets. The user authorizes
+unsigned 0.2.1 signing-candidate packaging, verification and isolated upgrade/rollback
+tests. This does not authorize signing, Mozilla submission, deployment, enterprise-policy edits,
+or access/modification of the user's everyday Firefox profile. Do not commit/push
+without instruction. Use isolated profiles and synthetic fixtures for native tests.
 
-The 0.1.16 daily-use storage investigation is owned by
-`docs/firefox-storage-reliability.md`. Ordinary reads remain readonly; legacy
-migration and actual commits stay strict/atomic. One adapter recovery after a
-confirmed transient aborted write uses the same Core owner; never replay a
-confirmation or auto-resolve unknown outcomes. Preserve signed release assets.
+Preserve extension ID `atlas-development@atlas.invalid`. Release tooling stays
+outside Core. [firefox-private-release.md](docs/firefox-private-release.md) owns
+packaging, reviewer-source reproduction and offline `release:verify-signed`.
+Never rebuild/resubmit a signed version to repair verification. Signing comparison
+permits only known signature metadata, manifest whitespace outside strings, and
+local `.amo-upload-uuid` in post-sign staging; all runtime hashes remain enforced.
+[firefox-backup.md](docs/firefox-backup.md) and
+[windows-deployment.md](docs/windows-deployment.md) own migration/deployment.
+Live deployment is a separate authorized action; tests never edit installed policy.
 
-Before implementing behavior affected by an open product question, resolve that question with the user or an explicit later decision. Do not request renewed approval for decisions already made. Routine reversible engineering choices within an authorized milestone can be made and documented without a separate approval ceremony.
+## Working method and evidence
 
-If documents conflict, identify the conflict before changing behavior. Do not invent an interpretation and silently turn it into a requirement.
-
-## Working method
-
-1. State the small milestone and observable result.
-2. Identify the responsible layer and relevant requirements.
-3. Resolve only blocking product questions; continue independent work where possible.
-4. Add behavior-oriented tests with fake time and isolated storage.
-5. Implement the smallest coherent change, without unrelated refactors.
-6. Run the project's actual build, type checks and tests as applicable.
-7. Review the diff and report changes, evidence and remaining limitations.
-
-Use the actual npm build, type-check, and test commands in `README.md`. Do not copy Zenith's `dotnet` commands or present future workflow/browser tests as current evidence.
-
-## Evidence and maintenance
-
-- Test required failure cases as well as allowed behavior. Core tests must run without a browser.
-- Browser enforcement claims require separate adapter tests; domain tests alone are insufficient.
-- Distinguish passing tests, historical evidence, untested assumptions and compatibility limitations.
-- Record decisions in the foundation and keep architecture and test expectations consistent.
-- Update the owning document instead of repeating specifications across files.
-- Keep these instructions concise. The goal is a small decision library, not a reconstruction of Zenith.
+1. State the bounded result and responsible layer. Inspect before editing.
+2. Reproduce and measure performance defects before claiming an optimization.
+3. Make the smallest supported change; avoid speculative refactors/caches.
+4. Test behavior with fake time/isolated storage, including affected failure paths.
+5. Follow the verification tiers in [development.md](docs/development.md). Build
+   once per code revision; focused tests during iteration, full regressions for a
+   completed cross-subsystem pass/release. Do not weaken release checks.
+6. Browser claims require native evidence. Separate unit, mocked adapter, native,
+   historical and unverified observations. Synthetic faults do not prove user causes.
+7. Review the diff, preserve unrelated work, update the owning document and report
+   results/limits. Avoid duplicating whole contracts or old test counts everywhere.
+8. After retaining sanitized results, remove only this task's identified disposable
+   profiles/runtime copies. Never broadly delete `.tools` or other sessions' work.

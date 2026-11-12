@@ -1,5 +1,5 @@
-import { cancelAccess, confirmAccess, evaluateAccess, startAccess } from "./access.js";
-import type { AccessTransition } from "./access-models.js";
+import { cancelAccess, confirmAccess, endAccess, evaluateAccess, startAccess } from "./access.js";
+import type { AccessDecision, AccessTransition } from "./access-models.js";
 import { accessScope, nonnegativeInteger, positiveInteger, readAccessScope } from "./access-state.js";
 import type {
   AtlasConfiguration, AtlasError, AtlasNavigationContext, AtlasOperation, AtlasPlan,
@@ -13,7 +13,7 @@ import {
 import type { JourneyTransition } from "./journey-models.js";
 import { continuesJourney, finishJourney, hasJourneyFields, readJourneyContinuation, replaceJourney, validContextId } from "./journey-state.js";
 import type { SiteTarget } from "./models.js";
-import { normalizePolicy } from "./policy.js";
+import { isWhitelistRemoval, normalizePolicy } from "./policy.js";
 import { normalizeTarget } from "./target.js";
 import { isManagedBlacklist, managedBlacklistContains, type ManagedBlacklist } from "./managed-blacklist.js";
 import {
@@ -84,6 +84,7 @@ function readOperation(value: unknown): ParsedOperation {
     }
     case "CONFIRM_ACCESS":
     case "CANCEL_ACCESS":
+    case "END_ACCESS":
       if (!hasJourneyFields(input, ["kind", "requestId"])) return invalid();
       return positiveInteger(input.requestId) ? valid({ kind, requestId: input.requestId })
         : invalid("INVALID_REQUEST_ID");
@@ -91,6 +92,13 @@ function readOperation(value: unknown): ParsedOperation {
       if (!hasJourneyFields(input, ["kind", "candidatePolicy"])) return invalid();
       const candidatePolicy = normalizePolicy(input.candidatePolicy);
       return candidatePolicy === null ? invalid("INVALID_CANDIDATE_POLICY") : valid({ kind, candidatePolicy });
+    }
+    case 'REMOVE_WHITELIST': {
+      if (!hasJourneyFields(input, ['kind', 'candidatePolicy', 'basePolicyRevision'])) return invalid();
+      if (!nonnegativeInteger(input.basePolicyRevision)) return invalid('INVALID_POLICY_REVISION');
+      const candidatePolicy = normalizePolicy(input.candidatePolicy);
+      return candidatePolicy === null ? invalid('INVALID_CANDIDATE_POLICY')
+        : valid({ kind, candidatePolicy, basePolicyRevision: input.basePolicyRevision });
     }
     case "PROPOSE_SETTINGS": {
       if (!hasJourneyFields(input, ['kind', 'candidateConfiguration'])) return invalid();
@@ -129,6 +137,10 @@ function accessContext(snapshot: AtlasSnapshot, now: number) {
 
 function journeyContext(snapshot: AtlasSnapshot, now: number) {
   return { policy: snapshot.policy, policyRevision: snapshot.policyRevision, state: snapshot.journeyState, now };
+}
+
+function isWhitelistDecision(decision: AccessDecision): boolean {
+  return decision.outcome === 'ALLOW' && (decision.reason === 'WHITELISTED' || decision.reason === 'WHITELISTED_SCOPE');
 }
 
 function vaultContext(snapshot: AtlasSnapshot, now: number) {
@@ -218,11 +230,12 @@ function beginNavigation(
     if (access.decision.outcome === "DENY" || managedDenies(snapshot, operation.target.hostname, managed)) {
       return navigationPlan(operation, snapshot, now, managed);
     }
-    if (evaluateAccess({ hostname: departure.sourceHostname }, accessContext(snapshot, now)).decision.reason !== "WHITELISTED") {
+    if (managedDenies(snapshot, departure.sourceHostname, managed)) return reject('MANAGED_BLACKLISTED', snapshot);
+    if (!isWhitelistDecision(evaluateAccess({ hostname: departure.sourceHostname }, accessContext(snapshot, now)).decision)) {
       return reject("NOT_WHITELISTED", snapshot);
     }
     if (departure.sourceHostname === operation.target.hostname) return reject("INVALID_NAVIGATION", snapshot);
-    if (access.decision.outcome === "ALLOW" && access.decision.reason === "WHITELISTED") {
+    if (isWhitelistDecision(access.decision)) {
       // Independently trusted destinations keep the ordinary requested-root contract.
       return beginNavigation({ ...operation, context: { contextId: operation.context.contextId,
         journeyId: operation.context.journeyId } }, snapshot, now, managed, configuration);
@@ -239,7 +252,7 @@ function beginNavigation(
     const plan = navigationPlan({ ...operation, context: { ...operation.context, journeyId: started.journey.id } }, candidate, now, managed);
     return makePlan(plan.result, snapshot, plan.observationSnapshot ?? candidate);
   }
-  if (access.decision.outcome !== "ALLOW" || access.decision.reason !== "WHITELISTED") {
+  if (!isWhitelistDecision(access.decision) || managedDenies(snapshot, operation.target.hostname, managed)) {
     return navigationPlan(operation, snapshot, now, managed);
   }
   if (current !== undefined && current.phase !== "ENDED") {
@@ -282,11 +295,14 @@ export function planAtlasOperation(operationInput: unknown, contextInput: unknow
   const parsed = readOperation(operationInput);
   const journeys = observeJourneys(journeyContext(snapshot, now));
   if (!journeys.ok) return reject(journeys.reason);
+  const journeyState = { ...journeys.nextState, journeys: journeys.nextState.journeys.map(journey =>
+    journey.phase !== 'ENDED' && managedDenies(snapshot, journey.rootHostname, managedList)
+      ? finishJourney(journey, 'ROOT_NOT_WHITELISTED', now) : journey) };
   const observation: AtlasSnapshot = {
     ...snapshot,
     accessState: { ...snapshot.accessState, lastObservedAt: now, policyRevision: snapshot.policyRevision },
     vaultState: { ...snapshot.vaultState, lastObservedAt: now, policyRevision: snapshot.policyRevision },
-    journeyState: journeys.nextState,
+    journeyState,
   };
   if (!parsed.ok) return reject(parsed.reason, observation);
   const operation = parsed.operation;
@@ -313,14 +329,31 @@ export function planAtlasOperation(operationInput: unknown, contextInput: unknow
       return navigationPlan(operation, observation, now, managedList);
     case "OBSERVE_TIME":
       return makePlan({ type: "OBSERVED" }, observation);
+    case 'REMOVE_WHITELIST': {
+      if (operation.basePolicyRevision !== observation.policyRevision) return reject('POLICY_CHANGED', observation);
+      if (!isWhitelistRemoval(observation.policy, operation.candidatePolicy)) return reject('NOT_WHITELIST_REMOVAL', observation);
+      const policyRevision = observation.policyRevision + 1;
+      if (!nonnegativeInteger(policyRevision)) return reject('REVISION_EXHAUSTED', observation);
+      const next: AtlasSnapshot = { ...observation,
+        policy: { ...operation.candidatePolicy, blacklist: observation.policy.blacklist }, policyRevision,
+        accessState: { ...observation.accessState, policyRevision },
+        vaultState: { ...observation.vaultState, policyRevision } };
+      const invalidated = observeJourneys(journeyContext(next, now));
+      if (!invalidated.ok) return reject(invalidated.reason, observation);
+      return makePlan({ type: 'TRANSITION_PREPARED', operation: operation.kind, id: policyRevision }, observation,
+        { ...next, journeyState: invalidated.nextState });
+    }
     case "START_ACCESS":
       return accessPlan(operation.kind,
         startAccess(operation.target, accessContext(observation, now), configuration.accessTiming, operation.scopeHostnames), observation);
     case "CONFIRM_ACCESS":
       return accessPlan(operation.kind, confirmAccess(operation.requestId, accessContext(observation, now)), observation);
+    case "END_ACCESS":
+      return accessPlan(operation.kind, endAccess(operation.requestId, accessContext(observation, now)), observation);
     case "CANCEL_ACCESS":
       return accessPlan(operation.kind, cancelAccess(operation.requestId, accessContext(observation, now)), observation);
     case "START_JOURNEY":
+      if (managedDenies(observation, operation.root.hostname, managedList)) return reject('MANAGED_BLACKLISTED', observation);
       return journeyPlan(operation.kind, startJourney(operation.root, operation.contextId,
         journeyContext(observation, now), configuration.journeyLimits), observation);
     case "CANCEL_JOURNEY":

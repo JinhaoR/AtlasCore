@@ -6,7 +6,7 @@ import time
 def run_friend_prototype(client, ui_handle, ui_url, port, wait_for, hits, run, startup):
     assert startup['status'] == 'READY', 'new friend profiles need no setup'
     seed = startup['snapshot']
-    assert len(seed['policy']['whitelist']) == 51
+    assert len(seed['policy']['whitelist']) >= 250
     assert seed['policy']['blacklist'] == []
     assert seed['policyRevision'] == 0
     assert seed['accessState']['grants'] == [] and seed['accessState']['pendingRequests'] == []
@@ -18,7 +18,7 @@ def run_friend_prototype(client, ui_handle, ui_url, port, wait_for, hits, run, s
 
     before = view()['controller']['snapshot']['policy']
     client.script("document.getElementById('show-home').click();")
-    wait_for(lambda: client.script("return !document.getElementById('temporary-empty').hidden;"), 'empty overview')
+    wait_for(lambda: client.script("return document.getElementById('temporary-section').hidden && !document.querySelector('#temporary-list .temporary-row');"), 'empty overview stays compact')
     handles = client.call('WebDriver:GetWindowHandles')
     hit_start = len(hits)
     tab_id = client.script('''
@@ -44,7 +44,7 @@ def run_friend_prototype(client, ui_handle, ui_url, port, wait_for, hits, run, s
     assert grant['requestId'] == request['id']
     client.script("document.getElementById('show-home').click();")
     wait_for(lambda: client.script("return document.querySelectorAll('#temporary-list .temporary-row').length === 1 && document.querySelector('.temporary-time').textContent.includes('remaining');"), 'visible Home countdown')
-    assert client.script("return document.querySelector('.temporary-scope').textContent;") == 'unknown.localhost'
+    assert client.script("return document.querySelector('#temporary-list .temporary-scope').textContent;") == 'Temporary permission · unknown.localhost'
     client.script('''
         window.__atlasTemporaryRow = document.querySelector('.temporary-row');
         window.__atlasTemporaryTime = document.querySelector('.temporary-time').textContent;
@@ -86,7 +86,7 @@ def run_friend_prototype(client, ui_handle, ui_url, port, wait_for, hits, run, s
     assert recovered['temporaryAccess'][0]['expiresAt'] == grant['expiresAt']
     wait_for(lambda: client.script("return document.querySelectorAll('#temporary-list .temporary-row').length === 1;"), 'grant survives reload')
     wait_for(lambda: time.time() * 1000 >= grant['expiresAt'], 'original grant expires', 65)
-    wait_for(lambda: client.script("return !document.getElementById('temporary-empty').hidden && document.querySelectorAll('#temporary-list .temporary-row').length === 0;"), 'expired grant leaves overview')
+    wait_for(lambda: client.script("return document.getElementById('temporary-section').hidden && document.querySelectorAll('#temporary-list .temporary-row').length === 0;"), 'expired grant leaves overview')
     final = wait_for(lambda: (v := view()) and any(c['hostname'] == 'unknown.localhost' and c['effect'] == 'REMOVED'
                        and c['latest'].get('decision', {}).get('outcome') == 'GREYLIST' for c in v['contexts']) and v, 'expired page withheld')
     assert final['temporaryAccess'] == []
@@ -94,9 +94,9 @@ def run_friend_prototype(client, ui_handle, ui_url, port, wait_for, hits, run, s
     assert final['controller']['snapshot']['accessState']['grants'] == [grant]
     report = {
         'extensionVersion': client.script('return browser.runtime.getManifest().version;'),
-        'freshInstallWhitelistCount': 51, 'freshInstallBlacklistEmpty': True,
+        'freshInstallWhitelistCount': len(seed['policy']['whitelist']), 'freshInstallBlacklistEmpty': True,
         'setupRequired': False, 'freshRevision': 0, 'noCopiedRuntimeState': True,
-        'pendingAndReadyRequestsHidden': True, 'savedGrantVisible': True,
+        'pendingRequestsRemainSeparateFromGrants': True, 'savedGrantVisible': True,
         'countdownAdvances': True, 'rowAndFocusStable': True, 'smallScreenFits': True,
         'unavailableStateHidesGrants': True, 'restartPreservesGrantAndPolicy': True,
         'expiryRemovesRowAndPage': True, 'fixedExpiry': True, 'noRenewal': True,

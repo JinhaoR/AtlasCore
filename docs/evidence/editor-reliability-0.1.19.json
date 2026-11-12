@@ -1,0 +1,1747 @@
+{
+  "date": "2026-10-29",
+  "version": "0.1.19",
+  "status": "DEVELOPMENT_VERIFIED_NOT_PACKAGED_SIGNED_OR_INSTALLED",
+  "extensionId": "atlas-development@atlas.invalid",
+  "tests": {
+    "core": 222,
+    "extension": 486,
+    "coreTypecheck": "PASS",
+    "extensionTypecheck": "PASS",
+    "developmentBuild": "PASS",
+    "actualNpmTestCommand": "PASS"
+  },
+  "catalog": {
+    "hosts": 294,
+    "services": 122,
+    "removedFromDefaultsOnly": [
+      "wikipedia.org",
+      "www.wikipedia.org",
+      "en.wikipedia.org",
+      "sv.wikipedia.org"
+    ],
+    "frozenV2Targets": 298,
+    "v3Targets": 294,
+    "existingV2NotReapplied": true,
+    "existingSavedPermissionsNotRemoved": true
+  },
+  "method": {
+    "controlledSyntheticFixtures": true,
+    "numericInstrumentationInDisposableCopiesOnly": true,
+    "baselineRuntime": "preserved signed 0.1.18 staging copy",
+    "baselineManagedHosts": 163850,
+    "currentManagedHosts": 165862,
+    "sampleLimit": "Native samples are indicative synthetic observations, not controlled user-latency or retained-heap measurements.",
+    "baselineRuntimeSha256": {
+      "THIRD-PARTY-NOTICES.txt": "8be6bc89a814768b7f723979b0c73f67796ad873d2fce129d0050324c54024b9",
+      "background.js": "a4a31250f5fb7ea5aa9da2a552b566eb6fd0969e2cbec2cd080b3e6ed9c79ca7",
+      "data/stevenblack/NOTICE.md": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291",
+      "data/stevenblack/hosts": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76",
+      "data/stevenblack/license.txt": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b",
+      "data/stevenblack/metadata.json": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f",
+      "data/stevenblack/upstream-readme.md": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69",
+      "journey-indicator.js": "c40b2c5997dd304c23ccbfe9622f8205b285ed4249242de993d28d3844449f3e",
+      "manifest.json": "0e9b6c9c570ad4defe3feb1a2981035719036d776b80bae20abec706d2a321c3",
+      "ui/atlas.svg": "6047e46de52bc6244dbe2d17a6f571578dc630da9610d8cc44581867226a21b9",
+      "ui/index.html": "5a19a35a39afdb9ae476a10569664fd8b4d0289d093f1d9e83938713ecdb7695",
+      "ui/main.js": "7ea7d00e7b7613f1c656912c58a331747b6aa66f87614558eec90d7b1124dca9",
+      "ui/site.svg": "01fff6d53bd89016708e9d52709f975e44273a076c5b036251250c6bc9222cad",
+      "ui/style.css": "261bbf842d4d94f5c855a0506044fee7481713fce322387dc3706bce0ffb2806"
+    },
+    "currentRuntimeSha256": {
+      "THIRD-PARTY-NOTICES.txt": "8be6bc89a814768b7f723979b0c73f67796ad873d2fce129d0050324c54024b9",
+      "background.js": "979a3ad4fa0fcbee44749fa9a5d4e52e7a7c1cfd5718757de5be8fb1629eec6f",
+      "data/stevenblack/NOTICE.md": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291",
+      "data/stevenblack/hosts": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76",
+      "data/stevenblack/license.txt": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b",
+      "data/stevenblack/metadata.json": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f",
+      "data/stevenblack/upstream-readme.md": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69",
+      "journey-indicator.js": "1b41962930ddea09b705fbc8600000f0b09f3b9e051701e827acc5bf26eeec0b",
+      "manifest.json": "828b35cf092a25606bca573a34c104f5fb6a9f10d07f61a56186e66b4996020a",
+      "ui/atlas.svg": "6047e46de52bc6244dbe2d17a6f571578dc630da9610d8cc44581867226a21b9",
+      "ui/index.html": "b8de495f9ffe17f6896957c7497344a314460e905f516e15f1484951572a1249",
+      "ui/main.js": "3637fcd35afeac25f60b08625df543cde207341e0e351e4fcb1509f94661f0c4",
+      "ui/site.svg": "01fff6d53bd89016708e9d52709f975e44273a076c5b036251250c6bc9222cad",
+      "ui/style.css": "261bbf842d4d94f5c855a0506044fee7481713fce322387dc3706bce0ffb2806"
+    }
+  },
+  "native": {
+    "beforeEditor": {
+      "firefox": "159.0",
+      "baseline": true,
+      "completedItems": 60,
+      "measurements": [
+        {
+          "case": "stage-60-pinned-changes",
+          "seconds": 15.797,
+          "ui": {
+            "functions": {
+              "evaluate": {
+                "calls": 26934,
+                "ms": 7445,
+                "maxMs": 6
+              },
+              "policyDestinationIndex": {
+                "calls": 2194,
+                "ms": 1074,
+                "maxMs": 6
+              },
+              "draftBaseline": {
+                "calls": 678,
+                "ms": 466,
+                "maxMs": 6
+              },
+              "renderSettings": {
+                "calls": 675,
+                "ms": 89,
+                "maxMs": 2
+              },
+              "readDestinationDraft": {
+                "calls": 1516,
+                "ms": 2796,
+                "maxMs": 8
+              },
+              "assessDraft": {
+                "calls": 677,
+                "ms": 6082,
+                "maxMs": 26
+              },
+              "validateDraftCandidate": {
+                "calls": 677,
+                "ms": 8756,
+                "maxMs": 28
+              },
+              "renderFrozenReview": {
+                "calls": 677,
+                "ms": 3,
+                "maxMs": 1
+              },
+              "renderBatch": {
+                "calls": 677,
+                "ms": 9820,
+                "maxMs": 42
+              },
+              "renderHome": {
+                "calls": 675,
+                "ms": 423,
+                "maxMs": 2
+              },
+              "render": {
+                "calls": 675,
+                "ms": 10491,
+                "maxMs": 44
+              },
+              "readDestinationWorkspace": {
+                "calls": 839,
+                "ms": 1615,
+                "maxMs": 4
+              },
+              "refreshView": {
+                "calls": 15,
+                "ms": 660,
+                "maxMs": 102
+              }
+            },
+            "messages": {
+              "GET_VIEW": 15
+            },
+            "transactions": {
+              "atlas-destination-drafts-v1:readwrite": 418,
+              "atlas-destination-drafts-v1:readonly": 68,
+              "atlas-home-layout-v1:readonly": 14
+            },
+            "mutations": 1799,
+            "creates": 559,
+            "replacements": {
+              "destination-draft-conflicts": 61,
+              "draft-reconciliation-items": 61,
+              "site-categories": 1,
+              "DIV": 60,
+              "site-detail-hosts": 2
+            },
+            "activeTimers": 1,
+            "maxTimers": 1,
+            "activeGlobalListeners": 9,
+            "tabsListeners": 1
+          },
+          "background": {
+            "functions": {
+              "recheck": {
+                "calls": 16,
+                "ms": 1076,
+                "maxMs": 132
+              }
+            },
+            "messages": {},
+            "transactions": {
+              "atlas-authority-v1:readonly": 32,
+              "atlas-authority-v1:readwrite": 16
+            },
+            "mutations": 0,
+            "creates": 0,
+            "replacements": {},
+            "activeTimers": 0,
+            "maxTimers": 0,
+            "activeGlobalListeners": 0,
+            "tabsListeners": 1
+          },
+          "processBefore": {
+            "cpuSeconds": 9.3594,
+            "workingMiB": 1058.04,
+            "privateMiB": 859.02,
+            "processes": 11
+          },
+          "processAfter": {
+            "cpuSeconds": 26.6875,
+            "workingMiB": 1723.42,
+            "privateMiB": 1512.9,
+            "processes": 11
+          },
+          "operationMs": {
+            "count": 58,
+            "median": 219.0,
+            "max": 500.0,
+            "samples": [
+              172.0,
+              156.0,
+              157.0,
+              140.0,
+              157.0,
+              156.0,
+              172.0,
+              156.0,
+              156.0,
+              172.0,
+              156.0,
+              172.0,
+              172.0,
+              156.0,
+              172.0,
+              172.0,
+              188.0,
+              187.0,
+              391.0,
+              172.0,
+              187.0,
+              203.0,
+              203.0,
+              203.0,
+              188.0,
+              203.0,
+              203.0,
+              219.0,
+              391.0,
+              203.0,
+              218.0,
+              219.0,
+              235.0,
+              312.0,
+              234.0,
+              297.0,
+              422.0,
+              313.0,
+              297.0,
+              265.0,
+              250.0,
+              313.0,
+              328.0,
+              469.0,
+              328.0,
+              265.0,
+              360.0,
+              343.0,
+              329.0,
+              500.0,
+              328.0,
+              328.0,
+              312.0,
+              328.0,
+              485.0,
+              328.0,
+              344.0,
+              343.0
+            ]
+          },
+          "aggregateCpuPercent": 109.69
+        },
+        {
+          "case": "idle-with-completed-60-item-receipt",
+          "seconds": 10.0,
+          "ui": {
+            "functions": {
+              "renderSettings": {
+                "calls": 10,
+                "ms": 4,
+                "maxMs": 1
+              },
+              "evaluate": {
+                "calls": 1250,
+                "ms": 412,
+                "maxMs": 24
+              },
+              "policyDestinationIndex": {
+                "calls": 20,
+                "ms": 17,
+                "maxMs": 2
+              },
+              "draftBaseline": {
+                "calls": 10,
+                "ms": 21,
+                "maxMs": 4
+              },
+              "assessDraft": {
+                "calls": 20,
+                "ms": 409,
+                "maxMs": 55
+              },
+              "receiptOutcome": {
+                "calls": 10,
+                "ms": 196,
+                "maxMs": 35
+              },
+              "renderFrozenReview": {
+                "calls": 10,
+                "ms": 0,
+                "maxMs": 0
+              },
+              "renderBatch": {
+                "calls": 10,
+                "ms": 219,
+                "maxMs": 40
+              },
+              "renderHome": {
+                "calls": 10,
+                "ms": 17,
+                "maxMs": 3
+              },
+              "render": {
+                "calls": 10,
+                "ms": 245,
+                "maxMs": 43
+              },
+              "refreshView": {
+                "calls": 10,
+                "ms": 295,
+                "maxMs": 51
+              },
+              "readDestinationDraft": {
+                "calls": 10,
+                "ms": 26,
+                "maxMs": 4
+              },
+              "readDestinationWorkspace": {
+                "calls": 10,
+                "ms": 243,
+                "maxMs": 59
+              }
+            },
+            "messages": {
+              "GET_VIEW": 10
+            },
+            "transactions": {
+              "atlas-home-layout-v1:readonly": 10,
+              "atlas-destination-drafts-v1:readonly": 10
+            },
+            "mutations": 10,
+            "creates": 0,
+            "replacements": {},
+            "activeTimers": 1,
+            "maxTimers": 1,
+            "activeGlobalListeners": 9,
+            "tabsListeners": 1
+          },
+          "background": {
+            "functions": {
+              "recheck": {
+                "calls": 10,
+                "ms": 76,
+                "maxMs": 16
+              }
+            },
+            "messages": {},
+            "transactions": {
+              "atlas-authority-v1:readonly": 20,
+              "atlas-authority-v1:readwrite": 10
+            },
+            "mutations": 0,
+            "creates": 0,
+            "replacements": {},
+            "activeTimers": 0,
+            "maxTimers": 0,
+            "activeGlobalListeners": 0,
+            "tabsListeners": 1
+          },
+          "processBefore": {
+            "cpuSeconds": 32.2188,
+            "workingMiB": 1477.24,
+            "privateMiB": 1267.13,
+            "processes": 11
+          },
+          "processAfter": {
+            "cpuSeconds": 33.1406,
+            "workingMiB": 1075.11,
+            "privateMiB": 862.24,
+            "processes": 11
+          },
+          "aggregateCpuPercent": 9.22
+        },
+        {
+          "case": "home-sites-with-completed-receipt",
+          "seconds": 0.406,
+          "ui": {
+            "functions": {
+              "renderSettings": {
+                "calls": 12,
+                "ms": 0,
+                "maxMs": 0
+              },
+              "evaluate": {
+                "calls": 744,
+                "ms": 231,
+                "maxMs": 2
+              },
+              "policyDestinationIndex": {
+                "calls": 12,
+                "ms": 8,
+                "maxMs": 2
+              },
+              "draftBaseline": {
+                "calls": 12,
+                "ms": 18,
+                "maxMs": 3
+              },
+              "assessDraft": {
+                "calls": 12,
+                "ms": 227,
+                "maxMs": 21
+              },
+              "receiptOutcome": {
+                "calls": 12,
+                "ms": 229,
+                "maxMs": 21
+              },
+              "renderFrozenReview": {
+                "calls": 12,
+                "ms": 0,
+                "maxMs": 0
+              },
+              "renderBatch": {
+                "calls": 12,
+                "ms": 250,
+                "maxMs": 23
+              },
+              "renderHome": {
+                "calls": 12,
+                "ms": 18,
+                "maxMs": 2
+              },
+              "render": {
+                "calls": 12,
+                "ms": 277,
+                "maxMs": 25
+              }
+            },
+            "messages": {},
+            "transactions": {},
+            "mutations": 254,
+            "creates": 0,
+            "replacements": {},
+            "activeTimers": 3,
+            "maxTimers": 61,
+            "activeGlobalListeners": 9,
+            "tabsListeners": 1
+          },
+          "background": {
+            "functions": {
+              "recheck": {
+                "calls": 4,
+                "ms": 339,
+                "maxMs": 107
+              }
+            },
+            "messages": {},
+            "transactions": {
+              "atlas-authority-v1:readonly": 8,
+              "atlas-authority-v1:readwrite": 4
+            },
+            "mutations": 0,
+            "creates": 0,
+            "replacements": {},
+            "activeTimers": 0,
+            "maxTimers": 0,
+            "activeGlobalListeners": 0,
+            "tabsListeners": 1
+          },
+          "processBefore": {
+            "cpuSeconds": 33.1406,
+            "workingMiB": 1075.11,
+            "privateMiB": 862.24,
+            "processes": 11
+          },
+          "processAfter": {
+            "cpuSeconds": 34.0156,
+            "workingMiB": 1185.01,
+            "privateMiB": 966.52,
+            "processes": 11
+          },
+          "operationMs": {
+            "count": 12,
+            "median": 31.0,
+            "max": 47.0,
+            "samples": [
+              31.0,
+              47.0,
+              31.0,
+              32.0,
+              47.0,
+              31.0,
+              31.0,
+              31.0,
+              32.0,
+              31.0,
+              31.0,
+              31.0
+            ]
+          },
+          "aggregateCpuPercent": 215.52
+        },
+        {
+          "case": "140-raw-inputs-after-completed-batch",
+          "seconds": 14.0,
+          "ui": {
+            "functions": {
+              "evaluate": {
+                "calls": 29491,
+                "ms": 8652,
+                "maxMs": 6
+              },
+              "renderSettings": {
+                "calls": 166,
+                "ms": 20,
+                "maxMs": 1
+              },
+              "policyDestinationIndex": {
+                "calls": 898,
+                "ms": 604,
+                "maxMs": 6
+              },
+              "draftBaseline": {
+                "calls": 166,
+                "ms": 259,
+                "maxMs": 9
+              },
+              "readDestinationDraft": {
+                "calls": 732,
+                "ms": 1917,
+                "maxMs": 8
+              },
+              "assessDraft": {
+                "calls": 615,
+                "ms": 8181,
+                "maxMs": 32
+              },
+              "validateDraftCandidate": {
+                "calls": 166,
+                "ms": 970,
+                "maxMs": 11
+              },
+              "receiptOutcome": {
+                "calls": 166,
+                "ms": 3006,
+                "maxMs": 23
+              },
+              "renderFrozenReview": {
+                "calls": 166,
+                "ms": 3,
+                "maxMs": 1
+              },
+              "renderBatch": {
+                "calls": 166,
+                "ms": 4285,
+                "maxMs": 35
+              },
+              "renderHome": {
+                "calls": 166,
+                "ms": 251,
+                "maxMs": 3
+              },
+              "render": {
+                "calls": 166,
+                "ms": 4650,
+                "maxMs": 37
+              },
+              "readDestinationWorkspace": {
+                "calls": 283,
+                "ms": 6655,
+                "maxMs": 38
+              },
+              "refreshView": {
+                "calls": 14,
+                "ms": 873,
+                "maxMs": 84
+              }
+            },
+            "messages": {
+              "GET_VIEW": 14
+            },
+            "transactions": {
+              "atlas-destination-drafts-v1:readwrite": 140,
+              "atlas-destination-drafts-v1:readonly": 68,
+              "atlas-home-layout-v1:readonly": 13
+            },
+            "mutations": 88,
+            "creates": 0,
+            "replacements": {},
+            "activeTimers": 1,
+            "maxTimers": 1,
+            "activeGlobalListeners": 9,
+            "tabsListeners": 1
+          },
+          "background": {
+            "functions": {
+              "recheck": {
+                "calls": 13,
+                "ms": 1811,
+                "maxMs": 236
+              }
+            },
+            "messages": {},
+            "transactions": {
+              "atlas-authority-v1:readonly": 26,
+              "atlas-authority-v1:readwrite": 13
+            },
+            "mutations": 0,
+            "creates": 0,
+            "replacements": {},
+            "activeTimers": 0,
+            "maxTimers": 0,
+            "activeGlobalListeners": 0,
+            "tabsListeners": 1
+          },
+          "processBefore": {
+            "cpuSeconds": 37.2188,
+            "workingMiB": 1062.55,
+            "privateMiB": 840.77,
+            "processes": 11
+          },
+          "processAfter": {
+            "cpuSeconds": 51.8906,
+            "workingMiB": 1789.36,
+            "privateMiB": 1568.71,
+            "processes": 11
+          },
+          "operationMs": {
+            "count": 12,
+            "median": 1132.5,
+            "max": 1344.0,
+            "samples": [
+              1078.0,
+              984.0,
+              1281.0,
+              1016.0,
+              1266.0,
+              1093.0,
+              1344.0,
+              1000.0,
+              1344.0,
+              1172.0,
+              1078.0,
+              1344.0
+            ]
+          },
+          "aggregateCpuPercent": 104.8,
+          "inputEvents": 140
+        }
+      ],
+      "observations": [
+        {
+          "case": "reopen-completed-workspace",
+          "homeMs": 453.0,
+          "sitesMs": 172.0
+        },
+        {
+          "case": "pristine-add-to-inet",
+          "retargeted": false,
+          "name": "",
+          "hostname": "",
+          "feedback": "Add or close the current editor first. Your entered values are preserved.",
+          "reviewDisabled": true
+        },
+        {
+          "case": "review-with-open-editor",
+          "reviewDisabled": true,
+          "submitDisabled": true,
+          "editorVisible": true,
+          "name": "Inet pending edit"
+        }
+      ],
+      "checks": [
+        "60 mixed destination/pin changes use one real Vault wait and explicit confirmation; completion is acknowledged",
+        "rapid raw inputs retain the final exact target and durable value beside an unchanged completed receipt",
+        "all editable actions and review leave active policy and Vault counters unchanged"
+      ],
+      "limits": [
+        "Synthetic instrumented Firefox timings are not actual user latency.",
+        "Native Windows process counters are not retained JavaScript heap measurements.",
+        "The same explicit Wikipedia fixture is added/reviewed through Vault for this workflow test; it is not a bundled default."
+      ]
+    },
+    "afterEditor": {
+      "firefox": "159.0",
+      "baseline": false,
+      "completedItems": 60,
+      "measurements": [
+        {
+          "case": "stage-60-pinned-changes",
+          "seconds": 12.359,
+          "ui": {
+            "functions": {
+              "evaluate": {
+                "calls": 17557,
+                "ms": 5050,
+                "maxMs": 13
+              },
+              "policyDestinationIndex": {
+                "calls": 1233,
+                "ms": 633,
+                "maxMs": 6
+              },
+              "draftBaseline": {
+                "calls": 436,
+                "ms": 328,
+                "maxMs": 6
+              },
+              "renderSettings": {
+                "calls": 433,
+                "ms": 32,
+                "maxMs": 1
+              },
+              "readDestinationDraft": {
+                "calls": 797,
+                "ms": 1560,
+                "maxMs": 20
+              },
+              "assessDraft": {
+                "calls": 435,
+                "ms": 4040,
+                "maxMs": 22
+              },
+              "validateDraftCandidate": {
+                "calls": 435,
+                "ms": 5794,
+                "maxMs": 36
+              },
+              "renderFrozenReview": {
+                "calls": 435,
+                "ms": 0,
+                "maxMs": 0
+              },
+              "renderBatch": {
+                "calls": 435,
+                "ms": 6712,
+                "maxMs": 44
+              },
+              "renderHome": {
+                "calls": 433,
+                "ms": 285,
+                "maxMs": 2
+              },
+              "render": {
+                "calls": 433,
+                "ms": 7121,
+                "maxMs": 46
+              },
+              "readDestinationWorkspace": {
+                "calls": 362,
+                "ms": 752,
+                "maxMs": 6
+              },
+              "refreshView": {
+                "calls": 12,
+                "ms": 458,
+                "maxMs": 92
+              }
+            },
+            "messages": {
+              "GET_VIEW": 12
+            },
+            "transactions": {
+              "atlas-destination-drafts-v1:readwrite": 180,
+              "atlas-destination-drafts-v1:readonly": 64,
+              "atlas-home-layout-v1:readonly": 11
+            },
+            "mutations": 1800,
+            "creates": 555,
+            "replacements": {
+              "destination-draft-conflicts": 61,
+              "draft-reconciliation-items": 61,
+              "site-categories": 1,
+              "DIV": 60,
+              "site-detail-hosts": 1
+            },
+            "activeTimers": 1,
+            "maxTimers": 1,
+            "activeGlobalListeners": 9,
+            "tabsListeners": 1
+          },
+          "background": {
+            "functions": {
+              "recheck": {
+                "calls": 12,
+                "ms": 497,
+                "maxMs": 193
+              }
+            },
+            "messages": {},
+            "transactions": {
+              "atlas-authority-v1:readonly": 24,
+              "atlas-authority-v1:readwrite": 12
+            },
+            "mutations": 0,
+            "creates": 0,
+            "replacements": {},
+            "activeTimers": 0,
+            "maxTimers": 0,
+            "activeGlobalListeners": 0,
+            "tabsListeners": 1
+          },
+          "processBefore": {
+            "cpuSeconds": 9.5938,
+            "workingMiB": 1116.64,
+            "privateMiB": 919.73,
+            "processes": 11
+          },
+          "processAfter": {
+            "cpuSeconds": 21.6094,
+            "workingMiB": 1725.4,
+            "privateMiB": 1515.36,
+            "processes": 11
+          },
+          "operationMs": {
+            "count": 58,
+            "median": 195.5,
+            "max": 391.0,
+            "samples": [
+              156.0,
+              141.0,
+              156.0,
+              141.0,
+              156.0,
+              156.0,
+              157.0,
+              187.0,
+              156.0,
+              157.0,
+              156.0,
+              156.0,
+              156.0,
+              157.0,
+              171.0,
+              157.0,
+              172.0,
+              171.0,
+              188.0,
+              250.0,
+              172.0,
+              172.0,
+              172.0,
+              187.0,
+              250.0,
+              266.0,
+              265.0,
+              250.0,
+              188.0,
+              250.0,
+              203.0,
+              187.0,
+              188.0,
+              203.0,
+              359.0,
+              204.0,
+              187.0,
+              188.0,
+              203.0,
+              234.0,
+              188.0,
+              203.0,
+              203.0,
+              203.0,
+              250.0,
+              266.0,
+              312.0,
+              203.0,
+              203.0,
+              203.0,
+              219.0,
+              219.0,
+              203.0,
+              250.0,
+              391.0,
+              234.0,
+              219.0,
+              234.0
+            ]
+          },
+          "aggregateCpuPercent": 97.22
+        },
+        {
+          "case": "idle-with-completed-60-item-receipt",
+          "seconds": 10.0,
+          "ui": {
+            "functions": {
+              "renderSettings": {
+                "calls": 10,
+                "ms": 2,
+                "maxMs": 1
+              },
+              "evaluate": {
+                "calls": 650,
+                "ms": 202,
+                "maxMs": 1
+              },
+              "policyDestinationIndex": {
+                "calls": 20,
+                "ms": 18,
+                "maxMs": 2
+              },
+              "draftBaseline": {
+                "calls": 10,
+                "ms": 13,
+                "maxMs": 2
+              },
+              "renderFrozenReview": {
+                "calls": 10,
+                "ms": 0,
+                "maxMs": 0
+              },
+              "renderBatch": {
+                "calls": 10,
+                "ms": 14,
+                "maxMs": 2
+              },
+              "renderHome": {
+                "calls": 10,
+                "ms": 18,
+                "maxMs": 3
+              },
+              "render": {
+                "calls": 10,
+                "ms": 40,
+                "maxMs": 7
+              },
+              "refreshView": {
+                "calls": 10,
+                "ms": 109,
+                "maxMs": 19
+              },
+              "readDestinationDraft": {
+                "calls": 10,
+                "ms": 24,
+                "maxMs": 3
+              },
+              "assessDraft": {
+                "calls": 10,
+                "ms": 194,
+                "maxMs": 28
+              },
+              "readDestinationWorkspace": {
+                "calls": 10,
+                "ms": 224,
+                "maxMs": 32
+              }
+            },
+            "messages": {
+              "GET_VIEW": 10
+            },
+            "transactions": {
+              "atlas-home-layout-v1:readonly": 10,
+              "atlas-destination-drafts-v1:readonly": 10
+            },
+            "mutations": 10,
+            "creates": 0,
+            "replacements": {},
+            "activeTimers": 1,
+            "maxTimers": 1,
+            "activeGlobalListeners": 9,
+            "tabsListeners": 1
+          },
+          "background": {
+            "functions": {
+              "recheck": {
+                "calls": 10,
+                "ms": 96,
+                "maxMs": 19
+              }
+            },
+            "messages": {},
+            "transactions": {
+              "atlas-authority-v1:readonly": 20,
+              "atlas-authority-v1:readwrite": 10
+            },
+            "mutations": 0,
+            "creates": 0,
+            "replacements": {},
+            "activeTimers": 0,
+            "maxTimers": 0,
+            "activeGlobalListeners": 0,
+            "tabsListeners": 1
+          },
+          "processBefore": {
+            "cpuSeconds": 27.5156,
+            "workingMiB": 1396.91,
+            "privateMiB": 1182.21,
+            "processes": 11
+          },
+          "processAfter": {
+            "cpuSeconds": 28.3438,
+            "workingMiB": 1250.43,
+            "privateMiB": 1032.98,
+            "processes": 11
+          },
+          "aggregateCpuPercent": 8.28
+        },
+        {
+          "case": "home-sites-with-completed-receipt",
+          "seconds": 0.172,
+          "ui": {
+            "functions": {
+              "renderSettings": {
+                "calls": 12,
+                "ms": 0,
+                "maxMs": 0
+              },
+              "evaluate": {
+                "calls": 12,
+                "ms": 5,
+                "maxMs": 1
+              },
+              "policyDestinationIndex": {
+                "calls": 12,
+                "ms": 11,
+                "maxMs": 2
+              },
+              "draftBaseline": {
+                "calls": 12,
+                "ms": 15,
+                "maxMs": 2
+              },
+              "renderFrozenReview": {
+                "calls": 12,
+                "ms": 0,
+                "maxMs": 0
+              },
+              "renderBatch": {
+                "calls": 12,
+                "ms": 15,
+                "maxMs": 2
+              },
+              "renderHome": {
+                "calls": 12,
+                "ms": 18,
+                "maxMs": 3
+              },
+              "render": {
+                "calls": 12,
+                "ms": 37,
+                "maxMs": 4
+              }
+            },
+            "messages": {},
+            "transactions": {},
+            "mutations": 249,
+            "creates": 0,
+            "replacements": {},
+            "activeTimers": 3,
+            "maxTimers": 61,
+            "activeGlobalListeners": 9,
+            "tabsListeners": 1
+          },
+          "background": {
+            "functions": {
+              "recheck": {
+                "calls": 4,
+                "ms": 147,
+                "maxMs": 50
+              }
+            },
+            "messages": {},
+            "transactions": {
+              "atlas-authority-v1:readonly": 8,
+              "atlas-authority-v1:readwrite": 4
+            },
+            "mutations": 0,
+            "creates": 0,
+            "replacements": {},
+            "activeTimers": 0,
+            "maxTimers": 0,
+            "activeGlobalListeners": 0,
+            "tabsListeners": 1
+          },
+          "processBefore": {
+            "cpuSeconds": 28.3438,
+            "workingMiB": 1250.43,
+            "privateMiB": 1032.98,
+            "processes": 11
+          },
+          "processAfter": {
+            "cpuSeconds": 29.2344,
+            "workingMiB": 1276.68,
+            "privateMiB": 1047.96,
+            "processes": 11
+          },
+          "operationMs": {
+            "count": 12,
+            "median": 16.0,
+            "max": 16.0,
+            "samples": [
+              15.0,
+              16.0,
+              16.0,
+              15.0,
+              16.0,
+              15.0,
+              16.0,
+              16.0,
+              15.0,
+              16.0,
+              16.0,
+              0.0
+            ]
+          },
+          "aggregateCpuPercent": 517.79
+        },
+        {
+          "case": "140-raw-inputs-after-completed-batch",
+          "seconds": 0.953,
+          "ui": {
+            "functions": {
+              "evaluate": {
+                "calls": 1849,
+                "ms": 581,
+                "maxMs": 2
+              },
+              "renderSettings": {
+                "calls": 25,
+                "ms": 2,
+                "maxMs": 1
+              },
+              "policyDestinationIndex": {
+                "calls": 98,
+                "ms": 82,
+                "maxMs": 2
+              },
+              "draftBaseline": {
+                "calls": 25,
+                "ms": 28,
+                "maxMs": 2
+              },
+              "readDestinationDraft": {
+                "calls": 73,
+                "ms": 170,
+                "maxMs": 4
+              },
+              "assessDraft": {
+                "calls": 49,
+                "ms": 476,
+                "maxMs": 21
+              },
+              "validateDraftCandidate": {
+                "calls": 25,
+                "ms": 141,
+                "maxMs": 7
+              },
+              "renderFrozenReview": {
+                "calls": 25,
+                "ms": 0,
+                "maxMs": 0
+              },
+              "renderBatch": {
+                "calls": 25,
+                "ms": 173,
+                "maxMs": 8
+              },
+              "renderHome": {
+                "calls": 25,
+                "ms": 36,
+                "maxMs": 2
+              },
+              "render": {
+                "calls": 25,
+                "ms": 227,
+                "maxMs": 11
+              },
+              "readDestinationWorkspace": {
+                "calls": 24,
+                "ms": 588,
+                "maxMs": 26
+              },
+              "refreshView": {
+                "calls": 1,
+                "ms": 39,
+                "maxMs": 39
+              }
+            },
+            "messages": {
+              "GET_VIEW": 1
+            },
+            "transactions": {
+              "atlas-destination-drafts-v1:readwrite": 12,
+              "atlas-destination-drafts-v1:readonly": 12,
+              "atlas-home-layout-v1:readonly": 1
+            },
+            "mutations": 97,
+            "creates": 0,
+            "replacements": {},
+            "activeTimers": 1,
+            "maxTimers": 1,
+            "activeGlobalListeners": 9,
+            "tabsListeners": 1
+          },
+          "background": {
+            "functions": {
+              "recheck": {
+                "calls": 1,
+                "ms": 55,
+                "maxMs": 55
+              }
+            },
+            "messages": {},
+            "transactions": {
+              "atlas-authority-v1:readonly": 2,
+              "atlas-authority-v1:readwrite": 1
+            },
+            "mutations": 0,
+            "creates": 0,
+            "replacements": {},
+            "activeTimers": 0,
+            "maxTimers": 0,
+            "activeGlobalListeners": 0,
+            "tabsListeners": 1
+          },
+          "processBefore": {
+            "cpuSeconds": 31.6562,
+            "workingMiB": 1091.19,
+            "privateMiB": 863.68,
+            "processes": 11
+          },
+          "processAfter": {
+            "cpuSeconds": 32.75,
+            "workingMiB": 1360.41,
+            "privateMiB": 1134.8,
+            "processes": 11
+          },
+          "operationMs": {
+            "count": 12,
+            "median": 78.0,
+            "max": 94.0,
+            "samples": [
+              78.0,
+              78.0,
+              63.0,
+              93.0,
+              78.0,
+              79.0,
+              78.0,
+              78.0,
+              78.0,
+              78.0,
+              94.0,
+              78.0
+            ]
+          },
+          "aggregateCpuPercent": 114.77,
+          "inputEvents": 140
+        }
+      ],
+      "observations": [
+        {
+          "case": "reopen-completed-workspace",
+          "homeMs": 422.0,
+          "sitesMs": 47.0
+        },
+        {
+          "case": "pristine-add-to-inet",
+          "retargeted": true,
+          "name": "Inet fixture",
+          "hostname": "root.localhost",
+          "feedback": "Editing local draft. Add this change to the batch when ready; active policy is unchanged.",
+          "reviewDisabled": false
+        },
+        {
+          "case": "review-with-open-editor",
+          "reviewDisabled": false,
+          "submitDisabled": true,
+          "editorVisible": true,
+          "name": "Inet pending edit"
+        }
+      ],
+      "checks": [
+        "60 mixed destination/pin changes use one real Vault wait and explicit confirmation; completion is acknowledged",
+        "rapid raw inputs retain the final exact target and durable value beside an unchanged completed receipt",
+        "unused Add editor retargets to Inet; dirty editor can preview staged removal while submission stays blocked; staging then reviewing works",
+        "all editable actions and review leave active policy and Vault counters unchanged"
+      ],
+      "limits": [
+        "Synthetic instrumented Firefox timings are not actual user latency.",
+        "Native Windows process counters are not retained JavaScript heap measurements.",
+        "The same explicit Wikipedia fixture is added/reviewed through Vault for this workflow test; it is not a bundled default."
+      ]
+    },
+    "scope": {
+      "firefox": "159.0",
+      "checks": [
+        "native checkbox defaults off; explicit current/future-subdomain opt-in is frozen in one batch, waits in real time and changes authority only after explicit confirmation",
+        "exact base, direct child and deeper descendants navigate through Core; manual child Blacklist blocks before HTTP; unrelated tabs and hosts remain Greylist",
+        "background restart reloads scoped policy from real IndexedDB without inventing grants or transferring a Journey",
+        "reopened scope preference can be removed only through a second real Vault confirmation; descendants return to Greylist while the exact base remains Whitelisted"
+      ],
+      "backgroundRestarts": 1,
+      "realVaultConfirmations": 2,
+      "policyRevisionBefore": 2,
+      "policyRevisionAfter": 4,
+      "isolatedProfile": true,
+      "normalProfileAccessed": false,
+      "signedArtifactsModified": false
+    },
+    "storage": {
+      "firefox": "159.0",
+      "suite": "storage-reliability",
+      "baseline": false,
+      "checks": [
+        "steady browsing uses real persisted checkpoints; ordinary loads use readonly transactions",
+        "one real readonly LOAD abort recovers before three Whitelist tabs are replaced; diagnostics retains the read failure",
+        "one native abort recovers through verified Core open before any Whitelist tab is replaced",
+        "real Greylist grant and frozen Vault proposal keep exact timestamps and policy across abort recovery",
+        "readonly LOAD recovery preserves exact grant/proposal terms and does not replay confirmation",
+        "persistent abort performs at most one automatic recovery and then withholds browsing without a retry loop",
+        "explicit Recovery remains usable after the bounded automatic attempt fails",
+        "persistent readonly abort receives one recovery load and remains closed without a retry loop",
+        "explicit Recovery restores verified authority after a persistent readonly failure clears",
+        "quota failure stays closed, reports a safe cause and retains saved authority without resetting or automatic retry",
+        "recovered authority still enforces the existing explicit Blacklist",
+        "clock rollback stays closed and its retained reason survives explicit Recovery, UI rendering and diagnostics export"
+      ],
+      "observations": [
+        {
+          "case": "five-second-steady-browsing",
+          "reads": 40,
+          "writes": 20
+        },
+        {
+          "case": "native-readonly-abort-after-fix",
+          "status": "READY",
+          "storage": {
+            "readTransactions": 188,
+            "writeTransactions": 93,
+            "committedWrites": 92,
+            "failedCommits": 0,
+            "lastFailure": {
+              "sequence": 1,
+              "operation": "LOAD",
+              "stage": "TRANSACTION_ABORT",
+              "cause": "ABORTED"
+            }
+          }
+        },
+        {
+          "case": "native-abort-after-fix",
+          "status": "READY",
+          "storage": {
+            "readTransactions": 239,
+            "writeTransactions": 119,
+            "committedWrites": 117,
+            "failedCommits": 1,
+            "lastFailure": {
+              "sequence": 2,
+              "operation": "COMMIT",
+              "stage": "TRANSACTION_ABORT",
+              "cause": "ABORTED"
+            }
+          }
+        },
+        {
+          "case": "persistent-readonly-abort",
+          "status": "UNAVAILABLE",
+          "reason": "STORAGE_UNAVAILABLE",
+          "storage": {
+            "readTransactions": 520,
+            "writeTransactions": 259,
+            "committedWrites": 254,
+            "failedCommits": 4,
+            "lastFailure": {
+              "sequence": 8,
+              "operation": "LOAD",
+              "stage": "TRANSACTION_ABORT",
+              "cause": "ABORTED"
+            }
+          }
+        },
+        {
+          "case": "quota-failure",
+          "storage": {
+            "readTransactions": 563,
+            "writeTransactions": 281,
+            "committedWrites": 275,
+            "failedCommits": 5,
+            "lastFailure": {
+              "sequence": 9,
+              "operation": "COMMIT",
+              "stage": "TRANSACTION_ABORT",
+              "cause": "QUOTA_EXCEEDED"
+            }
+          },
+          "status": "UNAVAILABLE"
+        },
+        {
+          "case": "clock-rollback-observability",
+          "status": "UNAVAILABLE",
+          "reason": "CLOCK_ROLLBACK",
+          "authorityInterruption": {
+            "status": "UNAVAILABLE",
+            "reason": "CLOCK_ROLLBACK",
+            "observedAt": 1793309409392,
+            "checkpointAt": 1793309413430,
+            "latestStorageFailure": {
+              "sequence": 9,
+              "operation": "COMMIT",
+              "stage": "TRANSACTION_ABORT",
+              "cause": "QUOTA_EXCEEDED"
+            }
+          }
+        }
+      ]
+    },
+    "upgradeFrom017": {
+      "firefox": "159.0",
+      "checks": [
+        "preserved signed baseline stores custom extra hosts, a manual Blacklist, removed defaults, pins and custom protected timing through real Vault waits",
+        "native update atomically adds curated destinations while retaining every custom host, manual Blacklist, pins and protected settings",
+        "old pending requests and frozen Vault proposal keep their timestamps and fail confirmation under existing Core revision rules; diagnostics reports exact migration outcomes",
+        "full Firefox restart retains the receipt and later Vault removal; startup never re-adds a subsequently removed curated hostname"
+      ],
+      "fullFirefoxRestarts": 2,
+      "customHostsPreserved": [
+        "root.localhost",
+        "outside-preset.localhost"
+      ],
+      "policyRevisionBefore": 2,
+      "policyRevisionAfter": 3,
+      "signedArtifactsModified": false,
+      "normalProfileAccessed": false,
+      "migration": {
+        "id": "research-infrastructure-2026-10-v3",
+        "kind": "UPGRADED",
+        "policyRevisionBefore": 2,
+        "policyRevisionAfter": 3,
+        "counts": {
+          "added": 244,
+          "alreadyPresent": 49,
+          "skippedBlacklisted": 1,
+          "skippedManaged": 0
+        }
+      }
+    },
+    "upgradeFrom018": {
+      "firefox": "159.0",
+      "checks": [
+        "signed 0.1.18 UI creates a DONE Wikipedia display receipt and saved draft baseline; real Vault removes Wikipedia and Zotero while retaining custom policy, Blacklist, timing and pins",
+        "full process update accepts the identical frozen v2 receipt without a migration or revision bump; removed terms stay removed and old Wikipedia draft/DONE receipt decode without authorizing a stale draft",
+        "a second full Firefox restart preserves custom state and legacy presentation workspace without reapplying defaults"
+      ],
+      "baseline": "0.1.18",
+      "fullFirefoxRestarts": 2,
+      "migrationReapplied": false,
+      "legacyDraftPreserved": true,
+      "legacyDoneReceiptPreserved": true,
+      "policyRevisionBefore": 3,
+      "policyRevisionAfter": 3,
+      "signedArtifactsModified": false,
+      "normalProfileAccessed": false,
+      "migration": {
+        "id": "research-infrastructure-2026-10-v2",
+        "kind": "INITIALIZED",
+        "policyRevisionBefore": 0,
+        "policyRevisionAfter": 0,
+        "counts": {
+          "added": 298,
+          "alreadyPresent": 0,
+          "skippedBlacklisted": 0,
+          "skippedManaged": 0
+        }
+      }
+    }
+  },
+  "nodeSynthetic": {
+    "before": {
+      "policyHosts": 359,
+      "results": [
+        {
+          "name": "none:render",
+          "iterations": 50,
+          "totalMs": 411.92,
+          "meanMs": 8.239
+        },
+        {
+          "name": "none:decode",
+          "iterations": 50,
+          "totalMs": 183.11,
+          "meanMs": 3.662
+        },
+        {
+          "name": "none:140-queued-input-saves",
+          "dispatchMs": 74.71,
+          "totalMs": 1216.94,
+          "writes": 140,
+          "finalInputSaved": true
+        },
+        {
+          "name": "done-1:render",
+          "iterations": 50,
+          "totalMs": 434.41,
+          "meanMs": 8.688
+        },
+        {
+          "name": "done-1:decode",
+          "iterations": 50,
+          "totalMs": 310.31,
+          "meanMs": 6.206
+        },
+        {
+          "name": "done-1:outcome",
+          "iterations": 50,
+          "totalMs": 24.75,
+          "meanMs": 0.495
+        },
+        {
+          "name": "done-1:140-queued-input-saves",
+          "dispatchMs": 135.75,
+          "totalMs": 2136.19,
+          "writes": 140,
+          "finalInputSaved": true
+        },
+        {
+          "name": "done-60-unpinned:render",
+          "iterations": 50,
+          "totalMs": 433.25,
+          "meanMs": 8.665
+        },
+        {
+          "name": "done-60-unpinned:decode",
+          "iterations": 50,
+          "totalMs": 315.6,
+          "meanMs": 6.312
+        },
+        {
+          "name": "done-60-unpinned:outcome",
+          "iterations": 50,
+          "totalMs": 30.52,
+          "meanMs": 0.611
+        },
+        {
+          "name": "done-60-unpinned:140-queued-input-saves",
+          "dispatchMs": 163.63,
+          "totalMs": 2318.79,
+          "writes": 140,
+          "finalInputSaved": true
+        },
+        {
+          "name": "done-60-pin12:render",
+          "iterations": 50,
+          "totalMs": 590.1,
+          "meanMs": 11.802
+        },
+        {
+          "name": "done-60-pin12:decode",
+          "iterations": 50,
+          "totalMs": 471.61,
+          "meanMs": 9.432
+        },
+        {
+          "name": "done-60-pin12:outcome",
+          "iterations": 50,
+          "totalMs": 181.71,
+          "meanMs": 3.634
+        },
+        {
+          "name": "done-60-pin12:140-queued-input-saves",
+          "dispatchMs": 165,
+          "totalMs": 3160.51,
+          "writes": 140,
+          "finalInputSaved": true
+        },
+        {
+          "name": "done-60-pin60:render",
+          "iterations": 50,
+          "totalMs": 1173.61,
+          "meanMs": 23.472
+        },
+        {
+          "name": "done-60-pin60:decode",
+          "iterations": 50,
+          "totalMs": 1080.45,
+          "meanMs": 21.609
+        },
+        {
+          "name": "done-60-pin60:outcome",
+          "iterations": 50,
+          "totalMs": 798.81,
+          "meanMs": 15.976
+        },
+        {
+          "name": "done-60-pin60:140-queued-input-saves",
+          "dispatchMs": 230.1,
+          "totalMs": 6579.17,
+          "writes": 140,
+          "finalInputSaved": true
+        }
+      ]
+    },
+    "after": {
+      "policyHosts": 359,
+      "results": [
+        {
+          "name": "none:render",
+          "iterations": 50,
+          "totalMs": 426.05,
+          "meanMs": 8.521
+        },
+        {
+          "name": "none:decode",
+          "iterations": 50,
+          "totalMs": 180.13,
+          "meanMs": 3.603
+        },
+        {
+          "name": "none:140-queued-input-saves",
+          "dispatchMs": 0.35,
+          "totalMs": 9.14,
+          "queuedRawInputs": 140,
+          "finalInputSaved": true
+        },
+        {
+          "name": "done-1:render",
+          "iterations": 50,
+          "totalMs": 422.19,
+          "meanMs": 8.444
+        },
+        {
+          "name": "done-1:decode",
+          "iterations": 50,
+          "totalMs": 317.77,
+          "meanMs": 6.356
+        },
+        {
+          "name": "done-1:outcome",
+          "iterations": 50,
+          "totalMs": 24.98,
+          "meanMs": 0.5
+        },
+        {
+          "name": "done-1:140-queued-input-saves",
+          "dispatchMs": 0.29,
+          "totalMs": 16.02,
+          "queuedRawInputs": 140,
+          "finalInputSaved": true
+        },
+        {
+          "name": "done-60-unpinned:render",
+          "iterations": 50,
+          "totalMs": 422.85,
+          "meanMs": 8.457
+        },
+        {
+          "name": "done-60-unpinned:decode",
+          "iterations": 50,
+          "totalMs": 350.37,
+          "meanMs": 7.008
+        },
+        {
+          "name": "done-60-unpinned:outcome",
+          "iterations": 50,
+          "totalMs": 29.12,
+          "meanMs": 0.583
+        },
+        {
+          "name": "done-60-unpinned:140-queued-input-saves",
+          "dispatchMs": 0.23,
+          "totalMs": 17.15,
+          "queuedRawInputs": 140,
+          "finalInputSaved": true
+        },
+        {
+          "name": "done-60-pin12:render",
+          "iterations": 50,
+          "totalMs": 418.86,
+          "meanMs": 8.377
+        },
+        {
+          "name": "done-60-pin12:decode",
+          "iterations": 50,
+          "totalMs": 488.25,
+          "meanMs": 9.765
+        },
+        {
+          "name": "done-60-pin12:outcome",
+          "iterations": 50,
+          "totalMs": 176.98,
+          "meanMs": 3.54
+        },
+        {
+          "name": "done-60-pin12:140-queued-input-saves",
+          "dispatchMs": 0.2,
+          "totalMs": 22.68,
+          "queuedRawInputs": 140,
+          "finalInputSaved": true
+        },
+        {
+          "name": "done-60-pin60:render",
+          "iterations": 50,
+          "totalMs": 429.42,
+          "meanMs": 8.588
+        },
+        {
+          "name": "done-60-pin60:decode",
+          "iterations": 50,
+          "totalMs": 1087.79,
+          "meanMs": 21.756
+        },
+        {
+          "name": "done-60-pin60:outcome",
+          "iterations": 50,
+          "totalMs": 755.6,
+          "meanMs": 15.112
+        },
+        {
+          "name": "done-60-pin60:140-queued-input-saves",
+          "dispatchMs": 0.2,
+          "totalMs": 45.36,
+          "queuedRawInputs": 140,
+          "finalInputSaved": true
+        }
+      ]
+    },
+    "limits": "Same 359-host fixture; 140 synchronous raw inputs use the old FIFO versus the new latest-input lane. Not user latency."
+  },
+  "integrity": {
+    "frozenReleaseFilesChecked": 114,
+    "changedReleaseFiles": [],
+    "signed018OfflineVerification": "PASS: exact runtime hashes; manifest whitespace-only; known signing metadata",
+    "signed018XpiSha256": "6c81f205c834459f5775bef7112090c24667412cd6245b01b97a1953ab3434ce"
+  },
+  "boundaries": {
+    "normalProfileAccessed": false,
+    "browserPoliciesChanged": false,
+    "mozillaSubmission": false,
+    "newDependencies": false,
+    "permissionCreatedByUiCacheOrMetadata": false,
+    "legacyExactPolicySemanticsPreserved": true,
+    "newScopeOffByDefaultAndProtectedByVault": true,
+    "additionalScopedHostsRetainManagedBlocking": true
+  },
+  "unverified": [
+    "Daily-profile latency and week-long retained-heap behavior.",
+    "Native macOS and newly authenticated real-site flows.",
+    "The original recovered idle authority interruption trigger remains unknown.",
+    "Older releases cannot decode the new optional scope field; no downgrade conversion is claimed."
+  ]
+}

@@ -6,14 +6,20 @@ import { fixture } from './fixture.mjs';
 export const metadataKey = 'atlas-destinations-v1';
 export const original = { id: 'host:root.example', label: 'Original', category: 'Your destinations', primaryHostname: 'root.example', hostnames: ['root.example'] };
 export class Node {
-  value = ''; checked = false; hidden = false; disabled = false; textContent = ''; dataset = {}; children = []; attrs = {}; listeners = {};
+  value = ''; checked = false; hidden = false; disabled = false; ownText = ''; dataset = {}; children = []; attrs = {}; listeners = {};
+  get textContent() { return this.ownText + this.children.map(node => node.textContent).join(''); }
+  set textContent(value) { this.replaceChildren(); this.ownText = String(value); }
+  parentElement = null;
   setAttribute(key, value) { this.attrs[key] = value; }
   getAttribute(key) { return this.attrs[key] ?? null; }
   closest() { return null; }
   addEventListener(type, listener) { (this.listeners[type] ??= []).push(listener); }
   fire(type) { for (const listener of this.listeners[type] ?? []) listener({ preventDefault() {} }); }
-  append(...nodes) { this.children.push(...nodes); }
-  replaceChildren(...nodes) { this.children = nodes; }
+  click() { if (!this.disabled) this.fire('click'); }
+  append(...nodes) { for (const node of nodes) { node.remove(); node.parentElement = this; this.children.push(node); } }
+  remove() { if (this.parentElement) this.parentElement.children = this.parentElement.children.filter(n => n !== this); this.parentElement = null; }
+  insertBefore(node, before) { node.remove(); node.parentElement = this; this.children.splice(before === null ? this.children.length : this.children.indexOf(before), 0, node); }
+  replaceChildren(...nodes) { for (const child of [...this.children]) child.remove(); this.append(...nodes); }
   querySelectorAll(selector) { return selector === '.site-row' ? this.children : []; }
   focus() { globalThis.document.activeElement = this; }
 }
@@ -35,16 +41,16 @@ export function dom(t, saved = new Map([[metadataKey, JSON.stringify({ version: 
 }
 export async function sitesFixture(t, options = {}) {
   const context = await fixture(t, true, options), d = dom(t);
-  const feedback = []; let proposals = 0, pins = [], failPin = false, available = true, draftMode = 'OK', commandMode = 'OK';
+  const feedback = []; let proposals = 0, removals = 0, pins = [], failPin = false, available = true, draftMode = 'OK', commandMode = 'OK';
   const raw = await openDraftRepository(context.factory);
   t.after(() => raw.close());
   const repository = { load: () => raw.load(), close() {}, save: (revision, value) => draftMode === 'OK' ? raw.save(revision, value) : Promise.resolve({ type: draftMode }) };
-  const settings = { drafts: Promise.resolve(repository), controller: () => available ? context.controller.getView() : undefined,
+  const settings = { initialDirectory: 'all', drafts: Promise.resolve(repository), controller: () => available ? context.controller.getView() : undefined,
     attempted: () => true, canEdit: () => available && context.controller.getView().status === 'READY', pins: () => pins,
     pin: (id, pinned) => { if (failPin) return 'FAILED'; pins = [...pins.filter(pin => pin !== id), ...(pinned ? [id] : [])]; return 'SAVED'; },
     propose: async command => {
-      if (command.kind === 'PROPOSE_POLICY') {
-        ++proposals;
+      if (command.kind === 'PROPOSE_POLICY' || command.kind === 'REMOVE_WHITELIST') {
+        if (command.kind === 'PROPOSE_POLICY') ++proposals; else ++removals;
         if (commandMode === 'FAIL') return { result: { type: 'BLOCKED', reason: 'WRITE_FAILED', status: 'READY' } };
         if (commandMode === 'UNKNOWN_BEFORE') return undefined;
         const result = await context.firefox.send(command);
@@ -57,13 +63,13 @@ export async function sitesFixture(t, options = {}) {
   const edit = (id = original.id) => { sites.render(true); d.el('sites-list').children.find(n => n.dataset.destinationId === id).fire('click'); d.el('edit-site').fire('click'); };
   const flush = async (target = sites) => { for (let i = 0; i < 12; i++) { await target.refresh(); await target.idle(); await context.adapter.whenIdle(); await new Promise(resolve => setImmediate(resolve)); } };
   const stage = async () => { d.el('site-form').fire('submit'); await flush(); sites.render(true); };
-  const submit = async () => { d.el('review-destination-draft').fire('click'); sites.render(true); d.el('submit-destination-draft').fire('click'); await flush(); sites.render(true); };
+  const submit = async () => { if (d.el('review-destination-draft').getAttribute('aria-expanded') !== 'true') d.el('review-destination-draft').fire('click'); sites.render(true); d.el('submit-destination-draft').fire('click'); await flush(); sites.render(true); };
   const confirm = async () => {
     const pending = context.controller.getView().snapshot.vaultState.pendingProposal;
     assert.ok(pending); context.clock.time = pending.readyAt;
     const result = await context.firefox.send({ kind: 'CONFIRM_POLICY', proposalId: pending.id });
     sites.render(true); await flush(); sites.render(true); return result;
   };
-  return { ...context, ...d, sites, settings, raw, feedback, edit, flush, stage, submit, confirm, proposals: () => proposals,
+  return { ...context, ...d, sites, settings, raw, feedback, edit, flush, stage, submit, confirm, proposals: () => proposals, removals: () => removals,
     failPin: value => { failPin = value; }, available: value => { available = value; }, draftMode: value => { draftMode = value; }, commandMode: value => { commandMode = value; } };
 }

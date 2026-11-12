@@ -4,6 +4,16 @@ Authorized on 2026-10-01. This milestone adds an initial curated Whitelist and t
 
 ## Curated services
 
+The user-approved [2026-10 expansion](curated-expansion.md) supersedes the
+51-host first-run-only behavior below. The current 0.1.19
+[catalog](curated-destinations.md) contains 294 exact hosts/122 services. Signed
+0.1.18 v2 receipts remain valid without reapplying the migration; fresh or
+unmigrated profiles use v3 without Wikipedia. See [scope/default compatibility](whitelist-scopes.md#defaults-and-forward-compatibility).
+Existing installations receive a single atomic union and receipt, preserving
+custom Whitelist entries and all configuration. Removed entries may return in
+this expressly approved migration unless Blacklisted; subsequent removals are
+never automatically restored. Ordinary policy editing still uses Vault.
+
 `extension/src/presets/curated-whitelist.ts` owns the preset. Each service appears once with its group, label, primary hostname, explicit equivalent aliases, and any distinct service entry points. The compiler expands these into ordinary exact `Policy.whitelist` entries. It never infers `www`, parent domains, subdomains, or wildcards. UI groups show service entries rather than duplicating alias rows. Google Search and authentication intermediates are not preset destinations. Other Canvas institution roots must be added explicitly; login continuation uses Journey.
 
 D27 (2026-10-03) seeds this preset automatically in genuinely empty development installations for friend testing. The user supplied their current 51 exact Whitelist hostnames and empty Blacklist; they exactly match the current compiler output. Only policy contents are bundled, with fresh revision/counters and no waits, grants, Journeys, history or browser profile. `extension/src/background/bootstrap.ts` attempts initialization only after the repository explicitly reports `UNINITIALIZED`; its atomic guard prevents replacing existing, concurrently initialized, missing or damaged authority. This supersedes D15's initial setup requirement for this development build. Failed writes cannot publish initialized authority. Reload and already initialized empty policies remain unchanged. Later changes still use Vault; future onboarding is deferred.
@@ -16,16 +26,19 @@ Only the private extension page can propose this action or review/confirm/cancel
 
 ## Core boundary and precedence
 
-The existing two-list `Policy` and snapshot schema stay unchanged. A separately compiled `ManagedBlacklist` is an immutable, opaque Core-owned set, validated once when built. It is not serialized into every policy snapshot. Its identity and exact-host membership checks are constant-time; ordinary snapshot validation still scans only small human policy/workflow state.
+The original two exact lists remain. Development 0.1.19 adds an optional
+[explicit subdomain scope](whitelist-scopes.md) without changing snapshot envelopes
+or requiring a managed dataset inside them. A separately compiled `ManagedBlacklist` is an immutable, opaque Core-owned set, validated once when built. It is not serialized into every policy snapshot. Its identity and exact-host membership checks are constant-time; ordinary snapshot validation still scans only small human policy/workflow state.
 
 The aggregate planner accepts an optional compiled managed list. A controller may receive an injected supplier of the current compiled list. Omitting the dependency preserves existing standalone consumers; supplying invalid or unavailable managed authority fails closed. Core applies:
 
 1. Complete state validation, time/revision observations, and valid context binding.
 2. Explicit/manual Blacklist.
-3. Explicit Whitelist.
+3. Exact Whitelist.
 4. Managed Blacklist.
-5. Access Grant / Journey.
-6. Greylist / waiting / explicit confirmation.
+5. Explicitly selected Whitelist subdomain scope.
+6. Access Grant / Journey.
+7. Greylist / waiting / explicit confirmation.
 
 Managed denial is identified by `MANAGED_BLACKLISTED`. It prevents request creation, confirmation, and navigation through a grant or Journey. Cancellation and Vault operations remain available. Existing standalone Policy/Access/Journey functions retain their documented scope; applications using managed data must use the aggregate planner/controller. A managed refresh does not reclassify user policy or renew workflow deadlines.
 

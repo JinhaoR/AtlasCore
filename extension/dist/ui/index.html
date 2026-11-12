@@ -3,14 +3,32 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Atlas — Your destinations</title>
+  <title>Atlas — Your sites</title>
   <link rel="icon" href="atlas.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/cormorant-garamond-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/cormorant-garamond-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/source-sans-3-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <script src="theme-startup.js"></script>
+  <link rel="stylesheet" href="fonts.css">
+  <link rel="stylesheet" href="themes/default.css">
+  <link rel="stylesheet" href="themes/light-test.css"><link rel="stylesheet" href="themes/celestial.css"><link rel="stylesheet" href="themes/parchment.css">
   <link rel="stylesheet" href="style.css">
   <script src="main.js" defer></script>
+  <link rel="preload" href="startup.js" as="script">
 </head>
-<body data-section="home">
+<body data-section="home" data-mode="control" data-page="home">
+  <script src="startup.js"></script>
   <a class="skip-link" href="#main-content">Skip to content</a>
   <svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-folder" viewBox="0 0 24 24"><path d="M3 20V5h7l2 3h9v12z"/></symbol>
+    <symbol id="icon-vault" viewBox="0 0 24 24"><path d="M3 8h18v13H3zM2 8l2-5h16l2 5M10 8v5h4V8"/></symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24"><path d="M12 5C8 2 5 3 2 4v16c4-2 7-1 10 1 3-2 6-3 10-1V4c-3-1-6-2-10 1v16"/></symbol>
+    <symbol id="icon-university" viewBox="0 0 24 24"><path d="m2 7 10-5 10 5H2m1 3h18M5 10v10m5-10v10m4-10v10m5-10v10M2 22h20"/></symbol>
+    <symbol id="icon-feather" viewBox="0 0 24 24"><path d="M3 22 19 4M7 17C4 11 12 4 22 2c-1 9-6 17-15 15Zm5-6 4 1M9 14l-1-4"/></symbol>
+    <symbol id="icon-code" viewBox="0 0 24 24"><path d="m7 5-5 7 5 7m10-14 5 7-5 7M14 3l-4 18"/></symbol>
+    <symbol id="icon-mail" viewBox="0 0 24 24"><path d="M2 4h20v16H2zM2 5l10 8L22 5"/></symbol>
+    <symbol id="icon-network" viewBox="0 0 24 24"><circle cx="12" cy="4" r="3"/><circle cx="4" cy="19" r="3"/><circle cx="20" cy="19" r="3"/><path d="M12 7v6m0 0-6 4m6-4 6 4"/></symbol>
+    <symbol id="icon-category" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></symbol>
     <symbol id="icon-home" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8M5 10v11h5v-7h4v7h5V10"/></symbol>
     <symbol id="icon-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M8 4v6M16 14v6"/></symbol>
     <symbol id="icon-sites" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 9v11M12 13h5M12 16h3"/></symbol>
@@ -18,134 +36,197 @@
     <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="7"/><path d="m16 16 5 5"/></symbol>
     <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
     <symbol id="icon-pin" viewBox="0 0 24 24"><path d="m14 3 7 7-4 1-4 5-2-2-5 5m5-5-3-3 5-4z"/></symbol>
+    <symbol id="icon-brain" viewBox="0 0 24 24"><path d="M12 5c-2-4-7-2-7 2-4 1-4 6-1 8-1 4 4 7 8 4 4 3 9 0 8-4 3-2 3-7-1-8 0-4-5-6-7-2v14M5 7l3 2m-4 6 4-2m11-6-3 2m4 6-4-2"/></symbol>
+    <symbol id="icon-atom" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></symbol>
+    <symbol id="icon-calculator" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h1m6 0h1M8 15h1m6 0h1M8 19h1m6 0h1"/></symbol>
+    <symbol id="icon-flask" viewBox="0 0 24 24"><path d="M9 2h6m-5 0v7l-6 11q-1 2 2 2h12q3 0 2-2L14 9V2M7 15h10"/></symbol>
+    <symbol id="icon-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><path d="M2 12h20M4 6h16M4 18h16"/></symbol>
+    <symbol id="icon-cloud" viewBox="0 0 24 24"><path d="M6 19a5 5 0 0 1-1-10 7 7 0 0 1 13-2 6 6 0 0 1 0 12Z"/></symbol>
+    <symbol id="icon-tools" viewBox="0 0 24 24"><path d="m14 3 2 4 5-1a6 6 0 0 1-7 8l-7 7a3 3 0 0 1-4-4l7-7a6 6 0 0 1 4-7Z"/></symbol>
+    <symbol id="icon-music" viewBox="0 0 24 24"><path d="M9 18V5l12-3v13M9 9l12-3"/><ellipse cx="5.5" cy="18" rx="3.5" ry="3"/><ellipse cx="17.5" cy="15" rx="3.5" ry="3"/></symbol>
+    <symbol id="icon-camera" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="15" rx="2"/><path d="m7 6 2-3h6l2 3"/><circle cx="12" cy="13" r="4"/></symbol>
+    <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M12 21 3 12C-3 3 8-2 12 6c4-8 15-3 9 6Z"/></symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M7 2v5m10-5v5M3 10h18M7 14h3m4 0h3m-10 4h3m4 0h3"/></symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M3 2v19h19M7 17v-6m5 6V7m5 10V3"/></symbol>
+    <symbol id="icon-leaf" viewBox="0 0 24 24"><path d="M4 20C-1 9 8 3 21 3c0 14-8 22-17 17Zm0 0L17 7M9 15V9m0 6h6"/></symbol>
+    <symbol id="icon-coffee" viewBox="0 0 24 24"><path d="M3 8h13v7a6 6 0 0 1-12 0Zm13 1h3a3 3 0 0 1 0 6h-3M2 22h17M6 2v3m5-3v3"/></symbol>
+    <symbol id="icon-game" viewBox="0 0 24 24"><path d="M7 7h10c4 0 7 13 3 13l-4-4H8l-4 4C0 20 3 7 7 7Z M6 11v4m-2-2h4m7-2h1m2 3h1"/></symbol>
+    <symbol id="icon-film" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M7 3v18m10-18v18M2 9h5m-5 6h5m10-6h5m-5 6h5"/></symbol>
   </svg>
   <div class="app-shell">
-    <aside id="atlas-sidebar" class="sidebar">
+    <header id="atlas-sidebar" class="sidebar">
       <div class="sidebar-heading">
         <a id="brand-home" class="brand" href="?view=control" aria-label="Atlas home" title="Atlas home"><img src="atlas.svg" width="36" height="36" alt=""><span class="brand-name">Atlas</span></a>
       </div>
       <nav aria-label="Atlas" class="sidebar-nav">
         <button id="show-home" type="button" aria-label="Home" title="Home" aria-pressed="true" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#icon-home"/></svg><span class="nav-label">Home</span></button>
-        <button id="show-sites" type="button" aria-label="Sites &amp; Access" title="Sites &amp; Access" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-sites"/></svg><span class="nav-label">Sites &amp; Access</span></button>
+        <button id="show-sites" type="button" aria-label="All sites (Sites &amp; Access)" title="All sites (Sites &amp; Access)" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-sites"/></svg><span class="nav-label">All sites</span></button>
         <button id="show-settings" type="button" aria-label="Settings" title="Settings" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-settings"/></svg><span class="nav-label">Settings</span><span id="settings-nav-status" class="nav-dot" hidden aria-hidden="true"></span></button>
       </nav>
-      <div class="sidebar-bottom"><span id="status" class="status" role="status" title="Connecting…">Connecting…</span></div>
-    </aside>
+    </header>
     <main id="main-content" tabindex="-1">
       <header class="page-header">
         <div class="intro"><p id="page-eyebrow" class="eyebrow">YOUR INTERNET, WITH INTENTION</p><h1 id="page-title">Atlas</h1><p id="page-description">A place for the things you choose.</p></div>
-        <div class="page-tools">
-          <button id="show-access" class="secondary compact" hidden>Current tab access</button>
-        </div>
       </header>
       <p id="feedback" class="feedback" role="status" hidden></p>
       <p id="startup-warning" class="feedback" role="alert" hidden></p>
       <section id="setup" class="card" hidden>
-        <p class="eyebrow">WELCOME TO ATLAS</p><h2>Choose your first destinations</h2>
-        <p>Start with these curated destinations. You can add exact hostnames before saving your initial policy.</p>
+        <p class="eyebrow">WELCOME TO ATLAS</p><h2>Choose your first sites</h2>
+        <p>Start with these curated sites. You can add exact hostnames before saving your initial policy.</p>
         <form id="setup-form">
-          <label class="checkbox-label"><input id="use-defaults" type="checkbox" checked> Include the curated Atlas Whitelist</label>
+          <label class="checkbox-label"><input id="use-defaults" type="checkbox" checked> Include the curated Atlas Allowed sites</label>
           <div id="preset-preview"></div>
-          <details><summary>Additional hostnames and manual Blacklist</summary>
-            <div class="columns"><label>Additional Pure Whitelist hostnames<textarea id="whitelist" placeholder="Your institution's Canvas hostname" rows="4" spellcheck="false"></textarea></label><label>Blacklist<textarea id="blacklist" placeholder="Sites to block" rows="4" spellcheck="false"></textarea></label></div>
+          <details><summary>Additional hostnames and manual Blocked sites</summary>
+            <div class="columns"><label>Additional allowed hostnames<textarea id="whitelist" placeholder="Your institution&#39;s Canvas hostname" rows="4" spellcheck="false"></textarea></label><label>Blocked sites<textarea id="blacklist" placeholder="Sites to block" rows="4" spellcheck="false"></textarea></label></div>
           </details>
           <button id="save-setup" type="submit">Save my initial policy</button>
-          <p class="note">This setup is available once. Later changes go through Vault in Settings.</p>
+          <p class="note">This setup is available once. Later additions use Vault; Allowed sites removals apply after review without waiting.</p>
         </form>
       </section>
       <div id="workspace" class="workspace">
-        <section id="destinations" class="destinations" aria-label="Your destinations">
-          <div id="destination-state" class="pending-notice"><span id="destination-state-message" role="status">Loading verified destinations.</span><button id="retry-destinations" class="text-button" hidden>Retry loading</button><button id="open-destination-recovery" class="text-button" hidden>Policy &amp; recovery</button></div>
-          <form id="search-form" role="search"><label for="destination-search" class="sr-only">Search your destinations</label>
-            <div class="search-field"><svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg><input id="destination-search" type="search" placeholder="Search your destinations…" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="search-results" aria-expanded="false"><span class="search-hint"><kbd>/</kbd> to search</span></div>
-            <div id="search-results" role="listbox" aria-label="Matching destinations" hidden></div><p id="search-empty" class="note" role="status" hidden>No matching allowed destinations. Try another name or hostname.</p>
+        <section id="destinations" class="destinations" aria-label="Your sites">
+          <div class="destination-state-slot"><div id="destination-state" class="pending-notice" hidden><span id="destination-state-message" role="status">Loading verified sites.</span><button id="retry-destinations" class="text-button" hidden>Retry loading</button><button id="open-destination-recovery" class="text-button" hidden>Policy &amp; recovery</button></div></div>
+          <div class="home-intro"><img src="atlas.svg" width="64" height="64" alt=""><h1>Atlas</h1></div>
+          <form id="search-form" role="search"><label for="destination-search" class="sr-only">Search your sites</label>
+            <div class="search-field"><svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg><input id="destination-search" type="search" placeholder="Search your sites…" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="search-results" aria-expanded="false"></div>
+            <div id="home-search-panel" class="search-dropdown" hidden><div id="search-results" role="listbox" aria-label="Matching sites" hidden></div><p id="search-empty" class="note" role="status" hidden>No matching sites. Try another name or hostname.</p></div>
           </form>
-          <section id="pinned-section" class="destination-section" aria-labelledby="pinned-title"><div class="section-heading"><h2 id="pinned-title">Pinned</h2></div><div id="pinned-list" class="destination-grid"></div><p id="pinned-empty" class="empty-pins" hidden>Pin a destination below to keep it close.</p></section>
-          <section id="temporary-section" class="destination-section temporary-section" aria-labelledby="temporary-title" hidden>
-            <div class="section-heading"><h2 id="temporary-title">Access in progress</h2><span id="temporary-count" class="section-meta"></span></div>
-            <button id="home-journey" class="journey-strip" hidden><span class="activity-dot" aria-hidden="true"></span><span><strong>Journey active</strong><span id="home-journey-label"></span></span><svg class="icon" aria-hidden="true"><use href="#icon-arrow"/></svg></button>
+          <div class="home-launchers">
+            <section id="pinned-section" aria-labelledby="pinned-title"><h2 id="pinned-title" class="sr-only" tabindex="-1">Pinned</h2>
+              <div id="pinned-list"><div class="compass-composition"><svg id="pin-compass" class="compass" viewBox="0 0 600 600" aria-hidden="true" focusable="false">
+              <g class="compass-rings" fill="none" stroke="currentColor"><circle cx="300" cy="300" r="268"/><circle cx="300" cy="300" r="218"/><circle cx="300" cy="300" r="154"/><circle cx="300" cy="300" r="146"/>
+              <circle class="compass-graduations" cx="300" cy="300" r="268"/>
+              <path class="compass-ticks" d="M300 22v24m0 66v55m0 266v55m0 66v24M22 300h24m66 0h55m266 0h55m66 0h24"/></g>
+              <g class="compass-letters" fill="currentColor" text-anchor="middle"><text x="300" y="209">N</text><text x="405" y="310">E</text><text x="300" y="412">S</text><text x="195" y="310">W</text></g>
+              <g class="compass-rose" fill="currentColor"><path d="m300 230 13 57 57 13-57 13-13 57-13-57-57-13 57-13z"/><path class="compass-secondary" d="m254 254 46 34 46-34-34 46 34 46-46-34-46 34 34-46z"/><circle cx="300" cy="300" r="5"/></g>
+            </svg><button id="compass-handle" type="button" aria-label="Drag to rotate pinned sites" title="Drag to rotate; all pins also work without dragging"></button><div id="pinned-primary"></div></div>
+              </div>
+              <p id="pinned-empty" class="note" hidden>Pin sites from a category or All sites to keep them close.</p>
+              <p id="bookmark-warning" class="note" role="status" hidden>Pinned pages cannot be verified. Other sites and policy are unchanged. <button id="retry-bookmarks" type="button" class="text-button">Retry loading pins</button></p>
+            </section>
+          </div>
+          <div class="home-access-slot"><section id="temporary-section" class="home-access-box" aria-labelledby="temporary-title">
+            <h2 id="temporary-title" tabindex="-1">Greylist <span id="temporary-count" class="access-count"></span></h2>
+            <div class="home-access-rows" role="region" aria-label="Greylist requests and temporary access" tabindex="0">
             <ul id="pending-access-list" class="temporary-list"></ul>
-            <ul id="temporary-list" class="temporary-list"></ul>
-            <ul id="other-journeys" class="temporary-list"></ul>
-            <p id="temporary-empty" class="note" hidden>No temporary access is active.</p>
+            <p id="temporary-empty" class="note" hidden>No requests or temporary access.</p>
             <p id="temporary-unavailable" class="note" hidden>Current access cannot be verified right now.</p>
+            </div>
           </section>
-          <div class="home-organization-bar"><span class="note">Your categories</span><button id="customize-home" type="button" class="text-button" aria-controls="home-customization" aria-expanded="false">Customize Home</button></div>
-          <p id="home-layout-warning" class="note" role="status" hidden></p>
-          <section id="home-customization" class="card home-customization" aria-labelledby="home-customization-title" tabindex="-1" hidden>
-            <div class="section-heading"><h2 id="home-customization-title">Customize Home</h2><button id="close-home-customization" type="button" class="text-button">Close</button></div>
-            <p class="note">Choose and order your category sections. Hidden categories remain in Sites &amp; Access and search. Pins stay in their own order. Click a category heading on Home to collapse its cards.</p>
-            <ol id="home-layout-list" class="home-layout-list"></ol><p id="home-layout-empty" class="note" hidden>No categories are available yet.</p>
-            <p id="home-layout-status" class="note" role="status"></p><div class="actions"><button id="retry-home-layout" type="button" class="secondary compact" hidden>Retry Home preferences</button><button id="load-saved-home-layout" type="button" class="secondary compact" hidden>Load saved layout</button></div>
+          <section id="home-journeys-section" class="home-access-box" aria-labelledby="home-journeys-title" hidden>
+            <h2 id="home-journeys-title">Journeys <span id="home-journeys-count" class="access-count"></span></h2>
+            <div class="home-access-rows" role="region" aria-label="Active Journeys" tabindex="0"><ul id="other-journeys" class="temporary-list"></ul></div>
           </section>
-          <div id="destination-list" class="destination-list"></div>
-          <p id="home-categories-empty" class="note" hidden>Your category sections are hidden. Customize Home to show them, or manage every destination in Sites &amp; Access.</p>
-          <p id="empty-destinations" class="note" hidden>Your verified destination list is empty. Add destinations through Sites &amp; Access and Vault.</p>
-          <details class="open-address"><summary>Open a specific address</summary><form id="journey-form"><label>Website address<input id="destination" placeholder="https://student.ladok.se" required spellcheck="false" autocomplete="off"></label><button id="open-journey" type="submit" class="secondary">Open address</button></form></details>
+          </div><p id="bookmark-sync-warning" class="note" hidden><span id="bookmark-sync-warning-text"></span> <button id="open-bookmark-sync" class="text-button" type="button">Review bookmark sync</button></p><p id="home-layout-warning" class="note" role="status" hidden></p>
+          <p id="empty-destinations" class="note" hidden>Your verified site list is empty. Add sites through Sites &amp; Access and Vault.</p>
+
         </section>
-        <section id="access-panel" class="card access" data-tone="neutral" aria-labelledby="access-title">
-          <div class="section-heading"><p class="eyebrow">CURRENT DESTINATION</p><span id="outcome" class="pill">No tab selected</span></div>
-          <p id="hostname" class="hostname">Your next destination</p>
-          <h2 id="access-title" tabindex="-1" aria-describedby="access-description">Choose a tab</h2><p id="access-description"></p>
-          <p id="deadline" class="deadline"></p><p id="effect-warning" class="feedback" role="alert" hidden></p>
-          <div id="ended-journey" class="journey-panel" hidden><h3>Journey ended</h3><p id="ended-journey-copy"></p><button id="restart-journey">Restart journey</button></div>
-          <p id="access-scope" class="note"></p><p id="access-scope-note" class="note" role="status" hidden></p>
-          <div class="actions"><button id="start-access" hidden>Request temporary access</button><button id="confirm-access" hidden>Confirm and open</button><button id="open-home" hidden>Open site home</button><button id="cancel-access" class="secondary" hidden>Cancel request</button><button id="start-journey" class="secondary" hidden>Start Journey in this tab</button></div>
-          <p id="home-note" class="note" hidden>Opening starts at the site home. Return to your task from there.</p>
-          <div id="journey-panel" class="journey-panel"><div class="section-heading"><h3>Journey</h3><span id="journey-phase" class="pill">None</span></div><p id="journey">No Journey in this tab.</p><p id="journey-time" class="note"></p><progress id="journey-progress" max="1" value="0" aria-label="Journey time remaining" hidden></progress><button id="cancel-journey" class="secondary compact" hidden>End Journey</button></div>
-          <label class="tab-label">Browsing tab<select id="context"><option value="">No websites yet</option></select></label>
-          <details class="decision-details"><summary>Decision details</summary><p id="decision" class="mono"></p><p id="context-detail" class="mono"></p></details>
-        </section>
+
       </div>
-      <section id="sites-section" hidden aria-label="Sites and access">
+      <section id="sites-section" hidden aria-label="Sites and access" data-view="browse">
         <p id="sites-pending" class="pending-notice" hidden>A frozen proposal is waiting in Vault. Editable drafts and submitted batches remain separate; a new policy batch cannot replace it. <button id="sites-review-pending" class="text-button">Review existing proposal</button></p>
-        <p id="site-save-feedback" class="feedback" role="status" hidden></p><button id="retry-site-save" class="secondary compact" type="button" hidden>Retry display save</button>
-        <section id="destination-draft-panel" class="card batch-draft" tabindex="-1" aria-labelledby="destination-draft-heading">
-          <div class="section-heading"><h2 id="destination-draft-heading">Local destination draft</h2><span id="destination-workspace-kind" class="pill">Loading local workspace</span></div>
-          <p id="destination-draft-status" class="note" role="status">Loading saved local draft…</p><p id="destination-draft-stale" class="pending-notice" hidden></p>
-          <div id="destination-draft-conflicts" class="draft-conflict"></div><ul id="destination-draft-items" class="batch-items"></ul>
-          <div class="actions"><button id="review-destination-draft" class="secondary" type="button">Review draft</button><button id="submit-destination-draft" type="button" disabled>Submit complete batch to Vault</button><button id="discard-destination-draft" class="text-button destructive" type="button">Discard draft</button></div>
-          <p id="draft-submit-help" class="note"></p><div class="actions"><button id="retry-destination-draft" class="secondary compact" type="button" hidden>Retry local draft save</button><button id="discard-damaged-draft" class="text-button" type="button" hidden>Discard damaged local draft data</button><button id="reload-shared-draft" class="secondary compact" type="button" hidden>Load newer shared draft</button><button id="reconcile-destination-draft" class="secondary compact" type="button" disabled>Review stale draft</button></div>
-          <section id="draft-reconciliation" class="draft-reconciliation" hidden><h3>Reconciliation preview</h3><p class="note">Current committed values → your proposed result. Accepting retains these proposed changes against the current baseline; it does not apply them.</p><p id="draft-reconciliation-conflicts" class="draft-conflict"></p><ul id="draft-reconciliation-items" class="batch-items"></ul><button id="accept-draft-reconciliation" type="button">Accept reviewed result against current state</button></section>
-          <section id="destination-receipt" class="draft-reconciliation" hidden><h3>Submitted batch</h3><p id="destination-receipt-status" class="note"></p><details><summary>Complete destination outcome</summary><ul id="destination-receipt-items" class="batch-items"></ul></details><div class="actions"><button id="check-draft-submission" type="button" class="secondary compact" hidden>Check saved submission outcome</button><button id="restore-submitted-draft" type="button" class="secondary compact" hidden>Restore as editable draft</button><button id="keep-current-display" type="button" class="text-button" hidden>Keep current display details</button></div></section>
-        </section>
-        <div class="sites-toolbar"><label class="sr-only" for="sites-search">Search committed destinations</label><input id="sites-search" type="search" placeholder="Search names, categories or hosts…" autocomplete="off"><label class="sr-only" for="sites-filter">Filter access</label><select id="sites-filter"><option value="ALL">All access</option><option value="WHITELIST">Whitelisted</option><option value="BLACKLIST">Blacklisted</option><option value="MIXED">Mixed rules</option></select><button id="add-site" type="button">Add destination</button></div>
+
+          <section id="draft-problem" class="feedback" data-tone="error" role="alert" hidden><h3 id="draft-problem-title"></h3><p id="draft-problem-copy"></p><div class="actions"><button id="retry-destination-draft" class="secondary compact" type="button" hidden>Retry local draft save</button><button id="discard-damaged-draft" class="text-button" type="button" hidden>Discard damaged local draft data</button><button id="reload-shared-draft" class="secondary compact" type="button" hidden>Load newer shared draft</button></div><details class="technical-review"><summary>Technical details</summary><p id="draft-problem-detail" class="mono"></p></details></section>
+        <div class="sites-layout" id="sites-browser"><section class="sites-directory">
+          <header class="directory-intro"><h1>Your sites</h1><p class="page-subtitle">Find a place. Decide how it belongs.</p></header>
+        <div class="sites-toolbar"><label class="sr-only" for="sites-search">Search committed sites</label><div class="sites-search-anchor"><input id="sites-search" type="search" placeholder="Search names, categories or hosts…" autocomplete="off" aria-controls="sites-search-results" aria-expanded="false"><div id="sites-search-results" class="search-dropdown" hidden aria-label="Search suggestions"></div></div><label class="sr-only" for="sites-filter">Filter access</label><select id="sites-filter"><option value="ALL">All access</option><option value="WHITELIST">Allowed</option><option value="BLACKLIST">Blocked</option><option value="MIXED">Mixed rules</option></select><button id="add-site" type="button">Add site</button></div>
         <p id="sites-status" class="note" role="status"></p><button id="sites-recovery" class="text-button" hidden>Policy &amp; recovery</button>
-        <div class="sites-layout"><div><div id="sites-list" class="sites-list"></div><p id="sites-empty" class="note" hidden>No matching destinations.</p></div>
-          <aside class="sites-editor"><section id="site-detail" class="site-detail" hidden tabindex="-1" aria-labelledby="site-detail-title"><p class="eyebrow">COMMITTED DESTINATION</p><h2 id="site-detail-title"></h2><p id="site-detail-category" class="note"></p><ul id="site-detail-hosts" class="site-hosts"></ul><p class="note">These exact rules are active. Prepare changes locally; protected changes commit through Vault.</p><div class="actions"><button id="edit-site" type="button" class="secondary">Edit destination</button><button id="remove-site" type="button" class="text-button destructive">Stage removal</button></div></section>
-        <section id="site-draft" class="card site-draft" hidden aria-label="Destination draft"><p class="eyebrow">EDITABLE DRAFT</p><h2 id="site-draft-title">Add a destination</h2><p class="note">Preparing edits changes nothing. Display-only edits save directly; exact access changes wait in Vault.</p>
-          <p id="site-field-error" class="feedback" role="alert" hidden></p><form id="site-form"><div class="columns"><label>Name<input id="site-name" aria-describedby="site-field-error" maxlength="100" required autocomplete="off"></label><label>Primary hostname<input id="site-hostname" aria-describedby="site-scope-preview site-field-error" maxlength="253" required placeholder="example.com" spellcheck="false" autocomplete="off"></label><label>Access<select id="site-access"><option id="site-preserve-rules" value="PRESERVE" hidden>Keep current exact rules</option><option value="WHITELIST">Whitelist</option><option value="BLACKLIST">Blacklist</option></select></label><label>Category<input id="site-category" aria-describedby="site-field-error" maxlength="64" list="site-categories" required autocomplete="off"></label></div>
-            <datalist id="site-categories"></datalist><p class="note">Choose an existing category or enter a new one. Case and extra spaces reuse its display name; stored legacy spellings are preserved.</p>
-            <label class="checkbox-label"><input id="site-www" type="checkbox"><span id="site-www-label">Include common www counterpart</span></label>
-            <details><summary>Other explicit hostnames</summary><label>Additional hosts, separated by commas<input id="site-extra" aria-describedby="site-scope-preview site-field-error" maxlength="4000" spellcheck="false" autocomplete="off" placeholder="another.exact-host.com"></label><p class="note">Each hostname is an explicit rule. Wildcards and inferred subdomains are unsupported.</p></details>
-            <p id="site-scope-preview" class="scope-preview"></p><label id="site-pin-field" class="checkbox-label"><input id="site-pin" type="checkbox">Pin on Home when applied</label><div class="actions"><button id="propose-site" type="submit">Add to draft</button><button id="save-site-display" type="button" class="secondary" hidden>Save display details</button><button id="cancel-site-draft" type="button" class="secondary">Close editor</button></div>
+          <div class="directory-breadcrumb"><button id="sites-categories-back" type="button" class="text-button" hidden>← Categories</button><h2 id="sites-directory-title">Categories</h2><label id="sites-category-order-label"><span class="sr-only">Category order</span><select id="sites-category-order"><option value="alphabetic">Alphabetical</option><option value="usage">Most used</option><option value="custom">Custom order</option></select></label><button id="sites-show-all" type="button" class="text-button">All sites</button></div>
+          <p id="category-order-error" class="note" role="status" hidden><span id="category-order-message"></span> <button id="retry-category-order" type="button" class="text-button">Retry</button><button id="reload-category-order" type="button" class="text-button" hidden>Load saved order</button></p>
+          <nav id="sites-categories" class="directory-categories" aria-label="Site categories"></nav>
+          <div id="sites-list" class="sites-list" tabindex="0" aria-label="Site results"></div><p id="sites-empty" class="note" hidden>No matching sites.</p>
+        </section><dialog id="sites-editor" class="sites-editor" aria-label="Site details and editor"><p id="site-save-feedback" class="feedback" role="status" hidden></p><button id="retry-site-save" class="secondary compact" type="button" hidden>Retry display save</button><button id="sites-back" class="text-button" type="button">Close</button>
+          <div id="site-selection-empty"><h2>A place for every site.</h2><p class="note">Select a site to inspect its current access or prepare changes.</p></div>
+<section id="site-detail" class="site-detail" hidden tabindex="-1" aria-labelledby="site-detail-title"><p class="eyebrow">CURRENT SITE</p><h2 id="site-detail-title"></h2><p id="site-detail-category" class="note"></p><ul id="site-detail-hosts" class="site-hosts"></ul><p class="note">These saved rules are active. Review staged edits before applying: additions wait in Vault; Removing allowed sites have no cooldown.</p><div class="actions"><button id="edit-site" type="button" class="secondary">Edit site</button><button id="remove-site" type="button" class="text-button destructive">Stage removal</button></div></section>
+        <section id="site-draft" class="site-draft" hidden aria-label="Site draft"><p class="eyebrow">DRAFT EDIT</p><div class="section-heading"><h2 id="site-draft-title">Add a site</h2><button id="cancel-site-draft" type="button" class="text-button">Close editor</button></div><p class="note">Your active access rules have not changed.</p>
+          <p id="site-field-error" class="feedback" role="alert" hidden></p><form id="site-form">
+            <fieldset><legend>Display</legend><div class="columns"><label>Name<input id="site-name" aria-describedby="site-field-error" maxlength="100" required autocomplete="off"></label><label>Category<input id="site-category" aria-describedby="site-field-error" maxlength="64" list="site-categories" required autocomplete="off"></label></div><datalist id="site-categories"></datalist><p class="note">Choose an existing category or enter a new one.</p><label id="site-pin-field" class="checkbox-label"><input id="site-pin" type="checkbox">Pin on Home when applied</label></fieldset>
+            <fieldset><legend>Access</legend><div class="columns"><label>Access<select id="site-access"><option id="site-preserve-rules" value="PRESERVE" hidden>Keep current access rules</option><option value="WHITELIST">Allowed sites</option><option value="BLACKLIST">Blocked sites</option></select></label><label>Primary hostname<input id="site-hostname" aria-describedby="site-scope-preview site-field-error" maxlength="253" required placeholder="example.com" spellcheck="false" autocomplete="off"></label></div><label class="checkbox-label"><input id="site-www" type="checkbox"><span id="site-www-label">Include common www counterpart</span></label><label class="checkbox-label"><input id="site-subdomains" type="checkbox" aria-describedby="site-subdomains-help"><span id="site-subdomains-label">Also allow all subdomains of this hostname</span></label><p id="site-subdomains-help" class="note"></p><details><summary>Other explicit hostnames</summary><label>Additional hosts, separated by commas<input id="site-extra" aria-describedby="site-scope-preview site-field-error" maxlength="4000" spellcheck="false" autocomplete="off" placeholder="another.exact-host.com"></label><p class="note">These are exact rules. The separate subdomain option applies only to the primary hostname; wildcard strings are unsupported.</p></details><p id="site-scope-preview" class="scope-preview"></p></fieldset>
+            <p class="note">Adding access waits in Vault. Allowed sites removals apply after review without waiting; display-only edits save directly.</p>
+            <div class="actions editor-actions"><button id="propose-site" type="submit">Add to draft</button><button id="save-site-display" type="button" class="secondary" hidden>Save display details</button></div>
           </form>
+        </section></dialog></div>
+        <section id="destination-draft-panel" class="batch-draft" tabindex="-1" aria-labelledby="destination-draft-heading" data-review="false">
+          <div class="draft-summary"><div><h2 id="destination-draft-heading">Your draft</h2><p id="destination-draft-status" class="note" role="status">Loading saved draft…</p></div><span id="destination-workspace-kind" class="pill">Loading</span><button id="review-destination-draft" class="secondary" type="button" aria-controls="draft-review-workspace">Review changes</button></div>
+
+          <p id="destination-draft-stale" class="pending-notice" hidden></p><div id="destination-draft-conflicts" class="draft-conflict"></div><button id="reconcile-destination-draft" class="secondary compact" type="button" disabled>Review stale draft</button>
+          <div id="draft-review-workspace"><header class="review-intro"><h1 id="draft-review-title" tabindex="-1">Review your changes</h1><p>These edits are prepared. Your active access rules have not changed.</p></header>
+          <div class="review-layout"><ul id="destination-draft-items" class="batch-items" tabindex="0" aria-label="Prepared changes"></ul><aside class="review-actions"><h2 id="draft-review-count"></h2><p id="draft-submit-help" class="note"></p><div class="actions"><button id="submit-destination-draft" type="button" disabled>Submit to Vault</button><button id="continue-destination-editing" type="button" class="secondary">Continue editing</button><button id="discard-destination-draft" class="text-button destructive" type="button">Discard draft</button></div></aside></div></div>
+          <div class="draft-companion-actions"><button id="resume-destination-editor" class="text-button" type="button" hidden>Return to editor</button><button id="discard-destination-summary" class="text-button destructive" type="button" hidden>Discard draft</button></div>
+          <section id="draft-reconciliation" class="draft-reconciliation" hidden><h3>Reconciliation preview</h3><p class="note">Current committed values → your proposed result. Accepting retains these proposed changes against the current baseline; it does not apply them.</p><p id="draft-reconciliation-conflicts" class="draft-conflict"></p><ul id="draft-reconciliation-items" class="batch-items"></ul><button id="accept-draft-reconciliation" type="button">Accept reviewed result against current state</button></section>
+          <details id="destination-receipt" class="draft-reconciliation" hidden><summary>Previous changes</summary><p id="destination-receipt-status" class="note"></p><details><summary>Complete site outcome</summary><ul id="destination-receipt-items" class="batch-items"></ul></details><div class="actions"><button id="check-draft-submission" type="button" class="secondary compact" hidden>Check saved submission outcome</button><button id="restore-submitted-draft" type="button" class="secondary compact" hidden>Restore as editable draft</button><button id="keep-current-display" type="button" class="text-button" hidden>Keep current display details</button></div></details>
         </section>
-          </aside>
-        </div>
       </section>
       <section id="settings" hidden aria-label="Atlas settings">
+        <aside class="settings-navigation"><h1>Settings</h1><p class="page-subtitle">Make the rules clear, then give them time.</p><nav aria-label="Settings sections">
+          <button type="button" data-settings-panel="timing-settings">Timing &amp; friction</button><button type="button" data-settings-panel="home-settings">Pins &amp; category icons</button><button id="show-vault" type="button" aria-label="Vault" title="Vault" aria-pressed="false"><span class="nav-label">Vault</span></button><button type="button" data-settings-panel="managed-section">Managed blocking</button><button type="button" data-settings-panel="recovery-section">Policy &amp; recovery</button><button type="button" data-settings-panel="diagnostics">Diagnostics</button>
+        </nav></aside><div id="settings-workspace" class="settings-workspace" tabindex="0" aria-label="Settings section content">
         <p id="settings-pending" class="pending-notice" hidden>A frozen change is waiting in Vault. <button id="review-pending" class="text-button">Review proposal <span aria-hidden="true">→</span></button></p>
         <details id="timing-settings" class="card settings-card" open><summary>Timing &amp; friction <span class="pill">Protected</span></summary><p class="note">Changes wait under your current Vault protection and need confirmation. Existing waits, grants and Journeys keep their original terms.</p>
           <form id="settings-form"><fieldset><legend>Temporary access</legend><div class="columns three-columns"><label>Waiting period <span class="unit">seconds</span><input id="access-wait" type="number" min="0.001" step="0.001" required><span id="active-access-wait" class="field-current"></span></label><label>Confirmation window <span class="unit">seconds</span><input id="access-window" type="number" min="0.001" step="0.001" required><span id="active-access-window" class="field-current"></span></label><label>Access duration <span class="unit">seconds</span><input id="grant-duration" type="number" min="0.001" step="0.001" required><span id="active-grant-duration" class="field-current"></span></label></div></fieldset>
             <fieldset><legend>Vault protection</legend><div class="columns"><label>Waiting period <span class="unit">seconds</span><input id="vault-wait" type="number" min="0.001" step="0.001" required><span id="active-vault-wait" class="field-current"></span></label><label>Confirmation window <span class="unit">seconds</span><input id="vault-window" type="number" min="0.001" step="0.001" required><span id="active-vault-window" class="field-current"></span></label></div></fieldset>
-            <fieldset><legend>Journey bounds</legend><div class="columns"><label>Lifetime <span class="unit">seconds</span><input id="journey-lifetime" type="number" min="0.001" step="0.001" required><span id="active-journey-lifetime" class="field-current"></span></label><label>Maximum hops<input id="journey-hops" type="number" min="1" step="1" required><span id="active-journey-hops" class="field-current"></span></label></div></fieldset><button id="propose-settings" type="submit">Review timing change</button>
+            <fieldset><legend>Journey bounds</legend><div class="columns"><label>Lifetime <span class="unit">seconds</span><input id="journey-lifetime" type="number" min="0.001" step="0.001" required><span id="active-journey-lifetime" class="field-current"></span></label><label>Maximum hops<input id="journey-hops" type="number" min="1" step="1" required><span id="active-journey-hops" class="field-current"></span></label></div></fieldset><div class="timing-actions"><span id="timing-edited-count" class="note" role="status"></span><button id="propose-settings" type="submit">Review timing change</button></div>
           </form>
         </details>
-        <details id="vault-section" class="card settings-card"><summary id="vault-heading">Vault <span class="section-meta">Review your commitments</span></summary>
-          <button id="return-to-sites" type="button" class="text-button">Back to Sites &amp; Access</button>
-          <div id="preset-update"><p class="note">Curated updates retain your saved destinations and manual Blacklist.</p><p id="preset-update-status" class="note"></p><button id="propose-defaults" class="secondary" hidden>Add curated destinations</button></div>
+        <details id="home-settings" class="settings-card"><summary>Pins &amp; category icons</summary>
+          <div class="theme-setting"><label for="atlas-theme">Appearance</label><select id="atlas-theme"><option value="default">Default</option><option value="light-test">Light (test)</option><option value="celestial">Celestial</option><option value="parchment">Parchment</option></select><p id="theme-save-status" class="note" role="status"></p><button id="theme-retry" type="button" class="secondary compact" hidden>Retry appearance save</button></div>
+          <div class="bookmark-connection-setting"><h2>Firefox bookmarks</h2><p class="note">Firefox toolbar bookmarks and folders appear on your compass. Folder contents stay managed in Firefox.</p><button id="settings-connect-bookmarks" type="button" class="secondary compact">Connect Firefox bookmarks</button></div><details id="advanced-pin-settings"><summary>Advanced pin editing</summary><p class="note">Manage individual shortcut pages here.</p><button id="edit-pins" class="secondary compact" type="button" disabled>Edit Atlas shortcuts</button></details>
 
-          <p id="vault-empty" class="empty-pins">No proposal is waiting. Propose timing changes here or destination changes in Sites &amp; Access.</p>
-          <div id="vault-panel" hidden><div class="section-heading"><h3>Review proposed changes</h3><span id="vault-phase" class="pill"></span></div><p id="vault-summary"></p><ul id="vault-changes" class="change-list"></ul><div id="vault-settings-comparison" class="table-scroll" hidden><table class="settings-comparison"><caption>Timing changes</caption><thead><tr><th>Setting</th><th>Active</th><th>Proposed</th></tr></thead><tbody id="vault-settings-rows"></tbody></table></div><p id="vault-deadline" class="deadline"></p><p id="vault-impact" class="note"></p><div class="actions"><button id="confirm-policy" hidden>Confirm change</button><button id="cancel-policy" class="secondary">Cancel proposal</button></div><section id="vault-destination-review" class="draft-reconciliation" hidden><h3>Frozen destination changes</h3><p class="note">Names, categories, pins and exact scope accompany this proposal. Active policy remains unchanged until successful confirmation. Display details apply only after its matching commit.</p><ul id="vault-destination-items" class="batch-items"></ul></section><details><summary>Full Core review</summary><pre id="vault-review"></pre></details></div>
+          <div class="home-preferences-heading"><h2>Categories</h2></div>
+          <ol id="home-layout-list" class="home-layout-list"></ol><p id="home-layout-empty" class="note" hidden>No categories are available yet.</p>
+          <p id="home-layout-status" class="note" role="status"></p><div class="actions"><button id="retry-home-layout" type="button" class="secondary compact" hidden>Retry category order</button><button id="load-saved-home-layout" type="button" class="secondary compact" hidden>Load saved layout</button></div>
+          <p id="category-icon-status" class="note" role="status"></p><div class="actions"><button id="retry-category-icons" type="button" class="secondary compact" hidden>Retry category icons</button><button id="load-saved-category-icons" type="button" class="secondary compact" hidden>Load saved icons</button></div>
         </details>
-        <details id="managed-section" class="card settings-card managed-panel"><summary>Managed Blacklist <span class="section-meta">StevenBlack</span></summary><p id="managed-status">Loading the bundled blacklist…</p><p id="managed-details" class="note"></p><details><summary>Source and update details</summary><p id="managed-source" class="mono"></p></details><p class="note">Temporary access and Journey cannot override this list. Your explicit Whitelist overrides managed entries; your manual Blacklist still wins.</p></details>
-        <details id="recovery-section" class="card settings-card secondary-panel"><summary>Policy &amp; recovery</summary><pre id="policy">No policy loaded.</pre><p class="note">Reload keeps your saved policy. Recovery retries failed startup or verifies saved state. It does not confirm a change or reset your policy.</p><button id="recover" class="secondary">Reload and reconcile state</button></details>
-        <p id="startup-diagnostic" class="note"></p>
+        <details id="managed-section" class="card settings-card managed-panel"><summary>Managed blocking <span class="section-meta">StevenBlack</span></summary><p id="managed-status">Loading the bundled blocking list…</p><p id="managed-details" class="note"></p><details><summary>Source and update details</summary><p id="managed-source" class="mono"></p></details><p class="note">Temporary access and Journey cannot override this list. An exact allowed-site entry overrides a managed entry. Additional subdomains remain subject to managed blocking; your own blocked-site rules always win.</p></details>
+        <details id="recovery-section" class="card settings-card secondary-panel"><summary>Policy &amp; recovery</summary><pre id="policy">No policy loaded.</pre><p class="note">Reload keeps your saved policy. Recovery retries failed startup or verifies saved state. It does not confirm a change or reset your policy.</p><button id="recover" class="secondary">Reload and reconcile state</button>        <details id="curated-settings" class="settings-card"><summary>Bundled site collection</summary>          <div id="preset-update"><p class="note">Curated updates retain your saved sites and manual Blocked sites.</p><p id="preset-update-status" class="note"></p><button id="propose-defaults" class="secondary" hidden>Add curated sites</button></div>
+
+</details>
+</details>
+                <p id="startup-diagnostic" class="note"></p>
         <p id="action-diagnostic" class="mono"></p>
-        <details id="diagnostics" class="card settings-card secondary-panel"><summary>Navigation diagnostics <span class="section-meta">Local · last 200 events</span></summary><p class="note">Hostnames only. Restart clears the log. An export contains your visited hostnames; review it before sharing.</p><p id="managed-conflicts" class="note"></p><div class="actions"><label class="inline-label">Scope<select id="diagnostic-scope"><option value="selected">Selected tab</option><option value="all">All tabs</option></select></label><button id="export-diagnostics" class="secondary compact">Export JSON</button><button id="clear-diagnostics" class="secondary compact">Clear log</button></div><div class="table-scroll"><table><caption class="sr-only">Recent navigation events</caption><thead><tr><th>Sequence</th><th>Event</th><th>Tab / navigation</th><th>Hostname</th><th>Core result</th><th>Journey</th></tr></thead><tbody id="diagnostic-rows"></tbody></table></div><p id="diagnostic-empty" class="note">No events in this view.</p></details>
+        <details id="diagnostics" class="card settings-card secondary-panel"><summary>Navigation diagnostics <span class="section-meta">Local · last 200 events</span></summary><p class="note">Navigation hostnames clear on restart. Sanitized runtime faults from the latest incident remain available after restart. Exports include visited hostnames; review them before sharing.</p><p id="managed-conflicts" class="note"></p><div class="actions"><label class="inline-label">Scope<select id="diagnostic-scope"><option value="selected">Selected tab</option><option value="all">All tabs</option></select></label><button id="export-diagnostics" class="secondary compact">Export JSON</button><button id="clear-diagnostics" class="secondary compact">Clear log</button></div><div class="table-scroll"><table><caption class="sr-only">Recent navigation events</caption><thead><tr><th>Sequence</th><th>Event</th><th>Tab / navigation</th><th>Hostname</th><th>Core result</th><th>Journey</th></tr></thead><tbody id="diagnostic-rows"></tbody></table></div><p id="diagnostic-empty" class="note">No events in this view.</p></details>
+      <section id="vault-section" class="vault-page" hidden aria-label="Vault"><span id="vault-section-title" class="sr-only">Vault</span>
+        <div class="vault-composition"><header class="vault-intro"><h1 id="vault-heading" tabindex="-1">Vault</h1><p class="page-subtitle">A moment to consider.</p></header>
+        <p id="vault-empty" class="note"></p><div id="vault-empty-actions"></div>
+        <div id="vault-panel" class="vault-layout" hidden><section id="vault-contents" class="vault-contents" tabindex="0" aria-label="Proposed changes"><h2>Your proposed changes</h2><ul id="vault-changes" class="change-list"></ul>
+          <div id="vault-settings-comparison" class="table-scroll" hidden><table class="settings-comparison"><caption>Timing changes</caption><thead><tr><th>Setting</th><th>Active</th><th>Proposed</th></tr></thead><tbody id="vault-settings-rows"></tbody></table></div>
+          <section id="vault-destination-review" hidden><p class="note">Names, categories, pins and exact scope accompany this frozen proposal. Display details apply only after its matching commit.</p><ul id="vault-destination-items" class="batch-items"></ul></section>
+          <h3>What happens next</h3><p id="vault-impact" class="note"></p><details class="technical-review"><summary>Full proposal details</summary><pre id="vault-review"></pre></details>
+        </section><aside class="vault-protection"><div class="vault-state"><svg class="hourglass" aria-hidden="true" viewBox="0 0 48 64"><path d="M8 4h32M8 60h32M11 8h26c0 14-13 18-13 24s13 10 13 24H11c0-14 13-18 13-24S11 22 11 8Z"/></svg><h2 id="vault-phase"></h2><p id="vault-ready-at" class="state-deadline"></p><p id="vault-deadline" class="deadline"></p><p id="vault-summary"></p></div>
+          <div id="vault-protection-actions" class="actions"><button id="confirm-policy" hidden>Confirm change</button><button id="return-to-sites" type="button" class="secondary">Back to sites</button><button id="cancel-policy" class="text-button destructive">Cancel proposal</button></div><p class="note">This proposal is frozen. To change it, cancel and prepare a new draft. Cancelling keeps your current rules.</p>
+        </aside></div></div>
       </section>
+      </div></section>
     </main>
   </div>
-</body>
+
+
+
+  <div id="pin-chooser" popover="auto" role="dialog" aria-labelledby="pin-chooser-title">
+    <h3 id="pin-chooser-title"></h3><div id="pin-chooser-pages"></div>
+    <details id="pin-service-entry-points" hidden><summary>Service entry points</summary><div id="pin-service-pages"></div></details>
+    <p id="pin-folder-note" class="note" hidden>Manage these pages in Firefox bookmarks.</p><p id="pin-folder-error" class="note" role="alert"></p><button id="retry-folder-icon" type="button" class="text-button" hidden>Retry</button><button id="edit-folder-icon" type="button" class="text-button" hidden>Choose folder icon</button><button id="edit-pin-pages" type="button" class="text-button">Edit pages</button>
+  </div>
+  <dialog id="bookmark-editor" hidden aria-labelledby="bookmark-editor-title">
+    <h2 id="bookmark-editor-title" tabindex="-1">Edit pins and pages</h2>
+    <label>Site<select id="bookmark-parent"></select></label>
+    <div class="actions"><button id="pin-bookmark-parent" type="button" class="text-button">Pin site</button><span class="note">Pin changes save separately.</span></div>
+    <label>Shortcut name<input id="bookmark-label" maxlength="100"></label><div class="actions"><button type="button" id="save-bookmark-label" class="secondary compact">Save shortcut name</button><button type="button" id="pin-up" class="text-button">Move pin earlier</button><button type="button" id="pin-down" class="text-button">Move pin later</button></div><p id="bookmark-label-status" class="note" role="status"></p><p id="bookmark-parent-note" class="note"></p>
+    <details id="bookmark-service-entry-points"><summary>Open normal service entry points</summary><div id="bookmark-service-pages" class="actions"></div></details>
+    <ol id="bookmark-pages"></ol><p id="bookmark-empty" class="note" hidden>No saved pages. Saving restores this site&#39;s normal entry points.</p>
+    <button id="add-bookmark-page" type="button" class="secondary compact">Add page</button>
+    <p id="bookmark-status" class="note" role="status"></p>
+    <button id="review-bookmark-conflict" type="button" class="secondary compact" hidden>Review newer saved version</button>
+    <section id="bookmark-conflict-review" hidden><h3>Newer saved pages</h3><pre id="bookmark-latest"></pre><p class="note">Your editable pages above will replace this site&#39;s reviewed list. Other sites are preserved.</p><button id="save-reviewed-bookmarks" type="button" class="secondary">Save my pages over this reviewed version</button></section>
+    <div class="actions bookmark-editor-actions"><button id="save-bookmarks" type="button">Save pages</button><button id="cancel-bookmarks" type="button" class="secondary">Cancel</button></div>
+  </dialog>
+
+<dialog id="bookmark-sync-dialog" hidden aria-labelledby="bookmark-sync-heading">
+<div class="section-heading"><h2 id="bookmark-sync-heading" tabindex="-1">Firefox bookmarks</h2><button id="close-bookmark-sync" class="text-button" type="button">Close</button></div>
+<p id="bookmark-sync-status" role="status"></p><p>Firefox toolbar bookmarks and Atlas pins stay in sync. Folder contents are managed in Firefox.</p><p class="note">Bookmarks never change site access rules.</p>
+<p class="note">Unpinning a site deletes its synchronized toolbar bookmarks. Folders are displayed without changing their contents.</p>
+<button id="grant-bookmark-permission" type="button">Connect Firefox bookmarks</button>
+<section id="sync-comparison" hidden><h3>Choose the copy to keep</h3><p>Both copies are shown below. Choosing one replaces the connected copy with these values; access rules are unchanged.</p><div class="columns"><section><h4>Atlas</h4><ul id="sync-local-groups"></ul><button type="button" data-sync-side="ATLAS">Keep these Atlas shortcuts</button></section><section><h4>Firefox</h4><ul id="sync-remote-groups"></ul><button type="button" data-sync-side="FIREFOX">Keep these Firefox bookmarks</button></section></div></section>
+<div class="actions"><button id="compare-bookmark-sync" type="button" hidden>Compare conflicting changes</button><button id="retry-bookmark-sync" type="button" hidden>Retry sync</button><button id="disconnect-bookmark-sync" type="button" class="text-button" hidden>Disconnect, keeping both copies</button></div><p id="sync-ongoing-warnings" class="note"></p><p id="bookmark-sync-feedback" role="status"></p>
+</dialog></body>
 </html>

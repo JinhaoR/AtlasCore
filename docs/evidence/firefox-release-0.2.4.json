@@ -1,0 +1,161 @@
+{
+  "version": "0.2.4",
+  "status": "VALIDATED_UNSIGNED_SIGNING_CANDIDATE",
+  "date": "2026-11-09",
+  "identity": "atlas-development@atlas.invalid",
+  "channel": "unlisted",
+  "node": "24.12.0",
+  "firefox": "159.0.1",
+  "artifacts": {
+    "atlas-0.2.4-unsigned.zip": {
+      "sha256": "37e7d4c7ba05c2ed1389ad31918745c306e998f833dc80c29dfb6433b69cf0e0",
+      "bytes": 1599046,
+      "byteIdenticalReviewerRebuild": true
+    },
+    "atlas-0.2.4-source.zip": {
+      "sha256": "0a3923e07130d77930f1c0f500a422b2cdb69abbd362f40e488753be6d15a215",
+      "bytes": 2106247,
+      "byteIdenticalReviewerRebuild": true
+    },
+    "release.json": {
+      "sha256": "03f3d9f142e5b2e7db87887704b90c594b000fe596f71f8dfa6f1c5ee716d824",
+      "bytes": 32646,
+      "byteIdenticalReviewerRebuild": true
+    }
+  },
+  "integrity": {
+    "previousArtifacts": {
+      "checked": 246,
+      "changed": []
+    },
+    "runtimeFileCount": 27,
+    "developmentRuntimeMatches": "all 27 files; removed only trailing development sourceMappingURL comment from JS before comparison",
+    "forbiddenTestMarkersAbsent": true,
+    "coreSourceFilesUnchangedFromSigned023": 24,
+    "requiredPermissionsUnchanged": true,
+    "optionalPermissions": [
+      "bookmarks"
+    ],
+    "addonId": "atlas-development@atlas.invalid",
+    "artifacts": {
+      "atlas-0.2.4-unsigned.zip": {
+        "sha256": "37e7d4c7ba05c2ed1389ad31918745c306e998f833dc80c29dfb6433b69cf0e0",
+        "bytes": 1599046,
+        "byteIdenticalReviewerRebuild": true
+      },
+      "atlas-0.2.4-source.zip": {
+        "sha256": "0a3923e07130d77930f1c0f500a422b2cdb69abbd362f40e488753be6d15a215",
+        "bytes": 2106247,
+        "byteIdenticalReviewerRebuild": true
+      },
+      "release.json": {
+        "sha256": "03f3d9f142e5b2e7db87887704b90c594b000fe596f71f8dfa6f1c5ee716d824",
+        "bytes": 32646,
+        "byteIdenticalReviewerRebuild": true
+      }
+    }
+  },
+  "checks": {
+    "coreTests": {
+      "passed": 249,
+      "failed": 0
+    },
+    "extensionTests": {
+      "passed": 598,
+      "failed": 0
+    },
+    "typescript": "Both packages checked by development and clean reviewer builds",
+    "developmentBuild": "PASS",
+    "releaseValidate": "PASS",
+    "reviewerRebuild": "PASS: clean locked offline npm ci for both packages; runtime and both ZIPs plus receipt byte-identical",
+    "mozillaLint": {
+      "errors": 0,
+      "warnings": 1,
+      "notices": 0,
+      "warning": "KEY_FIREFOX_ANDROID_UNSUPPORTED_BY_MIN_VERSION"
+    },
+    "audit": {
+      "runtime": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      },
+      "developmentToolchain": {
+        "info": 0,
+        "low": 3,
+        "moderate": 1,
+        "high": 2,
+        "critical": 0,
+        "total": 6
+      },
+      "dependencyChanges": false
+    },
+    "previousSignedOfflineVerification": "PASS: signed 0.2.3; exact hashes plus manifest whitespace-only formatting; signature metadata allowlist; no artifact modification",
+    "diffWhitespace": "PASS"
+  },
+  "native": {
+    "upgradeRollback": {
+      "firefox": "159.0.1",
+      "suite": "release-upgrade-rollback",
+      "baseline": "signed 0.2.3",
+      "steps": [
+        {
+          "step": "upgrade",
+          "version": "0.2.4",
+          "policySettingsPinsCategoriesDraftsPreserved": true,
+          "namedPagesPreserved": true,
+          "pendingProposalRequestGrantDeadlinesPreserved": true
+        },
+        {
+          "step": "candidate-restart",
+          "version": "0.2.4",
+          "policySettingsPinsCategoriesDraftsPreserved": true,
+          "namedPagesPreserved": true,
+          "pendingProposalRequestGrantDeadlinesPreserved": true
+        },
+        {
+          "step": "rollback",
+          "version": "0.2.3",
+          "policySettingsPinsCategoriesDraftsPreserved": true,
+          "namedPagesPreserved": true,
+          "pendingProposalRequestGrantDeadlinesPreserved": true
+        }
+      ],
+      "fullFirefoxRestarts": 3,
+      "normalProfileAccessed": false,
+      "signedArtifactsModified": false,
+      "mechanism": "signed baseline plus temporary candidate overlay; restart without overlay restores the original signed baseline, without uninstalling"
+    },
+    "packagedEveryday": {
+      "status": "PASS",
+      "result": "firefox-release-0.2.4/packaged-everyday.json",
+      "baseline": "signed 0.2.3",
+      "rawResultCorrection": "temporaryOverlayRestart has a historical 0.2.2 literal label; command selected signed 0.2.3. Fixture report label corrected after this run, no assertion changes.",
+      "command": "python extension/scripts/firefox_compact_home.py --everyday-only --signed-baseline 0.2.3 --addon-dir extension/release/0.2.4/addon"
+    },
+    "upgradeCommand": "python extension/scripts/firefox-e2e.py --release-upgrade-only --release-baseline-version 0.2.3 --addon-dir extension/release/0.2.4/addon"
+  },
+  "limitations": [
+    "Historical intermittent INTERNAL_ERROR remains unresolved.",
+    "Physical toolbar click and popup keyboard activation not verified by headless Marionette.",
+    "Non-Windows, screen-reader and physical trackpad behavior not independently verified.",
+    "Temporary unsigned overlay upgrade/restart/rollback does not establish eventual permanent signed update behavior.",
+    "Optional bookmark permission may require re-grant after reverting to an older signed baseline; both copies retained.",
+    "No multi-day reliability or broad performance improvement claim."
+  ],
+  "signing": {
+    "command": "npm.cmd --prefix extension run release:sign",
+    "credentials": "WEB_EXT_API_KEY and WEB_EXT_API_SECRET supplied securely by user when ready",
+    "signedOutput": "extension/release/0.2.4/signed/*.xpi",
+    "submitted": false,
+    "signed": false,
+    "deployed": false
+  },
+  "normalProfileAccessed": false,
+  "enterprisePoliciesModified": false,
+  "committedOrPushed": false,
+  "evidenceDirectory": "firefox-release-0.2.4/"
+}

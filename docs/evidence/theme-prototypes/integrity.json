@@ -1,0 +1,32 @@
+{
+  "releaseFilesUnchanged": 438,
+  "protectedFilesUnchanged": 120,
+  "prototypeAssetBytes": 18497,
+  "changedCheckpointFiles": [
+    "docs/themes.md",
+    "extension/dist/lib/ui/theme.js",
+    "extension/dist/lib/ui/ui-text.js",
+    "extension/dist/ui/popup.css",
+    "extension/dist/ui/popup.html",
+    "extension/dist/ui/theme-startup.js",
+    "extension/dist/ui/theme-startup.js.map",
+    "extension/dist/ui/themes/default.css",
+    "extension/scripts/firefox_compact_home.py",
+    "extension/src/ui/assets/popup.css",
+    "extension/src/ui/assets/popup.html",
+    "extension/src/ui/assets/themes/default.css",
+    "extension/src/ui/theme.ts",
+    "extension/src/ui/ui-text.ts",
+    "extension/tests/themes.test.mjs",
+    "extension/tests/visual-contrast.test.mjs",
+    "AGENTS.md",
+    "README.md",
+    "extension/dist/ui/index.html",
+    "extension/dist/ui/main.js",
+    "extension/dist/ui/main.js.map",
+    "extension/dist/ui/style.css",
+    "extension/scripts/verify-bundle.mjs",
+    "extension/src/ui/assets/index.html",
+    "extension/src/ui/assets/style.css"
+  ]
+}

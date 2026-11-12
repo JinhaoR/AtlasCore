@@ -1,0 +1,91 @@
+{
+  "date": "2026-10-30",
+  "version": "0.1.19",
+  "status": "DEVELOPMENT_VERIFIED_NOT_PACKAGED_SIGNED_OR_INSTALLED",
+  "userScope": "First requested change only: Whitelist removals without cooldown.",
+  "semantics": {
+    "operation": "REMOVE_WHITELIST",
+    "eligibility": "Strict subtraction of exact Whitelist/subdomain-root terms; identical Blacklist; matching current base revision.",
+    "successAfterAtomicCommitOnly": true,
+    "additionsAndMixedBatchesStillUseVault": true,
+    "blacklistAndTimingChangesStillUseVault": true,
+    "pendingProposalsFrozenAndBecomeStale": true,
+    "vaultCounterOrMarkerFabricated": false,
+    "unknownOperationsAutomaticallyReplayed": false,
+    "legacyRevisionInvalidationPreserved": true,
+    "receipt": "REMOVAL: verified complete desired policy at next revision, not proof of which writer applied it."
+  },
+  "tests": {
+    "core": 239,
+    "extension": 505,
+    "coreTypecheck": "PASS",
+    "extensionTypecheck": "PASS",
+    "developmentBuild": "PASS",
+    "actualExtensionNpmTest": "PASS",
+    "diffCheck": "PASS"
+  },
+  "nativeRemoval": {
+    "firefox": "159.0",
+    "checks": [
+      "real Sites review removes a loaded custom host and both curated GitHub aliases without Vault or a fabricated proposal marker; Core withdraws the retained page",
+      "full Firefox restart preserves the reduced policy and new receipt; curated migration does not restore removed GitHub hosts",
+      "mixed restore/remove batch stays frozen and unchanged; early confirmation is rejected under the configured Vault wait",
+      "one real wait and explicit confirmation applies the whole mixed batch, preserving settings and Blacklist",
+      "second full restart retains normal Vault receipt compatibility and the committed mixed result"
+    ],
+    "immediateApplyMs": 406.0,
+    "configuredVaultWaitMs": 30000,
+    "fullFirefoxRestarts": 2,
+    "realMixedVaultConfirmations": 1,
+    "policyRevisionBefore": 1,
+    "policyRevisionAfterRemoval": 2,
+    "policyRevisionAfterMixed": 3,
+    "normalProfileAccessed": false,
+    "signedArtifactsModified": false
+  },
+  "nativeScope": {
+    "firefox": "159.0",
+    "checks": [
+      "native checkbox defaults off; explicit current/future-subdomain opt-in is frozen in one batch, waits in real time and changes authority only after explicit confirmation",
+      "exact base, direct child and deeper descendants navigate through Core; manual child Blacklist blocks before HTTP; unrelated tabs and hosts remain Greylist",
+      "background restart reloads scoped policy from real IndexedDB without inventing grants or transferring a Journey",
+      "reopened scope preference is removed after review without another cooldown or fabricated Vault marker; descendants return to Greylist while the exact base remains Whitelisted"
+    ],
+    "backgroundRestarts": 1,
+    "realVaultConfirmations": 1,
+    "immediateScopeRemovals": 1,
+    "policyRevisionBefore": 1,
+    "policyRevisionAfter": 3,
+    "isolatedProfile": true,
+    "normalProfileAccessed": false,
+    "signedArtifactsModified": false
+  },
+  "finalDevelopmentRuntimeSha256": {
+    "THIRD-PARTY-NOTICES.txt": "8be6bc89a814768b7f723979b0c73f67796ad873d2fce129d0050324c54024b9",
+    "background.js": "23b716d92e1625181e2ac8ca4bada96e586620a065f6318f459d4ad6bcf74b9a",
+    "data/stevenblack/NOTICE.md": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291",
+    "data/stevenblack/hosts": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76",
+    "data/stevenblack/license.txt": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b",
+    "data/stevenblack/metadata.json": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f",
+    "data/stevenblack/upstream-readme.md": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69",
+    "journey-indicator.js": "1b41962930ddea09b705fbc8600000f0b09f3b9e051701e827acc5bf26eeec0b",
+    "manifest.json": "828b35cf092a25606bca573a34c104f5fb6a9f10d07f61a56186e66b4996020a",
+    "ui/atlas.svg": "6047e46de52bc6244dbe2d17a6f571578dc630da9610d8cc44581867226a21b9",
+    "ui/index.html": "40af5167c02a0fd039181564f8666d5389a5cf3f966ab052c51377e91aea2bab",
+    "ui/main.js": "671f4ebeb6dd091f39dd42dd4bf06106120338074383c337b1ab09eb6eff5a9b",
+    "ui/site.svg": "01fff6d53bd89016708e9d52709f975e44273a076c5b036251250c6bc9222cad",
+    "ui/style.css": "261bbf842d4d94f5c855a0506044fee7481713fce322387dc3706bce0ffb2806"
+  },
+  "integrity": {
+    "frozenReleaseFilesChecked": 114,
+    "changed": [],
+    "normalProfileAccessed": false,
+    "firefoxPoliciesChanged": false,
+    "packagingSigningSubmissionDeploymentPerformed": false
+  },
+  "limits": [
+    "Windows Firefox159 synthetic/local-server profiles; no new macOS or real-account claims.",
+    "Final build follows wording-only help-note alignment; tested Core and interaction logic is unchanged.",
+    "The unrelated idle INTERNAL_ERROR trigger remains unidentified; this change does not claim to fix it."
+  ]
+}

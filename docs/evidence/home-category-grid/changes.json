@@ -1,0 +1,166 @@
+[
+  {
+    "path": "extension/src/ui/bookmark-sync.ts",
+    "change": "modified"
+  },
+  {
+    "path": "extension/src/ui/home-layout-session.ts",
+    "change": "modified"
+  },
+  {
+    "path": "extension/src/ui/home-layout.ts",
+    "change": "modified"
+  },
+  {
+    "path": "extension/src/ui/home-organization.ts",
+    "change": "modified"
+  },
+  {
+    "path": "extension/src/ui/home-shortcuts.ts",
+    "change": "modified"
+  },
+  {
+    "path": "extension/src/ui/home-workspace.ts",
+    "change": "modified"
+  },
+  {
+    "path": "extension/src/ui/main.ts",
+    "change": "modified"
+  },
+  {
+    "path": "extension/src/ui/settings-navigation.ts",
+    "change": "modified"
+  },
+  {
+    "path": "extension/src/ui/assets/index.html",
+    "change": "modified"
+  },
+  {
+    "path": "extension/src/ui/assets/style.css",
+    "change": "modified"
+  },
+  {
+    "path": "extension/tests/home-organization.test.mjs",
+    "change": "modified"
+  },
+  {
+    "path": "extension/tests/home-shortcuts.test.mjs",
+    "change": "modified"
+  },
+  {
+    "path": "extension/tests/home-workspace.test.mjs",
+    "change": "modified"
+  },
+  {
+    "path": "extension/tests/management-navigation.test.mjs",
+    "change": "modified"
+  },
+  {
+    "path": "extension/scripts/firefox_compact_home.py",
+    "change": "modified"
+  },
+  {
+    "path": "extension/scripts/firefox_everyday.py",
+    "change": "modified"
+  },
+  {
+    "path": "extension/dist/background.js.map",
+    "change": "modified"
+  },
+  {
+    "path": "extension/dist/ui/index.html",
+    "change": "modified"
+  },
+  {
+    "path": "extension/dist/ui/main.js",
+    "change": "modified"
+  },
+  {
+    "path": "extension/dist/ui/main.js.map",
+    "change": "modified"
+  },
+  {
+    "path": "extension/dist/ui/style.css",
+    "change": "modified"
+  },
+  {
+    "path": "extension/dist/lib/ui/bookmark-sync.js",
+    "change": "modified"
+  },
+  {
+    "path": "extension/dist/lib/ui/home-layout-session.js",
+    "change": "modified"
+  },
+  {
+    "path": "extension/dist/lib/ui/home-layout.js",
+    "change": "modified"
+  },
+  {
+    "path": "extension/dist/lib/ui/home-organization.js",
+    "change": "modified"
+  },
+  {
+    "path": "extension/dist/lib/ui/home-shortcuts.js",
+    "change": "modified"
+  },
+  {
+    "path": "extension/dist/lib/ui/home-workspace.js",
+    "change": "modified"
+  },
+  {
+    "path": "extension/dist/lib/ui/main.js",
+    "change": "modified"
+  },
+  {
+    "path": "extension/dist/lib/ui/settings-navigation.js",
+    "change": "modified"
+  },
+  {
+    "path": "docs/acceptance-tests.md",
+    "change": "modified"
+  },
+  {
+    "path": "docs/architecture.md",
+    "change": "modified"
+  },
+  {
+    "path": "docs/everyday-controls.md",
+    "change": "modified"
+  },
+  {
+    "path": "docs/firefox-backup.md",
+    "change": "modified"
+  },
+  {
+    "path": "docs/firefox-privacy.md",
+    "change": "modified"
+  },
+  {
+    "path": "docs/home-organization.md",
+    "change": "modified"
+  },
+  {
+    "path": "docs/ui-stability.md",
+    "change": "modified"
+  },
+  {
+    "path": "AGENTS.md",
+    "change": "modified"
+  },
+  {
+    "path": "README.md",
+    "change": "modified"
+  },
+  {
+    "path": "extension/src/ui/category-icons.ts",
+    "change": "added"
+  },
+  {
+    "path": "extension/tests/category-icons.test.mjs",
+    "change": "added"
+  },
+  {
+    "path": "extension/scripts/firefox_category_grid.py",
+    "change": "added"
+  }
+]

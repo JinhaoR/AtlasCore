@@ -1,0 +1,38 @@
+{
+  "changed": [
+    "extension/manifest.json",
+    "extension/src/adapter/firefox-adapter.ts",
+    "extension/src/background/main.ts",
+    "extension/src/ui/assets/index.html",
+    "extension/src/ui/assets/style.css",
+    "extension/src/ui/bookmark-editor.ts",
+    "extension/src/ui/data-view.ts",
+    "extension/src/ui/destination-change-view.ts",
+    "extension/src/ui/destination-draft.ts",
+    "extension/src/ui/destination-editor.ts",
+    "extension/src/ui/home-bookmarks.ts",
+    "extension/src/ui/home-layout-session.ts",
+    "extension/src/ui/home-layout-storage.ts",
+    "extension/src/ui/home-organization.ts",
+    "extension/src/ui/home-pins.ts",
+    "extension/src/ui/home-workspace.ts",
+    "extension/src/ui/main.ts",
+    "extension/src/ui/presentation.ts",
+    "extension/src/ui/settings-model.ts",
+    "extension/src/ui/sites.ts",
+    "extension/src/ui/subdomain-scope.ts"
+  ],
+  "added": [
+    "extension/src/adapter/toolbar.ts",
+    "extension/src/bookmarks/model.ts",
+    "extension/src/bookmarks/owner.ts",
+    "extension/src/ui/bookmark-sync.ts",
+    "extension/src/ui/pin-status.ts",
+    "extension/src/ui/popup.ts",
+    "extension/src/ui/presentation-client.ts",
+    "extension/src/ui/search-prefill.ts",
+    "extension/src/ui/startup.ts",
+    "extension/src/ui/assets/popup.css",
+    "extension/src/ui/assets/popup.html"
+  ]
+}

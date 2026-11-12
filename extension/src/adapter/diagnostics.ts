@@ -1,4 +1,17 @@
-import type { Journey, JourneyContinuation } from '@atlas/core';
+import type { AtlasControllerView, AtlasControllerFault, Journey, JourneyContinuation } from '@atlas/core';
+import type { RepositoryDiagnostics } from '../storage/indexeddb-repository.js';
+
+/** One retained explanation per background lifetime; never authority or a retry instruction. */
+export interface AuthorityInterruption {
+  readonly status: 'UNAVAILABLE' | 'RECONCILING';
+  readonly reason: NonNullable<AtlasControllerView['reason']>;
+  readonly observedAt: number | null;
+  readonly checkpointAt: number | null;
+  /** Latest known storage observation, not proof it caused this interruption. */
+  readonly latestStorageFailure: RepositoryDiagnostics['lastFailure'];
+  /** Only attached when the fault matches this interruption, never an older unrelated record. */
+  readonly internalFault?: AtlasControllerFault;
+}
 
 export interface DiagnosticEntry {
   readonly sequence: number;

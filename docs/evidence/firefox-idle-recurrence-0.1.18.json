@@ -1,0 +1,512 @@
+{
+  "date": "2026-10-29",
+  "developmentVersion": "0.1.18",
+  "userReport": {
+    "installedVersion": "0.1.17",
+    "reportedIdle": true,
+    "recoveredBeforeReasonCollected": true,
+    "readTransactions": 344940,
+    "writeTransactions": 172469,
+    "committedSnapshots": 172469,
+    "failedCommits": 0,
+    "reportedVisibleLastStorageIssue": false,
+    "originalControllerReasonKnown": false,
+    "actualCauseConfirmed": false,
+    "normalProfileInspected": false
+  },
+  "findings": {
+    "readAbortLatchReproducedInSigned017": true,
+    "userIncidentAttributedToReadAbort": false,
+    "clockRollbackReproducedSeparately": true,
+    "userIncidentAttributedToClock": false,
+    "receiptGrowthIsConfirmedCause": false
+  },
+  "fix": {
+    "sameCoreOwner": true,
+    "oneBoundedReadOrWriteRecovery": true,
+    "actualTransactionAbortRequired": true,
+    "noPendingUnknownCommit": true,
+    "noConfirmationReplay": true,
+    "invalidLoadReplacesStaleFailureDiagnostic": true,
+    "lastAuthorityReasonRetainedAcrossRecovery": true,
+    "retention": "one memory-only record per background lifetime",
+    "historicalStorageField": "latestStorageFailure is contextual, not proof of causation",
+    "optionalDiagnosticGetterIsolation": true,
+    "clockSamplingRollbackAndManualRecoveryUnchanged": true
+  },
+  "nativeBefore": {
+    "firefox": "159.0",
+    "suite": "storage-reliability",
+    "baseline": true,
+    "readBaseline": true,
+    "checks": [
+      "steady browsing uses real persisted checkpoints; ordinary loads use readonly transactions",
+      "one readonly LOAD abort reproduces the 0.1.17 unavailable latch and three tab removals with zero failed commits; explicit Recovery restores authority"
+    ],
+    "observations": [
+      {
+        "case": "five-second-steady-browsing",
+        "reads": 40,
+        "writes": 20
+      },
+      {
+        "case": "native-readonly-abort-before-fix",
+        "status": "UNAVAILABLE",
+        "reason": "STORAGE_UNAVAILABLE",
+        "storage": {
+          "readTransactions": 135,
+          "writeTransactions": 66,
+          "committedWrites": 66,
+          "failedCommits": 0,
+          "lastFailure": {
+            "sequence": 1,
+            "operation": "LOAD",
+            "stage": "TRANSACTION_ABORT",
+            "cause": "ABORTED"
+          }
+        },
+        "policyRetained": true
+      }
+    ]
+  },
+  "nativeAfter": {
+    "firefox": "159.0",
+    "suite": "storage-reliability",
+    "baseline": false,
+    "checks": [
+      "steady browsing uses real persisted checkpoints; ordinary loads use readonly transactions",
+      "one real readonly LOAD abort recovers before three Whitelist tabs are replaced; diagnostics retains the read failure",
+      "one native abort recovers through verified Core open before any Whitelist tab is replaced",
+      "real Greylist grant and frozen Vault proposal keep exact timestamps and policy across abort recovery",
+      "readonly LOAD recovery preserves exact grant/proposal terms and does not replay confirmation",
+      "persistent abort performs at most one automatic recovery and then withholds browsing without a retry loop",
+      "explicit Recovery remains usable after the bounded automatic attempt fails",
+      "persistent readonly abort receives one recovery load and remains closed without a retry loop",
+      "explicit Recovery restores verified authority after a persistent readonly failure clears",
+      "quota failure stays closed, reports a safe cause and retains saved authority without resetting or automatic retry",
+      "recovered authority still enforces the existing explicit Blacklist",
+      "clock rollback stays closed and its retained reason survives explicit Recovery, UI rendering and diagnostics export"
+    ],
+    "observations": [
+      {
+        "case": "five-second-steady-browsing",
+        "reads": 40,
+        "writes": 20
+      },
+      {
+        "case": "native-readonly-abort-after-fix",
+        "status": "READY",
+        "storage": {
+          "readTransactions": 188,
+          "writeTransactions": 93,
+          "committedWrites": 92,
+          "failedCommits": 0,
+          "lastFailure": {
+            "sequence": 1,
+            "operation": "LOAD",
+            "stage": "TRANSACTION_ABORT",
+            "cause": "ABORTED"
+          }
+        }
+      },
+      {
+        "case": "native-abort-after-fix",
+        "status": "READY",
+        "storage": {
+          "readTransactions": 239,
+          "writeTransactions": 119,
+          "committedWrites": 117,
+          "failedCommits": 1,
+          "lastFailure": {
+            "sequence": 2,
+            "operation": "COMMIT",
+            "stage": "TRANSACTION_ABORT",
+            "cause": "ABORTED"
+          }
+        }
+      },
+      {
+        "case": "persistent-readonly-abort",
+        "status": "UNAVAILABLE",
+        "reason": "STORAGE_UNAVAILABLE",
+        "storage": {
+          "readTransactions": 520,
+          "writeTransactions": 259,
+          "committedWrites": 254,
+          "failedCommits": 4,
+          "lastFailure": {
+            "sequence": 8,
+            "operation": "LOAD",
+            "stage": "TRANSACTION_ABORT",
+            "cause": "ABORTED"
+          }
+        }
+      },
+      {
+        "case": "quota-failure",
+        "storage": {
+          "readTransactions": 553,
+          "writeTransactions": 276,
+          "committedWrites": 270,
+          "failedCommits": 5,
+          "lastFailure": {
+            "sequence": 9,
+            "operation": "COMMIT",
+            "stage": "TRANSACTION_ABORT",
+            "cause": "QUOTA_EXCEEDED"
+          }
+        },
+        "status": "UNAVAILABLE"
+      },
+      {
+        "case": "clock-rollback-observability",
+        "status": "UNAVAILABLE",
+        "reason": "CLOCK_ROLLBACK",
+        "authorityInterruption": {
+          "status": "UNAVAILABLE",
+          "reason": "CLOCK_ROLLBACK",
+          "observedAt": 1793301363745,
+          "checkpointAt": 1793301367791,
+          "latestStorageFailure": {
+            "sequence": 9,
+            "operation": "COMMIT",
+            "stage": "TRANSACTION_ABORT",
+            "cause": "QUOTA_EXCEEDED"
+          }
+        }
+      }
+    ]
+  },
+  "nativeUI": {
+    "firefox": "159.0",
+    "suite": "ui-stability-interactions",
+    "checks": [
+      "usage reordering retains the exact card, focused entry-point selector, selected hostname and open disclosure",
+      "retained entry-point selection sends the exact adapter command; this fixture withholds the external browser effect",
+      "120 identical storage notifications leave destination structure and attributes unchanged",
+      "an out-of-order failed poll cannot overwrite a newer verified operation or the active draft/caret",
+      "failed authority retains work/focus, disables launchers and read-only retries retain one timer before recovery",
+      "late diagnostics from a previous scope cannot replace newer results",
+      "failed layout saves retain unsaved work and recover only after acknowledged retry",
+      "actual Firefox toolbar activation reuses Sites without reloading or discarding the persistent editor",
+      "passive Journey indicator retains host/label for 60 seconds, mutates only countdown text and keeps its fixed Core deadline"
+    ],
+    "observations": [
+      {
+        "case": "usage-entry-point",
+        "cardSame": true,
+        "oldConnected": true,
+        "open": true,
+        "selected": "canvas.instructure.com",
+        "headingSame": true,
+        "focusSame": true
+      },
+      {
+        "case": "unchanged-storage-notifications",
+        "mutations": 3,
+        "attributes": 0,
+        "redundantAttributes": 0,
+        "childList": 3,
+        "added": 3,
+        "removed": 3,
+        "replacements": {},
+        "writes": {},
+        "regions": {
+          "diagnostics": 3
+        },
+        "messages": {
+          "GET_VIEW": 3
+        },
+        "creates": 0,
+        "layoutReads": 0,
+        "timerCreated": 3,
+        "timerFired": 2,
+        "activeTimers": 1,
+        "maxTimers": 1
+      },
+      {
+        "case": "retry-timer-ownership",
+        "mutations": 22,
+        "attributes": 22,
+        "redundantAttributes": 11,
+        "childList": 0,
+        "added": 0,
+        "removed": 0,
+        "replacements": {},
+        "writes": {},
+        "regions": {
+          "other": 22
+        },
+        "messages": {
+          "GET_VIEW": 11
+        },
+        "creates": 0,
+        "layoutReads": 0,
+        "timerCreated": 11,
+        "timerFired": 5,
+        "activeTimers": 1,
+        "maxTimers": 1
+      },
+      {
+        "case": "passive-indicator",
+        "seconds": 60.03,
+        "samples": [
+          {
+            "stats": {
+              "attributes": 0,
+              "childList": 3,
+              "added": 3,
+              "removed": 3
+            },
+            "hidden": false,
+            "probeClear": null,
+            "actualExists": true,
+            "hostStable": true,
+            "labelStable": true,
+            "time": "4:57"
+          },
+          {
+            "stats": {
+              "attributes": 0,
+              "childList": 7,
+              "added": 7,
+              "removed": 7
+            },
+            "hidden": false,
+            "probeClear": null,
+            "actualExists": true,
+            "hostStable": true,
+            "labelStable": true,
+            "time": "4:51"
+          },
+          {
+            "stats": {
+              "attributes": 0,
+              "childList": 10,
+              "added": 10,
+              "removed": 10
+            },
+            "hidden": false,
+            "probeClear": null,
+            "actualExists": true,
+            "hostStable": true,
+            "labelStable": true,
+            "time": "4:47"
+          },
+          {
+            "stats": {
+              "attributes": 0,
+              "childList": 14,
+              "added": 14,
+              "removed": 14
+            },
+            "hidden": false,
+            "probeClear": null,
+            "actualExists": true,
+            "hostStable": true,
+            "labelStable": true,
+            "time": "4:41"
+          },
+          {
+            "stats": {
+              "attributes": 0,
+              "childList": 19,
+              "added": 19,
+              "removed": 19
+            },
+            "hidden": false,
+            "probeClear": null,
+            "actualExists": true,
+            "hostStable": true,
+            "labelStable": true,
+            "time": "4:36"
+          },
+          {
+            "stats": {
+              "attributes": 0,
+              "childList": 22,
+              "added": 22,
+              "removed": 22
+            },
+            "hidden": false,
+            "probeClear": null,
+            "actualExists": true,
+            "hostStable": true,
+            "labelStable": true,
+            "time": "4:32"
+          },
+          {
+            "stats": {
+              "attributes": 0,
+              "childList": 27,
+              "added": 27,
+              "removed": 27
+            },
+            "hidden": false,
+            "probeClear": null,
+            "actualExists": true,
+            "hostStable": true,
+            "labelStable": true,
+            "time": "4:26"
+          },
+          {
+            "stats": {
+              "attributes": 0,
+              "childList": 31,
+              "added": 31,
+              "removed": 31
+            },
+            "hidden": false,
+            "probeClear": null,
+            "actualExists": true,
+            "hostStable": true,
+            "labelStable": true,
+            "time": "4:21"
+          },
+          {
+            "stats": {
+              "attributes": 0,
+              "childList": 35,
+              "added": 35,
+              "removed": 35
+            },
+            "hidden": false,
+            "probeClear": null,
+            "actualExists": true,
+            "hostStable": true,
+            "labelStable": true,
+            "time": "4:16"
+          },
+          {
+            "stats": {
+              "attributes": 0,
+              "childList": 39,
+              "added": 39,
+              "removed": 39
+            },
+            "hidden": false,
+            "probeClear": null,
+            "actualExists": true,
+            "hostStable": true,
+            "labelStable": true,
+            "time": "4:12"
+          },
+          {
+            "stats": {
+              "attributes": 0,
+              "childList": 43,
+              "added": 43,
+              "removed": 43
+            },
+            "hidden": false,
+            "probeClear": null,
+            "actualExists": true,
+            "hostStable": true,
+            "labelStable": true,
+            "time": "4:06"
+          },
+          {
+            "stats": {
+              "attributes": 0,
+              "childList": 48,
+              "added": 48,
+              "removed": 48
+            },
+            "hidden": false,
+            "probeClear": null,
+            "actualExists": true,
+            "hostStable": true,
+            "labelStable": true,
+            "time": "4:01"
+          }
+        ]
+      }
+    ]
+  },
+  "automated": {
+    "core": 204,
+    "extension": 430,
+    "focusedStorageTests": 31,
+    "newRegressions": 14,
+    "failed": 0,
+    "skipped": 0,
+    "coreTypecheck": true,
+    "extensionTypecheck": true,
+    "developmentBuild": true,
+    "diffCheck": true
+  },
+  "runtimeHashesBefore": {
+    "THIRD-PARTY-NOTICES.txt": "8be6bc89a814768b7f723979b0c73f67796ad873d2fce129d0050324c54024b9",
+    "background.js": "39e33b243fbe23a3ba2ad9fda92f77738d997d8ad676b20debd58005f2325806",
+    "data/stevenblack/NOTICE.md": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291",
+    "data/stevenblack/hosts": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76",
+    "data/stevenblack/license.txt": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b",
+    "data/stevenblack/metadata.json": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f",
+    "data/stevenblack/upstream-readme.md": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69",
+    "journey-indicator.js": "1b41962930ddea09b705fbc8600000f0b09f3b9e051701e827acc5bf26eeec0b",
+    "manifest.json": "0e9b6c9c570ad4defe3feb1a2981035719036d776b80bae20abec706d2a321c3",
+    "ui/atlas.svg": "6047e46de52bc6244dbe2d17a6f571578dc630da9610d8cc44581867226a21b9",
+    "ui/index.html": "5a19a35a39afdb9ae476a10569664fd8b4d0289d093f1d9e83938713ecdb7695",
+    "ui/main.js": "ef38d49b55f51325a8985157133e7c0267396c798dfe3b3779c929d31b51695a",
+    "ui/site.svg": "01fff6d53bd89016708e9d52709f975e44273a076c5b036251250c6bc9222cad",
+    "ui/style.css": "261bbf842d4d94f5c855a0506044fee7481713fce322387dc3706bce0ffb2806"
+  },
+  "runtimeHashesAfter": {
+    "THIRD-PARTY-NOTICES.txt": "8be6bc89a814768b7f723979b0c73f67796ad873d2fce129d0050324c54024b9",
+    "background.js": "7a46ef0f824b965704be49c2e53b7a4c0977cb47c96bea1422083d057d5dcd5a",
+    "data/stevenblack/NOTICE.md": "adbbbc147ea274ce89d6066af1eb441ec3fda277e62cfde60d39e1c5a8cef291",
+    "data/stevenblack/hosts": "c54506e4740c11319ae65377cbc5bc7310f3e4b38edd2770f3983feb00572b76",
+    "data/stevenblack/license.txt": "8e52717212b5051232dd31fb2247310bd91d5295eaab380dbea6454d0268443b",
+    "data/stevenblack/metadata.json": "1614de95a1025ebfe9974c86bbb56f0fe02c332bc48d8fe2b57fba62e8442b0f",
+    "data/stevenblack/upstream-readme.md": "72ee024f0b9dc7060d28e5f54133d2b2d3fbab12c6ac90719a3f2540f5e57a69",
+    "journey-indicator.js": "1b41962930ddea09b705fbc8600000f0b09f3b9e051701e827acc5bf26eeec0b",
+    "manifest.json": "0e9b6c9c570ad4defe3feb1a2981035719036d776b80bae20abec706d2a321c3",
+    "ui/atlas.svg": "6047e46de52bc6244dbe2d17a6f571578dc630da9610d8cc44581867226a21b9",
+    "ui/index.html": "5a19a35a39afdb9ae476a10569664fd8b4d0289d093f1d9e83938713ecdb7695",
+    "ui/main.js": "41413d89a4bbd0782970a642729bbe84466a9ef98603a0d32468c3b17ef22199",
+    "ui/site.svg": "01fff6d53bd89016708e9d52709f975e44273a076c5b036251250c6bc9222cad",
+    "ui/style.css": "261bbf842d4d94f5c855a0506044fee7481713fce322387dc3706bce0ffb2806"
+  },
+  "integrity": {
+    "preservedCoreSourceFiles": 23,
+    "preservedSignedReleaseFiles": 95,
+    "all118HashesMatch": true,
+    "preservedHashEvidence": "curated-expansion-2026-10.json",
+    "signedVersionsVerifiedOffline": [
+      "0.1.13",
+      "0.1.14",
+      "0.1.15",
+      "0.1.16",
+      "0.1.17"
+    ],
+    "coreSourceChanged": false,
+    "authorizationSemanticsChanged": false,
+    "versionIdentityOrPermissionsChangedDuringFollowUp": false,
+    "domainSchemaChanged": false,
+    "newDependencies": false,
+    "signedArtifactsModified": false,
+    "normalProfileAccessed": false,
+    "enterprisePoliciesChanged": false,
+    "mozillaSubmission": false,
+    "releasePackagedOrDeployed": false
+  },
+  "testNotes": [
+    "Native failures are injected only in isolated Firefox 159.0 profiles; no production test hooks.",
+    "Independent injected incidents are separated by two advancing full retained-tab assessment passes; the runtime recovery budget is not weakened.",
+    "One exploratory readiness timeout preceded the incident-separation barrier and diagnostic failure capture; its actual reason was not captured and is not attributed. The final complete native run passes.",
+    "Native clock test changes only its disposable background Date.now and restores it in finally; it does not change Windows time.",
+    "No usable clock-change event was obtained from the local development Windows event query; this is not evidence identifying the user incident."
+  ],
+  "limitations": [
+    "Original recovered incident has no saved controller reason; no exact diagnosis or universal-fix claim.",
+    "Clock rollback remains fail closed and requires existing explicit Recovery once valid time is available.",
+    "A full background restart clears the memory-only interruption record.",
+    "Native Windows synthetic fixtures do not establish macOS, live-account or physical crash durability.",
+    "No change is installed merely by building development 0.1.18."
+  ],
+  "temporaryArtifacts": {
+    "disposableProfilesCleaned": 5,
+    "testRuntimeCopyCleaned": true,
+    "sanitizedEvidenceRetained": true
+  }
+}

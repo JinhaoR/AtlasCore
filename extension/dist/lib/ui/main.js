@@ -1,101 +1,88 @@
+import { initializeBookmarkSync } from './bookmark-sync.js';
+import { presentationView, setPin } from './presentation-client.js';
+import { initializeHomeShortcuts } from './home-shortcuts.js';
+import { initializeHomePins } from './home-pins.js';
+import { pinAccessStatus } from './pin-status.js';
+import { initializeSettingsNavigation } from './settings-navigation.js';
+import { viewportScrollSurface } from './viewport-scroll.js';
+import { initializeDiagnosticsPanel } from './diagnostics-panel.js';
 import { destinationIndex, policyDestinationIndex, searchDestinationTargets } from './destinations.js';
-import { categoryKey } from './categories.js';
-import { displayedHomeCategories, homeCategories } from './home-layout.js';
+import { homeCategories } from './home-layout.js';
 import { initializeHomeOrganization } from './home-organization.js';
-import { homeAccessSummary } from './home-access.js';
+import { initializeHomeGreylist } from './home-greylist.js';
 import { atlasPage, navigationMemory } from './navigation-state.js';
 import { readVerifiedController } from './verified-view.js';
 import { collectionPresentation, hasCommittedCollection } from './data-view.js';
 import { actionFeedback, renderFeedback } from './feedback.js';
-import { savePresentation } from './presentation-storage.js';
-import { destinationEntryPoints, destinationId, pinnedDestinations, readPins, updateDestinationPin } from './home-model.js';
-import { usagePreferencesKey as destinationUsageKey, readDestinationUsage, rankDestinations } from './destination-usage.js';
+import { destinationId, pinnedDestinations, readPins, updateDestinationPin } from './home-model.js';
 import { initializeSites } from './sites.js';
-import { loadWebsiteIcon } from './website-icons.js';
-import { accessCopy, accessOutcomeLabel, canQueueOperation, countdown, journeyEndCopy, selectedAccessRecord, selectedContext, startupCopy, storageDiagnosticsCopy, storageFailureCopy } from './presentation.js';
-import { configurationFromDraft, settingsCopy, timingFields } from './settings-model.js';
+import { initializeDestinationCards, icon } from './destination-cards.js';
+import { authorityInterruptionCopy, canQueueOperation, countdown, selectedContext, startupCopy, storageFailureCopy } from './presentation.js';
+import { configurationFromDraft, createPresetCoverage, settingsCopy, timingFields } from './settings-model.js';
 import { compileCuratedWhitelist, curatedWhitelist, serviceLabel } from '../presets/curated-whitelist.js';
-import { reconcileChildren, setAttribute, setProperty } from './dom.js';
+import {} from '@atlas/core';
+import { setAttribute, setProperty } from './dom.js';
 import { RefreshLoop } from './refresh-loop.js';
 import { matchingReview, needsPolicyReview } from './vault-presentation.js';
 const element = (id) => document.getElementById(id);
 const text = (id, value) => { const node = element(id); if (node.textContent !== value)
     setProperty(node, 'textContent', value); };
-const select = element('context');
 const params = new URL(location.href).searchParams;
 const navigation = navigationMemory({ getItem: key => sessionStorage.getItem(key), setItem: (key, value) => sessionStorage.setItem(key, value) });
-let selected = params.get('tab') ?? navigation.value().tab;
+// Tab identity belongs to explicit access details, never to a Home launcher.
+let selected = (((!location.hash && params.get('view') === 'access') || location.hash === '#access') ? params.get('tab') : null) ?? '';
 let view = null;
 let lastVerifiedPolicy;
 let queryAttempted = false;
 let busy = false;
 let disposed = false;
+let renderQueued = false;
+/** Several field/session callbacks can describe the same event-loop state. */
+function requestRender() {
+    if (disposed || renderQueued)
+        return;
+    renderQueued = true;
+    queueMicrotask(() => { if (renderQueued && !disposed) {
+        renderQueued = false;
+        render();
+    } });
+}
 let epoch = 0;
 const preparingScopes = new Set();
-let optionsKey = '';
 let destinationsKey = '';
-let diagnosticKey = '';
-let diagnosticEpoch = 0;
-let diagnosticRequest = null;
 let policyReview = null;
 let policyReviewError = '';
 let page = atlasPage(location.hash.slice(1)) ?? (params.get('view') === 'access' ? 'access' : 'home');
 let section = page === 'vault' ? 'settings' : page === 'access' ? 'home' : page;
-let accessFocused = page === 'access';
+if (page === 'access')
+    page = 'home';
 let settingsKey = '';
-let displayedProposalId = null;
 let entries = [];
 let matches = [];
 let searchKey = '';
 let searchInputsKey = '';
 let highlighted = -1;
+let searchOpen = false;
+let searchActions = [];
 const pinsStorageKey = 'atlas-home-pins-v1';
 let pins = [];
 let pinsLoaded = false;
 let savingPins = false;
-let pinnedKey = '';
 let reviewKey = '';
-const temporaryRows = new Map();
+const homeGreylist = initializeHomeGreylist({ send, prepare: prepareScope, label: serviceLabel, dismiss: dismissGreylist });
 let homeCatalog = [];
-let layoutDirty = true;
-let usage = {};
-const expandedCategories = new Set();
-const homeGroups = new Map();
 const searchInput = element('destination-search');
-const websiteIcons = new Map();
-const observedIcons = new Map();
-const iconSnapshot = browser.tabs.query({}).then((tabs) => {
-    for (const tab of tabs)
-        if (tab.url && tab.favIconUrl) {
-            try {
-                const hostname = new URL(tab.url).hostname;
-                if (!observedIcons.has(hostname))
-                    observedIcons.set(hostname, tab.favIconUrl);
-            }
-            catch { /* No website metadata. */ }
-        }
-}).catch(() => { });
-const iconObserver = new IntersectionObserver((changes) => {
-    for (const change of changes)
-        if (change.isIntersecting) {
-            iconObserver.unobserve(change.target);
-            const image = change.target;
-            void displayWebsiteIcon(image, image.dataset.hostname);
-        }
-}, { rootMargin: '160px' });
+const destinationCards = initializeDestinationCards({ open: url => send({ kind: 'OPEN_DESTINATION', url }), togglePin });
+const homePins = initializeHomePins({ siteMark: destinationCards.siteMark, open: url => send({ kind: 'OPEN_DESTINATION', url }), togglePin, changed: requestRender,
+    status: url => pinAccessStatus(view, url, Date.now()) });
+const bookmarkSync = initializeBookmarkSync(requestRender);
+const diagnosticPanel = initializeDiagnosticsPanel({ visible: () => page === 'settings' && !element('diagnostics').hidden, selected: () => selected, feedback });
+const settingsNavigation = initializeSettingsNavigation({ initial: history.state?.atlasSettings,
+    remember: () => { if (page === 'settings')
+        history.pushState(historyData(), '', '#settings'); requestRender(); } });
 const presetHostnames = compileCuratedWhitelist().whitelist;
-const buildVersion = document.createElement('p');
-buildVersion.id = 'build-version';
-buildVersion.className = 'note';
-setProperty(buildVersion, 'textContent', `Atlas extension ${browser.runtime.getManifest().version}`);
-element('diagnostics').append(buildVersion);
-const storageDiagnostic = document.createElement('p');
-storageDiagnostic.id = 'storage-diagnostic';
-storageDiagnostic.className = 'note';
-element('diagnostics').append(storageDiagnostic);
-element('diagnostics').append(element('startup-diagnostic'));
-element('diagnostics').append(element('action-diagnostic'));
-setProperty(document.body.dataset, 'mode', params.get('view') === 'access' ? 'access' : 'control');
+const presetCoverage = createPresetCoverage(presetHostnames);
+setProperty(document.body.dataset, 'mode', 'control');
 element('preset-preview').replaceChildren(...curatedWhitelist.map((group) => {
     const detail = document.createElement('details');
     detail.className = 'preset-group';
@@ -106,17 +93,14 @@ element('preset-preview').replaceChildren(...curatedWhitelist.map((group) => {
     detail.append(summary, content);
     return detail;
 }));
-if (document.body.dataset.mode === 'access') {
-    setProperty(element('page-title'), 'textContent', 'A moment for your next step.');
-    setProperty(element('page-description'), 'textContent', 'Your destination is waiting. You decide whether to continue.');
-}
 function feedback(message, tone = 'status') {
     renderFeedback(element('feedback'), { message, tone });
+    element('feedback').dataset.source = '';
     syncSiteFeedback();
 }
 function syncSiteFeedback() {
     const local = element('site-save-feedback'), global = element('feedback');
-    setProperty(local, 'hidden', !local.textContent || section !== 'sites' || !global.hidden && local.textContent === global.textContent);
+    setProperty(local, 'hidden', !local.textContent || section !== 'sites' || !element('sites-editor').open && !global.hidden && local.textContent === global.textContent);
 }
 async function send(command) {
     if (busy)
@@ -130,8 +114,6 @@ async function send(command) {
             view = response.view;
         policyReview = matchingReview(view?.controller, policyReview);
         policyReviewError = '';
-        if (response?.tabId !== undefined && (response?.result?.type === 'COMMITTED' || response?.opened === true))
-            selected = String(response.tabId);
         const result = actionFeedback(command.kind, response);
         renderFeedback(element('feedback'), result);
         text('action-diagnostic', result.detail ? `Last action: ${result.detail}` : '');
@@ -165,11 +147,48 @@ function prepareScope(context) {
     }).catch(() => { })
         .finally(() => { preparingScopes.delete(key); });
 }
+function dismissGreylist(contextId, navigationId) {
+    const context = view?.contexts.find(c => String(c.tabId) === selected);
+    if (context?.contextId !== contextId || context.navigationId !== navigationId)
+        return;
+    selected = '';
+    // Clear the intercepted route too, so reloading Home cannot resurrect the
+    // cancelled prompt. A new explicit navigation can still request access normally.
+    const url = new URL(location.href);
+    url.searchParams.delete('tab');
+    url.searchParams.delete('view');
+    history.replaceState(history.state, '', url);
+    requestRender();
+}
 const sites = initializeSites({
-    controller: () => view?.controller, pins: () => pins, propose: send, vault: () => navigate('vault', true), feedback,
+    initialView: history.state?.atlasSitesView,
+    initialDirectory: history.state?.atlasSitesDirectory,
+    directoryChanged: () => { if (page === 'sites')
+        history.pushState(historyData(), '', '#sites'); },
+    categoryIcon: (key, label) => homeOrganization.icon(key, label),
+    categoryOrder: () => homeOrganization.orderKeys(),
+    categoryOrderMode: () => homeOrganization.orderMode(),
+    renderCategories: groups => renderDirectoryCategories(groups, null, homeOrganization.canMove()),
+    initialSelection: history.state?.atlasSitesSelection,
+    viewChanged: () => { if (page === 'sites')
+        history.pushState(historyData(), '', '#sites'); },
+    siteMark: destinationCards.siteMark,
+    controller: () => view?.controller, pins: () => presentationView()?.pins ?? pins, propose: send, vault: () => navigate('vault', true),
+    feedback: (message, tone = 'status') => {
+        // Routine local draft progress belongs beside the workspace; actionable
+        // failures still use the shared error surface and retain retry controls.
+        if (tone === 'error' || tone === 'uncertain') {
+            feedback(message, tone);
+            element('feedback').dataset.source = 'sites';
+        }
+        else if (element('feedback').dataset.source === 'sites')
+            feedback('');
+        else
+            syncSiteFeedback();
+    },
     canEdit: () => !busy && canQueueOperation(view?.controller),
-    attempted: () => queryAttempted,
-    changed: () => queueMicrotask(render),
+    attempted: () => queryAttempted && view?.startup?.status !== 'LOADING',
+    changed: requestRender,
     position: navigation.value().sites,
     positionChanged: position => navigation.save({ ...navigation.value(), sites: position }),
     verify: () => readVerifiedController(async () => {
@@ -181,58 +200,45 @@ const sites = initializeSites({
         ++epoch;
         return view.controller;
     }),
-    pin: (id, pinned, hosts) => {
-        // Read current pins immediately before the write so another page's unrelated pins survive.
-        try {
-            pins = readPins(JSON.parse(localStorage.getItem(pinsStorageKey) ?? 'null'));
-        }
-        catch {
-            return 'UNCERTAIN';
-        }
-        const next = updateDestinationPin(pins, id, pinned, hosts);
-        if (next.length > 200) {
-            feedback('You can pin up to 200 destinations.', 'error');
-            return 'FAILED';
-        }
-        const saved = savePresentation(() => localStorage, pinsStorageKey, JSON.stringify(next));
-        if (saved === 'SAVED') {
-            pins = next;
-            return saved;
-        }
-        feedback(saved === 'UNCERTAIN' ? 'The pin save outcome could not be verified. Saved policy is unaffected.' : 'Your pin could not be saved. Saved policy is unaffected.', saved === 'UNCERTAIN' ? 'uncertain' : 'error');
-        return saved;
+    pin: async (id, pinned, hosts) => {
+        const result = await setPin(id, pinned, hosts);
+        if (result === 'SAVED')
+            pins = presentationView().pins;
+        else
+            feedback('Your pin could not be verified as saved. Retry the pin change; access rules are unchanged.', 'error');
+        return result;
     },
 });
-const homeOrganization = initializeHomeOrganization(() => queueMicrotask(render));
+const homeOrganization = initializeHomeOrganization(requestRender);
+const renderDirectoryCategories = initializeHomeShortcuts(element('sites-categories'), key => sites.chooseCategory(key), (key, target) => homeOrganization.reorder(key, target, [...element('sites-categories').children].map(n => n.dataset.categoryKey)), 'sites-list');
 let restoredPage = false;
 function render() {
     if (disposed)
         return;
+    renderQueued = false;
     const focused = document.activeElement;
-    text('page-title', section === 'settings' ? 'Settings' : section === 'sites' ? 'Sites & Access' : accessFocused ? 'Destination access' : 'Atlas');
-    text('page-eyebrow', section === 'settings' ? 'YOUR SAVED COMMITMENTS' : section === 'sites' ? 'YOUR COMMITTED DESTINATIONS' : accessFocused ? 'A DELIBERATE NEXT STEP' : 'YOUR INTERNET, WITH INTENTION');
-    text('page-description', section === 'settings' ? 'Intentional friction and the timing of your commitments.' : section === 'sites' ? 'Prepare destination changes together. Review freely; confirm protected changes in Vault.'
-        : accessFocused ? 'Review the selected destination and its current access.' : 'A place for the things you choose.');
+    text('page-title', page === 'vault' ? 'Vault' : section === 'settings' ? 'Settings' : section === 'sites' ? 'All sites' : 'Atlas');
+    text('page-eyebrow', section === 'settings' ? 'YOUR SAVED COMMITMENTS' : section === 'sites' ? 'YOUR COMMITTED DESTINATIONS' : 'YOUR INTERNET, WITH INTENTION');
+    text('page-description', page === 'vault' ? 'Review your commitments. Active rules stay in place until a change is confirmed and saved.' : section === 'settings' ? 'Intentional friction and the timing of your commitments.' : section === 'sites' ? 'Your complete collection. Select a site to review or edit its access.'
+        : 'A place for the things you choose.');
     setProperty(document.body.dataset, 'section', section);
-    setProperty(document.body.dataset, 'mode', accessFocused ? 'access' : 'control');
+    setProperty(document.body.dataset, 'page', page);
+    text('vault-section-title', page === 'vault' ? 'Proposal review' : 'Vault');
+    setProperty(document.body.dataset, 'mode', 'control');
     const controller = view?.controller;
     const ready = canQueueOperation(controller);
     const status = controller?.status;
     const startupMessage = startupCopy(view?.startup);
     text('startup-warning', startupMessage);
     setProperty(element('startup-warning'), 'hidden', startupMessage === '');
-    text('status', busy ? status === 'COMMITTING' ? 'Saving…' : 'Working…' : ready ? 'Atlas is ready'
-        : status === 'UNINITIALIZED' ? 'Setup needed' : status === 'RECONCILING' ? 'Recovery needed'
-            : status === 'UNAVAILABLE' ? 'State unavailable' : view?.startup.status === 'FAILED' ? 'Startup failed'
-                : queryAttempted && view === null ? 'Atlas is unavailable' : 'Connecting…');
-    setProperty(element('status'), 'title', element('status').textContent ?? '');
-    if (element('status').dataset.ready !== String(ready))
-        setProperty(element('status').dataset, 'ready', String(ready));
     setProperty(element('setup'), 'hidden', status !== 'UNINITIALIZED');
     setProperty(element('workspace'), 'hidden', status === 'UNINITIALIZED' || section !== 'home');
     setProperty(element('settings'), 'hidden', section !== 'settings');
+    settingsNavigation.render(section === 'settings', page === 'vault' ? 'vault-section' : undefined);
+    setAttribute(element('show-vault'), 'aria-current', page === 'vault' ? 'page' : 'false');
+    setAttribute(element('show-vault'), 'aria-pressed', String(page === 'vault'));
     setProperty(element('sites-section'), 'hidden', section !== 'sites');
-    setProperty(element('destinations'), 'hidden', accessFocused);
+    setProperty(element('destinations'), 'hidden', false);
     for (const name of ['home', 'sites', 'settings']) {
         const button = element(`show-${name}`);
         setAttribute(button, 'aria-pressed', String(section === name));
@@ -242,204 +248,29 @@ function render() {
             setAttribute(button, 'aria-current', null);
     }
     setProperty(element('save-setup'), 'disabled', busy || status !== 'UNINITIALIZED');
-    const contexts = view?.contexts.filter((context) => context.hostname !== null) ?? [];
-    if (selected === '' && contexts.length > 0)
-        selected = String(contexts[0].tabId);
-    const context = selectedContext(contexts, selected);
-    const choices = contexts.map((item) => ({ value: String(item.tabId), text: `Tab ${item.tabId} · ${item.hostname}` }));
-    if (context === undefined)
-        choices.unshift({ value: selected, text: selected === '' ? 'No websites yet' : `Tab ${selected} is closed or unavailable` });
-    const key = JSON.stringify(choices);
-    if (optionsKey !== key) {
-        optionsKey = key;
-        select.replaceChildren(...choices.map(({ value, text }) => new Option(text, value)));
-    }
-    setProperty(select, 'value', selected);
-    const result = context?.latest;
-    const decision = result?.type === 'ASSESSMENT' ? result.decision : null;
-    const copy = accessCopy(decision);
-    const tone = !ready && context !== undefined ? 'unavailable' : copy.tone;
-    if (element('access-panel').dataset.tone !== tone)
-        setProperty(element('access-panel').dataset, 'tone', tone);
-    text('hostname', context?.hostname ?? (selected === '' ? 'Your next destination' : 'Tab unavailable'));
-    text('access-title', !ready && context !== undefined ? 'Waiting for verified state' : copy.title);
-    text('access-description', !ready && context !== undefined
-        ? 'Access stays paused until Atlas can verify its saved state.' : copy.description);
-    text('outcome', !ready && context !== undefined ? 'Unverified' : accessOutcomeLabel(decision));
-    text('decision', decision ? `${decision.outcome} · ${decision.reason}`
-        : result ? `${result.type}${'reason' in result ? ` · ${result.reason}` : ''}` : 'No current assessment.');
-    text('context-detail', context ? `Context: ${context.contextId}\nNavigation: ${context.navigationId}\nContent: ${context.effect}${context.journey?.phase === 'ENDED' ? `\nJourney ${context.journey.id}: ${context.journey.endReason}` : ''}` : '');
-    const now = Date.now(); // Display only. Core decides readiness using its injected clock.
-    text('deadline', decision?.outcome === 'WAIT' ? `Wait ${countdown(decision.readyAt, now)}`
-        : decision?.outcome === 'REQUIRE_CONFIRMATION' ? `Confirm within ${countdown(decision.confirmBy, now)}`
-            : decision && 'expiresAt' in decision ? `Access remaining ${countdown(decision.expiresAt, now)}` : '');
-    const failedRemoval = context?.effect === 'FAILED';
-    setProperty(element('effect-warning'), 'hidden', !failedRemoval);
-    text('effect-warning', failedRemoval ? 'Firefox could not remove the document. Close the affected tab.' : '');
-    const { pending, grant } = selectedAccessRecord(decision, controller?.snapshot?.accessState, context?.hostname);
-    const record = pending ?? grant;
-    const preparedScope = context?.accessScope;
-    const scope = record === undefined ? (preparedScope?.status === 'READY' ? preparedScope.hostnames : [])
-        : record.scopeHostnames ?? [record.hostname];
-    const showScope = scope.length > 0 && (decision?.outcome === 'GREYLIST' || decision?.outcome === 'WAIT'
-        || decision?.outcome === 'REQUIRE_CONFIRMATION' || decision?.reason === 'ACTIVE_GRANT');
-    setProperty(element('access-scope'), 'hidden', !showScope);
-    text('access-scope', showScope ? `Temporary access covers exactly: ${scope.join(', ')}` : '');
-    const preparing = decision?.outcome === 'GREYLIST' && preparedScope?.status !== 'READY';
-    setProperty(element('access-scope-note'), 'hidden', decision?.outcome !== 'GREYLIST');
-    text('access-scope-note', preparing ? 'Checking the public site address before preparing your request…'
-        : preparedScope?.source === 'CANONICAL_REDIRECT'
-            ? 'The site redirects between these addresses. Both will share one wait and one access deadline.'
-            : 'Only the exact hostnames shown are covered. Other addresses may need a separate request.');
-    if (preparing && ready && context !== undefined && accessFocused && section === 'home')
-        prepareScope(context);
-    const journey = context?.journey;
-    const activeJourney = ready && journey != null && journey.phase !== 'ENDED' && now < journey.expiresAt;
-    setProperty(element('access-panel'), 'hidden', !accessFocused);
-    setProperty(element('home-journey'), 'hidden', section !== 'home' || accessFocused || !activeJourney);
-    text('home-journey-label', activeJourney ? `${serviceLabel(journey.rootHostname)} · Tab ${context.tabId} · ${countdown(journey.expiresAt, now)} remaining` : '');
-    setProperty(element('show-access'), 'hidden', section !== 'home' || accessFocused || context === undefined || activeJourney);
-    const action = (id, show) => {
-        setProperty(element(id), 'hidden', !show);
-        const button = element(id);
-        const disabled = busy || !ready || context === undefined;
-        if (button.disabled !== disabled)
-            setProperty(button, 'disabled', disabled);
-    };
-    action('start-access', decision?.outcome === 'GREYLIST');
-    if (preparing)
-        setProperty(element('start-access'), 'disabled', true);
-    text('start-access', preparing ? 'Checking address…' : 'Request temporary access');
-    action('confirm-access', decision?.outcome === 'REQUIRE_CONFIRMATION');
-    action('cancel-access', pending !== undefined);
-    action('open-home', decision?.outcome === 'ALLOW');
-    action('start-journey', decision?.reason === 'WHITELISTED' && !activeJourney);
-    action('cancel-journey', activeJourney);
-    const retry = context?.retry;
-    const showRetry = retry != null && decision?.outcome !== 'ALLOW' && ready;
-    setProperty(element('ended-journey'), 'hidden', !showRetry);
-    text('ended-journey-copy', showRetry ? context?.effect === 'REMOVING'
-        ? `Atlas is closing the previous page. You can restart your journey to ${retry.destinationLabel} in a moment.`
-        : `${journeyEndCopy(retry.endReason)} Start again from ${retry.rootHostname}.` : '');
-    action('restart-journey', showRetry);
-    if (context?.effect === 'REMOVING')
-        setProperty(element('restart-journey'), 'disabled', true);
-    setProperty(element('home-note'), 'hidden', decision?.outcome !== 'REQUIRE_CONFIRMATION' && decision?.outcome !== 'ALLOW');
-    setProperty(element('journey-panel'), 'hidden', !activeJourney);
-    text('journey-phase', activeJourney ? 'Active' : 'Ended');
-    text('journey', journey ? `Journey → ${serviceLabel(journey.rootHostname)}`
-        : 'Pure Whitelist navigation automatically starts a bounded redirect Journey.');
-    text('journey-time', journey ? activeJourney
-        ? `${countdown(journey.expiresAt, now)} left · fixed deadline ${new Date(journey.expiresAt).toLocaleTimeString()}`
-        : `Ended · ${journey.endReason?.replaceAll('_', ' ').toLowerCase() ?? 'complete'}` : '');
-    const progress = element('journey-progress');
-    setProperty(progress, 'hidden', !activeJourney);
-    if (activeJourney)
-        setProperty(progress, 'value', Math.max(0, (journey.expiresAt - now) / (journey.expiresAt - journey.startedAt)));
+    const now = Date.now(); // Display only; controller uses its injected clock.
     renderSettings(controller, ready, now);
+    renderHome(controller?.snapshot?.policy, ready);
     sites.render(ready && !busy);
     syncSiteFeedback();
-    renderHome(controller?.snapshot?.policy, ready);
-    renderTemporaryAccess(now);
+    homeGreylist.render(view, now, busy, selected);
     if (!restoredPage && ready && sites.session()?.loaded && homeOrganization.session()?.saved) {
         restoredPage = true;
-        if (page === 'vault')
-            element('vault-section').open = true;
         const position = navigation.value().pages[page], initialPage = page;
         if (position)
             requestAnimationFrame(() => {
                 if (page !== initialPage)
                     return;
-                window.scrollTo({ top: position.scroll, behavior: 'instant' });
+                viewportScrollSurface(page, sites.view()).scrollTop = position.scroll;
                 if (page === 'sites')
                     sites.focusSelection();
                 else
                     document.getElementById(position.focus)?.focus({ preventScroll: true });
             });
     }
-    if (focused instanceof HTMLButtonElement && focused.closest('#access-panel') && (focused.disabled || focused.closest('[hidden]'))
-        && accessFocused && section === 'home')
-        element('access-title').focus({ preventScroll: true });
     if (focused instanceof HTMLButtonElement && focused.closest('#vault-section') && (focused.disabled || focused.closest('[hidden]'))
         && section === 'settings')
         element('vault-heading').focus({ preventScroll: true });
-}
-function renderTemporaryAccess(now) {
-    const summary = homeAccessSummary(view, now);
-    const others = summary.journeys.filter(c => String(c.tabId) !== selected);
-    const retained = new Set();
-    const row = (id, name, hostnames, label, deadline, action, link) => {
-        retained.add(id);
-        let record = temporaryRows.get(id);
-        if (!record) {
-            const node = document.createElement('li');
-            node.className = 'temporary-row';
-            const copy = document.createElement('span');
-            copy.className = 'temporary-copy';
-            const heading = document.createElement('strong');
-            heading.className = 'temporary-name';
-            const scope = document.createElement('span');
-            scope.className = 'temporary-scope';
-            copy.append(heading, scope);
-            const time = document.createElement('span');
-            time.className = 'temporary-time';
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'text-button';
-            record = { node, link };
-            const current = record;
-            button.addEventListener('click', () => void followAccessLink(current.link));
-            node.append(copy, time, button);
-            temporaryRows.set(id, record);
-        }
-        record.link = link;
-        setProperty(record.node.querySelector('.temporary-name'), 'textContent', name);
-        setProperty(record.node.querySelector('.temporary-scope'), 'textContent', `${label} · ${hostnames.join(', ')}`);
-        const time = record.node.querySelector('.temporary-time');
-        setProperty(time.dataset, 'expiresAt', String(deadline));
-        setProperty(time, 'title', `Deadline ${new Date(deadline).toLocaleTimeString()}`);
-        setProperty(record.node.querySelector('button'), 'textContent', action);
-        return record.node;
-    };
-    reconcileChildren(element('temporary-list'), summary.grants.map(g => row(`grant:${g.requestId}`, serviceLabel(g.hostnames[0]), g.hostnames, 'Temporary permission', g.expiresAt, g.link.kind === 'CONTEXT' ? 'Access details' : 'Open site', g.link)));
-    reconcileChildren(element('pending-access-list'), summary.pending.map(p => row(`request:${p.requestId}`, serviceLabel(p.hostnames[0]), p.hostnames, p.outcome === 'WAIT' ? 'Waiting' : 'Confirmation available', p.outcome === 'WAIT' ? p.readyAt : p.confirmBy, p.link.kind === 'CONTEXT' ? 'Review request' : 'Return to request', p.link)));
-    reconcileChildren(element('other-journeys'), others.map(c => row(`journey:${c.contextId}:${c.journey.id}`, serviceLabel(c.journey.rootHostname), [c.journey.rootHostname], `Journey active · Tab ${c.tabId}`, c.journey.expiresAt, 'View Journey', { kind: 'CONTEXT', tabId: c.tabId, contextId: c.contextId })));
-    for (const id of temporaryRows.keys())
-        if (!retained.has(id))
-            temporaryRows.delete(id);
-    for (const time of element('temporary-section').querySelectorAll('.temporary-time')) {
-        const label = `${countdown(Number(time.dataset.expiresAt), now)} remaining`;
-        if (time.textContent !== label)
-            setProperty(time, 'textContent', label);
-    }
-    const count = summary.pending.length + summary.grants.length + summary.journeys.length;
-    setProperty(element('temporary-section'), 'hidden', summary.available && count === 0);
-    setProperty(element('temporary-list'), 'hidden', summary.grants.length === 0);
-    setProperty(element('pending-access-list'), 'hidden', summary.pending.length === 0);
-    setProperty(element('other-journeys'), 'hidden', others.length === 0);
-    setProperty(element('temporary-empty'), 'hidden', true);
-    setProperty(element('temporary-unavailable'), 'hidden', summary.available);
-    text('temporary-count', summary.available && count > 0 ? `${count} current` : '');
-    for (const button of element('temporary-section').querySelectorAll('button'))
-        setProperty(button, 'disabled', busy || !summary.available || !canQueueOperation(view?.controller));
-}
-async function followAccessLink(link) {
-    if (busy || !canQueueOperation(view?.controller))
-        return;
-    if (link.kind === 'CONTEXT') {
-        const context = view?.contexts.find(c => c.tabId === link.tabId && c.contextId === link.contextId);
-        if (!context) {
-            feedback('The owning tab is no longer available. Refresh the access summary.', 'error');
-            return;
-        }
-        selected = String(context.tabId);
-        navigate('access');
-    }
-    else {
-        const response = await send({ kind: 'OPEN_DESTINATION', url: link.url });
-        if (response?.opened === true)
-            navigate('access', true);
-    }
 }
 function renderSettings(controller, ready, now) {
     const status = controller?.status;
@@ -450,31 +281,37 @@ function renderSettings(controller, ready, now) {
     const settingsLabel = proposal == null ? 'Settings' : 'Settings, pending change';
     setAttribute(element('show-settings'), 'aria-label', settingsLabel);
     setProperty(element('show-settings'), 'title', settingsLabel);
-    const proposalId = proposal?.id ?? null;
-    if (controller?.snapshot && proposalId !== displayedProposalId) {
-        displayedProposalId = proposalId;
-        if (proposalId !== null)
-            element('vault-section').open = true;
-    }
     setProperty(element('vault-empty'), 'hidden', proposal != null);
-    text('vault-empty', hasCommittedCollection(controller) ? 'No proposal is waiting. Propose timing changes here or destination changes in Sites & Access.'
+    text('vault-empty', hasCommittedCollection(controller) ? 'No proposal is waiting. Prepare site changes in All sites or timing changes in Settings.'
         : 'Vault status cannot currently be verified. Retry or recover saved state before confirmation.');
-    const missingDefaults = presetHostnames.filter((hostname) => !policy?.whitelist.includes(hostname));
-    setProperty(element('preset-update'), 'hidden', !policy || missingDefaults.length === 0);
-    text('preset-update-status', policy ? missingDefaults.length > 0
-        ? `${missingDefaults.length} curated hostnames are missing from your saved Whitelist.`
-        : 'Your saved Whitelist includes all current curated hostnames.' : '');
-    setProperty(element('propose-defaults'), 'hidden', !policy || missingDefaults.length === 0);
+    // This optional 294-host projection measured ~75 ms on first load. Do it only
+    // when its Settings section is actually opened, retaining Core evaluation.
+    const showCoverage = page === 'settings' && settingsNavigation.value() === 'recovery-section';
+    const missingDefaults = showCoverage ? presetCoverage(policy) : null;
+    setProperty(element('preset-update'), 'hidden', false);
+    if (missingDefaults)
+        text('preset-update-status', policy ? missingDefaults.length > 0
+            ? `${missingDefaults.length} curated hostnames are missing from your saved Allowed sites.`
+            : 'Your saved Allowed sites includes all current curated hostnames.' : 'Saved policy is unavailable. Curated coverage cannot be verified.');
+    setProperty(element('propose-defaults'), 'hidden', !policy || missingDefaults === null || missingDefaults.length === 0);
     setProperty(element('propose-defaults'), 'disabled', busy || !ready || proposal != null);
     setProperty(element('vault-panel'), 'hidden', proposal == null);
+    const vaultReturn = element('return-to-sites'), vaultActions = element(proposal ? 'vault-protection-actions' : 'vault-empty-actions');
+    if (vaultReturn.parentElement !== vaultActions)
+        vaultActions.append(vaultReturn);
+    setProperty(element('vault-empty-actions'), 'hidden', proposal != null);
     const review = matchingReview(controller, policyReview);
     renderReview(review, proposal != null);
     text('vault-review', review
-        ? `Proposal ${review.proposalId} · policy revision ${review.basePolicyRevision}\nWhitelist additions: ${review.whitelist.added.join(', ') || '(none)'}\nWhitelist removals: ${review.whitelist.removed.join(', ') || '(none)'}\nBlacklist additions: ${review.blacklist.added.join(', ') || '(none)'}\nBlacklist removals: ${review.blacklist.removed.join(', ') || '(none)'}\nClassification changes:\n${review.classifications.map((change) => `${change.hostname}: ${change.before} → ${change.after}`).join('\n') || '(none)'}${review.candidateConfiguration ? `\nCurrent settings: ${settingsCopy(review.currentConfiguration)}\nCandidate settings: ${settingsCopy(review.candidateConfiguration)}` : ''}`
+        ? `Proposal ${review.proposalId} · policy revision ${review.basePolicyRevision}\nAllowed sites additions: ${review.whitelist.added.join(', ') || '(none)'}\nAllowed sites removals: ${review.whitelist.removed.join(', ') || '(none)'}\nBlocked sites additions: ${review.blacklist.added.join(', ') || '(none)'}\nBlocked sites removals: ${review.blacklist.removed.join(', ') || '(none)'}${review.whitelistSubdomains ? `\nAll-subdomain bases added: ${review.whitelistSubdomains.added.join(', ') || '(none)'}\nAll-subdomain bases removed: ${review.whitelistSubdomains.removed.join(', ') || '(none)'}` : ''}\nClassification changes:\n${review.classifications.map((change) => `${change.hostname}: ${change.before} → ${change.after}`).join('\n') || '(none)'}${review.candidateConfiguration ? `\nCurrent settings: ${settingsCopy(review.currentConfiguration)}\nCandidate settings: ${settingsCopy(review.candidateConfiguration)}` : ''}`
         : policyReviewError ? `Core review unavailable: ${policyReviewError}. Cancel or recover before proceeding.` : 'Loading the frozen Core review…');
     text('vault-deadline', review?.phase === 'WAITING' ? `Vault wait ${countdown(review.readyAt, now)}`
         : review?.phase === 'READY' ? `Confirm within ${countdown(review.confirmBy, now)}`
             : review?.phase === 'EXPIRED' ? 'This proposal expired. Cancel it before starting a new proposal.' : '');
+    text('vault-ready-at', review?.phase === 'WAITING' ? `Ready at ${new Date(review.readyAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+        : review?.phase === 'READY' ? `Confirm by ${new Date(review.confirmBy).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : review?.phase === 'EXPIRED' ? 'Confirmation expired' : proposal ? 'Review unavailable' : '');
+    setProperty(element('vault-ready-at'), 'title', review
+        ? `Ready at ${new Date(review.readyAt).toLocaleString()}. Confirm by ${new Date(review.confirmBy).toLocaleString()}.` : '');
     setProperty(element('confirm-policy'), 'hidden', review?.phase !== 'READY');
     setProperty(element('confirm-policy'), 'disabled', busy || !ready || review?.phase !== 'READY' || now >= review.confirmBy);
     setProperty(element('cancel-policy'), 'disabled', busy || !ready);
@@ -482,7 +319,7 @@ function renderSettings(controller, ready, now) {
     text('managed-status', managed?.active ? `Status: active · ${managed.count.toLocaleString()} domains` : 'Managed data is loading or unavailable.');
     text('managed-details', managed ? `Categories: ${managed.categories.join(' + ')}. Last updated: ${managed.lastUpdatedAt === null ? 'bundled offline snapshot' : new Date(managed.lastUpdatedAt).toLocaleString()}. Upstream: ${managed.upstreamDate ?? 'unknown'}.` : '');
     text('managed-source', managed ? `Origin: ${managed.origin}\nUpdate: ${managed.updateStatus}\nLast attempt: ${managed.lastAttemptAt === null ? 'none' : new Date(managed.lastAttemptAt).toLocaleString()}\nSource: ${managed.sourceUrl}\nVersion: ${managed.upstreamVersion ?? 'unknown'}\nUnsupported names skipped: ${managed.ignoredNames}` : '');
-    text('managed-conflicts', managed ? `Whitelist exceptions in managed data (${managed.conflicts.length}): ${managed.conflicts.join(', ') || 'none'}.` : '');
+    text('managed-conflicts', managed ? `Allowed sites exceptions in managed data (${managed.conflicts.length}): ${managed.conflicts.join(', ') || 'none'}.` : '');
     const activeConfiguration = controller?.snapshot?.configuration;
     if (activeConfiguration) {
         const configKey = JSON.stringify(activeConfiguration);
@@ -491,6 +328,7 @@ function renderSettings(controller, ready, now) {
             timingFields.forEach((field) => { setProperty(element(field.id), 'value', field.value(activeConfiguration)); });
         }
         timingFields.forEach((field) => { text(`active-${field.id}`, `Active: ${field.value(activeConfiguration)} ${field.unit}`); });
+        renderTimingEdits();
     }
     setProperty(element('propose-settings'), 'disabled', busy || !ready || proposal != null);
     text('vault-impact', !review ? 'Saved authority remains active. A verified Core review is required before confirmation.'
@@ -499,269 +337,78 @@ function renderSettings(controller, ready, now) {
     setProperty(element('recover'), 'disabled', busy || ready || status === 'UNINITIALIZED' || status === 'COMMITTING');
     text('recover', view?.startup.status === 'FAILED' ? 'Retry startup' : 'Reload and reconcile state');
     text('startup-diagnostic', view?.startup.status === 'FAILED' ? `Startup: ${view.startup.stage} · ${view.startup.reason}` : '');
-    text('storage-diagnostic', storageDiagnosticsCopy(view?.storage));
+    diagnosticPanel.render(view);
+    const interruption = authorityInterruptionCopy(view?.authorityInterruption);
+    const curated = view?.curatedUpgrade;
     text('policy', controller?.snapshot
-        ? `Exact Whitelist hosts: ${policy.whitelist.length}\nManual Blacklist hosts: ${policy.blacklist.length}\nPolicy revision: ${controller.snapshot.policyRevision}\nState: ${status}${controller.reason ? ` · ${controller.reason}` : ''}${status === 'UNAVAILABLE' && view?.storage?.lastFailure ? `\n${storageFailureCopy(view.storage)}` : ''}`
+        ? `Exact Allowed sites hosts: ${policy.whitelist.length}\nManual Blocked sites hosts: ${policy.blacklist.length}\nPolicy revision: ${controller.snapshot.policyRevision}\nState: ${status}${controller.reason ? ` · ${controller.reason}` : ''}${status === 'UNAVAILABLE' && view?.storage?.lastFailure ? `\n${storageFailureCopy(view.storage)}` : ''}`
+            + (policy.whitelistSubdomains?.length ? `\nSubdomain scope bases: ${policy.whitelistSubdomains.join(', ')}` : '')
+            + (curated ? `\nCurated expansion: ${curated.added.length} added, ${curated.alreadyPresent.length} already present, ${curated.skippedBlacklisted.length + curated.skippedManaged.length} skipped. Exact results are in the diagnostics export.` : '')
+            + (interruption ? `\n${interruption}` : '')
         : startupCopy(view?.startup) || 'No verified policy loaded.');
 }
 function renderHome(policy, ready) {
+    const savedPins = presentationView();
+    if (savedPins) {
+        pins = savedPins.pins;
+        pinsLoaded = true;
+    }
     const verified = view?.controller?.status === 'READY' && policy !== undefined;
     if (verified)
         lastVerifiedPolicy = policy;
     const displayPolicy = verified ? policy : lastVerifiedPolicy ?? policy;
-    const destinationKey = JSON.stringify([displayPolicy ?? null, sites.metadata()]);
+    const destinationKey = JSON.stringify([displayPolicy ?? null, sites.metadata(), pins]);
     if (destinationsKey !== destinationKey) {
         destinationsKey = destinationKey;
-        entries = displayPolicy ? destinationIndex(displayPolicy, sites.metadata()) : [];
-        homeCatalog = homeCategories(entries, displayPolicy ? policyDestinationIndex(displayPolicy, sites.metadata()) : [], sites.metadata().map(d => d.category));
+        entries = displayPolicy ? destinationIndex(displayPolicy, sites.metadata(), pins) : [];
+        homeCatalog = homeCategories(entries, displayPolicy ? policyDestinationIndex(displayPolicy, sites.metadata(), pins) : [], sites.metadata().map(d => d.category));
     }
     const catalog = homeCatalog;
     homeOrganization.observe(catalog, verified);
-    const layout = homeOrganization.layout();
-    const groups = displayedHomeCategories(layout, catalog).map(category => {
-        let group = homeGroups.get(category.key);
-        if (!group) {
-            group = document.createElement('section');
-            group.className = 'service-group destination-section';
-            setProperty(group.dataset, 'categoryKey', category.key);
-            const heading = document.createElement('div');
-            heading.className = 'section-heading';
-            const title = document.createElement('h2');
-            const collapse = document.createElement('button');
-            collapse.type = 'button';
-            collapse.className = 'category-heading';
-            collapse.addEventListener('click', () => void homeOrganization.change(category.key, 'COLLAPSE'));
-            title.append(collapse);
-            const count = document.createElement('span');
-            count.className = 'section-meta';
-            heading.append(title, count);
-            const grid = document.createElement('div');
-            grid.className = 'destination-grid';
-            grid.id = `destination-category-${homeGroups.size}`;
-            setAttribute(collapse, 'aria-controls', grid.id);
-            const toggle = document.createElement('button');
-            toggle.type = 'button';
-            toggle.className = 'category-toggle text-button';
-            setAttribute(toggle, 'aria-controls', grid.id);
-            toggle.addEventListener('click', () => {
-                if (expandedCategories.has(category.key))
-                    expandedCategories.delete(category.key);
-                else
-                    expandedCategories.add(category.key);
-                updateDestinationLayout();
-            });
-            heading.append(toggle);
-            group.append(heading, grid);
-            homeGroups.set(category.key, group);
-        }
-        if (group.dataset.category !== category.label || group.dataset.collapsed !== String(category.collapsed))
-            layoutDirty = true;
-        setProperty(group.dataset, 'category', category.label);
-        setProperty(group.dataset, 'collapsed', String(category.collapsed));
-        const collapse = group.querySelector('.category-heading');
-        setProperty(collapse, 'textContent', category.label);
-        setAttribute(collapse, 'aria-expanded', String(!category.collapsed));
-        setAttribute(collapse, 'aria-label', `${category.collapsed ? 'Expand' : 'Collapse'} ${category.label} category`);
-        const available = rankDestinations(entries.filter(e => categoryKey(e.category) === category.key), usage, Date.now());
-        const grid = group.querySelector('.destination-grid'), key = JSON.stringify(available);
-        if (grid.dataset.entries !== key) {
-            const focused = document.activeElement;
-            const existing = new Map([...grid.children].map(node => [node.dataset.destinationId, node]));
-            const cards = available.map(entry => {
-                const saved = existing.get(destinationId(entry)), content = JSON.stringify(entry);
-                if (saved?.dataset.entry === content)
-                    return saved;
-                const card = makeDestinationCard(entry);
-                setProperty(card.dataset, 'entry', content);
-                return card;
-            });
-            setProperty(grid.dataset, 'entries', key);
-            reconcileChildren(grid, cards);
-            layoutDirty = true;
-            if (focused?.isConnected && document.activeElement === document.body)
-                focused.focus({ preventScroll: true });
-        }
-        setProperty(group.querySelector('.section-meta'), 'textContent', `${available.length} destination${available.length === 1 ? '' : 's'}`);
-        return group;
-    });
-    const list = element('destination-list');
-    if (JSON.stringify([...list.children].map(c => c.dataset.categoryKey)) !== JSON.stringify(groups.map(c => c.dataset.categoryKey))) {
-        const focused = document.activeElement, key = focused?.closest('[data-category-key]')?.dataset.categoryKey;
-        reconcileChildren(list, groups);
-        layoutDirty = true;
-        if (focused && !focused.isConnected && key)
-            homeGroups.get(key)?.querySelector('.category-heading')?.focus({ preventScroll: true });
-    }
-    setProperty(element('home-categories-empty'), 'hidden', entries.length === 0 || groups.length > 0);
     renderPins();
-    if (layoutDirty) {
-        updateDestinationLayout();
-        layoutDirty = false;
-    }
     homeOrganization.render();
     renderSearch();
-    const state = collectionPresentation(view?.controller, entries.length, queryAttempted, displayPolicy !== undefined);
+    const state = collectionPresentation(view?.controller, entries.length, queryAttempted && view?.startup?.status !== 'LOADING', displayPolicy !== undefined);
+    setAttribute(element('destinations'), 'aria-busy', String(state.phase === 'LOADING'));
     setProperty(element('destinations').dataset, 'phase', state.phase);
     text('destination-state-message', state.message);
-    setProperty(element('destination-state'), 'hidden', state.phase === 'READY' || state.phase === 'EMPTY');
+    // Keep the reserved startup shell quiet. Recovery is for an unavailable response.
+    setProperty(element('destination-state'), 'hidden', state.phase !== 'UNAVAILABLE');
     setProperty(element('retry-destinations'), 'hidden', state.phase !== 'UNAVAILABLE');
     setProperty(element('open-destination-recovery'), 'hidden', state.phase !== 'UNAVAILABLE');
     setProperty(element('empty-destinations'), 'hidden', state.phase !== 'EMPTY');
-    setProperty(element('pinned-empty'), 'hidden', state.phase !== 'READY' && state.phase !== 'EMPTY' || pinnedDestinations(entries, pins).length > 0);
-    for (const button of document.querySelectorAll('.destination-open, #open-journey')) {
+    setProperty(element('pinned-empty'), 'hidden', state.phase !== 'READY' && state.phase !== 'EMPTY' || pinnedDestinations(pinEntries(), pins).length > 0);
+    for (const button of document.querySelectorAll('.destination-open')) {
         setProperty(button, 'disabled', busy || !ready || !hasCommittedCollection(view?.controller));
     }
 }
-/** One category preview row; the same column count also caps expanded and pinned grids. */
-function updateDestinationLayout() {
-    const destinations = element('destinations');
-    const width = destinations.getBoundingClientRect().width;
-    if (width <= 0)
-        return;
-    const styles = getComputedStyle(destinations);
-    const minimum = parseFloat(styles.getPropertyValue('--destination-min-width'));
-    const gap = parseFloat(styles.getPropertyValue('--destination-gap'));
-    const columns = Math.max(1, Math.min(5, Math.floor((width + gap) / (minimum + gap))));
-    if (destinations.dataset.columns !== String(columns)) {
-        setProperty(destinations.dataset, 'columns', String(columns));
-        destinations.style.setProperty('--destination-columns', String(columns));
+function pinEntries() {
+    const v = presentationView();
+    const combined = entries.map(e => v?.sync.labels[destinationId(e)] ? { ...e, label: v.sync.labels[destinationId(e)] } : e);
+    for (const g of v?.sync.groups ?? []) {
+        const index = combined.findIndex(e => destinationId(e) === g.id);
+        const entry = { id: g.id, label: v?.sync.labels[g.id] ?? g.label, hostname: g.hostname, hostnames: [g.hostname], category: 'Bookmarks' };
+        if (index < 0)
+            combined.push(entry);
+        else
+            combined[index] = { ...combined[index], label: entry.label };
     }
-    for (const group of element('destination-list').querySelectorAll('[data-category]')) {
-        const grid = group.querySelector('.destination-grid');
-        const toggle = group.querySelector('.category-toggle');
-        const count = group.querySelector('.section-meta');
-        const category = group.dataset.category, collapsed = group.dataset.collapsed === 'true';
-        setProperty(grid, 'hidden', collapsed);
-        const expanded = expandedCategories.has(group.dataset.categoryKey);
-        const overflow = grid.children.length > columns;
-        if (toggle.hidden !== (!overflow || collapsed))
-            setProperty(toggle, 'hidden', !overflow || collapsed);
-        if (count.hidden !== (overflow && !collapsed))
-            setProperty(count, 'hidden', overflow && !collapsed);
-        const label = expanded ? 'Show fewer' : `Show all ${grid.children.length} →`;
-        if (toggle.textContent !== label)
-            setProperty(toggle, 'textContent', label);
-        if (toggle.getAttribute('aria-expanded') !== String(expanded))
-            setAttribute(toggle, 'aria-expanded', String(expanded));
-        const accessibleLabel = `${expanded ? 'Show fewer' : 'Show all'} ${category} destinations`;
-        if (toggle.getAttribute('aria-label') !== accessibleLabel)
-            setAttribute(toggle, 'aria-label', accessibleLabel);
-        for (const [index, child] of [...grid.children].entries()) {
-            const card = child;
-            const hidden = collapsed || !expanded && index >= columns;
-            if (hidden && card.contains(document.activeElement))
-                toggle.focus({ preventScroll: true });
-            if (card.hidden !== hidden)
-                setProperty(card, 'hidden', hidden);
-        }
-    }
-}
-const layoutObserver = new ResizeObserver(updateDestinationLayout);
-layoutObserver.observe(element('destinations'));
-function icon(name) {
-    const node = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    node.classList.add('icon');
-    setAttribute(node, 'aria-hidden', 'true');
-    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-    setAttribute(use, 'href', `#icon-${name}`);
-    node.append(use);
-    return node;
-}
-async function displayWebsiteIcon(image, hostname) {
-    setProperty(image.dataset, 'hostname', hostname);
-    if (!websiteIcons.has(hostname))
-        websiteIcons.set(hostname, iconSnapshot
-            .then(() => loadWebsiteIcon(hostname, observedIcons.get(hostname)))
-            .then((blob) => blob ? URL.createObjectURL(blob) : null).catch(() => null));
-    const loading = websiteIcons.get(hostname);
-    const url = await loading;
-    // Entry point changes and policy redraws can outlive an earlier lookup.
-    if (!image.isConnected || image.dataset.hostname !== hostname || websiteIcons.get(hostname) !== loading)
-        return;
-    image.src = url ?? 'site.svg';
-}
-function makeDestinationCard(entry) {
-    const card = document.createElement('div');
-    card.className = 'destination-card';
-    setProperty(card.dataset, 'destinationId', destinationId(entry));
-    const points = destinationEntryPoints(entry);
-    const addresses = document.createElement('select');
-    addresses.className = 'service-addresses';
-    setAttribute(addresses, 'aria-label', `${entry.label} entry point`);
-    points.forEach((hostname) => addresses.append(new Option(hostname, hostname)));
-    setProperty(addresses, 'hidden', points.length < 2);
-    const open = document.createElement('button');
-    open.className = 'destination-open';
-    open.type = 'button';
-    setAttribute(open, 'aria-label', `Open ${entry.label}`);
-    setProperty(open.dataset, 'destinationId', destinationId(entry));
-    setProperty(open, 'title', entry.hostnames.join(', '));
-    const mark = document.createElement('span');
-    mark.className = 'service-mark';
-    setAttribute(mark, 'aria-hidden', 'true');
-    const image = document.createElement('img');
-    image.className = 'site-icon';
-    image.width = 32;
-    image.height = 32;
-    image.alt = '';
-    image.src = 'site.svg';
-    image.loading = 'lazy';
-    setProperty(image.dataset, 'hostname', addresses.value);
-    image.addEventListener('error', () => { if (!image.src.endsWith('/site.svg'))
-        image.src = 'site.svg'; });
-    mark.append(image);
-    iconObserver.observe(image);
-    const copy = document.createElement('span');
-    copy.className = 'destination-copy';
-    const name = document.createElement('span');
-    name.className = 'destination-name';
-    setProperty(name, 'textContent', entry.label);
-    const host = document.createElement('span');
-    host.className = 'destination-host';
-    setProperty(host, 'textContent', addresses.value);
-    addresses.addEventListener('change', () => { setProperty(host, 'textContent', addresses.value); setProperty(open, 'title', addresses.value); void displayWebsiteIcon(image, addresses.value); });
-    copy.append(name, host);
-    open.append(mark, copy);
-    open.addEventListener('click', () => { void send({ kind: 'OPEN_DESTINATION', url: `https://${addresses.value}/` }); });
-    const pin = document.createElement('button');
-    pin.type = 'button';
-    pin.className = 'pin-button';
-    setProperty(pin.dataset, 'pinId', destinationId(entry));
-    setProperty(pin.dataset, 'label', entry.label);
-    pin.append(icon('pin'));
-    pin.addEventListener('click', () => { void togglePin(destinationId(entry)); });
-    card.append(open, pin);
-    if (points.length > 1) {
-        const details = document.createElement('details');
-        details.className = 'entry-points';
-        const summary = document.createElement('summary');
-        setProperty(summary, 'title', `Choose ${entry.label} entry point`);
-        setAttribute(summary, 'aria-label', summary.title);
-        summary.append(icon('chevron'));
-        details.append(summary, addresses);
-        card.append(details);
-    }
-    return card;
+    return combined;
 }
 function renderPins() {
-    const active = pinnedDestinations(entries, pins);
-    const key = JSON.stringify(active);
-    if (key !== pinnedKey) {
-        pinnedKey = key;
-        const list = element('pinned-list'), focused = document.activeElement;
-        const existing = new Map([...list.children].map(node => [node.dataset.destinationId, node]));
-        reconcileChildren(list, active.map(entry => {
-            const saved = existing.get(destinationId(entry)), content = JSON.stringify(entry);
-            if (saved?.dataset.entry === content)
-                return saved;
-            const card = makeDestinationCard(entry);
-            setProperty(card.dataset, 'entry', content);
-            return card;
-        }));
-        if (focused?.isConnected && document.activeElement === document.body)
-            focused.focus({ preventScroll: true });
+    bookmarkSync.render();
+    const saved = presentationView();
+    if (saved) {
+        pins = saved.pins;
+        pinsLoaded = true;
     }
-    setProperty(element('pinned-empty'), 'hidden', active.length > 0);
+    const all = pinEntries();
+    const active = pinnedDestinations(all, pins);
+    // Local command serialization is not authority loss. Keep disabled launchers
+    // visually stable while a Greylist action is acknowledged; real unavailability
+    // still dims them. Buttons remain disabled and all launches still use Core.
+    setAttribute(element('pinned-section'), 'data-action-pending', busy && hasCommittedCollection(view?.controller) && canQueueOperation(view?.controller) ? 'true' : null);
+    homePins.render(all, pins, !busy && hasCommittedCollection(view?.controller) && canQueueOperation(view?.controller), pinsLoaded && !savingPins && canQueueOperation(view?.controller));
     for (const button of document.querySelectorAll('.pin-button')) {
         const pinned = active.some(entry => destinationId(entry) === button.dataset.pinId);
         const label = `${pinned ? 'Unpin' : 'Pin'} ${button.dataset.label}`;
@@ -776,25 +423,25 @@ function renderPins() {
             setProperty(button, 'disabled', disabled);
     }
 }
-function togglePin(id) {
+async function togglePin(id) {
     if (!pinsLoaded || savingPins)
         return;
     const focused = document.activeElement;
     const pinnedFocus = focused instanceof HTMLButtonElement && focused.closest('#pinned-list') !== null;
-    const entry = entries.find(item => destinationId(item) === id);
-    const pinned = pinnedDestinations(entries, pins).some(item => destinationId(item) === id);
+    const entry = pinEntries().find(item => destinationId(item) === id);
+    const pinned = pins.includes(id);
     const next = updateDestinationPin(pins, id, !pinned, entry?.hostnames);
     if (next.length > 200) {
-        feedback('Your pinned list is full. Unpin a destination first.', 'error');
+        feedback('Your pinned list is full. Unpin a site first.', 'error');
         return;
     }
     savingPins = true;
     renderPins();
     try {
-        const saved = savePresentation(() => localStorage, pinsStorageKey, JSON.stringify(next));
+        const saved = await setPin(id, !pinned, entry?.hostnames);
         if (saved === 'SAVED') {
-            pins = next;
-            feedback('Pin preference saved. Access and policy are unchanged.', 'success');
+            pins = presentationView().pins;
+            feedback('');
         }
         else
             feedback(saved === 'FAILED' ? 'Your pin could not be saved. Access and policy are unchanged.' : 'The pin save outcome could not be verified. Access and policy are unchanged.', saved === 'FAILED' ? 'error' : 'uncertain');
@@ -803,9 +450,7 @@ function togglePin(id) {
         savingPins = false;
         render();
         if (pinnedFocus && !focused.isConnected) {
-            const counterpart = [...element('destination-list').querySelectorAll('.pin-button')]
-                .find((button) => button.dataset.pinId === id && button.closest('[hidden]') === null && !button.disabled);
-            (counterpart ?? searchInput).focus();
+            searchInput.focus({ preventScroll: true });
         }
     }
 }
@@ -815,19 +460,25 @@ function renderReview(review, hasProposal) {
         setProperty(element('vault-phase').dataset, 'tone', tone);
     text('vault-phase', review?.phase === 'WAITING' ? 'Waiting' : review?.phase === 'READY' ? 'Ready to confirm' : review?.phase === 'EXPIRED' ? 'Expired' : '');
     text('vault-summary', review ? `${review.phase === 'WAITING' ? 'Saved proposal; waiting period is running.' : review.phase === 'READY' ? 'Confirmation is available. Review the frozen contents before confirming.' : 'The confirmation window has expired.'} Your active policy and settings stay in place until explicit confirmation and a successful save.`
-        : hasProposal ? 'Waiting for a verified Core review. Confirmation is unavailable.' : '');
-    const key = JSON.stringify(review ? [review.proposalId, review.whitelist, review.blacklist, review.currentConfiguration, review.candidateConfiguration] : null);
+        : hasProposal ? 'Waiting to verify this proposal. Confirmation is unavailable.' : '');
+    const key = JSON.stringify(review ? [review.proposalId, review.whitelist, review.blacklist, review.whitelistSubdomains, review.currentConfiguration, review.candidateConfiguration] : null);
     if (key === reviewKey)
         return;
     reviewKey = key;
     const changes = [];
     if (review)
-        for (const [label, diff] of [['Whitelist', review.whitelist], ['Blacklist', review.blacklist]]) {
+        for (const [label, diff] of [['Allowed sites', review.whitelist], ['Blocked sites', review.blacklist]]) {
             if (diff.added.length > 0)
                 changes.push(`${label} · add: ${diff.added.join(', ')}`);
             if (diff.removed.length > 0)
                 changes.push(`${label} · remove: ${diff.removed.join(', ')}`);
         }
+    if (review?.whitelistSubdomains) {
+        if (review.whitelistSubdomains.added.length)
+            changes.push(`Also allow all current/future subdomains at any depth · add bases: ${review.whitelistSubdomains.added.join(', ')}. Managed and manual blocking still apply to these additional descendants.`);
+        if (review.whitelistSubdomains.removed.length)
+            changes.push(`All-subdomain access · remove bases: ${review.whitelistSubdomains.removed.join(', ')}`);
+    }
     element('vault-changes').replaceChildren(...changes.map((value) => { const li = document.createElement('li'); setProperty(li, 'textContent', value); return li; }));
     setProperty(element('vault-changes'), 'hidden', changes.length === 0);
     const rows = review?.currentConfiguration && review.candidateConfiguration ? timingFields.flatMap((field) => {
@@ -847,15 +498,18 @@ function renderReview(review, hasProposal) {
     setProperty(element('vault-settings-comparison'), 'hidden', rows.length === 0);
 }
 function renderSearch() {
-    const inputsKey = `${destinationsKey}\n${searchInput.value}`;
+    const searching = searchInput.value.trim().length > 0;
+    setProperty(element('home-search-panel'), 'hidden', !searching || !searchOpen);
+    const inputsKey = `${destinationsKey}\n${JSON.stringify(presentationView()?.sync.groups)}\n${searchInput.value}`;
     if (inputsKey !== searchInputsKey) {
         searchInputsKey = inputsKey;
-        const next = searchDestinationTargets(entries, searchInput.value);
-        const key = JSON.stringify([searchInput.value, next]);
+        const next = searchDestinationTargets(pinEntries(), searchInput.value);
+        const key = JSON.stringify([searchInput.value, next, homeCatalog]);
         if (key !== searchKey) {
             searchKey = key;
             matches = next;
             highlighted = next.length === 1 ? 0 : -1;
+            searchActions = [];
             element('search-results').replaceChildren(...matches.map(({ entry, hostname }, index) => {
                 const button = document.createElement('button');
                 button.type = 'button';
@@ -872,16 +526,34 @@ function renderSearch() {
                 setProperty(host, 'textContent', hostname);
                 copy.append(label, host);
                 button.append(copy, icon('arrow'));
+                const action = () => { searchOpen = false; renderSearch(); void send({ kind: 'OPEN_DESTINATION', url: `https://${hostname}/` }); };
+                searchActions.push(action);
                 button.addEventListener('click', () => { if (!button.disabled)
-                    void send({ kind: 'OPEN_DESTINATION', url: `https://${hostname}/` }); });
+                    action(); });
                 return button;
             }));
+            if (searching)
+                for (const category of homeCatalog.filter(c => c.members.length && searchInput.value.toLowerCase().trim().split(/\s+/).every(w => c.label.toLowerCase().includes(w)))) {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.id = `search-result-${searchActions.length}`;
+                    button.tabIndex = -1;
+                    button.className = "search-category";
+                    button.setAttribute("role", "option");
+                    button.textContent = `${category.label} ? Category`;
+                    const action = () => { searchOpen = false; sites.chooseCategory(category.key); navigate('sites'); };
+                    searchActions.push(action);
+                    button.addEventListener('mousedown', e => e.preventDefault());
+                    button.addEventListener('click', () => { if (!button.disabled)
+                        action(); });
+                    element('search-results').append(button);
+                }
         }
     }
-    setProperty(element('search-results'), 'hidden', matches.length === 0);
-    setProperty(element('search-empty'), 'hidden', !hasCommittedCollection(view?.controller) || searchInput.value.trim() === '' || matches.length > 0);
-    setAttribute(searchInput, 'aria-expanded', String(matches.length > 0));
-    if (highlighted >= 0)
+    setProperty(element('search-results'), 'hidden', searchActions.length === 0);
+    setProperty(element('search-empty'), 'hidden', !hasCommittedCollection(view?.controller) || searchInput.value.trim() === '' || searchActions.length > 0);
+    setAttribute(searchInput, 'aria-expanded', String(searchOpen && searching));
+    if (searchOpen && highlighted >= 0)
         setAttribute(searchInput, 'aria-activedescendant', `search-result-${highlighted}`);
     else
         setAttribute(searchInput, 'aria-activedescendant', null);
@@ -890,54 +562,73 @@ function renderSearch() {
         setProperty(button, 'disabled', busy || !hasCommittedCollection(view?.controller));
     }
 }
-searchInput.addEventListener('input', () => { renderSearch(); });
+searchInput.addEventListener('input', () => { searchOpen = true; renderSearch(); });
+searchInput.addEventListener('focus', () => { searchOpen = true; renderSearch(); });
+window.addEventListener('pointerdown', event => { if (!element('search-form').contains(event.target)) {
+    searchOpen = false;
+    renderSearch();
+} });
 searchInput.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-        setProperty(searchInput, 'value', '');
+        searchOpen = false;
         renderSearch();
     }
-    if (matches.length > 0 && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+    if (searchActions.length > 0 && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
         event.preventDefault();
-        highlighted = (highlighted + (event.key === 'ArrowDown' ? 1 : highlighted < 0 ? 0 : -1) + matches.length) % matches.length;
+        searchOpen = true;
+        highlighted = (highlighted + (event.key === 'ArrowDown' ? 1 : highlighted < 0 ? 0 : -1) + searchActions.length) % searchActions.length;
         renderSearch();
         element(`search-result-${highlighted}`).scrollIntoView({ block: 'nearest' });
     }
 });
 element('search-form').addEventListener('submit', (event) => {
     event.preventDefault();
-    const entry = matches[highlighted] ?? (matches.length === 1 ? matches[0] : undefined);
-    if (entry && !busy && hasCommittedCollection(view?.controller))
-        void send({ kind: 'OPEN_DESTINATION', url: `https://${entry.hostname}/` });
+    const action = searchActions[highlighted] ?? (searchActions.length === 1 ? searchActions[0] : undefined);
+    if (action && searchOpen && !busy && hasCommittedCollection(view?.controller))
+        action();
 });
 function rememberPage() {
     const focus = document.activeElement;
     navigation.save({ ...navigation.value(), tab: selected, sites: sites.navigation(),
-        pages: { ...navigation.value().pages, [page]: { scroll: window.scrollY, focus: focus?.id ?? '' } } });
+        pages: { ...navigation.value().pages, [page]: { scroll: viewportScrollSurface(page, sites.view()).scrollTop, focus: focus?.id ?? '' } } });
+}
+function historyData() {
+    return { atlasSitesDirectory: sites.directory(), atlasSettings: settingsNavigation.value(), atlasSitesView: sites.view(), atlasSitesSelection: sites.navigation().selection };
 }
 function navigate(name, preserveFeedback = false, fromHistory = false) {
+    const accessLink = name === 'access';
+    if (accessLink)
+        name = 'home';
+    else if (name === 'home' && !fromHistory)
+        selected = '';
     rememberPage();
+    homePins.leave();
+    sites.leave();
+    searchOpen = false;
     if (!preserveFeedback)
         feedback('');
     if (!fromHistory && page !== name)
-        history.pushState(null, '', `#${name}`);
+        history.pushState(historyData(), '', `#${name}`);
+    if (fromHistory) {
+        sites.restoreDirectory(history.state?.atlasSitesDirectory);
+        settingsNavigation.restore(history.state?.atlasSettings);
+        sites.restoreView(history.state?.atlasSitesView, history.state?.atlasSitesSelection);
+    }
     page = name;
     section = name === 'vault' ? 'settings' : name === 'access' ? 'home' : name;
-    accessFocused = name === 'access';
     render();
-    const target = name === 'vault' ? element('vault-section') : name === 'access' ? element('access-panel') : element('main-content');
-    if (target instanceof HTMLDetailsElement)
-        target.open = true;
+    const target = name === 'vault' ? element('vault-section') : accessLink ? element('temporary-title') : element('main-content');
     if (name === 'sites')
         sites.focusSelection();
     else
-        (target.id === 'main-content' ? target : target.querySelector('summary, h2') ?? target).focus({ preventScroll: true });
+        (name === 'vault' ? element('vault-heading') : target.id === 'main-content' ? target : target.querySelector('summary, h2') ?? target).focus({ preventScroll: true });
     const initialFocus = document.activeElement;
     const saved = navigation.value().pages[name];
     requestAnimationFrame(() => {
         if (page !== name)
             return;
         if (saved)
-            window.scrollTo({ top: saved.scroll, behavior: 'instant' });
+            viewportScrollSurface(page, sites.view()).scrollTop = saved.scroll;
         else
             target.scrollIntoView({ block: 'start' });
         if (saved?.focus && document.activeElement === initialFocus && fromHistory) {
@@ -947,27 +638,44 @@ function navigate(name, preserveFeedback = false, fromHistory = false) {
         }
     });
 }
-history.replaceState(null, '', `#${page}`);
+history.replaceState(historyData(), '', `#${page}`);
 history.scrollRestoration = 'manual';
+let controlTabId;
+void browser.tabs.getCurrent().then(tab => { controlTabId = tab?.id; }).catch(() => undefined);
+const controlNavigation = (message, sender) => {
+    if (sender.id !== browser.runtime.id || sender.tab || sender.url !== browser.runtime.getURL('_generated_background_page.html')
+        || disposed || controlTabId === undefined || message?.controlTabId !== controlTabId
+        || message.kind !== 'CONTROL_NAVIGATE' || !atlasPage(message.page ?? '') || !Number.isSafeInteger(message.tabId))
+        return false;
+    const target = atlasPage(message.page);
+    if (target === 'access')
+        selected = String(message.tabId);
+    navigate(target);
+    void poll();
+    return Promise.resolve({ navigated: true });
+};
+browser.runtime.onMessage.addListener(controlNavigation);
+addEventListener('pagehide', () => browser.runtime.onMessage.removeListener(controlNavigation));
 window.addEventListener('popstate', () => { navigate(atlasPage(location.hash.slice(1)) ?? 'home', true, true); });
 window.addEventListener('pagehide', rememberPage);
 element('return-to-sites').addEventListener('click', () => navigate('sites', true));
-for (const name of ['home', 'sites', 'settings'])
+for (const name of ['home', 'sites', 'vault', 'settings'])
     element(`show-${name}`).addEventListener('click', () => { navigate(name); });
+for (const button of document.querySelectorAll('[data-settings-panel]'))
+    button.addEventListener('click', () => { if (page === 'vault')
+        navigate('settings', true); });
 element('brand-home').addEventListener('click', (event) => { event.preventDefault(); navigate('home'); });
 element('review-pending').addEventListener('click', () => { navigate('vault'); });
 element('retry-destinations').addEventListener('click', () => { void poll(); });
 for (const id of ['open-destination-recovery', 'sites-recovery'])
     element(id).addEventListener('click', () => {
         navigate('settings');
-        element('recovery-section').open = true;
+        settingsNavigation.choose('recovery-section');
         element('recover').focus();
     });
-for (const id of ['home-journey', 'show-access'])
-    element(id).addEventListener('click', () => {
-        navigate('access');
-    });
 document.addEventListener('keydown', (event) => {
+    if (document.querySelector('dialog[open]'))
+        return;
     if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey || event.target instanceof HTMLElement
         && (event.target.closest('input, textarea, select') || event.target.isContentEditable))
         return;
@@ -975,6 +683,18 @@ document.addEventListener('keydown', (event) => {
     navigate('home');
     searchInput.focus();
 });
+function renderTimingEdits() {
+    const config = view?.controller?.snapshot?.configuration;
+    let count = 0;
+    for (const field of timingFields) {
+        const input = element(field.id), edited = config != null && input.value !== field.value(config);
+        setProperty(input.dataset, 'edited', String(edited));
+        if (edited)
+            count++;
+    }
+    text('timing-edited-count', count ? `${count} ${count === 1 ? 'edited value' : 'edited values'} · active settings unchanged` : 'Active settings remain in effect until confirmation in Vault.');
+}
+element('settings-form').addEventListener('input', renderTimingEdits);
 element('settings-form').addEventListener('submit', (event) => {
     event.preventDefault();
     const draft = Object.fromEntries(timingFields.map((field) => [field.id, element(field.id).value]));
@@ -983,87 +703,19 @@ element('settings-form').addEventListener('submit', (event) => {
         feedback('Use positive values in whole milliseconds and a whole hop limit.', 'error');
         return;
     }
-    element('propose-defaults').closest('details').open = true;
     void send({ kind: 'PROPOSE_SETTINGS', candidateConfiguration }).then(response => {
         if (response?.result?.type === 'COMMITTED')
             navigate('vault', true);
     });
 });
-function diagnostics() {
-    if (disposed || document.hidden || section !== 'settings' || !element('diagnostics').open) {
-        ++diagnosticEpoch;
-        diagnosticRequest = null;
-        return Promise.resolve();
-    }
-    const tabId = element('diagnostic-scope').value === 'all' ? null : Number(selected || -1);
-    if (diagnosticRequest?.scope === tabId)
-        return diagnosticRequest.pending;
-    const ticket = ++diagnosticEpoch;
-    const pending = loadDiagnostics(tabId, ticket).finally(() => { if (diagnosticRequest?.pending === pending)
-        diagnosticRequest = null; });
-    diagnosticRequest = { scope: tabId, pending };
-    return pending;
-}
-async function loadDiagnostics(tabId, ticket) {
-    try {
-        const response = await browser.runtime.sendMessage({ kind: 'GET_DIAGNOSTICS', tabId });
-        if (ticket !== diagnosticEpoch || disposed || section !== 'settings' || !element('diagnostics').open)
-            return;
-        if (!Array.isArray(response?.entries))
-            throw new Error('DIAGNOSTICS_UNAVAILABLE');
-        const entries = response.entries;
-        const key = JSON.stringify(entries);
-        if (key === diagnosticKey)
-            return;
-        diagnosticKey = key;
-        element('diagnostic-rows').replaceChildren(...[...entries].reverse().map((entry) => {
-            const row = document.createElement('tr');
-            const request = entry.method ? `\n${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : ' · no source origin'}${entry.continuationKind ? ` · ${entry.continuationKind}` : ''}` : '';
-            for (const value of [String(entry.sequence), `${entry.event}${request}`, `${entry.tabId} / ${entry.navigationId}`, entry.hostname ?? '—',
-                `${entry.outcome ?? '—'}${entry.reason ? ` · ${entry.reason}` : ''}`,
-                entry.journey ? `${entry.journey.id} · ${entry.journey.phase} · ${entry.journey.hopCount}/${entry.journey.maxHops}${entry.journey.endReason ? ` · ${entry.journey.endReason}` : ''}` : '—']) {
-                const cell = document.createElement('td');
-                setProperty(cell, 'textContent', value);
-                row.append(cell);
-            }
-            return row;
-        }));
-        setProperty(element('diagnostic-empty'), 'hidden', entries.length > 0);
-    }
-    catch {
-        if (ticket === diagnosticEpoch)
-            feedback('Diagnostics are temporarily unavailable.', 'error');
-    }
-}
-select.addEventListener('change', () => { selected = select.value; rememberPage(); render(); void diagnostics(); });
 element('setup-form').addEventListener('submit', (event) => {
     event.preventDefault();
     const hosts = (id) => element(id).value.split(/\r?\n/).map((value) => value.trim()).filter(Boolean);
-    const defaults = element('use-defaults').checked ? compileCuratedWhitelist().whitelist : [];
-    void send({ kind: 'SETUP', policy: { whitelist: [...new Set([...defaults, ...hosts('whitelist')])], blacklist: hosts('blacklist') } });
+    const defaults = element('use-defaults').checked ? compileCuratedWhitelist() : null;
+    const blacklist = hosts('blacklist');
+    void send({ kind: 'SETUP', policy: { whitelist: [...new Set([...(defaults?.whitelist ?? []), ...hosts('whitelist')])], blacklist,
+            ...(defaults ? { whitelistSubdomains: defaults.whitelistSubdomains?.filter(host => !blacklist.includes(host)) } : {}) } });
 });
-element('journey-form').addEventListener('submit', (event) => {
-    event.preventDefault();
-    void send({ kind: 'OPEN_DESTINATION', url: element('destination').value.trim() });
-});
-element('start-access').addEventListener('click', () => {
-    const context = selectedContext(view?.contexts ?? [], selected);
-    if (context?.accessScope?.status === 'READY')
-        void send({ kind: 'START_ACCESS', tabId: context.tabId, scopeId: context.accessScope.id });
-});
-for (const [id, kind] of Object.entries({ 'open-home': 'OPEN_HOME',
-    'start-journey': 'START_JOURNEY', 'cancel-journey': 'CANCEL_JOURNEY' }))
-    element(id).addEventListener('click', () => { if (selected !== '')
-        void send({ kind, tabId: Number(selected) }); });
-for (const [id, kind] of Object.entries({ 'confirm-access': 'CONFIRM_ACCESS_AND_OPEN', 'cancel-access': 'CANCEL_ACCESS' })) {
-    element(id).addEventListener('click', () => {
-        const context = selectedContext(view?.contexts ?? [], selected);
-        const decision = context?.latest?.type === 'ASSESSMENT' ? context.latest.decision : null;
-        const { pending } = selectedAccessRecord(decision, view?.controller?.snapshot?.accessState, context?.hostname);
-        if (pending && context)
-            void send({ kind, requestId: pending.id, ...(kind === 'CONFIRM_ACCESS_AND_OPEN' ? { tabId: context.tabId } : {}) });
-    });
-}
 element('recover').addEventListener('click', () => { void send({ kind: 'RECOVER' }); });
 element('propose-defaults').addEventListener('click', () => { void send({ kind: 'PROPOSE_CURATED_DEFAULTS' }); navigate('vault'); });
 for (const [id, kind] of Object.entries({ 'confirm-policy': 'CONFIRM_POLICY', 'cancel-policy': 'CANCEL_POLICY' })) {
@@ -1073,26 +725,6 @@ for (const [id, kind] of Object.entries({ 'confirm-policy': 'CONFIRM_POLICY', 'c
             void send({ kind, proposalId });
     });
 }
-element('diagnostics').addEventListener('toggle', () => { void diagnostics(); });
-element('diagnostic-scope').addEventListener('change', () => { void diagnostics(); });
-element('clear-diagnostics').addEventListener('click', () => {
-    ++diagnosticEpoch;
-    diagnosticRequest = null;
-    void browser.runtime.sendMessage({ kind: 'CLEAR_DIAGNOSTICS' }).then(() => diagnostics()).catch(() => feedback('Could not clear diagnostics.', 'error'));
-});
-element('export-diagnostics').addEventListener('click', () => {
-    const tabId = element('diagnostic-scope').value === 'all' ? null : Number(selected || -1);
-    void browser.runtime.sendMessage({ kind: 'GET_DIAGNOSTICS', tabId }).then((response) => {
-        if (!Array.isArray(response?.entries))
-            throw new Error('Unavailable');
-        const url = URL.createObjectURL(new Blob([JSON.stringify({ format: 'atlas-diagnostics-v1', entries: response.entries, storage: response.storage ?? null }, null, 2)], { type: 'application/json' }));
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'atlas-diagnostics.json';
-        link.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }).catch(() => feedback('Could not export diagnostics.', 'error'));
-});
 async function refreshView() {
     const ticket = epoch;
     try {
@@ -1119,10 +751,18 @@ async function refreshView() {
                 render();
             if (ticket === epoch)
                 void homeOrganization.refresh();
+            if (ticket === epoch) {
+                const before = presentationView();
+                void Promise.resolve(homePins.refresh()).then(() => {
+                    const after = presentationView();
+                    if (before?.sync.revision !== after?.sync.revision || before?.bookmarks.revision !== after?.bookmarks.revision || JSON.stringify(before?.pins) !== JSON.stringify(after?.pins)
+                        || JSON.stringify(before?.sync.warnings) !== JSON.stringify(after?.sync.warnings))
+                        requestRender();
+                });
+            }
             if (ticket === epoch)
                 void sites.refresh();
         }
-        await diagnostics();
     }
     catch {
         if (ticket === epoch) {
@@ -1132,13 +772,15 @@ async function refreshView() {
             render();
         }
     }
+    finally {
+        await diagnosticPanel.refresh();
+    }
 }
 const refreshLoop = new RefreshLoop(refreshView, { delay: () => view?.controller?.status === 'COMMITTING' || view?.controller?.status === 'LOADING' ? 100 : 1000 });
 function poll() { return refreshLoop.request(); }
 document.addEventListener('visibilitychange', () => {
     ++epoch;
-    ++diagnosticEpoch;
-    diagnosticRequest = null;
+    diagnosticPanel.invalidate();
     refreshLoop.setActive(!document.hidden);
     if (!document.hidden)
         render();
@@ -1146,67 +788,31 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('pagehide', () => {
     disposed = true;
     ++epoch;
+    diagnosticPanel.dispose();
     refreshLoop.dispose();
-    iconObserver.disconnect();
-    layoutObserver.disconnect();
-    browser.tabs.onUpdated.removeListener(observeWebsiteIcon);
-    for (const promise of websiteIcons.values())
-        void promise.then(url => { if (url)
-            URL.revokeObjectURL(url); });
-    websiteIcons.clear();
-    observedIcons.clear();
+    homePins.dispose();
+    destinationCards.dispose();
 });
 window.addEventListener('storage', (event) => {
-    if (event.key !== pinsStorageKey && event.key !== destinationUsageKey && event.key !== null)
+    if (event.key !== pinsStorageKey && event.key !== null)
         return;
-    const before = JSON.stringify([pins, usage]);
+    if (event.key === pinsStorageKey || event.key === null)
+        void Promise.resolve(homePins.refresh()).then(requestRender);
+    const before = JSON.stringify(pins);
     try {
         if (event.key === pinsStorageKey || event.key === null)
             pins = readPins(JSON.parse(localStorage.getItem(pinsStorageKey) ?? 'null'));
-        if (event.key === destinationUsageKey || event.key === null)
-            usage = readDestinationUsage(JSON.parse(localStorage.getItem(destinationUsageKey) ?? 'null'));
     }
     catch { /* Invalid presentation data cannot change permissions. */ }
-    if (before !== JSON.stringify([pins, usage]))
+    if (before !== JSON.stringify(pins))
         render();
 });
-element('restart-journey').addEventListener('click', () => {
-    const context = selectedContext(view?.contexts ?? [], selected);
-    if (context?.retry)
-        void send({ kind: 'RESTART_JOURNEY', tabId: context.tabId, journeyId: context.retry.journeyId });
-});
-function observeWebsiteIcon(_tabId, changes, tab) {
-    if ((!changes.favIconUrl && !changes.url) || !tab.url || !tab.favIconUrl)
-        return;
-    try {
-        const hostname = new URL(tab.url).hostname;
-        if (observedIcons.get(hostname) === tab.favIconUrl)
-            return;
-        observedIcons.set(hostname, tab.favIconUrl);
-        const previous = websiteIcons.get(hostname);
-        websiteIcons.delete(hostname);
-        if (previous)
-            void previous.then(url => { if (url)
-                URL.revokeObjectURL(url); });
-        for (const image of document.querySelectorAll('.site-icon'))
-            if (image.dataset.hostname === hostname)
-                void displayWebsiteIcon(image, hostname);
-    }
-    catch { /* Missing/unsupported website metadata creates no icon or permission. */ }
-}
-browser.tabs.onUpdated.addListener(observeWebsiteIcon);
 try {
     pins = readPins(JSON.parse(localStorage.getItem(pinsStorageKey) ?? 'null'));
 }
 catch {
-    feedback('Pinned destinations are unavailable. Your saved policy is unaffected.', 'error');
+    feedback('Pinned sites are unavailable. Your saved policy is unaffected.', 'error');
 }
 pinsLoaded = true;
-try {
-    usage = readDestinationUsage(JSON.parse(localStorage.getItem(destinationUsageKey) ?? 'null'));
-}
-catch {
-    usage = {};
-}
 render();
 refreshLoop.setActive(!document.hidden);

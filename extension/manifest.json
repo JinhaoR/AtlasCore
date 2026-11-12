@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Atlas",
-  "version": "0.1.16",
+  "version": "0.3.0",
   "description": "Intentional top-level web access, decided by AtlasCore.",
   "browser_specific_settings": {
     "gecko": {
@@ -15,6 +15,7 @@
     }
   },
   "permissions": [
+    "bookmarks",
     "tabs",
     "webNavigation",
     "webRequest",
@@ -33,7 +34,8 @@
     "96": "ui/atlas.svg"
   },
   "browser_action": {
-    "default_title": "Open Atlas",
+    "default_title": "Atlas status and shortcuts",
+    "default_popup": "ui/popup.html",
     "default_icon": "ui/atlas.svg",
     "default_area": "navbar"
   },
@@ -53,6 +55,12 @@
   "options_ui": {
     "page": "ui/index.html",
     "open_in_tab": true
+  },
+  "chrome_settings_overrides": {
+    "homepage": "ui/index.html"
+  },
+  "chrome_url_overrides": {
+    "newtab": "ui/index.html"
   },
   "incognito": "not_allowed",
   "content_security_policy": "script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"

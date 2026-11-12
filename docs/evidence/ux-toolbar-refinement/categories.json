@@ -1,0 +1,96 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.2.4",
+  "firefox": "159.0.1",
+  "categoryGrid": {
+    "checks": [
+      "native pointer drag reorders once without opening a category",
+      "Escape and release outside cancel dragging without persistence or activation",
+      "keyboard, focus, Back/Forward and reload preserve order and local icon choice",
+      "failed icon save retains editor choice; retry commits without changing layout or policy",
+      "two control pages and a full Firefox restart preserve acknowledged icons, order and pins",
+      "30 categories scroll internally; local custom icons, small windows and 125-200% zoom; idle nodes retained; authority unchanged"
+    ],
+    "viewports": [
+      {
+        "window": 1488,
+        "zoom": 1,
+        "width": 1488,
+        "height": 1058,
+        "scroll": 1488,
+        "client": 1488,
+        "categories": 391
+      },
+      {
+        "window": 2538,
+        "zoom": 1,
+        "width": 2538,
+        "height": 1176,
+        "scroll": 2538,
+        "client": 2538,
+        "categories": 424
+      },
+      {
+        "window": 1200,
+        "zoom": 1,
+        "width": 1200,
+        "height": 815,
+        "scroll": 1200,
+        "client": 1200,
+        "categories": 304
+      },
+      {
+        "window": 1488,
+        "zoom": 1.25,
+        "width": 1190,
+        "height": 846,
+        "scroll": 1190,
+        "client": 1190,
+        "categories": 422
+      },
+      {
+        "window": 1488,
+        "zoom": 1.5,
+        "width": 992,
+        "height": 705,
+        "scroll": 992,
+        "client": 992,
+        "categories": 422
+      },
+      {
+        "window": 1488,
+        "zoom": 2,
+        "width": 744,
+        "height": 529,
+        "scroll": 744,
+        "client": 744,
+        "categories": 422
+      },
+      {
+        "window": 500,
+        "zoom": 1,
+        "width": 500,
+        "height": 815,
+        "scroll": 500,
+        "client": 500,
+        "categories": 422
+      },
+      {
+        "window": 500,
+        "zoom": 2,
+        "width": 250,
+        "height": 408,
+        "scroll": 250,
+        "client": 250,
+        "categories": 381
+      }
+    ],
+    "idle": {
+      "mutations": 0,
+      "resources": 0,
+      "retained": true
+    },
+    "normalProfileAccessed": false
+  },
+  "status": "PASS"
+}

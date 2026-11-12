@@ -1,0 +1,246 @@
+{
+  "firefox": "159.0.1",
+  "suite": "ui-stability-interactions",
+  "checks": [
+    "usage reordering retains the exact card, focused entry-point selector, selected hostname and open disclosure",
+    "retained entry-point selection sends the exact adapter command; this fixture withholds the external browser effect",
+    "120 identical storage notifications leave destination structure and attributes unchanged",
+    "an out-of-order failed poll cannot overwrite a newer verified operation or the active draft/caret",
+    "failed authority retains work/focus, disables launchers and read-only retries retain one timer before recovery",
+    "late diagnostics from a previous scope cannot replace newer results",
+    "failed layout saves retain unsaved work and recover only after acknowledged retry",
+    "actual Firefox toolbar activation reuses Sites without reloading or discarding the persistent editor",
+    "passive Journey indicator retains host/label for 60 seconds, mutates only countdown text and keeps its fixed Core deadline"
+  ],
+  "observations": [
+    {
+      "case": "usage-entry-point",
+      "cardSame": true,
+      "oldConnected": true,
+      "open": true,
+      "selected": "canvas.instructure.com",
+      "headingSame": true,
+      "focusSame": true
+    },
+    {
+      "case": "unchanged-storage-notifications",
+      "mutations": 3,
+      "attributes": 0,
+      "redundantAttributes": 0,
+      "childList": 3,
+      "added": 3,
+      "removed": 3,
+      "replacements": {},
+      "writes": {},
+      "regions": {
+        "diagnostics": 3
+      },
+      "messages": {
+        "GET_VIEW": 3
+      },
+      "creates": 0,
+      "layoutReads": 0,
+      "timerCreated": 3,
+      "timerFired": 2,
+      "activeTimers": 1,
+      "maxTimers": 1
+    },
+    {
+      "case": "retry-timer-ownership",
+      "mutations": 3,
+      "attributes": 3,
+      "redundantAttributes": 0,
+      "childList": 0,
+      "added": 0,
+      "removed": 0,
+      "replacements": {},
+      "writes": {},
+      "regions": {
+        "sites-list": 3
+      },
+      "messages": {
+        "GET_VIEW": 11
+      },
+      "creates": 0,
+      "layoutReads": 0,
+      "timerCreated": 11,
+      "timerFired": 5,
+      "activeTimers": 1,
+      "maxTimers": 1
+    },
+    {
+      "case": "passive-indicator",
+      "seconds": 60.02,
+      "samples": [
+        {
+          "stats": {
+            "attributes": 0,
+            "childList": 4,
+            "added": 4,
+            "removed": 4
+          },
+          "hidden": false,
+          "probeClear": null,
+          "actualExists": true,
+          "hostStable": true,
+          "labelStable": true,
+          "time": "4:55"
+        },
+        {
+          "stats": {
+            "attributes": 0,
+            "childList": 8,
+            "added": 8,
+            "removed": 8
+          },
+          "hidden": false,
+          "probeClear": null,
+          "actualExists": true,
+          "hostStable": true,
+          "labelStable": true,
+          "time": "4:50"
+        },
+        {
+          "stats": {
+            "attributes": 0,
+            "childList": 12,
+            "added": 12,
+            "removed": 12
+          },
+          "hidden": false,
+          "probeClear": null,
+          "actualExists": true,
+          "hostStable": true,
+          "labelStable": true,
+          "time": "4:45"
+        },
+        {
+          "stats": {
+            "attributes": 0,
+            "childList": 16,
+            "added": 16,
+            "removed": 16
+          },
+          "hidden": false,
+          "probeClear": null,
+          "actualExists": true,
+          "hostStable": true,
+          "labelStable": true,
+          "time": "4:40"
+        },
+        {
+          "stats": {
+            "attributes": 0,
+            "childList": 20,
+            "added": 20,
+            "removed": 20
+          },
+          "hidden": false,
+          "probeClear": null,
+          "actualExists": true,
+          "hostStable": true,
+          "labelStable": true,
+          "time": "4:35"
+        },
+        {
+          "stats": {
+            "attributes": 0,
+            "childList": 24,
+            "added": 24,
+            "removed": 24
+          },
+          "hidden": false,
+          "probeClear": null,
+          "actualExists": true,
+          "hostStable": true,
+          "labelStable": true,
+          "time": "4:30"
+        },
+        {
+          "stats": {
+            "attributes": 0,
+            "childList": 28,
+            "added": 28,
+            "removed": 28
+          },
+          "hidden": false,
+          "probeClear": null,
+          "actualExists": true,
+          "hostStable": true,
+          "labelStable": true,
+          "time": "4:25"
+        },
+        {
+          "stats": {
+            "attributes": 0,
+            "childList": 32,
+            "added": 32,
+            "removed": 32
+          },
+          "hidden": false,
+          "probeClear": null,
+          "actualExists": true,
+          "hostStable": true,
+          "labelStable": true,
+          "time": "4:21"
+        },
+        {
+          "stats": {
+            "attributes": 0,
+            "childList": 36,
+            "added": 36,
+            "removed": 36
+          },
+          "hidden": false,
+          "probeClear": null,
+          "actualExists": true,
+          "hostStable": true,
+          "labelStable": true,
+          "time": "4:16"
+        },
+        {
+          "stats": {
+            "attributes": 0,
+            "childList": 41,
+            "added": 41,
+            "removed": 41
+          },
+          "hidden": false,
+          "probeClear": null,
+          "actualExists": true,
+          "hostStable": true,
+          "labelStable": true,
+          "time": "4:10"
+        },
+        {
+          "stats": {
+            "attributes": 0,
+            "childList": 45,
+            "added": 45,
+            "removed": 45
+          },
+          "hidden": false,
+          "probeClear": null,
+          "actualExists": true,
+          "hostStable": true,
+          "labelStable": true,
+          "time": "4:05"
+        },
+        {
+          "stats": {
+            "attributes": 0,
+            "childList": 49,
+            "added": 49,
+            "removed": 49
+          },
+          "hidden": false,
+          "probeClear": null,
+          "actualExists": true,
+          "hostStable": true,
+          "labelStable": true,
+          "time": "4:00"
+        }
+      ]
+    }
+  ]
+}

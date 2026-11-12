@@ -32,6 +32,13 @@ def run_interactions(client, ui_handle, ui_url, port, wait_for, artifacts, basel
     client.script('localStorage.setItem("atlas-destinations-v1",JSON.stringify({version:1,destinations:arguments[0],pending:null}));window.dispatchEvent(new StorageEvent("storage",{key:"atlas-destinations-v1"}));', metadata)
     ready()
     wait_for(lambda: client.script('''return document.querySelector('#destination-list .destination-card[data-destination-id="service:canvas.kth.se"] .destination-name')?.textContent==='Paired library';'''), 'prepared multiple-entry-point fixture')
+    # Since 0.2.0 categories occupy a workspace behind the compass. A hidden
+    # control cannot receive focus; enter its category through the real shortcut.
+    client.script('''document.querySelector('.browse-categories').click();
+      const group=document.querySelector('#destination-list [data-destination-id="service:canvas.kth.se"]').closest('.service-group');
+      if(group.dataset.collapsed==='true')group.querySelector('.category-heading').click();
+      const expand=group.querySelector('.category-toggle');if(!expand.hidden)expand.click();''')
+    wait_for(lambda: client.script('''return !document.querySelector('#destination-list [data-destination-id="service:canvas.kth.se"]').closest('[hidden]');'''), 'visible category entry points')
     client.script('''window.__stableCard=document.querySelector('#destination-list [data-destination-id="service:canvas.kth.se"]');
       window.__stableHeading=window.__stableCard.closest('.service-group').querySelector('.category-heading');
       const d=window.__stableCard.querySelector('details'),s=d.querySelector('select');d.open=true;s.value='canvas.instructure.com';

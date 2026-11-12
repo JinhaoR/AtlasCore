@@ -1,0 +1,68 @@
+{
+  "firefox": "159.0",
+  "suite": "quality-pass",
+  "baseline": true,
+  "navigation": [
+    {
+      "history": 0,
+      "medianMs": 125.0,
+      "maxMs": 156.9999999992433,
+      "samples": [
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        140.99999999962165,
+        125.0,
+        125.0,
+        125.0,
+        110.00000000058208,
+        125.0,
+        125.0,
+        156.9999999992433,
+        125.0,
+        125.0,
+        125.0
+      ]
+    },
+    {
+      "history": 2500,
+      "medianMs": 483.99999999674037,
+      "maxMs": 594.0000000009604,
+      "samples": [
+        328.0000000013388,
+        342.9999999971187,
+        405.9999999990396,
+        390.99999999962165,
+        531.0000000026776,
+        342.9999999971187,
+        547.0000000022992,
+        594.0000000009604,
+        406.9999999992433,
+        483.99999999674037,
+        546.9999999986612,
+        594.0000000009604,
+        484.00000000037835,
+        328.0000000013388,
+        562.9999999982829
+      ]
+    }
+  ],
+  "focusCaretPreserved": true,
+  "smallViewportOverflow": false,
+  "editorPosition": {
+    "top": 670.4500122070312,
+    "pageHeight": 1480
+  },
+  "nativeZoomChecks": [],
+  "keyboardAndFailedDraftRetry": false,
+  "checks": [
+    "consecutive display and policy draft edits",
+    "review/sidebar return retains both staged changes",
+    "native caret identity retained",
+    "wide/small screenshots",
+    "ordinary Core-gated navigation with history"
+  ],
+  "controllerReason": null,
+  "normalProfileAccessed": false
+}

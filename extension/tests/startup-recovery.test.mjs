@@ -41,7 +41,7 @@ async function setup(t, options = {}) {
   return { adapter, firefox, host, clock, repositories, attempts: () => attempts, closed: () => closed };
 }
 
-test('bundle startup failure stays closed; Recovery retries once and loads the shipped 51 hosts', async t => {
+test('bundle startup failure stays closed; Recovery retries once and loads the shipped preset', async t => {
   let damaged = true;
   const f = await setup(t, { loadManaged: async () => {
     if (damaged) throw new Error('BUNDLED_BLACKLIST_INVALID');
@@ -64,7 +64,7 @@ test('bundle startup failure stays closed; Recovery retries once and loads the s
   assert.equal(recovered.view.startup.status, 'READY');
   assert.equal(recovered.view.controller.status, 'READY');
   assert.deepEqual(recovered.view.controller.snapshot.policy, compileCuratedWhitelist());
-  assert.equal(recovered.view.controller.snapshot.policy.whitelist.length, 51);
+  assert.equal(recovered.view.controller.snapshot.policy.whitelist.length, compileCuratedWhitelist().whitelist.length);
   assert.deepEqual(recovered.view.controller.snapshot.accessState.grants, []);
   assert.equal((await f.firefox.request(2, 'https://github.com/')).cancel, undefined);
 });
@@ -76,7 +76,7 @@ test('storage-open failures report storage and retry without copying local brows
   unavailable = false;
   await f.firefox.send({ kind: 'RECOVER' });
   assert.equal(f.adapter.view().controller.status, 'READY');
-  assert.equal(f.adapter.view().controller.snapshot.policy.whitelist.length, 51);
+  assert.equal(f.adapter.view().controller.snapshot.policy.whitelist.length, compileCuratedWhitelist().whitelist.length);
 });
 
 test('concurrent Recovery commands serialize one successful construction and preserve saved authority', async t => {
@@ -108,7 +108,7 @@ test('Recovery with an existing controller retains its clock rollback fence', as
   assert.equal((await f.firefox.request(1, 'https://github.com/')).cancel, true);
 });
 
-test('startup factory preserves custom, intentionally empty and damaged initialized policy', async t => {
+test('startup expands healthy custom/empty policies once and never replaces damaged initialized authority', async t => {
   for (const policy of [{ whitelist: ['custom.example'], blacklist: [] }, { whitelist: [], blacklist: [] }]) {
     const factory = new IDBFactory();
     let version = 0;
@@ -118,20 +118,21 @@ test('startup factory preserves custom, intentionally empty and damaged initiali
     const before = await repository.load();
     const host = await createAdapterHost({ openRepository: async () => repository, loadManaged: async () => managed,
       createController: repo => createAtlasController({ repository: repo, clock: { now: () => 1000 }, configuration, ownerId: 'saved' }) });
-    assert.deepEqual(await repository.load(), before, 'construction never overwrites saved policy');
+    const after = (await repository.load()).envelope.snapshot;
+    assert.deepEqual(after.policy.blacklist, policy.blacklist);
+    assert.deepEqual(new Set(after.policy.whitelist), new Set([...policy.whitelist, ...compileCuratedWhitelist().whitelist]));
+    assert.deepEqual(after.configuration, before.envelope.snapshot.configuration);
     await host.controller.open();
-    assert.deepEqual(host.controller.getView().snapshot.policy, policy);
-    assert.equal(host.controller.getView().snapshot.policyRevision, before.envelope.snapshot.policyRevision);
+    assert.deepEqual(host.controller.getView().snapshot.policy, after.policy);
+    assert.equal(host.controller.getView().snapshot.policyRevision, before.envelope.snapshot.policyRevision + 2);
   }
   for (const loaded of [{ type: 'UNAVAILABLE' }, { type: 'READY', envelope: { damaged: true } }]) {
     let initialized = 0;
     const repository = { load: async () => loaded, initialize: async () => { initialized++; }, close() {},
+      applyCuratedUpgrade: async () => ({ type: 'UNAVAILABLE' }),
       commit: async () => ({ type: 'FAILED' }), resolveCommit: async () => ({ type: 'UNAVAILABLE' }) };
-    const host = await createAdapterHost({ openRepository: async () => repository, loadManaged: async () => managed,
-      createController: repo => createAtlasController({ repository: repo, clock: { now: () => 1000 }, configuration, ownerId: 'damaged' }) });
-    await host.controller.open();
-    assert.equal(host.controller.getView().status, 'UNAVAILABLE');
-    assert.equal(host.controller.getView().snapshot, null);
+    await assert.rejects(createAdapterHost({ openRepository: async () => repository, loadManaged: async () => managed,
+      createController: () => { throw new Error('must not publish authority'); } }), error => error instanceof StartupError && error.stage === 'INITIALIZATION');
     assert.equal(initialized, 0);
   }
 });
@@ -139,7 +140,8 @@ test('startup factory preserves custom, intentionally empty and damaged initiali
 test('initialization and controller construction failures close the repository and expose only safe codes', async () => {
   for (const stage of ['INITIALIZATION', 'CONTROLLER']) {
     let closed = false;
-    const repository = { close: () => { closed = true; }, load: async () => {
+    const repository = { close: () => { closed = true; }, applyCuratedUpgrade: async () => ({ type: 'UNINITIALIZED' }),
+      applyCuratedScopes: async () => ({ type: 'UNINITIALIZED' }), load: async () => {
       if (stage === 'INITIALIZATION') throw new Error('private exception');
       return { type: 'UNAVAILABLE' };
     } };

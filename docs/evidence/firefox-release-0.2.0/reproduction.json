@@ -1,0 +1,17 @@
+{
+  "atlas-0.2.0-unsigned.zip": {
+    "sha256": "f4ce62f053eecc91ba73b9a6fc6289210d5e840aeca0d02855ce915bf2438e0b",
+    "bytes": 1568782,
+    "reproducedExactly": true
+  },
+  "atlas-0.2.0-source.zip": {
+    "sha256": "8909de00c9f66b1445e7450d0b345b6275d9c46876dc95922f950b2c04f9082b",
+    "bytes": 2005661,
+    "reproducedExactly": true
+  },
+  "release.json": {
+    "sha256": "32b080ae305d431a1a1425c588aa6db7bdc2d31d5da18359c7377954484a5fb1",
+    "bytes": 28471,
+    "reproducedExactly": true
+  }
+}

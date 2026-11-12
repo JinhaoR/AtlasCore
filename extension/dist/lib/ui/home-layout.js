@@ -70,7 +70,17 @@ export function changeHomeLayout(layout, key, action, available = layout.categor
     const index = categories.findIndex(c => c.key === key);
     if (index < 0)
         return { version: 1, categories };
-    if (action === 'VISIBILITY')
+    if (typeof action === 'object') {
+        const order = categories.filter(c => available.includes(c.key));
+        const from = order.findIndex(c => c.key === key), to = order.findIndex(c => c.key === action.moveTo);
+        if (from >= 0 && to >= 0 && from !== to) {
+            order.splice(to, 0, order.splice(from, 1)[0]);
+            let cursor = 0;
+            // Hidden/empty definitions retain their slots; only participating cards move.
+            return { version: 1, categories: categories.map(c => available.includes(c.key) ? order[cursor++] : c) };
+        }
+    }
+    else if (action === 'VISIBILITY')
         categories[index].visible = !categories[index].visible;
     else if (action === 'COLLAPSE')
         categories[index].collapsed = !categories[index].collapsed;

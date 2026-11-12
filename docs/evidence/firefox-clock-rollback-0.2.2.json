@@ -1,0 +1,62 @@
+{
+  "reportDate": "2026-11-07",
+  "source": "User-supplied atlas-diagnostics(1).json; selected numeric and closed-code fields only",
+  "extensionVersion": "0.2.2",
+  "startedAt": 1794049199716,
+  "authorityInterruption": {
+    "status": "UNAVAILABLE",
+    "reason": "CLOCK_ROLLBACK",
+    "observedAt": 1794070561977,
+    "checkpointAt": 1794070567970,
+    "latestStorageFailure": null
+  },
+  "observedCheckpointDeficitMs": 5993,
+  "wallClockSpanToCheckpointMs": 21368254,
+  "storage": {
+    "readTransactions": 195847,
+    "writeTransactions": 97922,
+    "committedWrites": 97922,
+    "failedCommits": 0,
+    "lastFailure": null
+  },
+  "runtime": {
+    "faults": [],
+    "retention": "READY",
+    "previousSession": null,
+    "adapter": {
+      "queued": 0,
+      "activeSince": null,
+      "completed": 22223,
+      "contexts": 7,
+      "refreshPending": false
+    },
+    "controller": {
+      "status": "UNAVAILABLE",
+      "reason": "CLOCK_ROLLBACK",
+      "policyRevision": 50,
+      "configurationRevision": 6,
+      "pendingCommit": false,
+      "activity": {
+        "operation": "CHECK_NAVIGATION",
+        "stage": "START",
+        "active": false,
+        "queued": 0,
+        "completed": 101117
+      }
+    }
+  },
+  "osLogCheck": {
+    "log": "System",
+    "windowAroundObservedAtMs": 120000,
+    "queries": [
+      { "provider": "Microsoft-Windows-Kernel-General", "eventId": 1, "result": "NoMatchingEventsFound" },
+      { "provider": "Microsoft-Windows-Time-Service", "result": "NoMatchingEventsFound" }
+    ]
+  },
+  "limits": [
+    "Adapter observation is later than the rejected Core clock sample; exact adjustment magnitude and in-memory floor are not exported.",
+    "No matching OS event was found in the narrow window; source of the clock discrepancy remains unidentified.",
+    "This actual user report is distinct from the historical unresolved INTERNAL_ERROR and from fake-clock tests.",
+    "No runtime behavior, release artifact, installed policy or everyday Firefox profile was modified."
+  ]
+}

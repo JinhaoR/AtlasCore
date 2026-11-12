@@ -72,10 +72,10 @@ test('rejected Journey launch closes its temporary tab; toolbar reuses a control
   assert.equal(firefox.documents.size, 0);
   const tab = await firefox.tabs.create({});
   await firefox.visit(tab.id, 'https://unknown.example/');
-  firefox.browserAction.onClicked.emit({ id: tab.id });
+  await firefox.send({kind:'OPEN_CONTROL_PAGE',page:'home',tabId:tab.id,contextId:null},{id:firefox.runtime.id,url:firefox.runtime.getURL('ui/popup.html'),frameId:0});
   await firefox.flush();
   assert.equal(firefox.documents.size, 2, 'blocked view is preserved');
-  firefox.browserAction.onClicked.emit({ id: tab.id });
+  await firefox.send({kind:'OPEN_CONTROL_PAGE',page:'home',tabId:tab.id,contextId:null},{id:firefox.runtime.id,url:firefox.runtime.getURL('ui/popup.html'),frameId:0});
   await firefox.flush();
   assert.equal(firefox.documents.size, 2);
   assert.equal(firefox.badges.get(tab.id), '!');

@@ -15,14 +15,15 @@ export class HomeLayoutSession {
   current(): HomeLayout { return reconcileHomeLayout(this.saved?.value ?? null, this.catalog); }
   requested(): HomeLayout { return reconcileHomeLayout(this.draft ?? this.saved?.value ?? null, this.catalog); }
 
-  refresh(catalog: readonly HomeCategory[]): Promise<void> {
-    this.catalog = catalog;
+  /** Without a catalog, preload saved preferences without initializing or migrating them. */
+  refresh(catalog?: readonly HomeCategory[]): Promise<void> {
+    if (catalog !== undefined) this.catalog = catalog;
     if (this.refreshing) return this.refreshing;
     if (this.busy) return this.refreshing ?? Promise.resolve();
     const pending = this.loadLatest(catalog); this.refreshing = pending;
     return pending.finally(() => { if (this.refreshing === pending) this.refreshing = null; });
   }
-  private async loadLatest(catalog: readonly HomeCategory[]): Promise<void> {
+  private async loadLatest(catalog?: readonly HomeCategory[]): Promise<void> {
     // A read of already acknowledged presentation is not a save/loading transition.
     // It stays clickable; change() waits for the read and the write still uses CAS.
     const initial = this.saved === null;
@@ -36,6 +37,7 @@ export class HomeLayoutSession {
       }
       if (this.draft) return;
       if (!same(this.saved, latest)) { this.saved = latest; this.failure = null; this.changed(); }
+      if (catalog === undefined) return;
       const reconciled = reconcileHomeLayout(latest.value, catalog);
       if (!same(reconciled, latest.value)) {
         this.draft = reconciled; this.busy = true; this.changed();
@@ -45,12 +47,12 @@ export class HomeLayoutSession {
     } catch { if (this.failure !== 'UNAVAILABLE') { this.failure = 'UNAVAILABLE'; this.changed(); } }
     finally { if (this.busy) { this.busy = false; this.changed(); } }
   }
-  async change(key: string, action: HomeLayoutAction): Promise<boolean> {
+  async change(key: string, action: HomeLayoutAction, available?: readonly string[]): Promise<boolean> {
     // A background read may start between rendering an enabled control and its
     // click. Wait for that read; never silently drop the user's layout action.
     if (this.refreshing) await this.refreshing;
     if (this.busy || !this.saved || this.conflict || this.failure === 'UNAVAILABLE') return false;
-    this.draft = changeHomeLayout(this.requested(), key, action, this.catalog.map(c => c.key));
+    this.draft = changeHomeLayout(this.requested(), key, action, available ?? this.catalog.map(c => c.key));
     this.busy = true; this.changed();
     try { return await this.persist(); } finally { this.busy = false; this.changed(); }
   }

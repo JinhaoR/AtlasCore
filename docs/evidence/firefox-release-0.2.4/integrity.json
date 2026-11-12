@@ -1,0 +1,32 @@
+{
+  "previousArtifacts": {
+    "checked": 246,
+    "changed": []
+  },
+  "runtimeFileCount": 27,
+  "developmentRuntimeMatches": "all 27 files; removed only trailing development sourceMappingURL comment from JS before comparison",
+  "forbiddenTestMarkersAbsent": true,
+  "coreSourceFilesUnchangedFromSigned023": 24,
+  "requiredPermissionsUnchanged": true,
+  "optionalPermissions": [
+    "bookmarks"
+  ],
+  "addonId": "atlas-development@atlas.invalid",
+  "artifacts": {
+    "atlas-0.2.4-unsigned.zip": {
+      "sha256": "37e7d4c7ba05c2ed1389ad31918745c306e998f833dc80c29dfb6433b69cf0e0",
+      "bytes": 1599046,
+      "byteIdenticalReviewerRebuild": true
+    },
+    "atlas-0.2.4-source.zip": {
+      "sha256": "0a3923e07130d77930f1c0f500a422b2cdb69abbd362f40e488753be6d15a215",
+      "bytes": 2106247,
+      "byteIdenticalReviewerRebuild": true
+    },
+    "release.json": {
+      "sha256": "03f3d9f142e5b2e7db87887704b90c594b000fe596f71f8dfa6f1c5ee716d824",
+      "bytes": 32646,
+      "byteIdenticalReviewerRebuild": true
+    }
+  }
+}

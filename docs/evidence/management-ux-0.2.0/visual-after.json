@@ -1,0 +1,215 @@
+{
+  "firefox": "159.0",
+  "suite": "visual-redesign",
+  "baseline": false,
+  "refinement": true,
+  "referenceViewport": {
+    "width": 1586,
+    "height": 992
+  },
+  "navigationMedianMs": 9.0,
+  "navigationSamplesMs": [
+    11,
+    8,
+    8,
+    9,
+    9,
+    8,
+    11,
+    9,
+    8,
+    8,
+    9,
+    9
+  ],
+  "idle": {
+    "writes": 0,
+    "pinMutations": 0,
+    "pinIdentity": true
+  },
+  "dimensions": [
+    {
+      "requestedWidth": 1440,
+      "viewportWidth": 1440,
+      "zoom": 1,
+      "page": "home",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 1440,
+      "viewportWidth": 1440,
+      "zoom": 1,
+      "page": "sites",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 1440,
+      "viewportWidth": 1440,
+      "zoom": 1,
+      "page": "settings",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 1100,
+      "viewportWidth": 1100,
+      "zoom": 1,
+      "page": "home",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 1100,
+      "viewportWidth": 1100,
+      "zoom": 1,
+      "page": "sites",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 1100,
+      "viewportWidth": 1100,
+      "zoom": 1,
+      "page": "settings",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 820,
+      "viewportWidth": 820,
+      "zoom": 1,
+      "page": "home",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 820,
+      "viewportWidth": 820,
+      "zoom": 1,
+      "page": "sites",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 820,
+      "viewportWidth": 820,
+      "zoom": 1,
+      "page": "settings",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 500,
+      "viewportWidth": 500,
+      "zoom": 1,
+      "page": "home",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 500,
+      "viewportWidth": 500,
+      "zoom": 1,
+      "page": "sites",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 500,
+      "viewportWidth": 500,
+      "zoom": 1,
+      "page": "settings",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 360,
+      "viewportWidth": 500,
+      "zoom": 1,
+      "page": "home",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 360,
+      "viewportWidth": 500,
+      "zoom": 1,
+      "page": "sites",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 360,
+      "viewportWidth": 500,
+      "zoom": 1,
+      "page": "settings",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 1440,
+      "viewportWidth": 1152,
+      "zoom": 1.25,
+      "page": "home",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 1440,
+      "viewportWidth": 1152,
+      "zoom": 1.25,
+      "page": "sites",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 1440,
+      "viewportWidth": 1152,
+      "zoom": 1.25,
+      "page": "settings",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 1440,
+      "viewportWidth": 720,
+      "zoom": 2,
+      "page": "home",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 1440,
+      "viewportWidth": 720,
+      "zoom": 2,
+      "page": "sites",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 1440,
+      "viewportWidth": 720,
+      "zoom": 2,
+      "page": "settings",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 500,
+      "viewportWidth": 250,
+      "zoom": 2,
+      "page": "home",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 500,
+      "viewportWidth": 250,
+      "zoom": 2,
+      "page": "sites",
+      "overflow": false
+    },
+    {
+      "requestedWidth": 500,
+      "viewportWidth": 250,
+      "zoom": 2,
+      "page": "settings",
+      "overflow": false
+    }
+  ],
+  "pinsPreserved": 14,
+  "policyUnchanged": true,
+  "stress": {
+    "categories": 30,
+    "destinations": 296,
+    "fallbackAndUnavailableDiagnostics": true
+  },
+  "normalProfileAccessed": false,
+  "checks": [
+    "complete categories retained",
+    "pin order/reload/overflow",
+    "real pending access and frozen Vault review",
+    "small windows and actual browser zoom",
+    "idle DOM identity and storage writes"
+  ]
+}

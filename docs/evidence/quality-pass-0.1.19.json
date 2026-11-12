@@ -1,0 +1,1839 @@
+{
+  "date": "2026-10-30",
+  "version": "0.1.19 development",
+  "originalIntermittentTriggerEstablished": false,
+  "verification": {
+    "coreTests": 247,
+    "extensionTests": 519,
+    "newFocusedTests": 14,
+    "bothTypechecksPassed": true,
+    "developmentBuildPassed": true,
+    "gitDiffCheckPassed": true,
+    "frozenReleaseFilesChecked": 114,
+    "frozenReleaseFilesChanged": 0
+  },
+  "performance": {
+    "coreBefore": [
+      {
+        "history": 0,
+        "handleMedianMs": 0.12570000000000192,
+        "handleObjectWalks": 141,
+        "viewMedianMs": 0.0011999999999972033,
+        "viewObjectWalks": 15
+      },
+      {
+        "history": 2500,
+        "handleMedianMs": 37.30860000000001,
+        "handleObjectWalks": 22641,
+        "viewMedianMs": 0.17449999999985266,
+        "viewObjectWalks": 2515
+      }
+    ],
+    "coreAfter": [
+      {
+        "history": 0,
+        "handleMedianMs": 0.10990000000000322,
+        "handleObjectWalks": 81,
+        "viewMedianMs": 0.0002999999999957481,
+        "viewObjectWalks": 0
+      },
+      {
+        "history": 2500,
+        "handleMedianMs": 30.330200000000048,
+        "handleObjectWalks": 12581,
+        "viewMedianMs": 0.0001999999999497959,
+        "viewObjectWalks": 0
+      }
+    ],
+    "nativeBefore": {
+      "firefox": "159.0",
+      "suite": "quality-pass",
+      "baseline": true,
+      "navigation": [
+        {
+          "history": 0,
+          "medianMs": 125.0,
+          "maxMs": 156.9999999992433,
+          "samples": [
+            140.99999999962165,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            156.9999999992433,
+            125.0,
+            125.0,
+            139.99999999941792,
+            125.0,
+            125.0,
+            125.0,
+            125.0
+          ]
+        },
+        {
+          "history": 2500,
+          "medianMs": 531.0000000026776,
+          "maxMs": 750.0,
+          "samples": [
+            390.99999999962165,
+            359.00000000037835,
+            328.0000000013388,
+            594.0000000009604,
+            750.0,
+            625.0,
+            625.0,
+            625.0,
+            609.0000000003783,
+            375.0,
+            329.0000000015425,
+            655.9999999990396,
+            312.9999999982829,
+            531.0000000026776,
+            530.9999999990396
+          ]
+        }
+      ],
+      "focusCaretPreserved": true,
+      "smallViewportOverflow": false,
+      "editorPosition": {
+        "top": 1030.3499755859375,
+        "pageHeight": 1815
+      },
+      "nativeZoomChecks": [],
+      "keyboardAndFailedDraftRetry": false,
+      "checks": [
+        "consecutive display and policy draft edits",
+        "review/sidebar return retains both staged changes",
+        "native caret identity retained",
+        "wide/small screenshots",
+        "ordinary Core-gated navigation with history"
+      ],
+      "controllerReason": null,
+      "normalProfileAccessed": false
+    },
+    "nativeAfter": {
+      "firefox": "159.0",
+      "suite": "quality-pass",
+      "baseline": false,
+      "navigation": [
+        {
+          "history": 0,
+          "medianMs": 125.0,
+          "maxMs": 125.0,
+          "samples": [
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0
+          ]
+        },
+        {
+          "history": 2500,
+          "medianMs": 407.0000000028813,
+          "maxMs": 670.9999999984575,
+          "samples": [
+            407.0000000028813,
+            625.0,
+            375.0,
+            311.99999999807915,
+            484.00000000037835,
+            609.0000000003783,
+            577.9999999977008,
+            546.9999999986612,
+            670.9999999984575,
+            327.9999999977008,
+            344.0000000009604,
+            405.9999999990396,
+            530.9999999990396,
+            344.0000000009604,
+            343.0000000007567
+          ]
+        }
+      ],
+      "focusCaretPreserved": true,
+      "smallViewportOverflow": false,
+      "editorPosition": {
+        "top": 537.8499755859375,
+        "pageHeight": 1303
+      },
+      "nativeZoomChecks": [
+        {
+          "zoom": 1.25,
+          "page": "show-home",
+          "overflow": false
+        },
+        {
+          "zoom": 1.25,
+          "page": "show-sites",
+          "overflow": false
+        },
+        {
+          "zoom": 1.25,
+          "page": "show-settings",
+          "overflow": false
+        },
+        {
+          "zoom": 2,
+          "page": "show-home",
+          "overflow": false
+        },
+        {
+          "zoom": 2,
+          "page": "show-sites",
+          "overflow": false
+        },
+        {
+          "zoom": 2,
+          "page": "show-settings",
+          "overflow": false
+        }
+      ],
+      "keyboardAndFailedDraftRetry": true,
+      "checks": [
+        "consecutive display and policy draft edits",
+        "review/sidebar return retains both staged changes",
+        "native caret identity retained",
+        "wide/small screenshots",
+        "ordinary Core-gated navigation with history"
+      ],
+      "controllerReason": null,
+      "normalProfileAccessed": false
+    },
+    "initialNativeBaseline": [
+      {
+        "history": 0,
+        "medianMs": 125.0,
+        "maxMs": 155.99999999903957,
+        "samples": [
+          125.0,
+          109.00000000037835,
+          109.00000000037835,
+          125.0,
+          140.0000000012369,
+          140.99999999962165,
+          125.0,
+          155.99999999903957,
+          125.0,
+          125.0,
+          125.0,
+          125.0,
+          125.0,
+          125.0,
+          125.0
+        ]
+      },
+      {
+        "history": 2500,
+        "medianMs": 468.99999999914144,
+        "maxMs": 811.9999999998981,
+        "samples": [
+          343.0000000007567,
+          343.99999999914144,
+          390.99999999962165,
+          531.9999999992433,
+          436.99999999989814,
+          530.9999999990396,
+          327.9999999995198,
+          593.0000000007567,
+          327.9999999995198,
+          625.0,
+          640.9999999996217,
+          328.0000000013388,
+          811.9999999998981,
+          468.99999999914144,
+          531.0000000008586
+        ]
+      }
+    ],
+    "notes": [
+      "Native final before/after ran sequentially without another test process. Shared-machine timings and 100 ms polling have variance.",
+      "Node V8 sampling identified whole-snapshot JSON serialization and repeated freezing; full validation and all commit/time checks remain.",
+      "The earlier concurrent functional run timings are excluded from the performance comparison."
+    ]
+  },
+  "native": {
+    "endurance": {
+      "firefox": "159.0",
+      "suite": "long-reliability",
+      "idleSeconds": 600.9,
+      "samples": [
+        {
+          "seconds": 5.0,
+          "completed": 177,
+          "queued": 0,
+          "reads": 355,
+          "writes": 177
+        },
+        {
+          "seconds": 10.0,
+          "completed": 187,
+          "queued": 0,
+          "reads": 375,
+          "writes": 187
+        },
+        {
+          "seconds": 15.0,
+          "completed": 197,
+          "queued": 0,
+          "reads": 395,
+          "writes": 197
+        },
+        {
+          "seconds": 20.0,
+          "completed": 207,
+          "queued": 0,
+          "reads": 415,
+          "writes": 207
+        },
+        {
+          "seconds": 25.1,
+          "completed": 217,
+          "queued": 0,
+          "reads": 435,
+          "writes": 217
+        },
+        {
+          "seconds": 30.1,
+          "completed": 227,
+          "queued": 0,
+          "reads": 455,
+          "writes": 227
+        },
+        {
+          "seconds": 38.4,
+          "completed": 261,
+          "queued": 0,
+          "reads": 523,
+          "writes": 261
+        },
+        {
+          "seconds": 43.4,
+          "completed": 271,
+          "queued": 0,
+          "reads": 543,
+          "writes": 271
+        },
+        {
+          "seconds": 48.4,
+          "completed": 281,
+          "queued": 0,
+          "reads": 564,
+          "writes": 282
+        },
+        {
+          "seconds": 53.5,
+          "completed": 291,
+          "queued": 0,
+          "reads": 585,
+          "writes": 292
+        },
+        {
+          "seconds": 58.5,
+          "completed": 302,
+          "queued": 0,
+          "reads": 606,
+          "writes": 302
+        },
+        {
+          "seconds": 63.6,
+          "completed": 312,
+          "queued": 0,
+          "reads": 626,
+          "writes": 313
+        },
+        {
+          "seconds": 71.8,
+          "completed": 349,
+          "queued": 0,
+          "reads": 699,
+          "writes": 349
+        },
+        {
+          "seconds": 76.8,
+          "completed": 359,
+          "queued": 0,
+          "reads": 719,
+          "writes": 359
+        },
+        {
+          "seconds": 81.8,
+          "completed": 369,
+          "queued": 0,
+          "reads": 739,
+          "writes": 369
+        },
+        {
+          "seconds": 86.8,
+          "completed": 379,
+          "queued": 0,
+          "reads": 759,
+          "writes": 379
+        },
+        {
+          "seconds": 91.8,
+          "completed": 389,
+          "queued": 0,
+          "reads": 779,
+          "writes": 389
+        },
+        {
+          "seconds": 96.9,
+          "completed": 399,
+          "queued": 0,
+          "reads": 799,
+          "writes": 399
+        },
+        {
+          "seconds": 104.9,
+          "completed": 433,
+          "queued": 0,
+          "reads": 867,
+          "writes": 433
+        },
+        {
+          "seconds": 109.9,
+          "completed": 443,
+          "queued": 0,
+          "reads": 887,
+          "writes": 443
+        },
+        {
+          "seconds": 115.0,
+          "completed": 453,
+          "queued": 0,
+          "reads": 907,
+          "writes": 453
+        },
+        {
+          "seconds": 120.0,
+          "completed": 463,
+          "queued": 0,
+          "reads": 927,
+          "writes": 463
+        },
+        {
+          "seconds": 125.0,
+          "completed": 473,
+          "queued": 0,
+          "reads": 947,
+          "writes": 473
+        },
+        {
+          "seconds": 130.0,
+          "completed": 483,
+          "queued": 0,
+          "reads": 967,
+          "writes": 483
+        },
+        {
+          "seconds": 138.2,
+          "completed": 517,
+          "queued": 0,
+          "reads": 1035,
+          "writes": 517
+        },
+        {
+          "seconds": 143.2,
+          "completed": 527,
+          "queued": 0,
+          "reads": 1055,
+          "writes": 527
+        },
+        {
+          "seconds": 148.2,
+          "completed": 537,
+          "queued": 0,
+          "reads": 1075,
+          "writes": 537
+        },
+        {
+          "seconds": 153.2,
+          "completed": 547,
+          "queued": 0,
+          "reads": 1095,
+          "writes": 547
+        },
+        {
+          "seconds": 158.2,
+          "completed": 557,
+          "queued": 0,
+          "reads": 1115,
+          "writes": 557
+        },
+        {
+          "seconds": 163.2,
+          "completed": 567,
+          "queued": 0,
+          "reads": 1135,
+          "writes": 567
+        },
+        {
+          "seconds": 171.2,
+          "completed": 598,
+          "queued": 0,
+          "reads": 1197,
+          "writes": 598
+        },
+        {
+          "seconds": 176.2,
+          "completed": 608,
+          "queued": 0,
+          "reads": 1217,
+          "writes": 608
+        },
+        {
+          "seconds": 181.2,
+          "completed": 618,
+          "queued": 0,
+          "reads": 1237,
+          "writes": 618
+        },
+        {
+          "seconds": 186.2,
+          "completed": 628,
+          "queued": 0,
+          "reads": 1257,
+          "writes": 628
+        },
+        {
+          "seconds": 191.3,
+          "completed": 638,
+          "queued": 0,
+          "reads": 1277,
+          "writes": 638
+        },
+        {
+          "seconds": 196.3,
+          "completed": 648,
+          "queued": 0,
+          "reads": 1297,
+          "writes": 648
+        },
+        {
+          "seconds": 204.1,
+          "completed": 679,
+          "queued": 0,
+          "reads": 1359,
+          "writes": 679
+        },
+        {
+          "seconds": 209.2,
+          "completed": 689,
+          "queued": 0,
+          "reads": 1379,
+          "writes": 689
+        },
+        {
+          "seconds": 214.2,
+          "completed": 699,
+          "queued": 0,
+          "reads": 1399,
+          "writes": 699
+        },
+        {
+          "seconds": 219.2,
+          "completed": 709,
+          "queued": 0,
+          "reads": 1419,
+          "writes": 709
+        },
+        {
+          "seconds": 224.2,
+          "completed": 719,
+          "queued": 0,
+          "reads": 1439,
+          "writes": 719
+        },
+        {
+          "seconds": 229.2,
+          "completed": 729,
+          "queued": 0,
+          "reads": 1459,
+          "writes": 729
+        },
+        {
+          "seconds": 237.3,
+          "completed": 763,
+          "queued": 0,
+          "reads": 1527,
+          "writes": 763
+        },
+        {
+          "seconds": 242.3,
+          "completed": 773,
+          "queued": 0,
+          "reads": 1547,
+          "writes": 773
+        },
+        {
+          "seconds": 247.3,
+          "completed": 783,
+          "queued": 0,
+          "reads": 1567,
+          "writes": 783
+        },
+        {
+          "seconds": 252.3,
+          "completed": 793,
+          "queued": 0,
+          "reads": 1587,
+          "writes": 793
+        },
+        {
+          "seconds": 257.4,
+          "completed": 803,
+          "queued": 0,
+          "reads": 1607,
+          "writes": 803
+        },
+        {
+          "seconds": 262.4,
+          "completed": 813,
+          "queued": 0,
+          "reads": 1627,
+          "writes": 813
+        },
+        {
+          "seconds": 270.3,
+          "completed": 844,
+          "queued": 0,
+          "reads": 1689,
+          "writes": 844
+        },
+        {
+          "seconds": 275.3,
+          "completed": 854,
+          "queued": 0,
+          "reads": 1709,
+          "writes": 854
+        },
+        {
+          "seconds": 280.3,
+          "completed": 864,
+          "queued": 0,
+          "reads": 1729,
+          "writes": 864
+        },
+        {
+          "seconds": 285.3,
+          "completed": 874,
+          "queued": 0,
+          "reads": 1749,
+          "writes": 874
+        },
+        {
+          "seconds": 290.3,
+          "completed": 884,
+          "queued": 0,
+          "reads": 1769,
+          "writes": 884
+        },
+        {
+          "seconds": 295.3,
+          "completed": 894,
+          "queued": 0,
+          "reads": 1789,
+          "writes": 894
+        },
+        {
+          "seconds": 303.3,
+          "completed": 927,
+          "queued": 0,
+          "reads": 1855,
+          "writes": 927
+        },
+        {
+          "seconds": 308.4,
+          "completed": 937,
+          "queued": 0,
+          "reads": 1875,
+          "writes": 937
+        },
+        {
+          "seconds": 313.4,
+          "completed": 947,
+          "queued": 0,
+          "reads": 1895,
+          "writes": 947
+        },
+        {
+          "seconds": 318.4,
+          "completed": 957,
+          "queued": 0,
+          "reads": 1915,
+          "writes": 957
+        },
+        {
+          "seconds": 323.4,
+          "completed": 967,
+          "queued": 0,
+          "reads": 1935,
+          "writes": 967
+        },
+        {
+          "seconds": 328.4,
+          "completed": 977,
+          "queued": 0,
+          "reads": 1955,
+          "writes": 977
+        },
+        {
+          "seconds": 336.5,
+          "completed": 1011,
+          "queued": 0,
+          "reads": 2023,
+          "writes": 1011
+        },
+        {
+          "seconds": 341.5,
+          "completed": 1021,
+          "queued": 0,
+          "reads": 2043,
+          "writes": 1021
+        },
+        {
+          "seconds": 346.5,
+          "completed": 1031,
+          "queued": 0,
+          "reads": 2063,
+          "writes": 1031
+        },
+        {
+          "seconds": 351.5,
+          "completed": 1041,
+          "queued": 0,
+          "reads": 2083,
+          "writes": 1041
+        },
+        {
+          "seconds": 356.5,
+          "completed": 1051,
+          "queued": 0,
+          "reads": 2103,
+          "writes": 1051
+        },
+        {
+          "seconds": 361.5,
+          "completed": 1061,
+          "queued": 0,
+          "reads": 2123,
+          "writes": 1061
+        },
+        {
+          "seconds": 369.4,
+          "completed": 1093,
+          "queued": 0,
+          "reads": 2187,
+          "writes": 1093
+        },
+        {
+          "seconds": 374.5,
+          "completed": 1103,
+          "queued": 0,
+          "reads": 2207,
+          "writes": 1103
+        },
+        {
+          "seconds": 379.5,
+          "completed": 1113,
+          "queued": 0,
+          "reads": 2227,
+          "writes": 1113
+        },
+        {
+          "seconds": 384.5,
+          "completed": 1123,
+          "queued": 0,
+          "reads": 2247,
+          "writes": 1123
+        },
+        {
+          "seconds": 389.5,
+          "completed": 1133,
+          "queued": 0,
+          "reads": 2267,
+          "writes": 1133
+        },
+        {
+          "seconds": 394.5,
+          "completed": 1143,
+          "queued": 0,
+          "reads": 2287,
+          "writes": 1143
+        },
+        {
+          "seconds": 402.5,
+          "completed": 1176,
+          "queued": 0,
+          "reads": 2353,
+          "writes": 1176
+        },
+        {
+          "seconds": 407.5,
+          "completed": 1186,
+          "queued": 0,
+          "reads": 2373,
+          "writes": 1186
+        },
+        {
+          "seconds": 412.5,
+          "completed": 1196,
+          "queued": 0,
+          "reads": 2393,
+          "writes": 1196
+        },
+        {
+          "seconds": 417.5,
+          "completed": 1206,
+          "queued": 0,
+          "reads": 2413,
+          "writes": 1206
+        },
+        {
+          "seconds": 422.5,
+          "completed": 1216,
+          "queued": 0,
+          "reads": 2433,
+          "writes": 1216
+        },
+        {
+          "seconds": 427.6,
+          "completed": 1226,
+          "queued": 0,
+          "reads": 2453,
+          "writes": 1226
+        },
+        {
+          "seconds": 435.5,
+          "completed": 1259,
+          "queued": 0,
+          "reads": 2519,
+          "writes": 1259
+        },
+        {
+          "seconds": 440.5,
+          "completed": 1269,
+          "queued": 0,
+          "reads": 2539,
+          "writes": 1269
+        },
+        {
+          "seconds": 445.5,
+          "completed": 1279,
+          "queued": 0,
+          "reads": 2559,
+          "writes": 1279
+        },
+        {
+          "seconds": 450.5,
+          "completed": 1289,
+          "queued": 0,
+          "reads": 2579,
+          "writes": 1289
+        },
+        {
+          "seconds": 455.5,
+          "completed": 1299,
+          "queued": 0,
+          "reads": 2599,
+          "writes": 1299
+        },
+        {
+          "seconds": 460.6,
+          "completed": 1309,
+          "queued": 0,
+          "reads": 2619,
+          "writes": 1309
+        },
+        {
+          "seconds": 468.6,
+          "completed": 1343,
+          "queued": 0,
+          "reads": 2687,
+          "writes": 1343
+        },
+        {
+          "seconds": 473.6,
+          "completed": 1353,
+          "queued": 0,
+          "reads": 2707,
+          "writes": 1353
+        },
+        {
+          "seconds": 478.6,
+          "completed": 1363,
+          "queued": 0,
+          "reads": 2727,
+          "writes": 1363
+        },
+        {
+          "seconds": 483.6,
+          "completed": 1373,
+          "queued": 0,
+          "reads": 2747,
+          "writes": 1373
+        },
+        {
+          "seconds": 488.6,
+          "completed": 1383,
+          "queued": 0,
+          "reads": 2767,
+          "writes": 1383
+        },
+        {
+          "seconds": 493.6,
+          "completed": 1393,
+          "queued": 0,
+          "reads": 2787,
+          "writes": 1393
+        },
+        {
+          "seconds": 501.7,
+          "completed": 1427,
+          "queued": 0,
+          "reads": 2855,
+          "writes": 1427
+        },
+        {
+          "seconds": 506.7,
+          "completed": 1437,
+          "queued": 0,
+          "reads": 2875,
+          "writes": 1437
+        },
+        {
+          "seconds": 511.7,
+          "completed": 1447,
+          "queued": 0,
+          "reads": 2895,
+          "writes": 1447
+        },
+        {
+          "seconds": 516.7,
+          "completed": 1457,
+          "queued": 0,
+          "reads": 2915,
+          "writes": 1457
+        },
+        {
+          "seconds": 521.7,
+          "completed": 1467,
+          "queued": 0,
+          "reads": 2935,
+          "writes": 1467
+        },
+        {
+          "seconds": 526.8,
+          "completed": 1477,
+          "queued": 0,
+          "reads": 2955,
+          "writes": 1477
+        },
+        {
+          "seconds": 534.8,
+          "completed": 1508,
+          "queued": 0,
+          "reads": 3017,
+          "writes": 1508
+        },
+        {
+          "seconds": 539.8,
+          "completed": 1518,
+          "queued": 0,
+          "reads": 3037,
+          "writes": 1518
+        },
+        {
+          "seconds": 544.8,
+          "completed": 1528,
+          "queued": 0,
+          "reads": 3057,
+          "writes": 1528
+        },
+        {
+          "seconds": 549.8,
+          "completed": 1538,
+          "queued": 0,
+          "reads": 3077,
+          "writes": 1538
+        },
+        {
+          "seconds": 554.8,
+          "completed": 1548,
+          "queued": 0,
+          "reads": 3097,
+          "writes": 1548
+        },
+        {
+          "seconds": 559.8,
+          "completed": 1558,
+          "queued": 0,
+          "reads": 3117,
+          "writes": 1558
+        },
+        {
+          "seconds": 567.8,
+          "completed": 1592,
+          "queued": 0,
+          "reads": 3185,
+          "writes": 1592
+        },
+        {
+          "seconds": 572.8,
+          "completed": 1602,
+          "queued": 0,
+          "reads": 3205,
+          "writes": 1602
+        },
+        {
+          "seconds": 577.8,
+          "completed": 1612,
+          "queued": 0,
+          "reads": 3225,
+          "writes": 1612
+        },
+        {
+          "seconds": 582.9,
+          "completed": 1622,
+          "queued": 0,
+          "reads": 3245,
+          "writes": 1622
+        },
+        {
+          "seconds": 587.9,
+          "completed": 1632,
+          "queued": 0,
+          "reads": 3265,
+          "writes": 1632
+        },
+        {
+          "seconds": 592.9,
+          "completed": 1642,
+          "queued": 0,
+          "reads": 3285,
+          "writes": 1642
+        },
+        {
+          "seconds": 600.9,
+          "completed": 1676,
+          "queued": 0,
+          "reads": 3353,
+          "writes": 1676
+        }
+      ],
+      "history": {
+        "journeys": 2500,
+        "expiredGrants": 300,
+        "expiredOrStaleRequests": 100
+      },
+      "heldStorage": {
+        "startedAt": 1793391644453,
+        "faults": [],
+        "retention": "READY",
+        "previousSession": null,
+        "adapter": {
+          "queued": 0,
+          "activeSince": 1793391684276,
+          "completed": 53,
+          "contexts": 2,
+          "refreshPending": true
+        },
+        "controller": {
+          "status": "LOADING",
+          "reason": null,
+          "policyRevision": 2,
+          "configurationRevision": 0,
+          "pendingCommit": false,
+          "activity": {
+            "operation": "CHECK_NAVIGATION",
+            "stage": "LOAD",
+            "active": true,
+            "queued": 0,
+            "completed": 54
+          }
+        }
+      },
+      "beforeIdle": {
+        "runtime": {
+          "startedAt": 1793391644453,
+          "faults": [],
+          "retention": "READY",
+          "previousSession": null,
+          "adapter": {
+            "queued": 0,
+            "activeSince": 1793391701347,
+            "completed": 234,
+            "contexts": 2,
+            "refreshPending": true
+          },
+          "controller": {
+            "status": "LOADING",
+            "reason": null,
+            "policyRevision": 2,
+            "configurationRevision": 0,
+            "pendingCommit": false,
+            "activity": {
+              "operation": "OBSERVE_TIME",
+              "stage": "LOAD",
+              "active": true,
+              "queued": 0,
+              "completed": 165
+            }
+          }
+        },
+        "storage": {
+          "readTransactions": 332,
+          "writeTransactions": 165,
+          "committedWrites": 164,
+          "failedCommits": 0,
+          "lastFailure": null
+        },
+        "authorityInterruption": null
+      },
+      "afterIdle": {
+        "runtime": {
+          "startedAt": 1793391644453,
+          "faults": [],
+          "retention": "READY",
+          "previousSession": null,
+          "adapter": {
+            "queued": 0,
+            "activeSince": null,
+            "completed": 1134,
+            "contexts": 6,
+            "refreshPending": false
+          },
+          "controller": {
+            "status": "READY",
+            "reason": null,
+            "policyRevision": 2,
+            "configurationRevision": 0,
+            "pendingCommit": false,
+            "activity": {
+              "operation": "CHECK_NAVIGATION",
+              "stage": "PUBLISH",
+              "active": false,
+              "queued": 0,
+              "completed": 1676
+            }
+          }
+        },
+        "storage": {
+          "readTransactions": 3353,
+          "writeTransactions": 1676,
+          "committedWrites": 1675,
+          "failedCommits": 0,
+          "lastFailure": null
+        },
+        "authorityInterruption": null
+      },
+      "processBeforeIdle": {
+        "cpuSeconds": 46.3125,
+        "workingMiB": 1644.66,
+        "privateMiB": 1415.45,
+        "processes": 13
+      },
+      "processAfterIdle": {
+        "cpuSeconds": 197.7031,
+        "workingMiB": 1404.12,
+        "privateMiB": 1165.35,
+        "processes": 12
+      },
+      "navigationMs": {
+        "median": 414.0000000006694,
+        "max": 688.0000000001019,
+        "count": 30
+      },
+      "uiOpenCloseCycles": 26,
+      "interleavedAccessJourneyCycles": 18,
+      "seededReceiptCount": 100000,
+      "backgroundReload": true,
+      "consoleLocations": [],
+      "minidumpFiles": 0,
+      "originalIncidentReproduced": false,
+      "normalProfileAccessed": false
+    },
+    "internalFault": {
+      "firefox": "159.0",
+      "suite": "internal-fault",
+      "baseline": false,
+      "checks": [
+        "actual Greylist wait/confirmation creates one fixed grant; a separate policy proposal remains frozen and inactive",
+        "PLAN: idle runtime exception reproduces the closed global latch with no failed storage commits; explicit Recovery preserves policy, original grant and frozen proposal",
+        "VERIFY_AUTHORITY: idle runtime exception reproduces the closed global latch with no failed storage commits; explicit Recovery preserves policy, original grant and frozen proposal",
+        "recovered authority still enforces manual Blacklist; no permission or new deadline comes from diagnostics",
+        "actual background unhandled rejections are separately classified and deduplicated; they do not invent a controller INTERNAL_ERROR",
+        "background restart retains sanitized previous-version evidence without restoring runtime authority or altering saved terms"
+      ],
+      "observations": [
+        {
+          "case": "PLAN",
+          "reason": "INTERNAL_ERROR",
+          "failedCommits": 0,
+          "fault": {
+            "sequence": 1,
+            "operation": "OBSERVE_TIME",
+            "stage": "PLAN",
+            "error": "TYPE_ERROR",
+            "pendingCommitId": null,
+            "stateCounts": {
+              "journeys": 3,
+              "requests": 0,
+              "grants": 1
+            }
+          },
+          "retainedAcrossRecovery": true,
+          "policyAndDeadlinesPreserved": true,
+          "exceptionTextExported": false,
+          "runtime": {
+            "startedAt": 1793391311653,
+            "faults": [
+              {
+                "sequence": 1,
+                "subsystem": "CONTROLLER",
+                "error": "TYPE_ERROR",
+                "frames": [
+                  {
+                    "asset": "BACKGROUND",
+                    "line": 686,
+                    "column": 34
+                  },
+                  {
+                    "asset": "BACKGROUND",
+                    "line": 1358,
+                    "column": 12
+                  },
+                  {
+                    "asset": "BACKGROUND",
+                    "line": 1655,
+                    "column": 16
+                  },
+                  {
+                    "asset": "BACKGROUND",
+                    "line": 2151,
+                    "column": 38
+                  }
+                ],
+                "controller": {
+                  "operation": "OBSERVE_TIME",
+                  "stage": "PLAN",
+                  "sequence": 1
+                },
+                "count": 1,
+                "firstAt": 1793391353886,
+                "lastAt": 1793391353886
+              }
+            ],
+            "retention": "READY",
+            "previousSession": null,
+            "adapter": {
+              "queued": 0,
+              "activeSince": null,
+              "completed": 88,
+              "contexts": 5,
+              "refreshPending": false
+            },
+            "controller": {
+              "status": "UNAVAILABLE",
+              "reason": "INTERNAL_ERROR",
+              "policyRevision": 1,
+              "configurationRevision": 0,
+              "pendingCommit": false,
+              "activity": {
+                "operation": "CHECK_NAVIGATION",
+                "stage": "START",
+                "active": false,
+                "queued": 0,
+                "completed": 183
+              }
+            }
+          }
+        },
+        {
+          "case": "VERIFY_AUTHORITY",
+          "reason": "INTERNAL_ERROR",
+          "failedCommits": 0,
+          "fault": {
+            "sequence": 2,
+            "operation": "OBSERVE_TIME",
+            "stage": "VERIFY_AUTHORITY",
+            "error": "RANGE_ERROR",
+            "pendingCommitId": null,
+            "stateCounts": {
+              "journeys": 4,
+              "requests": 0,
+              "grants": 1
+            }
+          },
+          "retainedAcrossRecovery": true,
+          "policyAndDeadlinesPreserved": true,
+          "exceptionTextExported": false,
+          "runtime": {
+            "startedAt": 1793391311653,
+            "faults": [
+              {
+                "sequence": 1,
+                "subsystem": "CONTROLLER",
+                "error": "TYPE_ERROR",
+                "frames": [
+                  {
+                    "asset": "BACKGROUND",
+                    "line": 686,
+                    "column": 34
+                  },
+                  {
+                    "asset": "BACKGROUND",
+                    "line": 1358,
+                    "column": 12
+                  },
+                  {
+                    "asset": "BACKGROUND",
+                    "line": 1655,
+                    "column": 16
+                  },
+                  {
+                    "asset": "BACKGROUND",
+                    "line": 2151,
+                    "column": 38
+                  }
+                ],
+                "controller": {
+                  "operation": "OBSERVE_TIME",
+                  "stage": "PLAN",
+                  "sequence": 1
+                },
+                "count": 1,
+                "firstAt": 1793391353886,
+                "lastAt": 1793391353886
+              },
+              {
+                "sequence": 2,
+                "subsystem": "CONTROLLER",
+                "error": "RANGE_ERROR",
+                "frames": [
+                  {
+                    "asset": "BACKGROUND",
+                    "line": 1742,
+                    "column": 25
+                  },
+                  {
+                    "asset": "BACKGROUND",
+                    "line": 1780,
+                    "column": 104
+                  },
+                  {
+                    "asset": "BACKGROUND",
+                    "line": 1992,
+                    "column": 70
+                  }
+                ],
+                "controller": {
+                  "operation": "OBSERVE_TIME",
+                  "stage": "VERIFY_AUTHORITY",
+                  "sequence": 2
+                },
+                "count": 1,
+                "firstAt": 1793391358886,
+                "lastAt": 1793391358886
+              }
+            ],
+            "retention": "READY",
+            "previousSession": null,
+            "adapter": {
+              "queued": 0,
+              "activeSince": null,
+              "completed": 100,
+              "contexts": 6,
+              "refreshPending": false
+            },
+            "controller": {
+              "status": "UNAVAILABLE",
+              "reason": "INTERNAL_ERROR",
+              "policyRevision": 1,
+              "configurationRevision": 0,
+              "pendingCommit": false,
+              "activity": {
+                "operation": "CHECK_NAVIGATION",
+                "stage": "START",
+                "active": false,
+                "queued": 0,
+                "completed": 233
+              }
+            }
+          }
+        }
+      ],
+      "causeOfUserIncidentEstablished": false,
+      "normalProfileAccessed": false,
+      "releaseArtifactsModified": false
+    },
+    "storage": {
+      "firefox": "159.0",
+      "suite": "storage-reliability",
+      "baseline": false,
+      "checks": [
+        "steady browsing uses real persisted checkpoints; ordinary loads use readonly transactions",
+        "one real readonly LOAD abort recovers before three Whitelist tabs are replaced; diagnostics retains the read failure",
+        "one native abort recovers through verified Core open before any Whitelist tab is replaced",
+        "real Greylist grant and frozen Vault proposal keep exact timestamps and policy across abort recovery",
+        "readonly LOAD recovery preserves exact grant/proposal terms and does not replay confirmation",
+        "persistent abort performs at most one automatic recovery and then withholds browsing without a retry loop",
+        "explicit Recovery remains usable after the bounded automatic attempt fails",
+        "persistent readonly abort receives one recovery load and remains closed without a retry loop",
+        "explicit Recovery restores verified authority after a persistent readonly failure clears",
+        "quota failure stays closed, reports a safe cause and retains saved authority without resetting or automatic retry",
+        "recovered authority still enforces the existing explicit Blacklist",
+        "clock rollback stays closed and its retained reason survives explicit Recovery, UI rendering and diagnostics export"
+      ],
+      "observations": [
+        {
+          "case": "five-second-steady-browsing",
+          "reads": 40,
+          "writes": 20
+        },
+        {
+          "case": "native-readonly-abort-after-fix",
+          "status": "READY",
+          "storage": {
+            "readTransactions": 186,
+            "writeTransactions": 92,
+            "committedWrites": 91,
+            "failedCommits": 0,
+            "lastFailure": {
+              "sequence": 1,
+              "operation": "LOAD",
+              "stage": "TRANSACTION_ABORT",
+              "cause": "ABORTED"
+            }
+          }
+        },
+        {
+          "case": "native-abort-after-fix",
+          "status": "READY",
+          "storage": {
+            "readTransactions": 237,
+            "writeTransactions": 118,
+            "committedWrites": 116,
+            "failedCommits": 1,
+            "lastFailure": {
+              "sequence": 2,
+              "operation": "COMMIT",
+              "stage": "TRANSACTION_ABORT",
+              "cause": "ABORTED"
+            }
+          }
+        },
+        {
+          "case": "persistent-readonly-abort",
+          "status": "UNAVAILABLE",
+          "reason": "STORAGE_UNAVAILABLE",
+          "storage": {
+            "readTransactions": 518,
+            "writeTransactions": 258,
+            "committedWrites": 253,
+            "failedCommits": 4,
+            "lastFailure": {
+              "sequence": 8,
+              "operation": "LOAD",
+              "stage": "TRANSACTION_ABORT",
+              "cause": "ABORTED"
+            }
+          }
+        },
+        {
+          "case": "quota-failure",
+          "storage": {
+            "readTransactions": 551,
+            "writeTransactions": 275,
+            "committedWrites": 269,
+            "failedCommits": 5,
+            "lastFailure": {
+              "sequence": 9,
+              "operation": "COMMIT",
+              "stage": "TRANSACTION_ABORT",
+              "cause": "QUOTA_EXCEEDED"
+            }
+          },
+          "status": "UNAVAILABLE"
+        },
+        {
+          "case": "clock-rollback-observability",
+          "status": "UNAVAILABLE",
+          "reason": "CLOCK_ROLLBACK",
+          "authorityInterruption": {
+            "status": "UNAVAILABLE",
+            "reason": "CLOCK_ROLLBACK",
+            "observedAt": 1793391828563,
+            "checkpointAt": 1793391832599,
+            "latestStorageFailure": {
+              "sequence": 9,
+              "operation": "COMMIT",
+              "stage": "TRANSACTION_ABORT",
+              "cause": "QUOTA_EXCEEDED"
+            }
+          }
+        }
+      ]
+    },
+    "batch": {
+      "firefox": "159.0",
+      "checks": [
+        "three Whitelist additions, two Blacklist additions, explicit removal and name/category/pin edit staged together without policy or waiting",
+        "editable draft survives closing UI and a full Firefox process restart; complete destination review and unchanged old-term Vault wait",
+        "one explicit confirmation commits entire candidate once; replay rejected; post-commit display failure survives full restart and retries only presentation",
+        "unrelated commit stales preserved draft; explicit reconciliation preview and acceptance do not create permission or submit automatically",
+        "custom Books category reused across editor and committed Home grouping without rewriting legacy records or changing category ordering controls",
+        "two native Atlas pages detect a changed shared draft, retain local work and explicitly reload without overwriting the other page",
+        "real draft transaction failure retains raw inputs and blocks submission; explicit local retry saves work without policy commands",
+        "final full process restart retains completed policy/display/pins and separately preserves the next editable unsubmitted draft",
+        "lost response plus unrelated proposal ID advancement has an explicit local discard after Core recovery; saved policy retained and no repeat proposal or confirmation"
+      ],
+      "fullFirefoxRestarts": 3,
+      "isolatedProfile": true,
+      "signedReleaseModified": false,
+      "coreSemanticsChanged": false
+    },
+    "navigation": {
+      "firefox": "159.0",
+      "journey": {
+        "id": 4,
+        "contextId": "933c97a8-ac8c-400a-900b-a5132709352e",
+        "rootHostname": "root.localhost",
+        "currentHostname": "root.localhost",
+        "startedAt": 1793392215117,
+        "expiresAt": 1793392515117,
+        "hopCount": 2,
+        "maxHops": 12,
+        "policyRevision": 1,
+        "phase": "ENDED",
+        "endedAt": 1793392215428,
+        "endReason": "RETURNED"
+      },
+      "requests": [
+        [
+          "root.localhost",
+          "/begin-login"
+        ],
+        [
+          "login.localhost",
+          "/"
+        ],
+        [
+          "login.localhost",
+          "/atlas-site-icon.svg"
+        ],
+        [
+          "root.localhost",
+          "/begin-login"
+        ],
+        [
+          "login.localhost",
+          "/"
+        ],
+        [
+          "root.localhost",
+          "/"
+        ],
+        [
+          "root.localhost",
+          "/atlas-site-icon.svg"
+        ],
+        [
+          "root.localhost",
+          "/begin-login"
+        ],
+        [
+          "login.localhost",
+          "/"
+        ],
+        [
+          "login.localhost",
+          "/choose"
+        ],
+        [
+          "root.localhost",
+          "/bounce"
+        ],
+        [
+          "identity.localhost",
+          "/"
+        ],
+        [
+          "identity.localhost",
+          "/atlas-site-icon.svg"
+        ],
+        [
+          "identity.localhost",
+          "/finish"
+        ],
+        [
+          "root.localhost",
+          "/complete"
+        ],
+        [
+          "identity.localhost",
+          "/"
+        ],
+        [
+          "root.localhost",
+          "/"
+        ],
+        [
+          "root.localhost",
+          "/begin-login"
+        ],
+        [
+          "login.localhost",
+          "/"
+        ]
+      ],
+      "managed": {
+        "active": true,
+        "count": 165862,
+        "ignoredNames": 6,
+        "categories": [
+          "base",
+          "fakenews",
+          "gambling",
+          "porn",
+          "social"
+        ],
+        "sourceUrl": "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn-social/hosts",
+        "origin": "CACHE",
+        "upstreamDate": "29 October 2026 15:30:41 (UTC)",
+        "upstreamVersion": "W/\"2aad5259b50c81eee46698347f6d5b62fbf253bb0ad46d75015f19707a33847d\"",
+        "lastUpdatedAt": 1793392183787,
+        "lastAttemptAt": 1793392183787,
+        "updateStatus": "UPDATED",
+        "conflicts": []
+      },
+      "checks": [
+        "curated initialization UI",
+        "managed denial",
+        "managed cache restart",
+        "journey",
+        "redirect",
+        "greylist",
+        "confirmation UI",
+        "focus retention",
+        "diagnostics UI",
+        "closed-tab selection",
+        "request withholding",
+        "background restart"
+      ]
+    },
+    "downloads": {
+      "firefox": "159.0",
+      "suiteCompleted": true,
+      "results": [
+        {
+          "mechanism": "direct",
+          "files": 1,
+          "eventCount": 6,
+          "requestCount": 1
+        },
+        {
+          "mechanism": "new",
+          "files": 1,
+          "eventCount": 13,
+          "requestCount": 2
+        },
+        {
+          "mechanism": "delay",
+          "files": 1,
+          "eventCount": 9,
+          "requestCount": 1
+        },
+        {
+          "mechanism": "html",
+          "files": 0,
+          "eventCount": 9,
+          "requestCount": 1
+        },
+        {
+          "mechanism": "js",
+          "files": 1,
+          "eventCount": 9,
+          "requestCount": 1
+        },
+        {
+          "mechanism": "claimed",
+          "files": 0,
+          "eventCount": 9,
+          "requestCount": 1
+        },
+        {
+          "mechanism": "blob",
+          "files": 1,
+          "eventCount": 1,
+          "requestCount": 0
+        },
+        {
+          "mechanism": "interstitial",
+          "files": 0,
+          "eventCount": 9,
+          "requestCount": 1
+        },
+        {
+          "mechanism": "blacklist",
+          "files": 0,
+          "eventCount": 7,
+          "requestCount": 0
+        },
+        {
+          "mechanism": "loop",
+          "files": 0,
+          "eventCount": 31,
+          "requestCount": 6
+        },
+        {
+          "mechanism": "attachment-html",
+          "files": 1,
+          "eventCount": 9,
+          "requestCount": 1
+        },
+        {
+          "mechanism": "mime-only",
+          "files": 0,
+          "eventCount": 9,
+          "requestCount": 1
+        },
+        {
+          "mechanism": "unactivated",
+          "files": 0,
+          "eventCount": 8,
+          "requestCount": 0
+        },
+        {
+          "mechanism": "expired",
+          "files": 0,
+          "passed": true,
+          "eventCount": 0,
+          "requestCount": 0
+        },
+        {
+          "mechanism": "policy",
+          "files": 0,
+          "passed": true,
+          "eventCount": 0,
+          "requestCount": 0
+        },
+        {
+          "mechanism": "closed",
+          "files": 0,
+          "passed": true,
+          "eventCount": 0,
+          "requestCount": 0
+        },
+        {
+          "mechanism": "restart",
+          "files": 0,
+          "passed": true,
+          "eventCount": 0,
+          "requestCount": 0
+        }
+      ]
+    }
+  },
+  "moduleLines": [
+    {
+      "file": "extension/src/ui/main.ts",
+      "lines": 844
+    },
+    {
+      "file": "extension/src/ui/sites.ts",
+      "lines": 626
+    },
+    {
+      "file": "extension/src/ui/destination-editor.ts",
+      "lines": 73
+    },
+    {
+      "file": "extension/src/ui/destination-cards.ts",
+      "lines": 95
+    },
+    {
+      "file": "extension/src/ui/diagnostics-panel.ts",
+      "lines": 92
+    }
+  ],
+  "initialEnduranceFinding": {
+    "afterSeconds": 360.4,
+    "subsystem": "ADAPTER_QUEUE",
+    "error": "ERROR",
+    "frames": [],
+    "originalControllerIncidentReproduced": false,
+    "note": "API not identified in this observation. A subsequent controlled native replay proved the closed-tab arrival-read race; the corrected ten-minute run passed."
+  },
+  "signedArtifactsModified": false,
+  "normalProfileAccessed": false,
+  "submittedOrDeployed": false,
+  "screenshots": {
+    "before-sites": {
+      "file": "quality-pass-0.1.19-before-sites.png",
+      "dimensions": [
+        1440,
+        1815
+      ]
+    },
+    "after-sites": {
+      "file": "quality-pass-0.1.19-after-sites.png",
+      "dimensions": [
+        1440,
+        1303
+      ]
+    },
+    "review-small": {
+      "file": "quality-pass-0.1.19-review-small.png",
+      "dimensions": [
+        820,
+        1264
+      ]
+    },
+    "draft-save-failure": {
+      "file": "quality-pass-0.1.19-draft-save-failure.png",
+      "dimensions": [
+        820,
+        1432
+      ]
+    }
+  },
+  "cleanup": {
+    "removedDirectories": 19,
+    "reclaimedMiB": 1643.33,
+    "targets": [
+      "firefox-e2e-gdphu99_",
+      "firefox-e2e-gvannvz6",
+      "firefox-e2e-lq4oi2ob",
+      "firefox-e2e-574gepjf",
+      "firefox-e2e-q3rd60w6",
+      "firefox-e2e-snab8ofv",
+      "firefox-e2e-gzf26dxg",
+      "firefox-e2e-ru_5079x",
+      "firefox-e2e-j54n3ace",
+      "firefox-e2e-bycccyb3",
+      "firefox-downloads-2vvh8sjk",
+      "firefox-downloads-uwghm46_",
+      "firefox-e2e-mfa173j8",
+      "firefox-e2e-nd7hht8e",
+      "firefox-e2e-d9p8wkld",
+      "firefox-e2e-757b8d9k",
+      "firefox-e2e-s4q4kynd",
+      "quality-pass-0.1.19/before",
+      "quality-pass-0.1.19/core-before"
+    ]
+  }
+}

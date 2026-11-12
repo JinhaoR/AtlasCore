@@ -1,0 +1,78 @@
+{
+  "firefox": "159.0",
+  "extensionVersion": "0.2.1",
+  "checks": [
+    "five populated legacy metadata categories migrate visibly without policy or metadata changes",
+    "reorder, hide, true collapse and pin order survive Home reload; hidden destinations retain exact search",
+    "full Firefox restart retains layout, metadata, pins and authoritative policy",
+    "fifteen and thirty category growth preserves custom order; new categories append visibly",
+    "unambiguous complete rename migrates collapse and order; long category labels remain usable",
+    "failed presentation save retains requested draft, shows no false saved success, and explicit retry succeeds without policy commands",
+    "keyboard Move up works and retains focus on the same category control",
+    "two live Atlas pages race native CAS writes; stale writer retains its draft, explicitly reconciles, and both layouts converge",
+    "usage ranking and repeated Home timer rerenders retain category order, header identity and search focus",
+    "crowded thirty-category Home, long labels, four window sizes and real 125/150/200 percent Firefox zoom have no horizontal overflow and at most five columns",
+    "Sites keeps complete hidden destinations, long-list selection/scroll, persistent B editor, browser Back and reload; close/save/Vault return restore selected-row context without authority changes",
+    "Home pending WAIT and confirmation-ready links select the existing workflow; only its explicit confirmation creates a grant, and access-details links retain the exact deadline",
+    "Home Journey link uses only its live owning tab/context and preserves its ID, deadline, policy and grant separation",
+    "unavailable authority labels retained catalog stale and removes access claims/actions; recovery retains layout and policy"
+  ],
+  "layouts": [
+    {
+      "width": 500,
+      "columns": 2,
+      "overflow": false,
+      "heights": [
+        85
+      ],
+      "visible": 54
+    },
+    {
+      "width": 800,
+      "columns": 3,
+      "overflow": false,
+      "heights": [
+        85
+      ],
+      "visible": 81
+    },
+    {
+      "width": 1280,
+      "columns": 5,
+      "overflow": false,
+      "heights": [
+        85
+      ],
+      "visible": 135
+    },
+    {
+      "width": 1800,
+      "columns": 5,
+      "overflow": false,
+      "heights": [
+        85
+      ],
+      "visible": 135
+    },
+    {
+      "zoom": 1.25,
+      "width": 1024,
+      "columns": 5,
+      "overflow": false
+    },
+    {
+      "zoom": 1.5,
+      "width": 853,
+      "columns": 4,
+      "overflow": false
+    },
+    {
+      "zoom": 2,
+      "width": 640,
+      "columns": 3,
+      "overflow": false
+    }
+  ],
+  "isolatedProfile": true,
+  "fullProcessRestart": true
+}

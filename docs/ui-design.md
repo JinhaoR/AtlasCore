@@ -1,5 +1,27 @@
 # Atlas Firefox interface
 
+The current [theme contract](themes.md) separates visual values from application
+layout and interaction. It supersedes earlier literal palette instructions while
+retaining the default appearance and existing UI behavior.
+
+
+The focused [0.2.1 startup/viewport repair](startup-layout-0.2.1.md) retains the
+0.2.0 design while centring a bounded desktop frame, reserving initial geometry,
+assigning long content its own scroll surface and making Customize Home a native
+modal. Short/narrow/zoomed views use normal document flow. Presentation-only icon
+caching and navigation offsets never become authority.
+
+The user-authorized [0.2.0 visual redesign](visual-redesign-0.2.0.md) supersedes
+the older palette and side rail below with a flat celestial theme and top navigation.
+Search, pins, category organization, entry points and access outcomes remain.
+The [compass refinement](visual-refinement-0.2.0.md) adds local licensed typography,
+medallion/plaque shortcuts, category workspace navigation and restrained navy
+directory rows. Its native evidence supersedes the first pass's composition.
+The [management redesign](management-ux-0.2.0.md) supersedes the older stacked
+Sites editor and Settings disclosures: adjacent directory/detail, dedicated draft
+review and Vault, section-based Settings, and a labelled additional-pin region.
+All policy and persistent workspace operations remain unchanged.
+
 Milestone D's [visual polish report](visual-polish.md) owns the shared color/type/
 spacing tokens, readable operational text, control sizes, status treatment and
 before/after native screenshots. It refines these surfaces without changing the

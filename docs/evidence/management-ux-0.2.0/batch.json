@@ -1,0 +1,18 @@
+{
+  "firefox": "159.0",
+  "checks": [
+    "three Whitelist additions, two Blacklist additions, explicit removal and name/category/pin edit staged together without policy or waiting",
+    "editable draft survives closing UI and a full Firefox process restart; complete destination review and unchanged old-term Vault wait",
+    "one explicit confirmation commits entire candidate once; replay rejected; post-commit display failure survives full restart and retries only presentation",
+    "unrelated commit stales preserved draft; explicit reconciliation preview and acceptance do not create permission or submit automatically",
+    "custom Books category reused across editor and committed Home grouping without rewriting legacy records or changing category ordering controls",
+    "two native Atlas pages detect a changed shared draft, retain local work and explicitly reload without overwriting the other page",
+    "real draft transaction failure retains raw inputs and blocks submission; explicit local retry saves work without policy commands",
+    "final full process restart retains completed policy/display/pins and separately preserves the next editable unsubmitted draft",
+    "lost response plus unrelated proposal ID advancement has an explicit local discard after Core recovery; saved policy retained and no repeat proposal or confirmation"
+  ],
+  "fullFirefoxRestarts": 3,
+  "isolatedProfile": true,
+  "signedReleaseModified": false,
+  "coreSemanticsChanged": false
+}

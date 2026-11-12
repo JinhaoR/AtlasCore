@@ -1,0 +1,59 @@
+import { evaluate } from '@atlas/core';
+import { destinationChangeSummary } from './destination-draft.js';
+/** Read-only consequences of the existing candidate, never a policy constructor. */
+export function destinationChangeView(change, beforePolicy, afterPolicy) {
+    const { before, after } = change;
+    const classification = (item, policy) => item ? [...new Set(item.metadata.hostnames.map(host => {
+            const decision = evaluate({ hostname: host }, policy);
+            return decision.outcome === 'ALLOW' ? 'Allowed' : decision.outcome === 'DENY' ? 'Blocked' : 'Requires access request';
+        }))].join(' / ') : 'No explicit rule';
+    const scope = (item, policy) => (policy.whitelistSubdomains ?? []).filter(h => item?.metadata.hostnames.includes(h)).join(', ') || 'Not included';
+    const rows = [
+        ['Access', classification(before, beforePolicy), classification(after, afterPolicy)],
+        ['Exact hosts', before?.metadata.hostnames.join(', ') ?? '(none)', after?.metadata.hostnames.join(', ') ?? '(none)'],
+        ['Subdomain bases', scope(before, beforePolicy), scope(after, afterPolicy)],
+        ['Name', before?.metadata.label ?? '(none)', after?.metadata.label ?? '(none)'],
+        ['Category', before?.metadata.category ?? '(none)', after?.metadata.category ?? '(none)'],
+        ['Home pin', before?.pinned ? 'Pinned' : 'Not pinned', after?.pinned ? 'Pinned' : 'Not pinned'],
+    ].filter((row, i) => i < 2 || row[1] !== row[2]);
+    const full = destinationChangeSummary(change, beforePolicy, afterPolicy);
+    return { name: full[0], kind: !before ? 'New site' : !after ? 'Removal' : 'Prepared change', rows,
+        warnings: full.filter(line => line.startsWith('Still allowed by another saved scope:') || line.startsWith('Domain + all subdomains:')),
+        full };
+}
+export function renderDestinationChange(container, change, before, after) {
+    const view = destinationChangeView(change, before, after);
+    const heading = document.createElement('h3');
+    heading.textContent = view.name;
+    const kind = document.createElement('p');
+    kind.className = 'change-kind';
+    kind.textContent = view.kind;
+    const table = document.createElement('table');
+    table.className = 'change-comparison';
+    const head = document.createElement('thead'), row = document.createElement('tr');
+    for (const value of ['Change', 'Current', 'Proposed']) {
+        const cell = document.createElement('th');
+        cell.textContent = value;
+        row.append(cell);
+    }
+    head.append(row);
+    table.append(head);
+    const body = document.createElement('tbody');
+    for (const values of view.rows) {
+        const tr = document.createElement('tr');
+        for (const value of values) {
+            const td = document.createElement('td');
+            td.textContent = value;
+            tr.append(td);
+        }
+        body.append(tr);
+    }
+    table.append(body);
+    const warnings = view.warnings.map(message => { const p = document.createElement('p'); p.className = 'scope-note'; p.textContent = message; return p; });
+    const details = document.createElement('details'), summary = document.createElement('summary'), full = document.createElement('p');
+    details.className = 'technical-review';
+    summary.textContent = 'Technical details';
+    full.textContent = view.full.join('\n');
+    details.append(summary, full);
+    container.replaceChildren(heading, kind, table, ...warnings, details);
+}

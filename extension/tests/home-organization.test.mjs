@@ -8,7 +8,8 @@ import { destinationIndex, policyDestinationIndex, searchDestinationTargets } fr
 import { pinnedDestinations, destinationId } from '../dist/lib/ui/home-model.js';
 import { rankDestinations } from '../dist/lib/ui/destination-usage.js';
 import { homeAccessSummary } from '../dist/lib/ui/home-access.js';
-import { pendingAccessView } from '../dist/lib/adapter/temporary-access.js';
+import { accessOverview } from '../dist/lib/adapter/temporary-access.js';
+const pendingAccessView = (...args) => accessOverview(...args).pendingAccess;
 import { emptyNavigationState, navigationMemory, readNavigationState } from '../dist/lib/ui/navigation-state.js';
 import { readVerifiedController } from '../dist/lib/ui/verified-view.js';
 import { fixture } from './support/fixture.mjs';
@@ -19,6 +20,41 @@ const catalog = homeCategories([entry('University'), entry('Books', 1), entry('T
 const initial = () => reconcileHomeLayout(null, catalog);
 const keys = l => l.categories.map(c => c.key);
 const changed = (l, key, action) => changeHomeLayout(l, key, action);
+
+test('startup preloads acknowledged layout without rewriting order, hidden or collapsed preferences', async () => {
+  const value = changed(changed(changed(initial(), 'books', 'UP'), 'tools', 'VISIBILITY'), 'research', 'COLLAPSE');
+  const envelope = { revision: 4, value };
+  let writes = 0;
+  const session = new HomeLayoutSession({ load: async () => structuredClone(envelope), save: async () => { writes++; throw Error('unexpected write'); } });
+  await session.refresh();
+  assert.deepEqual(session.saved, envelope);
+  assert.equal(writes, 0);
+  await session.refresh(catalog);
+  assert.deepEqual(session.current(), value);
+  assert.equal(writes, 0);
+});
+
+test('startup preload does not initialize an empty layout before the verified catalog arrives', async t => {
+  const { r } = await repository(t), session = new HomeLayoutSession(r);
+  await session.refresh();
+  assert.deepEqual(await r.load(), { revision: 0, value: null });
+  await session.refresh(catalog);
+  assert.deepEqual((await r.load()).value, initial());
+  assert.equal((await r.load()).revision, 1);
+});
+
+test('failed preference preload remains unavailable and catalog retry can recover', async t => {
+  const { r } = await repository(t);
+  let fail = true;
+  const session = new HomeLayoutSession({ ...r, load: async () => { if (fail) throw Error('unavailable'); return r.load(); } });
+  await session.refresh();
+  assert.equal(session.failure, 'UNAVAILABLE');
+  assert.equal(session.saved, null);
+  assert.deepEqual(await r.load(), { revision: 0, value: null });
+  fail = false;
+  assert.equal(await session.retry(catalog), true);
+  assert.deepEqual(session.current(), initial());
+});
 async function repository(t) {
   const factory = new IDBFactory(), r = await openHomeLayoutRepository(factory); t.after(() => r.close()); return { factory, r };
 }
@@ -188,7 +224,7 @@ test('Journey summaries remain tied to real contexts; unavailable or expired sta
 });
 test('toolbar reuses an existing control page without replacing URL or editor context', async t => {
   const f = await fixture(t); const control = await f.firefox.tabs.create({ url: f.firefox.runtime.getURL('ui/index.html?view=control#sites'), active: false });
-  const count = f.firefox.documents.size; f.firefox.browserAction.onClicked.emit({ id: 99 }); await f.adapter.whenIdle();
+  const count = f.firefox.documents.size; await f.firefox.send({kind:'OPEN_CONTROL_PAGE',page:'home',tabId:99,contextId:null},{id:f.firefox.runtime.id,url:f.firefox.runtime.getURL('ui/popup.html'),frameId:0}); await f.adapter.whenIdle();
   assert.equal(f.firefox.documents.size, count); assert.deepEqual(f.firefox.updates, []); assert.equal(f.firefox.documents.get(control.id).active, true);
 });
 test('navigation memory restores only selected row, filter, focus and scroll; no editor or authority fields', () => {
@@ -253,4 +289,22 @@ test('a user layout action waits for an in-flight background read rather than di
   await s.refresh(catalog); hold = true; const refresh = s.refresh(catalog); await started;
   const action = s.change('books', 'UP'); hold = false; release(); await refresh;
   assert.equal(await action, true); assert.deepEqual(keys(s.current()), keys(changed(initial(), 'books', 'UP')));
+});
+
+test('drag reorder moves only participating slots and preserves hidden, empty and collapsed preferences',()=>{
+  const before=changed(changed(initial(),'books','VISIBILITY'),'research','COLLAPSE');
+  const available=displayedHomeCategories(before,catalog).map(c=>c.key);
+  const moved=changeHomeLayout(before,available.at(-1),{moveTo:available[0]},available);
+  assert.equal(moved.categories.findIndex(c=>c.key==='books'),before.categories.findIndex(c=>c.key==='books'));
+  assert.equal(moved.categories.find(c=>c.key==='research').collapsed,true);
+  assert.deepEqual(displayedHomeCategories(moved,catalog).map(c=>c.key),[available.at(-1),...available.slice(0,-1)]);
+  assert.deepEqual(changeHomeLayout(before,'missing',{moveTo:available[0]},available),before);
+});
+test('a dropped category publishes only after successful CAS and survives restart',async t=>{
+  const {r}=await repository(t);let fail=true;
+  const session=new HomeLayoutSession({...r,save:(revision,value)=>revision>0&&fail?Promise.resolve({type:'FAILED'}):r.save(revision,value)});
+  await session.refresh(catalog);const before=session.current();
+  await session.change('research',{moveTo:'university'});assert.deepEqual(session.current(),before);assert.ok(session.draft);
+  fail=false;assert.equal(await session.retry(catalog),true);
+  const restarted=new HomeLayoutSession(r);await restarted.refresh(catalog);assert.deepEqual(restarted.current(),session.current());
 });

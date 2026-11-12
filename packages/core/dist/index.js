@@ -1,8 +1,9 @@
 export { compileManagedBlacklist, isManagedBlacklist, managedBlacklistContains } from "./managed-blacklist.js";
 export { normalizeTarget } from "./target.js";
-export { evaluate } from "./evaluate.js";
+export { evaluate, evaluateMany } from "./evaluate.js";
+export { isWhitelistRemoval } from './policy.js';
 export { createAccessState } from "./access-state.js";
-export { evaluateAccess, startAccess, confirmAccess, cancelAccess } from "./access.js";
+export { evaluateAccess, startAccess, confirmAccess, cancelAccess, endAccess } from "./access.js";
 export { createVaultState } from "./vault-state.js";
 export { createPolicyProposal, createSettingsProposal, reviewPolicyProposal, prepareVaultCommit, cancelPolicyProposal, } from "./vault.js";
 export { createJourneyState } from "./journey-state.js";

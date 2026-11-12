@@ -1,0 +1,129 @@
+{
+  "firefox": "159.0",
+  "journey": {
+    "id": 4,
+    "contextId": "25205edf-b5a9-4ff6-a108-f56e0b60472d",
+    "rootHostname": "root.localhost",
+    "currentHostname": "root.localhost",
+    "startedAt": 1793545165102,
+    "expiresAt": 1793545465102,
+    "hopCount": 2,
+    "maxHops": 12,
+    "policyRevision": 1,
+    "phase": "ENDED",
+    "endedAt": 1793545165409,
+    "endReason": "RETURNED"
+  },
+  "requests": [
+    [
+      "root.localhost",
+      "/begin-login"
+    ],
+    [
+      "login.localhost",
+      "/"
+    ],
+    [
+      "login.localhost",
+      "/atlas-site-icon.svg"
+    ],
+    [
+      "root.localhost",
+      "/begin-login"
+    ],
+    [
+      "login.localhost",
+      "/"
+    ],
+    [
+      "root.localhost",
+      "/"
+    ],
+    [
+      "root.localhost",
+      "/atlas-site-icon.svg"
+    ],
+    [
+      "root.localhost",
+      "/begin-login"
+    ],
+    [
+      "login.localhost",
+      "/"
+    ],
+    [
+      "login.localhost",
+      "/choose"
+    ],
+    [
+      "root.localhost",
+      "/bounce"
+    ],
+    [
+      "identity.localhost",
+      "/"
+    ],
+    [
+      "identity.localhost",
+      "/atlas-site-icon.svg"
+    ],
+    [
+      "identity.localhost",
+      "/finish"
+    ],
+    [
+      "root.localhost",
+      "/complete"
+    ],
+    [
+      "identity.localhost",
+      "/"
+    ],
+    [
+      "root.localhost",
+      "/"
+    ],
+    [
+      "root.localhost",
+      "/begin-login"
+    ],
+    [
+      "login.localhost",
+      "/"
+    ]
+  ],
+  "managed": {
+    "active": true,
+    "count": 165862,
+    "ignoredNames": 6,
+    "categories": [
+      "base",
+      "fakenews",
+      "gambling",
+      "porn",
+      "social"
+    ],
+    "sourceUrl": "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn-social/hosts",
+    "origin": "CACHE",
+    "upstreamDate": "29 October 2026 15:30:41 (UTC)",
+    "upstreamVersion": "W/\"2aad5259b50c81eee46698347f6d5b62fbf253bb0ad46d75015f19707a33847d\"",
+    "lastUpdatedAt": 1793545133783,
+    "lastAttemptAt": 1793545133783,
+    "updateStatus": "UPDATED",
+    "conflicts": []
+  },
+  "checks": [
+    "curated initialization UI",
+    "managed denial",
+    "managed cache restart",
+    "journey",
+    "redirect",
+    "greylist",
+    "confirmation UI",
+    "focus retention",
+    "diagnostics UI",
+    "closed-tab selection",
+    "request withholding",
+    "background restart"
+  ]
+}

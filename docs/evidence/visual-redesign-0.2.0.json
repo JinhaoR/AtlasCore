@@ -1,0 +1,952 @@
+{
+  "date": "2026-11-01",
+  "version": "0.2.0",
+  "extensionId": "atlas-development@atlas.invalid",
+  "tests": {
+    "core": 247,
+    "extension": 524,
+    "newShortcutAndContrastTests": 5,
+    "failures": 0,
+    "developmentBuild": "passed",
+    "typescript": "passed"
+  },
+  "native": {
+    "visualBefore": {
+      "firefox": "159.0",
+      "suite": "visual-redesign",
+      "baseline": true,
+      "navigationMedianMs": 9.5,
+      "navigationSamplesMs": [
+        10,
+        10,
+        10,
+        10,
+        9,
+        9,
+        8,
+        9,
+        10,
+        10,
+        8,
+        9
+      ],
+      "idle": {
+        "writes": 0,
+        "pinMutations": 0,
+        "pinIdentity": true
+      },
+      "dimensions": [
+        {
+          "width": 1440,
+          "zoom": 1,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "width": 1440,
+          "zoom": 1,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "width": 1440,
+          "zoom": 1,
+          "page": "settings",
+          "overflow": false
+        },
+        {
+          "width": 1100,
+          "zoom": 1,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "width": 1100,
+          "zoom": 1,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "width": 1100,
+          "zoom": 1,
+          "page": "settings",
+          "overflow": false
+        },
+        {
+          "width": 820,
+          "zoom": 1,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "width": 820,
+          "zoom": 1,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "width": 820,
+          "zoom": 1,
+          "page": "settings",
+          "overflow": false
+        },
+        {
+          "width": 500,
+          "zoom": 1,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "width": 500,
+          "zoom": 1,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "width": 500,
+          "zoom": 1,
+          "page": "settings",
+          "overflow": false
+        },
+        {
+          "width": 360,
+          "zoom": 1,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "width": 360,
+          "zoom": 1,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "width": 360,
+          "zoom": 1,
+          "page": "settings",
+          "overflow": false
+        },
+        {
+          "width": 1440,
+          "zoom": 1.25,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "width": 1440,
+          "zoom": 1.25,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "width": 1440,
+          "zoom": 1.25,
+          "page": "settings",
+          "overflow": false
+        },
+        {
+          "width": 1440,
+          "zoom": 2,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "width": 1440,
+          "zoom": 2,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "width": 1440,
+          "zoom": 2,
+          "page": "settings",
+          "overflow": false
+        }
+      ],
+      "pinsPreserved": 14,
+      "policyUnchanged": true,
+      "normalProfileAccessed": false,
+      "checks": [
+        "complete categories retained",
+        "pin order/reload/overflow",
+        "real pending access and frozen Vault review",
+        "small windows and actual browser zoom",
+        "idle DOM identity and storage writes"
+      ]
+    },
+    "visualAfter": {
+      "firefox": "159.0",
+      "suite": "visual-redesign",
+      "baseline": false,
+      "navigationMedianMs": 9.0,
+      "navigationSamplesMs": [
+        10,
+        9,
+        9,
+        9,
+        9,
+        8,
+        9,
+        8,
+        10,
+        9,
+        9,
+        9
+      ],
+      "idle": {
+        "writes": 0,
+        "pinMutations": 0,
+        "pinIdentity": true
+      },
+      "dimensions": [
+        {
+          "requestedWidth": 1440,
+          "viewportWidth": 1440,
+          "zoom": 1,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 1440,
+          "viewportWidth": 1440,
+          "zoom": 1,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 1440,
+          "viewportWidth": 1440,
+          "zoom": 1,
+          "page": "settings",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 1100,
+          "viewportWidth": 1100,
+          "zoom": 1,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 1100,
+          "viewportWidth": 1100,
+          "zoom": 1,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 1100,
+          "viewportWidth": 1100,
+          "zoom": 1,
+          "page": "settings",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 820,
+          "viewportWidth": 820,
+          "zoom": 1,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 820,
+          "viewportWidth": 820,
+          "zoom": 1,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 820,
+          "viewportWidth": 820,
+          "zoom": 1,
+          "page": "settings",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 500,
+          "viewportWidth": 500,
+          "zoom": 1,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 500,
+          "viewportWidth": 500,
+          "zoom": 1,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 500,
+          "viewportWidth": 500,
+          "zoom": 1,
+          "page": "settings",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 360,
+          "viewportWidth": 500,
+          "zoom": 1,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 360,
+          "viewportWidth": 500,
+          "zoom": 1,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 360,
+          "viewportWidth": 500,
+          "zoom": 1,
+          "page": "settings",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 1440,
+          "viewportWidth": 1152,
+          "zoom": 1.25,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 1440,
+          "viewportWidth": 1152,
+          "zoom": 1.25,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 1440,
+          "viewportWidth": 1152,
+          "zoom": 1.25,
+          "page": "settings",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 1440,
+          "viewportWidth": 720,
+          "zoom": 2,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 1440,
+          "viewportWidth": 720,
+          "zoom": 2,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 1440,
+          "viewportWidth": 720,
+          "zoom": 2,
+          "page": "settings",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 500,
+          "viewportWidth": 250,
+          "zoom": 2,
+          "page": "home",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 500,
+          "viewportWidth": 250,
+          "zoom": 2,
+          "page": "sites",
+          "overflow": false
+        },
+        {
+          "requestedWidth": 500,
+          "viewportWidth": 250,
+          "zoom": 2,
+          "page": "settings",
+          "overflow": false
+        }
+      ],
+      "pinsPreserved": 14,
+      "policyUnchanged": true,
+      "stress": {
+        "categories": 30,
+        "destinations": 296,
+        "fallbackAndUnavailableDiagnostics": true
+      },
+      "normalProfileAccessed": false,
+      "checks": [
+        "complete categories retained",
+        "pin order/reload/overflow",
+        "real pending access and frozen Vault review",
+        "small windows and actual browser zoom",
+        "idle DOM identity and storage writes"
+      ]
+    },
+    "qualityBeforeInitial": {
+      "firefox": "159.0",
+      "suite": "quality-pass",
+      "baseline": true,
+      "navigation": [
+        {
+          "history": 0,
+          "medianMs": 125.0,
+          "maxMs": 156.00000000085856,
+          "samples": [
+            125.0,
+            109.00000000037835,
+            109.00000000037835,
+            125.0,
+            156.00000000085856,
+            125.0,
+            125.0,
+            155.99999999903957,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0
+          ]
+        },
+        {
+          "history": 2500,
+          "medianMs": 359.00000000037835,
+          "maxMs": 750.0,
+          "samples": [
+            359.00000000037835,
+            343.99999999914144,
+            750.0,
+            500.0,
+            656.0000000008586,
+            311.99999999989814,
+            328.0000000013388,
+            593.9999999991414,
+            563.0000000001019,
+            593.9999999991414,
+            327.9999999995198,
+            343.99999999914144,
+            343.99999999914144,
+            547.0000000004802,
+            296.9999999986612
+          ]
+        }
+      ],
+      "focusCaretPreserved": true,
+      "smallViewportOverflow": false,
+      "editorPosition": {
+        "top": 537.8499755859375,
+        "pageHeight": 1303
+      },
+      "nativeZoomChecks": [],
+      "keyboardAndFailedDraftRetry": false,
+      "checks": [
+        "consecutive display and policy draft edits",
+        "review/sidebar return retains both staged changes",
+        "native caret identity retained",
+        "wide/small screenshots",
+        "ordinary Core-gated navigation with history"
+      ],
+      "controllerReason": null,
+      "normalProfileAccessed": false
+    },
+    "qualityBeforeMatchedSetup": {
+      "firefox": "159.0",
+      "suite": "quality-pass",
+      "baseline": false,
+      "navigation": [
+        {
+          "history": 0,
+          "medianMs": 125.0,
+          "maxMs": 140.99999999962165,
+          "samples": [
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            140.99999999962165,
+            125.0,
+            109.00000000037835,
+            109.00000000037835,
+            140.99999999962165
+          ]
+        },
+        {
+          "history": 2500,
+          "medianMs": 593.0000000007567,
+          "maxMs": 639.9999999994179,
+          "samples": [
+            327.9999999995198,
+            344.0000000009604,
+            593.9999999991414,
+            625.0,
+            343.0000000007567,
+            406.9999999992433,
+            375.0,
+            547.0000000004802,
+            593.9999999991414,
+            593.0000000007567,
+            609.0000000003783,
+            609.0000000003783,
+            593.9999999991414,
+            563.0000000001019,
+            639.9999999994179
+          ]
+        }
+      ],
+      "focusCaretPreserved": true,
+      "smallViewportOverflow": false,
+      "editorPosition": {
+        "top": 537.8499755859375,
+        "pageHeight": 1303
+      },
+      "nativeZoomChecks": [
+        {
+          "zoom": 1.25,
+          "page": "show-home",
+          "overflow": false
+        },
+        {
+          "zoom": 1.25,
+          "page": "show-sites",
+          "overflow": false
+        },
+        {
+          "zoom": 1.25,
+          "page": "show-settings",
+          "overflow": false
+        },
+        {
+          "zoom": 2,
+          "page": "show-home",
+          "overflow": false
+        },
+        {
+          "zoom": 2,
+          "page": "show-sites",
+          "overflow": false
+        },
+        {
+          "zoom": 2,
+          "page": "show-settings",
+          "overflow": false
+        }
+      ],
+      "keyboardAndFailedDraftRetry": true,
+      "checks": [
+        "consecutive display and policy draft edits",
+        "review/sidebar return retains both staged changes",
+        "native caret identity retained",
+        "wide/small screenshots",
+        "ordinary Core-gated navigation with history"
+      ],
+      "controllerReason": null,
+      "normalProfileAccessed": false
+    },
+    "qualityAfter": {
+      "firefox": "159.0",
+      "suite": "quality-pass",
+      "baseline": false,
+      "navigation": [
+        {
+          "history": 0,
+          "medianMs": 125.0,
+          "maxMs": 140.99999999962165,
+          "samples": [
+            139.99999999941792,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            140.99999999962165,
+            125.0,
+            125.0
+          ]
+        },
+        {
+          "history": 2500,
+          "medianMs": 436.99999999989814,
+          "maxMs": 640.9999999996217,
+          "samples": [
+            343.99999999914144,
+            389.9999999994179,
+            625.0,
+            531.0000000008586,
+            500.0,
+            485.0000000005821,
+            640.0000000012369,
+            546.0000000002765,
+            422.0000000004802,
+            421.9999999986612,
+            391.00000000144064,
+            640.9999999996217,
+            436.99999999989814,
+            359.00000000037835,
+            328.0000000013388
+          ]
+        }
+      ],
+      "focusCaretPreserved": true,
+      "smallViewportOverflow": false,
+      "editorPosition": {
+        "top": 638.8499755859375,
+        "pageHeight": 1444
+      },
+      "nativeZoomChecks": [
+        {
+          "zoom": 1.25,
+          "page": "show-home",
+          "overflow": false
+        },
+        {
+          "zoom": 1.25,
+          "page": "show-sites",
+          "overflow": false
+        },
+        {
+          "zoom": 1.25,
+          "page": "show-settings",
+          "overflow": false
+        },
+        {
+          "zoom": 2,
+          "page": "show-home",
+          "overflow": false
+        },
+        {
+          "zoom": 2,
+          "page": "show-sites",
+          "overflow": false
+        },
+        {
+          "zoom": 2,
+          "page": "show-settings",
+          "overflow": false
+        }
+      ],
+      "keyboardAndFailedDraftRetry": true,
+      "checks": [
+        "consecutive display and policy draft edits",
+        "review/sidebar return retains both staged changes",
+        "native caret identity retained",
+        "wide/small screenshots",
+        "ordinary Core-gated navigation with history"
+      ],
+      "controllerReason": null,
+      "normalProfileAccessed": false
+    },
+    "homeOrganization": {
+      "firefox": "159.0",
+      "extensionVersion": "0.2.0",
+      "checks": [
+        "five populated legacy metadata categories migrate visibly without policy or metadata changes",
+        "reorder, hide, true collapse and pin order survive Home reload; hidden destinations retain exact search",
+        "full Firefox restart retains layout, metadata, pins and authoritative policy",
+        "fifteen and thirty category growth preserves custom order; new categories append visibly",
+        "unambiguous complete rename migrates collapse and order; long category labels remain usable",
+        "failed presentation save retains requested draft, shows no false saved success, and explicit retry succeeds without policy commands",
+        "keyboard Move up works and retains focus on the same category control",
+        "two live Atlas pages race native CAS writes; stale writer retains its draft, explicitly reconciles, and both layouts converge",
+        "usage ranking and repeated Home timer rerenders retain category order, header identity and search focus",
+        "crowded thirty-category Home, long labels, four window sizes and real 125/150/200 percent Firefox zoom have no horizontal overflow and at most five columns",
+        "Sites keeps complete hidden destinations, long-list selection/scroll, persistent B editor, browser Back and reload; close/save/Vault return restore selected-row context without authority changes",
+        "Home pending WAIT and confirmation-ready links select the existing workflow; only its explicit confirmation creates a grant, and access-details links retain the exact deadline",
+        "Home Journey link uses only its live owning tab/context and preserves its ID, deadline, policy and grant separation",
+        "unavailable authority labels retained catalog stale and removes access claims/actions; recovery retains layout and policy"
+      ],
+      "layouts": [
+        {
+          "width": 500,
+          "columns": 2,
+          "overflow": false,
+          "heights": [
+            74
+          ],
+          "visible": 54
+        },
+        {
+          "width": 800,
+          "columns": 3,
+          "overflow": false,
+          "heights": [
+            74
+          ],
+          "visible": 81
+        },
+        {
+          "width": 1280,
+          "columns": 5,
+          "overflow": false,
+          "heights": [
+            74
+          ],
+          "visible": 135
+        },
+        {
+          "width": 1800,
+          "columns": 5,
+          "overflow": false,
+          "heights": [
+            74
+          ],
+          "visible": 135
+        },
+        {
+          "zoom": 1.25,
+          "width": 1024,
+          "columns": 5,
+          "overflow": false
+        },
+        {
+          "zoom": 1.5,
+          "width": 853,
+          "columns": 4,
+          "overflow": false
+        },
+        {
+          "zoom": 2,
+          "width": 640,
+          "columns": 3,
+          "overflow": false
+        }
+      ],
+      "isolatedProfile": true,
+      "fullProcessRestart": true
+    },
+    "destinationBatch": {
+      "firefox": "159.0",
+      "checks": [
+        "three Whitelist additions, two Blacklist additions, explicit removal and name/category/pin edit staged together without policy or waiting",
+        "editable draft survives closing UI and a full Firefox process restart; complete destination review and unchanged old-term Vault wait",
+        "one explicit confirmation commits entire candidate once; replay rejected; post-commit display failure survives full restart and retries only presentation",
+        "unrelated commit stales preserved draft; explicit reconciliation preview and acceptance do not create permission or submit automatically",
+        "custom Books category reused across editor and committed Home grouping without rewriting legacy records or changing category ordering controls",
+        "two native Atlas pages detect a changed shared draft, retain local work and explicitly reload without overwriting the other page",
+        "real draft transaction failure retains raw inputs and blocks submission; explicit local retry saves work without policy commands",
+        "final full process restart retains completed policy/display/pins and separately preserves the next editable unsubmitted draft",
+        "lost response plus unrelated proposal ID advancement has an explicit local discard after Core recovery; saved policy retained and no repeat proposal or confirmation"
+      ],
+      "fullFirefoxRestarts": 3,
+      "isolatedProfile": true,
+      "signedReleaseModified": false,
+      "coreSemanticsChanged": false
+    },
+    "productization": {
+      "firefox": "159.0",
+      "productization": {
+        "checks": [
+          "accessible horizontal navigation, no expand control, legacy preference ignored across reload, unchanged authority",
+          "native online website icons, observed favicon on a custom host, decoded image rendering and no letter tiles",
+          "unpinning a focused Pinned card moves focus to its visible destination pin",
+          "native narrow layout: requested 350px outer width, actual 500px viewport, no horizontal overflow and fully visible Home/Settings labels",
+          "native Home/Settings navigation and actual settings disclosures, local pin persistence, ordinary cards, search shortcut, stable DOM and small-screen layout",
+          "native local search, aliases, blacklist exclusion, keyboard selection and ordinary gate",
+          "native atomic schema-1 migration, unchanged policy/runtime terms and frozen pending policy wait",
+          "native per-tab badge/title, cancellation, expiry and restart clearing",
+          "native old-term settings wait, explicit confirmation, atomic activation and frozen Access/Journey terms",
+          "native committed settings and pending proposal restart",
+          "Home/Settings preserve policy, managed list, Vault, diagnostics and recovery tools"
+        ],
+        "configurationRevision": 1
+      }
+    },
+    "navigationGate": {
+      "firefox": "159.0",
+      "journey": {
+        "id": 4,
+        "contextId": "5f076683-fa13-4224-9d9e-bebd7a230ca8",
+        "rootHostname": "root.localhost",
+        "currentHostname": "root.localhost",
+        "startedAt": 1793534328538,
+        "expiresAt": 1793534628538,
+        "hopCount": 2,
+        "maxHops": 12,
+        "policyRevision": 1,
+        "phase": "ENDED",
+        "endedAt": 1793534328853,
+        "endReason": "RETURNED"
+      },
+      "requests": [
+        [
+          "root.localhost",
+          "/begin-login"
+        ],
+        [
+          "login.localhost",
+          "/"
+        ],
+        [
+          "login.localhost",
+          "/atlas-site-icon.svg"
+        ],
+        [
+          "root.localhost",
+          "/begin-login"
+        ],
+        [
+          "login.localhost",
+          "/"
+        ],
+        [
+          "root.localhost",
+          "/"
+        ],
+        [
+          "root.localhost",
+          "/atlas-site-icon.svg"
+        ],
+        [
+          "root.localhost",
+          "/begin-login"
+        ],
+        [
+          "login.localhost",
+          "/"
+        ],
+        [
+          "login.localhost",
+          "/choose"
+        ],
+        [
+          "root.localhost",
+          "/bounce"
+        ],
+        [
+          "identity.localhost",
+          "/"
+        ],
+        [
+          "identity.localhost",
+          "/atlas-site-icon.svg"
+        ],
+        [
+          "identity.localhost",
+          "/finish"
+        ],
+        [
+          "root.localhost",
+          "/complete"
+        ],
+        [
+          "identity.localhost",
+          "/"
+        ],
+        [
+          "root.localhost",
+          "/"
+        ],
+        [
+          "root.localhost",
+          "/begin-login"
+        ],
+        [
+          "login.localhost",
+          "/"
+        ]
+      ],
+      "managed": {
+        "active": true,
+        "count": 165862,
+        "ignoredNames": 6,
+        "categories": [
+          "base",
+          "fakenews",
+          "gambling",
+          "porn",
+          "social"
+        ],
+        "sourceUrl": "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn-social/hosts",
+        "origin": "CACHE",
+        "upstreamDate": "29 October 2026 15:30:41 (UTC)",
+        "upstreamVersion": "W/\"2aad5259b50c81eee46698347f6d5b62fbf253bb0ad46d75015f19707a33847d\"",
+        "lastUpdatedAt": 1793534297278,
+        "lastAttemptAt": 1793534297278,
+        "updateStatus": "UPDATED",
+        "conflicts": []
+      },
+      "checks": [
+        "curated initialization UI",
+        "managed denial",
+        "managed cache restart",
+        "journey",
+        "redirect",
+        "greylist",
+        "confirmation UI",
+        "focus retention",
+        "diagnostics UI",
+        "closed-tab selection",
+        "request withholding",
+        "background restart"
+      ]
+    }
+  },
+  "integrity": {
+    "protectedReleaseFiles": 134,
+    "changedReleaseFiles": 0,
+    "backgroundBundleUnchanged": true,
+    "backgroundSha256": "de6c935c6b4d7eb0bee696158dfc72609a96bb5957d6caedf78f8c7e0a2bc12b",
+    "manifestChangeOnlyVersion": true,
+    "runtimeAssetPathsUnchanged": true,
+    "localHtmlAssetPaths": [
+      "atlas.svg",
+      "main.js",
+      "style.css"
+    ],
+    "sourceUiFilesChanged": [
+      "assets/atlas.svg",
+      "assets/index.html",
+      "assets/site.svg",
+      "assets/style.css",
+      "home-shortcuts.ts",
+      "main.ts"
+    ],
+    "noNewRuntimeFontOrIconProviders": true,
+    "websiteFaviconLoaderUnchanged": true,
+    "noNewDependenciesOrStorageSchema": true,
+    "normalFirefoxProfileAccessed": false,
+    "signedOrPublishedOrDeployed": false
+  },
+  "uncompressedBytes": {
+    "ui/main.js": {
+      "before": 488260,
+      "after": 490457
+    },
+    "ui/style.css": {
+      "before": 28997,
+      "after": 32913
+    },
+    "ui/index.html": {
+      "before": 25267,
+      "after": 28260
+    }
+  },
+  "assets": {
+    "newSvg": "original local compass, category/control symbols and fallback globe",
+    "fonts": "system stacks; no font redistribution or network fonts",
+    "favicons": "existing online loader retained by explicit user choice"
+  },
+  "limits": [
+    "Small local timing samples; large-history timings varied, no speedup claim.",
+    "Native Windows Firefox 159; other OS font metrics not verified.",
+    "Firefox minimum outer window is 500px here; zoom tests record actual content widths.",
+    "Keyboard and selected contrast checks are not full accessibility certification.",
+    "Intermittent user INTERNAL_ERROR remains unresolved."
+  ],
+  "regressionCaughtAndFixed": "Directory width changes triggered browser scroll anchoring. Disable anchoring only on the explicit-scroll-owned Sites list; 600px reload assertion passes.",
+  "fixtureUpdates": "Expected rail/card/navigation visuals updated, functional assertions retained. Icon screenshot scroll waits for existing navigation restoration."
+}

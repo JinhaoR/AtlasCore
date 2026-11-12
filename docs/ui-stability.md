@@ -1,5 +1,107 @@
 # UI stability and rendering
 
+The [theme contract](themes.md) adds one parser-time local preference read and
+native storage-event listeners, without a refresh loop or component rendering.
+Switching themes changes the root attribute only; fonts/assets are already local.
+Theme load/save failures remain presentation failures, independent of authority.
+
+
+The current [Home/All Sites separation](home-organization.md) uses floating search
+and a native modal rather than permanently allocated editor space. Category
+buttons and site rows reconcile by identity; unchanged search inputs retain their
+results. Category data is projected from the existing directory and saved layout,
+not a second search index. The same refresh owner, favicon lifecycle and controller
+gates remain. Scroll restoration follows the visible directory/categories, modal
+or review panel; Home no longer targets removed category DOM. Native checks retain
+pin nodes and show no extra resource requests during a short idle observation.
+This is not a measured performance improvement or a long-running reliability claim.
+
+The [Home hierarchy refinement](evidence/home-hierarchy/README.md) corrects the
+rotated pin layer's stacking order, with pointer pass-through on its empty area.
+Native hit testing and real mouse activation cover this boundary; scripted
+element activation alone cannot detect an overlapping drag surface. The repair
+uses CSS and leaves render ownership, rotation scheduling and command dispatch
+unchanged. No performance gain is claimed.
+
+Greylist actions previously dimmed all compass pins during the UI's local busy
+state, even with verified authority. Pins retain their opacity during this short
+state while remaining disabled against duplicate actions. Actual unavailable
+authority still disables and dims them. This changes no permission or refresh
+ownership. Native before/after sampling preserved the same pin node and changed
+its observed opacity sequence from `1, 0.6` to `1`; see
+[the focused evidence](evidence/greylist-controls/README.md).
+
+The [Home motion and access overview](home-organization.md#home-motion-and-global-access-overview-2026-11-10-development)
+removes the selected-tab Home header. Normal launcher replies no longer change
+the access selection. Greylist rows retain their DOM identity within a reserved
+two-row scroll region, with Journeys separately labelled. Counts and countdowns
+use the existing refresh owner. Compass transforms change only during an explicit
+gesture/coast; canonical numeric style values avoid unchanged idle rewrites.
+Native before/after observations found zero wheel mutations and zero new resource
+requests during the sampled settled intervals; this is not a load-time benchmark.
+
+The [current category grid](home-organization.md#current-home-category-grid-2026-11-10)
+renders every visible category as a retained local-icon button, but still defers
+site-card materialization until inspection. Its bounded height replaces the old
+viewport-filling panel/footer. Search, category inspection and countdowns keep
+their existing scroll owners. Pointer drag uses no animation loop or storage
+writes until release; order remains acknowledgement-only. Icon preferences add
+one independent read to the same refresh owner, not another polling loop.
+
+## Current development polish (2026-11-09)
+
+The [focused native evidence](evidence/ui-polish/README.md) distinguishes measured
+layout problems from timing variation. Resting Home now creates category headings
+and counts first; cards and their icon observers are created when that category is
+first opened. Visited categories retain their existing nodes, entry-point choices
+and pin controls. Search, saved layout and authority remain independent.
+
+The desktop shell reserves the pin area during initial reads and uses a zero
+content-based flex basis for its category/search workspace. A larger category
+cannot change the footer position. Home's stationary-layout breakpoint matches
+the surrounding desktop shell (1200 × 800 CSS pixels); smaller/zoomed windows use
+the existing document-scroll fallback. Countdown columns reserve space across
+digit changes. Real warnings may still take space so recovery remains usable.
+
+`ui/startup.ts` uses the existing closed URL route parser before the full interface
+starts, preventing Home from appearing during Sites/Settings/Vault reloads. It
+only selects body presentation attributes, with no storage, timers or Firefox
+commands. Its small local bundle is checked by development distribution validation.
+
+Pin labels now use the same acknowledged-state presentation rule as other Home
+controls during LOADING/COMMITTING. Missing snapshots, unavailable and reconciling
+states still display unverified access and disable launches. A label never
+authorizes navigation; opening still passes through the controller.
+
+No new polling, authority cache, persistence schema, release version or dependency
+was introduced. The historical intermittent INTERNAL_ERROR is not addressed.
+
+## Existing rendering contract
+
+[Everyday controls](everyday-controls.md) now keeps desktop Home stationary with
+category/search and access scroll regions, plus a small-window document fallback.
+Bookmark reconciliation belongs to a serialized background presentation owner,
+driven by Firefox events/startup. The existing visible-page refresh reads its
+acknowledged projection; it does not add a second control-page poller. The toolbar
+popup has its own visible-document `RefreshLoop`, disposed when the popup closes.
+
+The [compact Home](compact-home.md) adds bookmark reads to the existing refresh
+owner. Pin, chooser and editor DOM reconcile by stable destination/page IDs;
+unchanged refreshes do not replace nodes or restart favicon lookup. There is no
+new polling loop. A native popover and center-only pointer capture belong to the
+pin presentation owner and are cleaned up on hide/disposal. Inline category
+navigation was the preceding composition; the current bounded workspace preserves
+the same category/history owner.
+
+The [post-0.2.1 engineering review](ui-engineering-review.md) removes repeated
+whole-policy normalization from collection rendering. Startup now reads Home
+preferences in parallel with authority loading, without initializing or migrating
+layout until the verified category catalog arrives. The reserved category area
+has no visible loading message; its `aria-busy` state remains. The main page's
+top-right connection/readiness indicator has been removed; the toolbar popup
+still reports status. Categories wait for acknowledged Home preferences; failed authority still exposes
+recovery and disables launchers. Directory scroll tracks size to their contents.
+
 This development pass preserves signed 0.1.15, Core semantics, storage schemas,
 identity and installed Firefox configuration. It changes extension presentation.
 The interface still uses native DOM controls and the existing A–D workflows.
@@ -271,3 +373,45 @@ copies only this numeric diagnostic record for sharing.
 
 This optional daily-use probe has no authorization role. The native harness also
 records node identity, detailed structural counters and synthetic failure cases.
+
+## Interaction refinement (development)
+
+Drag previews and compass coasting use transient presentation state. A coast has
+a 1.6-second ceiling and no idle animation or persistence. Existing refresh
+ownership and acknowledged-save rules are unchanged. Static copy in
+`extension/src/ui/ui-text.ts` is escaped into the HTML at build time, so it needs
+no runtime fetch or extra render. Vault reuses its existing DOM and handlers
+inside Settings; no additional controller or editor state is created.
+
+## Compass / Home simplification verification
+
+The development compass uses fixed orbital coordinates and one shared rotation
+transform, with counter-rotation for upright icon buttons. Pointer samples still
+feed the existing angular-velocity estimator; presentation updates are coalesced
+onto animation frames. No storage writes, fetches or idle animation are introduced.
+Native measurements and limitations are recorded under docs/evidence/home-simplification.
+
+## Category drop and frame-rate investigation (after prepared 0.3.0)
+
+The category preview previously cleared transforms on pointer release before the
+async save changed DOM order. This produced a reverse animation followed by a
+layout jump. The shortcut owner now holds the preview while the save settles,
+defers intervening renders, and removes transforms with reconciliation in one
+layout update with transitions disabled. Failed writes return to acknowledged
+order while the ordering session retains the draft and retry/conflict feedback.
+No preview grants authority or pretends persistence succeeded.
+
+The compass already uses requestAnimationFrame and timestamp-based exponential
+motion. Native before/after runs did not reproduce a 60 Hz cap or a regression:
+median intervals were approximately 6.06 ms, p95 6.08 ms, with zero per-pin style
+writes and 213 total style mutations per synthetic gesture. No speculative motion
+rewrite was made. Headless frame timestamps are not physical GPU presentation or
+a guarantee on a 144 Hz monitor. See [evidence](evidence/home-balance/README.md).
+
+## Greylist layout stability
+
+The centered desktop Home wrapper now reserves its bounded two-row access area,
+even when the Greylist box is hidden. This removes the intrinsic-height change
+that recentered every preceding element. It adds no observer, render or timer.
+Native before/after checks measure 81px versus 0px movement in all four bundled
+themes; see [evidence and responsive limits](evidence/greylist-layout/README.md).

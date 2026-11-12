@@ -1,0 +1,21 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.2.7",
+  "firefox": "160.0",
+  "endAccess": {
+    "embeddedScriptAndFrameAndFetchLoaded": true,
+    "blockedTopLevelNeverReachedServer": true,
+    "endFromHomeCommitted": true,
+    "bothGrantTabsRemoved": true,
+    "delayedResponseCancelled": true,
+    "newRequestWaitEnforced": true,
+    "endFromDetails": true,
+    "allowedTabPreserved": true,
+    "policySettingsUnchanged": true,
+    "originalDeadline": 1794381487652,
+    "consumedRequestCannotConfirmAgain": true,
+    "endedRequestId": 1,
+    "restartPreserved": true
+  },
+  "status": "PASS"
+}

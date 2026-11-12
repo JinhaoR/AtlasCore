@@ -15,7 +15,7 @@ function normalizeEntries(input) {
 export function normalizePolicy(input) {
     if (input === null || typeof input !== "object" || Array.isArray(input))
         return null;
-    if (Object.keys(input).some((key) => key !== "whitelist" && key !== "blacklist") ||
+    if (Object.keys(input).some((key) => key !== "whitelist" && key !== "blacklist" && key !== "whitelistSubdomains") ||
         !Object.hasOwn(input, "whitelist") ||
         !Object.hasOwn(input, "blacklist") ||
         !("whitelist" in input) ||
@@ -26,5 +26,30 @@ export function normalizePolicy(input) {
     const blacklist = normalizeEntries(input.blacklist);
     if (whitelist === null || blacklist === null)
         return null;
-    return { whitelist, blacklist };
+    if (!Object.hasOwn(input, 'whitelistSubdomains'))
+        return { whitelist, blacklist };
+    const whitelistSubdomains = normalizeEntries(input.whitelistSubdomains);
+    // Core has no Public Suffix List. Trusted hosts may further restrict broad
+    // policy inputs, but single-label scopes and wildcard strings are never valid.
+    if (whitelistSubdomains === null || whitelistSubdomains.some(hostname => hostname.split('.').length < 2))
+        return null;
+    return { whitelist, blacklist, whitelistSubdomains };
+}
+/** Strict subtraction only. Classification for workflow selection is not a commit. */
+export function isWhitelistRemoval(currentInput, candidateInput) {
+    const current = normalizePolicy(currentInput), candidate = normalizePolicy(candidateInput);
+    if (current === null || candidate === null)
+        return false;
+    const beforeBlack = new Set(current.blacklist), afterBlack = new Set(candidate.blacklist);
+    if (beforeBlack.size !== afterBlack.size || [...afterBlack].some(host => !beforeBlack.has(host)))
+        return false;
+    let removed = false;
+    for (const field of ['whitelist', 'whitelistSubdomains']) {
+        const before = new Set(current[field] ?? []), after = new Set(candidate[field] ?? []);
+        if ([...after].some(host => !before.has(host)))
+            return false;
+        if (after.size < before.size)
+            removed = true;
+    }
+    return removed;
 }

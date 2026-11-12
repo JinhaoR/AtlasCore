@@ -1,0 +1,211 @@
+{
+  "version": "0.2.5",
+  "status": "VALIDATED_UNSIGNED_SIGNING_CANDIDATE",
+  "date": "2026-11-10",
+  "identity": "atlas-development@atlas.invalid",
+  "channel": "unlisted",
+  "node": "24.12.0",
+  "firefox": "159.0.1",
+  "artifacts": {
+    "atlas-0.2.5-unsigned.zip": {
+      "sha256": "dac98475504ad91861e89764ea8a3f4ab74c54da22c80ea45b651cbd67da717d",
+      "bytes": 1601338,
+      "byteIdenticalReviewerRebuild": true
+    },
+    "atlas-0.2.5-source.zip": {
+      "sha256": "b78553f21727d55d1d7f3a679f7e65ffefb9d7c60e6632052448f7d9c5dca016",
+      "bytes": 2117219,
+      "byteIdenticalReviewerRebuild": true
+    },
+    "release.json": {
+      "sha256": "4f12d91ae25884bc3242771a00625329a1ab79f29b0a0764b364b0d11cc0810e",
+      "bytes": 32978,
+      "byteIdenticalReviewerRebuild": true
+    }
+  },
+  "integrity": {
+    "artifacts": {
+      "atlas-0.2.5-unsigned.zip": {
+        "sha256": "dac98475504ad91861e89764ea8a3f4ab74c54da22c80ea45b651cbd67da717d",
+        "bytes": 1601338,
+        "byteIdenticalReviewerRebuild": true
+      },
+      "atlas-0.2.5-source.zip": {
+        "sha256": "b78553f21727d55d1d7f3a679f7e65ffefb9d7c60e6632052448f7d9c5dca016",
+        "bytes": 2117219,
+        "byteIdenticalReviewerRebuild": true
+      },
+      "release.json": {
+        "sha256": "4f12d91ae25884bc3242771a00625329a1ab79f29b0a0764b364b0d11cc0810e",
+        "bytes": 32978,
+        "byteIdenticalReviewerRebuild": true
+      }
+    },
+    "runtimeFileCount": 27,
+    "runtimeDeltaFrom024": [
+      "manifest.json",
+      "ui/index.html",
+      "ui/main.js",
+      "ui/style.css"
+    ],
+    "previousReleaseFiles": 278,
+    "changedPreviousReleaseFiles": [],
+    "developmentRuntimeMatches": true,
+    "forbiddenTestMarkersAbsent": true,
+    "coreSourceUnchanged": 24,
+    "manifestChanges": [
+      "version"
+    ],
+    "coreAdapterBackgroundSyncAuthorityStorageUnchanged": true,
+    "dependenciesUnchanged": true
+  },
+  "checks": {
+    "coreTests": {
+      "passed": 249,
+      "failed": 0,
+      "skipped": 0
+    },
+    "extensionTests": {
+      "passed": 607,
+      "failed": 0,
+      "skipped": 0
+    },
+    "typescript": "PASS: both packages checked by development, release and clean reviewer builds",
+    "developmentBuild": "PASS",
+    "releaseValidate": "PASS",
+    "reviewerRebuild": "PASS: clean locked offline npm ci for both packages; all runtime files, both ZIPs and receipt byte-identical",
+    "mozillaLint": {
+      "errors": 0,
+      "warnings": 1,
+      "notices": 0,
+      "warning": "KEY_FIREFOX_ANDROID_UNSUPPORTED_BY_MIN_VERSION"
+    },
+    "audit": {
+      "runtime": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      },
+      "developmentToolchain": {
+        "info": 0,
+        "low": 3,
+        "moderate": 1,
+        "high": 2,
+        "critical": 0,
+        "total": 6
+      },
+      "dependencyChanges": false
+    },
+    "previousSignedOfflineVerification": "PASS: existing signed 0.2.4; 26 exact runtime hashes, manifest JSON tokens identical; known Mozilla signature metadata only",
+    "diffWhitespace": "PASS"
+  },
+  "native": {
+    "upgradeRollback": {
+      "firefox": "159.0.1",
+      "suite": "release-upgrade-rollback",
+      "baseline": "signed 0.2.4",
+      "steps": [
+        {
+          "step": "upgrade",
+          "version": "0.2.5",
+          "policySettingsPinsCategoriesDraftsPreserved": true,
+          "namedPagesPreserved": true,
+          "pendingProposalRequestGrantDeadlinesPreserved": true,
+          "categoryIconsPreserved": true,
+          "bookmarkConnectionPreserved": true
+        },
+        {
+          "step": "candidate-restart",
+          "version": "0.2.5",
+          "policySettingsPinsCategoriesDraftsPreserved": true,
+          "namedPagesPreserved": true,
+          "pendingProposalRequestGrantDeadlinesPreserved": true,
+          "categoryIconsPreserved": true,
+          "bookmarkConnectionPreserved": true
+        },
+        {
+          "step": "rollback",
+          "version": "0.2.4",
+          "policySettingsPinsCategoriesDraftsPreserved": true,
+          "namedPagesPreserved": true,
+          "pendingProposalRequestGrantDeadlinesPreserved": true,
+          "categoryIconsPreserved": true,
+          "bookmarkConnectionPreserved": true
+        }
+      ],
+      "fullFirefoxRestarts": 3,
+      "normalProfileAccessed": false,
+      "signedArtifactsModified": false,
+      "mechanism": "signed baseline plus temporary candidate overlay; restart without overlay restores the original signed baseline, without uninstalling"
+    },
+    "packagedCategoryGrid": {
+      "status": "PASS",
+      "result": "firefox-release-0.2.5/packaged-category-grid.json",
+      "checks": [
+        "native pointer drag reorders once without opening a category",
+        "Escape and release outside cancel dragging without persistence or activation",
+        "keyboard, focus, Back/Forward and reload preserve order and local icon choice",
+        "failed icon save retains editor choice; retry commits without changing layout or policy",
+        "two control pages and a full Firefox restart preserve acknowledged icons, order and pins",
+        "30 categories scroll internally; local custom icons, small windows and 125-200% zoom; idle nodes retained; authority unchanged"
+      ],
+      "idle": {
+        "mutations": 0,
+        "resources": 0,
+        "retained": true
+      }
+    },
+    "packagedEveryday": {
+      "status": "PASS",
+      "result": "firefox-release-0.2.5/packaged-everyday.json",
+      "homeBookmarkEntry": true,
+      "bidirectional": true,
+      "restartPreserved": true,
+      "idle": {
+        "replacedNodes": 0,
+        "attributes": 0,
+        "additionalResources": 0,
+        "pinIdentity": true,
+        "viewRequests": 5,
+        "presentationRequests": 5,
+        "maxConcurrentViews": 1
+      }
+    },
+    "commands": [
+      "python extension/scripts/firefox-e2e.py --release-upgrade-only --release-baseline-version 0.2.4 --addon-dir extension/release/0.2.5/addon",
+      "python extension/scripts/firefox_compact_home.py --category-grid-only --signed-baseline 0.2.4 --addon-dir extension/release/0.2.5/addon",
+      "python extension/scripts/firefox_compact_home.py --everyday-only --signed-baseline 0.2.4 --addon-dir extension/release/0.2.5/addon"
+    ]
+  },
+  "limitations": [
+    "Historical intermittent INTERNAL_ERROR remains unresolved.",
+    "Physical toolbar click and popup keyboard activation are not established by headless Marionette.",
+    "Physical touch/trackpad dragging, screen-reader and non-Windows behavior are not independently verified.",
+    "Temporary unsigned upgrade/restart/rollback does not establish eventual permanent signed update behavior.",
+    "No broad performance or multi-day reliability improvement claim."
+  ],
+  "signing": {
+    "command": "npm.cmd --prefix extension run release:sign",
+    "credentials": "WEB_EXT_API_KEY and WEB_EXT_API_SECRET supplied securely by the user when ready",
+    "signedOutput": "extension/release/0.2.5/signed/*.xpi",
+    "submitted": false,
+    "signed": false,
+    "deployed": false
+  },
+  "normalProfileAccessed": false,
+  "enterprisePoliciesModified": false,
+  "committedOrPushed": false,
+  "cleanup": {
+    "taskDisposableProfiles": [
+      "firefox-e2e-qqtyz6dv",
+      "compact-home-native-3q6__k3p",
+      "compact-home-native-l23gs846"
+    ],
+    "reviewerCopy": ".tools/release-0.2.5/reviewer",
+    "checkpointAndLogsRetained": ".tools/release-0.2.5"
+  },
+  "evidenceDirectory": "firefox-release-0.2.5/"
+}

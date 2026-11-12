@@ -1,0 +1,15 @@
+
+> @atlas/firefox@0.2.4 release:build
+> node scripts/release.mjs build
+
+> @atlas/firefox@0.2.4 build
+> npm --prefix ../packages/core run build && tsc -p tsconfig.json && node build.mjs --release
+
+
+> @atlas/core@0.1.0 build
+> tsc -p tsconfig.json
+web-ext lint: 0 errors, 1 warnings, 0 notices
+KEY_FIREFOX_ANDROID_UNSUPPORTED_BY_MIN_VERSION: Manifest key not supported by the specified minimum Firefox for Android version
+Release ready: C:\Users\jinhao\Desktop\Projects\AtlasCore\extension\release\0.2.4\atlas-0.2.4-unsigned.zip
+Reviewer source: C:\Users\jinhao\Desktop\Projects\AtlasCore\extension\release\0.2.4\atlas-0.2.4-source.zip
+No submission made.

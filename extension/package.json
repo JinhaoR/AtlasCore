@@ -1,13 +1,15 @@
 {
   "name": "@atlas/firefox",
-  "version": "0.1.16",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "Firefox prototype adapter for AtlasCore",
   "scripts": {
     "build": "npm --prefix ../packages/core run build && tsc -p tsconfig.json && node build.mjs",
+    "build:home-poc": "npm run build && node scripts/build-home-poc.mjs",
     "typecheck": "npm --prefix ../packages/core run build && tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test tests/*.test.mjs",
+    "test:built": "node --test tests/*.test.mjs",
     "test:firefox": "npm run build && python scripts/firefox-e2e.py",
     "test:public-sites": "npm run build && python scripts/firefox-public-sites.py",
     "release:build": "node scripts/release.mjs build",

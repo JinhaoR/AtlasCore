@@ -2,13 +2,14 @@ export type { SiteTarget, Policy, Decision } from "./models.js";
 export { compileManagedBlacklist, isManagedBlacklist, managedBlacklistContains } from "./managed-blacklist.js";
 export type { ManagedBlacklist } from "./managed-blacklist.js";
 export { normalizeTarget } from "./target.js";
-export { evaluate } from "./evaluate.js";
+export { evaluate, evaluateMany } from "./evaluate.js";
+export { isWhitelistRemoval } from './policy.js';
 export type {
   AccessTiming, PendingAccessRequest, AccessGrant, AccessState, AccessContext,
   AccessContextError, AccessError, AccessDecision, AccessEvaluation, AccessTransition,
 } from "./access-models.js";
 export { createAccessState } from "./access-state.js";
-export { evaluateAccess, startAccess, confirmAccess, cancelAccess } from "./access.js";
+export { evaluateAccess, startAccess, confirmAccess, cancelAccess, endAccess } from "./access.js";
 export type {
   VaultTiming, PolicyProposal, AppliedPolicyProposal, VaultState, VaultContext, VaultError,
   PolicyListChanges, PolicyClassification, PolicyClassificationChange, PolicyReview,
@@ -40,7 +41,7 @@ export type {
   AtlasCommitResult, AtlasRepository,
 } from "./atlas-ports.js";
 export type {
-  AtlasControllerStatus, AtlasControllerError, AtlasControllerView, AtlasControllerResponse,
+  AtlasControllerStatus, AtlasControllerError, AtlasControllerFault, AtlasControllerActivity, AtlasControllerView, AtlasControllerResponse,
   AtlasControllerOptions, AtlasController,
 } from "./atlas-controller-models.js";
 export { createAtlasController } from "./atlas-controller.js";

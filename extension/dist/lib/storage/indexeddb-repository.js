@@ -1,5 +1,8 @@
 import { createAccessState, createJourneyState, createVaultState, validateAtlasSnapshot, migrateAtlasSnapshotV1, readConfiguration, } from '@atlas/core';
 import { configuration as defaultConfiguration } from "../background/configuration.js";
+import { curatedUpgradeId, curatedUpgradeKey, curatedUpgradeHosts, initialCuratedReceipt, planCuratedUpgrade, readCuratedUpgradeReceipt } from '../presets/curated-upgrade.js';
+import { legacyCuratedUpgradeId, legacyCuratedUpgradeKey } from '../presets/curated-upgrade-v2.js';
+import { curatedScopeKey, initialCuratedScopes, initialCuratedScopeReceipt, planCuratedScopes, readCuratedScopeReceipt } from '../presets/curated-scopes.js';
 // Never expose exception messages, browser event objects, URLs or stored data.
 function failureCause(error, fallback = 'OTHER') {
     try {
@@ -59,6 +62,7 @@ class IndexedDBRepository {
     failedCommits = 0;
     failureSequence = 0;
     lastFailure = null;
+    curatedReceipt = null;
     constructor(database, newVersion, bootstrap) {
         this.database = database;
         this.newVersion = newVersion;
@@ -151,8 +155,12 @@ class IndexedDBRepository {
                         // Core validates every byte of the envelope/snapshot before publishing authority.
                         resolve({ type: 'READY', envelope: loaded });
                     }
-                    else
+                    else {
+                        // Record this validation failure rather than leaving an older abort
+                        // diagnostic that could misclassify damaged authority as transient.
+                        this.failed('LOAD', 'VALIDATION', 'INVALID_DATA');
                         resolve({ type: 'UNAVAILABLE' });
+                    }
                 };
                 transaction.onabort = () => {
                     this.failed('LOAD', 'TRANSACTION_ABORT', invalidMigration ? 'INVALID_DATA' : failureCause(transaction.error, 'ABORTED'));
@@ -165,12 +173,17 @@ class IndexedDBRepository {
             }
         });
     }
-    initialize(policy) {
+    getCuratedUpgrade() { return this.curatedReceipt; }
+    initialize(policy, fromCuratedPreset = false) {
         const validated = validateAtlasSnapshot({
             policy, policyRevision: 0, configuration: this.bootstrap, configurationRevision: 0, accessState: createAccessState(),
             vaultState: createVaultState(), journeyState: createJourneyState(),
         });
         if (!validated.ok)
+            return Promise.resolve(false);
+        if (fromCuratedPreset && (validated.snapshot.policy.blacklist.length
+            || JSON.stringify([...(validated.snapshot.policy.whitelistSubdomains ?? [])].sort()) !== JSON.stringify(initialCuratedScopes)
+            || JSON.stringify([...validated.snapshot.policy.whitelist].sort()) !== JSON.stringify(curatedUpgradeHosts)))
             return Promise.resolve(false);
         return new Promise((resolve) => {
             try {
@@ -179,27 +192,213 @@ class IndexedDBRepository {
                 const authority = transaction.objectStore('authority');
                 const initialized = authority.get('initialized');
                 const envelope = authority.get('envelope');
-                envelope.onsuccess = () => {
-                    if (initialized.result !== false || envelope.result !== undefined)
+                const curatedMarker = authority.get(curatedUpgradeKey);
+                const legacyMarker = authority.get(legacyCuratedUpgradeKey);
+                const scopeMarker = authority.get(curatedScopeKey);
+                scopeMarker.onsuccess = () => {
+                    if (initialized.result !== false || envelope.result !== undefined || curatedMarker.result !== undefined
+                        || legacyMarker.result !== undefined || scopeMarker.result !== undefined)
                         return;
                     try {
                         const storageVersion = this.version();
                         authority.put({ schemaVersion: 2, storageVersion, lastCommitId: null,
                             snapshot: validated.snapshot }, 'envelope');
                         authority.put(true, 'initialized');
+                        if (fromCuratedPreset) {
+                            authority.put(initialCuratedReceipt(), curatedUpgradeKey);
+                            authority.put(initialCuratedScopeReceipt(), curatedScopeKey);
+                        }
                         applied = true;
                     }
                     catch {
                         transaction.abort();
                     }
                 };
-                transaction.oncomplete = () => resolve(applied);
+                transaction.oncomplete = () => {
+                    if (applied && fromCuratedPreset)
+                        this.curatedReceipt = initialCuratedReceipt();
+                    resolve(applied);
+                };
                 transaction.onabort = () => { this.failed('INITIALIZE', 'TRANSACTION_ABORT', failureCause(transaction.error, 'ABORTED')); resolve(false); };
             }
             catch (error) {
                 this.failed('INITIALIZE', 'TRANSACTION_OPEN', failureCause(error));
                 resolve(false);
             }
+        });
+    }
+    /** Startup only, before a controller owns this connection. Policy and receipt
+     * commit together; any older controller is fenced by the new storage version. */
+    applyCuratedUpgrade(managed) {
+        this.curatedReceipt = null;
+        return this.curatedUpgrade(managed, 'readonly');
+    }
+    curatedUpgrade(managed, mode) {
+        return new Promise(resolve => {
+            let transaction;
+            try {
+                transaction = this.transaction(mode);
+            }
+            catch (error) {
+                this.failed('CURATED_UPGRADE', 'TRANSACTION_OPEN', failureCause(error));
+                resolve({ type: 'UNAVAILABLE' });
+                return;
+            }
+            const store = transaction.objectStore('authority');
+            const initialized = store.get('initialized'), current = store.get('envelope'), marker = store.get(curatedUpgradeKey);
+            const legacyMarker = store.get(legacyCuratedUpgradeKey);
+            const scopeMarker = store.get(curatedScopeKey);
+            let result = { type: 'UNAVAILABLE' };
+            let needsWrite = false;
+            let caughtFailure = null;
+            scopeMarker.onsuccess = () => {
+                try {
+                    if (initialized.result === false && current.result === undefined && marker.result === undefined && legacyMarker.result === undefined && scopeMarker.result === undefined) {
+                        result = { type: 'UNINITIALIZED' };
+                        return;
+                    }
+                    const envelope = current.result;
+                    if (initialized.result !== true || !envelope || typeof envelope !== 'object')
+                        return;
+                    const value = envelope;
+                    if (Object.keys(value).length !== 4 || value.schemaVersion !== 2
+                        || typeof value.storageVersion !== 'string' || !/^[a-z0-9_.:-]{1,256}$/i.test(value.storageVersion)
+                        || (value.lastCommitId !== null && (typeof value.lastCommitId !== 'string' || !/^[a-z0-9_.:-]{1,256}$/i.test(value.lastCommitId)))
+                        || !validateAtlasSnapshot(value.snapshot).ok)
+                        return;
+                    // Validate every known marker before trusting it. A valid legacy v2
+                    // receipt retires this expansion: never re-add a user's later removals.
+                    let applied = null;
+                    if (scopeMarker.result !== undefined) {
+                        const scope = readCuratedScopeReceipt(scopeMarker.result);
+                        if (!scope || scope.policyRevisionAfter > value.snapshot.policyRevision
+                            || marker.result === undefined && legacyMarker.result === undefined)
+                            return;
+                    }
+                    for (const [request, id] of [[legacyMarker, legacyCuratedUpgradeId], [marker, curatedUpgradeId]]) {
+                        if (request.result === undefined)
+                            continue;
+                        const receipt = readCuratedUpgradeReceipt(request.result);
+                        if (!receipt || receipt.id !== id || receipt.policyRevisionAfter > value.snapshot.policyRevision)
+                            return;
+                        applied = receipt;
+                    }
+                    if (applied) {
+                        result = { type: 'ALREADY_APPLIED', receipt: applied };
+                        return;
+                    }
+                    // The write path rereads everything under its own transaction fence.
+                    if (mode === 'readonly') {
+                        needsWrite = true;
+                        return;
+                    }
+                    const planned = planCuratedUpgrade(value.snapshot, managed);
+                    if (!planned)
+                        return;
+                    const storageVersion = this.version();
+                    if (storageVersion === value.storageVersion) {
+                        transaction.abort();
+                        return;
+                    }
+                    store.put({ ...value, storageVersion, snapshot: planned.snapshot }, 'envelope');
+                    store.put(planned.receipt, curatedUpgradeKey);
+                    result = { type: 'APPLIED', receipt: planned.receipt };
+                }
+                catch (error) {
+                    caughtFailure = failureCause(error);
+                    transaction.abort();
+                }
+            };
+            transaction.oncomplete = () => {
+                if (needsWrite) {
+                    resolve(this.curatedUpgrade(managed, 'readwrite'));
+                    return;
+                }
+                if ('receipt' in result)
+                    this.curatedReceipt = result.receipt;
+                else if (result.type === 'UNAVAILABLE')
+                    this.failed('CURATED_UPGRADE', 'VALIDATION', 'INVALID_DATA');
+                resolve(result);
+            };
+            transaction.onabort = () => { this.failed('CURATED_UPGRADE', 'TRANSACTION_ABORT', caughtFailure ?? failureCause(transaction.error, 'ABORTED')); resolve({ type: 'UNAVAILABLE' }); };
+        });
+    }
+    /** Independent fixed scope migration; never replay a removed scope on later startup. */
+    applyCuratedScopes() { return this.curatedScopes('readonly'); }
+    curatedScopes(mode) {
+        return new Promise(resolve => {
+            let transaction;
+            try {
+                transaction = this.transaction(mode);
+            }
+            catch (error) {
+                this.failed('CURATED_UPGRADE', 'TRANSACTION_OPEN', failureCause(error));
+                resolve({ type: 'UNAVAILABLE' });
+                return;
+            }
+            const store = transaction.objectStore('authority');
+            const initialized = store.get('initialized'), current = store.get('envelope');
+            const old = store.get(curatedUpgradeKey), legacy = store.get(legacyCuratedUpgradeKey), marker = store.get(curatedScopeKey);
+            let result = { type: 'UNAVAILABLE' }, needsWrite = false;
+            let caughtFailure = null;
+            marker.onsuccess = () => {
+                try {
+                    if (initialized.result === false && current.result === undefined && marker.result === undefined
+                        && old.result === undefined && legacy.result === undefined) {
+                        result = { type: 'UNINITIALIZED' };
+                        return;
+                    }
+                    const value = current.result;
+                    if (initialized.result !== true || !value || typeof value !== 'object'
+                        || Object.keys(value).length !== 4 || value.schemaVersion !== 2
+                        || typeof value.storageVersion !== 'string' || !/^[a-z0-9_.:-]{1,256}$/i.test(value.storageVersion)
+                        || (value.lastCommitId !== null && (typeof value.lastCommitId !== 'string' || !/^[a-z0-9_.:-]{1,256}$/i.test(value.lastCommitId)))
+                        || !validateAtlasSnapshot(value.snapshot).ok)
+                        return;
+                    for (const [request, id] of [[old, curatedUpgradeId], [legacy, legacyCuratedUpgradeId]]) {
+                        if (request.result === undefined)
+                            continue;
+                        const receipt = readCuratedUpgradeReceipt(request.result);
+                        if (!receipt || receipt.id !== id || receipt.policyRevisionAfter > value.snapshot.policyRevision)
+                            return;
+                    }
+                    if (marker.result !== undefined) {
+                        const receipt = readCuratedScopeReceipt(marker.result);
+                        if (receipt && receipt.policyRevisionAfter <= value.snapshot.policyRevision)
+                            result = { type: 'ALREADY_APPLIED', receipt };
+                        return;
+                    }
+                    if (mode === 'readonly') {
+                        needsWrite = true;
+                        return;
+                    }
+                    const planned = planCuratedScopes(value.snapshot);
+                    if (!planned)
+                        return;
+                    const storageVersion = this.version();
+                    if (storageVersion === value.storageVersion) {
+                        transaction.abort();
+                        return;
+                    }
+                    store.put({ ...value, storageVersion, snapshot: planned.snapshot }, 'envelope');
+                    store.put(planned.receipt, curatedScopeKey);
+                    result = { type: 'APPLIED', receipt: planned.receipt };
+                }
+                catch (error) {
+                    caughtFailure = failureCause(error);
+                    transaction.abort();
+                }
+            };
+            transaction.oncomplete = () => {
+                if (needsWrite) {
+                    resolve(this.curatedScopes('readwrite'));
+                    return;
+                }
+                if (result.type === 'UNAVAILABLE')
+                    this.failed('CURATED_UPGRADE', 'VALIDATION', 'INVALID_DATA');
+                resolve(result);
+            };
+            transaction.onabort = () => { this.failed('CURATED_UPGRADE', 'TRANSACTION_ABORT', caughtFailure ?? failureCause(transaction.error, 'ABORTED')); resolve({ type: 'UNAVAILABLE' }); };
         });
     }
     version() {

@@ -122,6 +122,32 @@ def main():
     parser.add_argument("--ui-stability-indicator-only", action="store_true", help="Measure the passive Journey indicator for 60 seconds in isolation")
     parser.add_argument("--storage-reliability-only", action="store_true", help="Exercise real IndexedDB abort recovery and conservative storage failures in a disposable profile")
     parser.add_argument("--storage-baseline", action="store_true", help="Record the preserved release's sticky storage failure without expecting automatic recovery")
+    parser.add_argument("--storage-read-baseline", action="store_true", help="Reproduce the preserved runtime's readonly-load outage without expecting automatic recovery")
+    parser.add_argument("--internal-fault-only", action="store_true", help="Exercise an idle controller exception, safe retained diagnostics and explicit recovery in a disposable profile")
+    parser.add_argument("--long-reliability-only", action="store_true", help="Five-minute native history/idle soak, delayed real storage, tab races and background reload")
+    parser.add_argument("--extended-reliability", action="store_true", help="With long reliability, run ten minutes with 100,000 receipts and interleaved Greylist/Journey activity")
+    parser.add_argument("--quality-pass-only", action="store_true", help="Matched native navigation and consecutive editing measurements")
+    parser.add_argument("--history-navigation-only", action="store_true", help="Focused 0/2500-history navigation comparison, without editor/visual scenarios")
+    parser.add_argument("--startup-layout-only", action="store_true", help="Measure control-page startup/icons and viewport scroll regions in isolation")
+    parser.add_argument("--startup-layout-baseline", action="store_true", help="Record old startup/layout without asserting repaired geometry")
+    parser.add_argument("--release-upgrade-only", action="store_true", help="Signed baseline upgrade and rollback in this isolated profile")
+    parser.add_argument("--release-baseline-version", choices=['0.1.19', '0.2.0', '0.2.1', '0.2.2', '0.2.3', '0.2.4', '0.2.5', '0.2.6', '0.2.7', '0.2.8'], default='0.1.19', help="Frozen signed upgrade/rollback baseline")
+    parser.add_argument("--visual-redesign-only", action="store_true", help="0.2.0 presentation screenshots, stable pins and responsive native checks")
+    parser.add_argument("--management-ux-only", action="store_true", help="0.2.0 directory, draft review, Vault and Settings presentation workflows")
+    parser.add_argument("--visual-redesign-baseline", action="store_true", help="Run matched checks against the preserved prior UI")
+    parser.add_argument("--quality-pass-baseline", action="store_true", help="Record pre-improvement quality-pass behavior")
+    parser.add_argument("--internal-fault-baseline", action="store_true", help="With --internal-fault-only, verify preserved code's generic exception record")
+    parser.add_argument("--curated-upgrade-only", action="store_true", help="Upgrade a preserved signed baseline in a disposable profile, keeping saved custom policy/settings")
+    parser.add_argument("--curated-upgrade-applied", action="store_true", help="With --curated-upgrade-only, retain signed 0.1.18's applied v2 receipt and legacy draft/display data")
+    parser.add_argument("--engineering-review-only", action="store_true", help="Measure expired-history projections, empty-workspace navigation and unavailable UI in a disposable runtime")
+    parser.add_argument("--engineering-review-baseline", action="store_true", help="Record the preserved pre-review development build")
+    parser.add_argument("--performance-audit-only", action="store_true", help="Measure synthetic large drafts, idle work and repeated UI lifecycles using an instrumented disposable runtime")
+    parser.add_argument("--performance-baseline", action="store_true", help="Collect performance baseline without post-fix thresholds")
+    parser.add_argument("--editor-followup-only", action="store_true", help="Exercise editor/review after a completed large Vault batch using an instrumented runtime")
+    parser.add_argument("--editor-followup-baseline", action="store_true", help="Record prior blank-editor/review blocking without asserting corrected behavior")
+    parser.add_argument("--subdomain-scope-only", action="store_true", help="Exercise optional Whitelist scopes through native UI, real Vault waits and loopback DNS fixtures")
+    parser.add_argument("--whitelist-removal-only", action="store_true", help="Exercise immediate reviewed removals, mixed Vault batches and two isolated Firefox restarts")
+    parser.add_argument("--upgrade-addon-dir", type=Path, default=EXTENSION / 'dist', help="Development runtime to install during the curated upgrade fixture")
     parser.add_argument("--visual-baseline", action="store_true", help="Record pre-polish metrics without enforcing the new visual targets")
     parser.add_argument("--destination-polish-only", action="store_true", help="Exercise Sites, compact Home, protected timing, local preferences and timeout renewal guards")
     parser.add_argument("--friend-prototype-only", action="store_true", help="Check automatic first-run policy, temporary access overview/countdown, expiry and restart")
@@ -131,6 +157,12 @@ def main():
     parser.add_argument("--root-departure-probe", action="store_true", help="With --journey-polish-only, record prior strict denial of a direct loaded-root Login link")
     parser.add_argument("--addon-dir", type=Path, default=EXTENSION / 'dist', help="Built add-on directory (default: extension/dist)")
     arguments = parser.parse_args()
+    if arguments.engineering_review_baseline and not arguments.engineering_review_only:
+        parser.error('--engineering-review-baseline requires --engineering-review-only')
+    if arguments.internal_fault_baseline and not arguments.internal_fault_only:
+        parser.error('--internal-fault-baseline requires --internal-fault-only')
+    if arguments.curated_upgrade_applied and not arguments.curated_upgrade_only:
+        parser.error('--curated-upgrade-applied requires --curated-upgrade-only')
     if not Path(arguments.firefox).is_file():
         raise SystemExit("Firefox not found. Set FIREFOX_BINARY or pass --firefox.")
     if not (arguments.addon_dir / "manifest.json").is_file():
@@ -138,6 +170,10 @@ def main():
     artifacts = EXTENSION.parent / ".tools"
     artifacts.mkdir(exist_ok=True)
     run = Path(tempfile.mkdtemp(prefix="firefox-e2e-", dir=artifacts))
+    print(f'Test artifacts: {run}', flush=True)
+    if arguments.startup_layout_only:
+        from firefox_startup_layout import instrument_runtime
+        arguments.addon_dir = instrument_runtime(arguments.addon_dir, run/'instrumented-addon')
     profile = run / "profile"
     profile.mkdir()
     hits = []
@@ -299,10 +335,17 @@ def main():
         "toolkit.telemetry.reportingpolicy.firstRun": False,
         "extensions.webextensions.uuids": json.dumps({ADDON_ID: UUID}),
     }
+    if arguments.subdomain_scope_only:
+        # Reserved fixture domains resolve to loopback in this disposable profile
+        # only. Do not change DNS or permissions in a user's Firefox installation.
+        preferences['network.dns.localDomains'] = ','.join([
+            'scope.example.org', 'deep.scope.example.org',
+            'nested.deep.scope.example.org', 'blocked.scope.example.org',
+        ])
     (profile / "user.js").write_text("\n".join(
         f"user_pref({json.dumps(key)}, {json.dumps(value)});" for key, value in preferences.items()), encoding="utf-8")
     log = (run / "firefox.log").open("w", encoding="utf-8")
-    environment = {**os.environ, "MOZ_HEADLESS": "1", "MOZ_NO_REMOTE": "1"}
+    environment = {**os.environ, "MOZ_HEADLESS": "1", "MOZ_NO_REMOTE": "1", "MOZ_REMOTE_ALLOW_SYSTEM_ACCESS": "1"}
     process = subprocess.Popen([arguments.firefox, "-headless", "-no-remote", "-profile", str(profile),
                                 "-marionette", "--remote-allow-system-access", "about:blank"], stdout=log, stderr=log, env=environment,
                                creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
@@ -321,13 +364,23 @@ def main():
             assert session['capabilities']['acceptInsecureCerts'], 'synthetic HTTPS fixture capability'
         version = session["capabilities"]["browserVersion"]
         client.call("WebDriver:SetWindowRect", width=1280, height=1100)
-        if arguments.destination_batch_only or arguments.home_organization_only:
+        if arguments.destination_batch_only or arguments.home_organization_only or arguments.curated_upgrade_only or arguments.whitelist_removal_only or arguments.release_upgrade_only or arguments.startup_layout_only:
             # A permanent signed baseline preserves the same origin across full process
             # restarts. Development overlays run only in this disposable profile.
-            baseline_version = '0.1.14' if arguments.home_organization_only else '0.1.13'
+            if arguments.startup_layout_only:
+                baseline_version = '0.2.0'
+            elif arguments.release_upgrade_only:
+                baseline_version = arguments.release_baseline_version
+            elif arguments.whitelist_removal_only:
+                baseline_version = '0.1.18'
+            elif arguments.curated_upgrade_only:
+                baseline_version = '0.1.18' if arguments.curated_upgrade_applied else '0.1.17'
+            else:
+                baseline_version = '0.1.14' if arguments.home_organization_only else '0.1.13'
             signed = EXTENSION / f'release/{baseline_version}/signed/d7b2a7bba5e34ed685e3-{baseline_version}.xpi'
             client.call("Addon:Install", path=str(signed.resolve()), temporary=False)
-        client.call("Addon:Install", path=str(arguments.addon_dir.resolve()), temporary=True)
+        if not arguments.release_upgrade_only:
+            client.call("Addon:Install", path=str(arguments.addon_dir.resolve()), temporary=True)
         handles = client.call("WebDriver:GetWindowHandles")
         client.call("WebDriver:SwitchToWindow", handle=handles[-1])
         # WebDriver forbids content-context navigation to privileged extension URLs.
@@ -343,7 +396,7 @@ def main():
         ui_handle = client.call("WebDriver:GetWindowHandle")
         wait_for(lambda: client.message({"kind": "GET_VIEW"}).get("view", {}).get("controller"), "Core startup")
         assert client.script("return document.getElementById('use-defaults').checked;"), "preset offered by default"
-        assert client.script("return document.querySelectorAll('#preset-preview details').length;") == 7
+        assert client.script("return document.querySelectorAll('#preset-preview details').length;") >= 7
         startup = wait_for(lambda: (v := client.message({'kind': 'GET_VIEW'})['view']['controller'])
                            and v['status'] in ['READY', 'UNINITIALIZED'] and v, 'first-run authority')
         if startup['status'] == 'UNINITIALIZED':
@@ -356,7 +409,7 @@ def main():
             """, "root.localhost", "black.localhost")
         else:
             assert client.script("return document.getElementById('setup').hidden;"), 'friend seed needs no setup'
-            fixture_white = ['root.localhost'] if arguments.existing_policy else startup['snapshot']['policy']['whitelist'] + ['root.localhost']
+            fixture_white = (['root.localhost', 'other.localhost'] if arguments.release_upgrade_only else ['root.localhost']) if (arguments.existing_policy or arguments.release_upgrade_only) else startup['snapshot']['policy']['whitelist'] + ['root.localhost']
             configure_policy(client, {'whitelist': fixture_white, 'blacklist': ['black.localhost']})
         # Retain the verified observation itself. A second query can interleave
         # with normal background housekeeping and observe COMMITTING instead.
@@ -408,14 +461,75 @@ def main():
             policy = updated["policy"]
             assert client.message({"kind": "CONFIRM_POLICY", "proposalId": frozen["id"]})["result"]["type"] == "REJECTED"
             print("PASS explicit native Vault confirmation saved curated defaults and retained manual Blacklist", flush=True)
-        assert len(policy["whitelist"]) == 52
-        assert {"root.localhost", "chatgpt.com", "www.youtube.com", "canvas.kth.se"} <= set(policy["whitelist"])
+        if startup['status'] == 'READY' and not arguments.release_upgrade_only:
+            assert len(policy['whitelist']) == len(startup['snapshot']['policy']['whitelist']) + 1
+        assert ({"root.localhost"} if arguments.release_upgrade_only else {"root.localhost", "chatgpt.com", "canvas.kth.se"}) <= set(policy["whitelist"])
         assert "google.com" not in policy["whitelist"] and "www.google.com" not in policy["whitelist"]
         assert policy["blacklist"] == ["black.localhost"]
         print(f"Firefox {version}: curated setup, real IndexedDB, managed list active ({managed['count']} domains)", flush=True)
+        if arguments.subdomain_scope_only:
+            from firefox_subdomain_scope import run_subdomain_scope
+            result = run_subdomain_scope(client, ui_handle, UI_URL, port, wait_for, hits, run)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.editor_followup_only:
+            from firefox_editor_followup import run_editor_followup
+            result = run_editor_followup(client, ui_handle, UI_URL, wait_for, run, process.pid, arguments.editor_followup_baseline)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.engineering_review_only:
+            from firefox_engineering_review import run_engineering_review
+            result = run_engineering_review(client, wait_for, run, process.pid, arguments.engineering_review_baseline)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.performance_audit_only:
+            from firefox_performance_audit import run_performance_audit
+            result = run_performance_audit(client, ui_handle, UI_URL, port, wait_for, run, process.pid, arguments.performance_baseline)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
         if arguments.storage_reliability_only:
             from firefox_storage_reliability import run_storage_reliability
-            result = run_storage_reliability(client, ui_handle, UI_URL, port, wait_for, run, arguments.storage_baseline)
+            result = run_storage_reliability(client, ui_handle, UI_URL, port, wait_for, run, arguments.storage_baseline, arguments.storage_read_baseline)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.internal_fault_only:
+            from firefox_internal_fault import run_internal_fault
+            result = run_internal_fault(client, ui_handle, UI_URL, port, wait_for, arguments.internal_fault_baseline, run)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.long_reliability_only:
+            from firefox_long_reliability import run_long_reliability
+            result = run_long_reliability(client, ui_handle, UI_URL, port, wait_for, run, process.pid, arguments.extended_reliability)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.management_ux_only:
+            from firefox_management_ux import run_management_ux
+            result = run_management_ux(client, ui_handle, UI_URL, port, wait_for, run)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.history_navigation_only:
+            from firefox_release_checks import run_history_navigation
+            result = run_history_navigation(client, port, wait_for)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.visual_redesign_only:
+            from firefox_visual_redesign import run_visual_redesign
+            result = run_visual_redesign(client, ui_handle, UI_URL, port, wait_for, run, arguments.visual_redesign_baseline)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.quality_pass_only:
+            from firefox_quality_pass import run_quality_pass
+            result = run_quality_pass(client, ui_handle, UI_URL, port, wait_for, run, arguments.quality_pass_baseline)
             (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
             print(f'Artifacts: {run}', flush=True)
             return
@@ -449,8 +563,8 @@ def main():
             (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
             print(f'Artifacts: {run}', flush=True)
             return
-        if arguments.destination_batch_only or arguments.home_organization_only:
-            def restart_batch_browser():
+        if arguments.destination_batch_only or arguments.home_organization_only or arguments.curated_upgrade_only or arguments.whitelist_removal_only or arguments.release_upgrade_only or arguments.startup_layout_only:
+            def restart_batch_browser(overlay=True):
                 nonlocal process, client, ui_handle
                 client.call('Marionette:Quit', flags=['eForceQuit'])
                 client.socket.close()
@@ -460,16 +574,32 @@ def main():
                     creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
                 client = wait_for(connect, 'restarted Firefox automation', 30)
                 client.call('WebDriver:NewSession')
-                client.call('Addon:Install', path=str(arguments.addon_dir.resolve()), temporary=True)
+                current_addon = arguments.upgrade_addon_dir if arguments.curated_upgrade_only else arguments.addon_dir
+                if overlay:
+                    client.call('Addon:Install', path=str(current_addon.resolve()), temporary=True)
+                existing_handles = client.call('WebDriver:GetWindowHandles')
                 client.call('Marionette:SetContext', value='chrome')
                 client.script('gBrowser.selectedTab = gBrowser.addTrustedTab(arguments[0]);', UI_URL)
                 client.call('Marionette:SetContext', value='content')
-                handle = client.call('WebDriver:GetWindowHandles')[-1]
+                handle = wait_for(lambda: next((h for h in client.call('WebDriver:GetWindowHandles') if h not in existing_handles), None), 'new control tab after restart')
                 client.call('WebDriver:SwitchToWindow', handle=handle)
                 wait_for(lambda: client.script('return location.href.split(/#/,1)[0]===arguments[0] && document.readyState==="complete";', UI_URL), 'restarted development UI')
                 ui_handle = handle
                 return client, handle
-            if arguments.home_organization_only:
+            if arguments.startup_layout_only:
+                from firefox_startup_layout import run_startup_layout
+                result = run_startup_layout(client, ui_handle, UI_URL, port, wait_for, run, restart_batch_browser, arguments.startup_layout_baseline)
+            elif arguments.release_upgrade_only:
+                from firefox_release_checks import run_release_upgrade
+                result = run_release_upgrade(client, ui_handle, UI_URL, port, wait_for, restart_batch_browser, arguments.release_baseline_version, json.loads((arguments.addon_dir / 'manifest.json').read_text(encoding='utf-8'))['version'])
+            elif arguments.whitelist_removal_only:
+                from firefox_whitelist_removal import run_whitelist_removal
+                result = run_whitelist_removal(client, ui_handle, UI_URL, port, wait_for, restart_batch_browser)
+            elif arguments.curated_upgrade_only:
+                from firefox_curated_upgrade import run_curated_upgrade
+                result = run_curated_upgrade(client, port, wait_for, restart_batch_browser, configure_policy,
+                                             already_applied=arguments.curated_upgrade_applied)
+            elif arguments.home_organization_only:
                 from firefox_home_organization import run_home_organization
                 result = run_home_organization(client, ui_handle, UI_URL, port, wait_for, run, restart_batch_browser)
             else:
@@ -643,7 +773,7 @@ def main():
 
         # Exercise real UI actions. Time availability alone must leave the page blocked.
         client.call("WebDriver:SwitchToWindow", handle=journey_handle)
-        wait_for(lambda: client.script("return document.getElementById('start-access')?.hidden === false;"), "request button")
+        wait_for(lambda: client.script("const b=document.getElementById('start-access');return b?.hidden === false && !b.disabled;"), "prepared request button")
         client.script("document.getElementById('start-access').click();")
         request = wait_for(lambda: next((item for item in view()["controller"]["snapshot"]["accessState"]["pendingRequests"]
                                         if item["hostname"] == "identity.localhost"), None), "request saved from UI")
@@ -696,6 +826,11 @@ def main():
         # Keep the selected identity after closure; never target another live tab silently.
         extra = client.message({"kind": "OPEN_JOURNEY", "url": f"http://root.localhost:{port}/"})
         extra_id = extra["tabId"]
+        # Opening intentionally activates the destination. Control pages pause
+        # polling when hidden; return to the actual UI before asserting its list.
+        wait_for(lambda: any(c['tabId'] == extra_id and c.get('displayedHostname') == 'root.localhost'
+                            for c in view()['contexts']), 'extra destination arrived')
+        client.call("WebDriver:SwitchToWindow", handle=ui_handle)
         wait_for(lambda: client.script("return [...document.getElementById('context').options].some(item => item.value === String(arguments[0]));", extra_id), "new context option")
         client.script("""
             const select = document.getElementById('context'); select.value = String(arguments[0]);
@@ -706,6 +841,11 @@ def main():
         assert client.script("return document.getElementById('context').value === String(arguments[0]);", extra_id)
         assert client.script("return document.getElementById('confirm-access').hidden && document.getElementById('open-home').hidden;")
         print("PASS closed tab remains selected without transferring actions to another context", flush=True)
+
+        client.call("WebDriver:SwitchToWindow", handle=ui_handle)
+        client.script('document.getElementById("show-home").click();')
+        wait_for(lambda: client.script('return document.querySelectorAll("#destination-list .service-group").length>0;'), 'current Home categories')
+        restored_categories = client.script('return [...document.querySelectorAll("#destination-list .service-group")].map(g=>g.dataset.categoryKey);')
 
         # Keep both a grant and a pending request across a real background reload.
         client.call("WebDriver:SwitchToWindow", handle=journey_handle)
@@ -750,9 +890,8 @@ def main():
         assert view()["managed"]["lastAttemptAt"] == managed["lastAttemptAt"]
         print("PASS real background reload: pending/grant deadlines preserved; old Journey binding ended", flush=True)
         client.call("WebDriver:SwitchToWindow", handle=ui_handle)
-        # Home now preserves the fixture's custom destination category alongside
-        # the seven curated categories; none may disappear on background restart.
-        restored_categories = ['university', 'scholar / research', 'writing', 'development', 'mail', 'ai', 'video', 'your destinations']
+        # Preserve this fixture's actual pre-restart categories, including custom
+        # destinations, without hardcoding obsolete versions of the preset.
         wait_for(lambda: client.script("return [...document.querySelectorAll('#destination-list .service-group')].map(g=>g.dataset.categoryKey).sort().join('|') === arguments[0].slice().sort().join('|') && document.getElementById('managed-status').textContent.startsWith('Status: active');", restored_categories),
                  "restored curated/custom groups and managed status in UI")
         shot = client.call("WebDriver:TakeScreenshot", id=None, highlights=[], full=True)

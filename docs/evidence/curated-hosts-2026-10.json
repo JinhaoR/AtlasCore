@@ -1,0 +1,5272 @@
+{
+  "date": "2026-10-29",
+  "services": [
+    {
+      "category": "AI",
+      "label": "ChatGPT",
+      "hostname": "chatgpt.com"
+    },
+    {
+      "category": "AI",
+      "label": "Claude",
+      "hostname": "claude.ai"
+    },
+    {
+      "category": "Mail",
+      "label": "Gmail",
+      "hostname": "mail.google.com"
+    },
+    {
+      "category": "Mail",
+      "label": "KTH Mail",
+      "hostname": "webmail.kth.se"
+    },
+    {
+      "category": "Mail",
+      "label": "Outlook",
+      "hostname": "outlook.com",
+      "aliases": [
+        "www.outlook.com"
+      ],
+      "destinations": [
+        "outlook.live.com",
+        "outlook.office.com",
+        "outlook.office365.com",
+        "outlook.cloud.microsoft"
+      ]
+    },
+    {
+      "category": "Mail",
+      "label": "Microsoft 365",
+      "hostname": "microsoft365.com",
+      "aliases": [
+        "www.microsoft365.com"
+      ],
+      "destinations": [
+        "m365.cloud.microsoft",
+        "office.com",
+        "www.office.com",
+        "www.microsoft.com"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "Google Scholar",
+      "hostname": "scholar.google.com"
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "arXiv",
+      "hostname": "arxiv.org"
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "INSPIRE",
+      "hostname": "inspirehep.net"
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "DOI",
+      "hostname": "doi.org",
+      "destinations": [
+        "www.doi.org"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "Crossref",
+      "hostname": "crossref.org",
+      "destinations": [
+        "www.crossref.org"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "ORCID",
+      "hostname": "orcid.org"
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "Semantic Scholar",
+      "hostname": "semanticscholar.org",
+      "aliases": [
+        "www.semanticscholar.org"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "APS",
+      "hostname": "journals.aps.org",
+      "destinations": [
+        "link.aps.org",
+        "aps.org",
+        "www.aps.org",
+        "physics.aps.org"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "AIP",
+      "hostname": "pubs.aip.org"
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "IOPscience",
+      "hostname": "iopscience.iop.org"
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "Nature",
+      "hostname": "nature.com",
+      "aliases": [
+        "www.nature.com"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "Science",
+      "hostname": "science.org",
+      "aliases": [
+        "www.science.org"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "ScienceDirect",
+      "hostname": "sciencedirect.com",
+      "aliases": [
+        "www.sciencedirect.com"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "Springer",
+      "hostname": "springer.com",
+      "destinations": [
+        "link.springer.com"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "Wiley Online Library",
+      "hostname": "onlinelibrary.wiley.com"
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "Oxford Academic",
+      "hostname": "academic.oup.com"
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "Cambridge",
+      "hostname": "cambridge.org",
+      "aliases": [
+        "www.cambridge.org"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "JSTOR",
+      "hostname": "jstor.org",
+      "aliases": [
+        "www.jstor.org"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "IEEE Xplore",
+      "hostname": "ieeexplore.ieee.org"
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "ACM Digital Library",
+      "hostname": "dl.acm.org"
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "PubMed / NCBI",
+      "hostname": "pubmed.ncbi.nlm.nih.gov",
+      "destinations": [
+        "ncbi.nlm.nih.gov"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "Zotero",
+      "hostname": "zotero.org",
+      "aliases": [
+        "www.zotero.org"
+      ],
+      "sources": [
+        "https://zotero.org/"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "Zenodo",
+      "hostname": "zenodo.org",
+      "sources": [
+        "https://zenodo.org/"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "OSF",
+      "hostname": "osf.io",
+      "sources": [
+        "https://osf.io/"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "OpenAlex",
+      "hostname": "openalex.org",
+      "sources": [
+        "https://openalex.org/"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "DOAJ",
+      "hostname": "doaj.org",
+      "sources": [
+        "https://doaj.org/"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "DBLP",
+      "hostname": "dblp.org",
+      "sources": [
+        "https://dblp.org/"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "PubMed Central",
+      "hostname": "pmc.ncbi.nlm.nih.gov",
+      "sources": [
+        "https://pmc.ncbi.nlm.nih.gov/"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "ACS Publications",
+      "hostname": "pubs.acs.org",
+      "sources": [
+        "https://pubs.acs.org/"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "Royal Society Publishing",
+      "hostname": "royalsocietypublishing.org",
+      "sources": [
+        "https://royalsocietypublishing.org/"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "SIAM Publications",
+      "hostname": "epubs.siam.org",
+      "sources": [
+        "https://epubs.siam.org/"
+      ]
+    },
+    {
+      "category": "Scholar / Research",
+      "label": "SciPost",
+      "hostname": "scipost.org",
+      "sources": [
+        "https://scipost.org/"
+      ]
+    },
+    {
+      "category": "Writing",
+      "label": "Overleaf",
+      "hostname": "overleaf.com",
+      "aliases": [
+        "www.overleaf.com"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Ladok",
+      "hostname": "student.ladok.se"
+    },
+    {
+      "category": "University",
+      "label": "Canvas",
+      "hostname": "canvas.kth.se",
+      "destinations": [
+        "canvas.instructure.com",
+        "learn.canvas.net"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "KTH",
+      "hostname": "kth.se",
+      "aliases": [
+        "www.kth.se"
+      ],
+      "destinations": [
+        "intra.kth.se",
+        "www.physics.kth.se",
+        "physics.kth.se"
+      ],
+      "sources": [
+        "https://kth.se/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Stockholm University",
+      "hostname": "su.se",
+      "aliases": [
+        "www.su.se"
+      ],
+      "destinations": [
+        "fysik.su.se",
+        "www.fysik.su.se"
+      ],
+      "sources": [
+        "https://su.se/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Karolinska Institutet",
+      "hostname": "ki.se",
+      "aliases": [
+        "www.ki.se"
+      ],
+      "sources": [
+        "https://ki.se/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Uppsala University",
+      "hostname": "uu.se",
+      "aliases": [
+        "www.uu.se"
+      ],
+      "destinations": [
+        "physics.uu.se",
+        "www.physics.uu.se",
+        "www.it.uu.se",
+        "user.it.uu.se"
+      ],
+      "sources": [
+        "https://uu.se/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Lund University",
+      "hostname": "lu.se",
+      "aliases": [
+        "www.lu.se"
+      ],
+      "destinations": [
+        "www.fysik.lu.se",
+        "www.matfys.lu.se"
+      ],
+      "sources": [
+        "https://lu.se/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Chalmers",
+      "hostname": "chalmers.se",
+      "aliases": [
+        "www.chalmers.se"
+      ],
+      "sources": [
+        "https://chalmers.se/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "University of Gothenburg",
+      "hostname": "gu.se",
+      "aliases": [
+        "www.gu.se"
+      ],
+      "sources": [
+        "https://gu.se/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Linkoping University",
+      "hostname": "liu.se",
+      "aliases": [
+        "www.liu.se"
+      ],
+      "destinations": [
+        "www.ifm.liu.se"
+      ],
+      "sources": [
+        "https://liu.se/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Umea University",
+      "hostname": "umu.se",
+      "aliases": [
+        "www.umu.se"
+      ],
+      "sources": [
+        "https://umu.se/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Lulea University of Technology",
+      "hostname": "ltu.se",
+      "aliases": [
+        "www.ltu.se"
+      ],
+      "sources": [
+        "https://ltu.se/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "University of Copenhagen",
+      "hostname": "ku.dk",
+      "aliases": [
+        "www.ku.dk"
+      ],
+      "destinations": [
+        "nbi.ku.dk",
+        "nbia.nbi.ku.dk"
+      ],
+      "sources": [
+        "https://ku.dk/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "University of Oslo",
+      "hostname": "uio.no",
+      "aliases": [
+        "www.uio.no"
+      ],
+      "destinations": [
+        "www.mn.uio.no"
+      ],
+      "sources": [
+        "https://uio.no/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "University of Helsinki",
+      "hostname": "helsinki.fi",
+      "aliases": [
+        "www.helsinki.fi"
+      ],
+      "destinations": [
+        "www.physics.helsinki.fi"
+      ],
+      "sources": [
+        "https://helsinki.fi/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Aalto University",
+      "hostname": "aalto.fi",
+      "aliases": [
+        "www.aalto.fi"
+      ],
+      "destinations": [
+        "physics.aalto.fi",
+        "users.aalto.fi"
+      ],
+      "sources": [
+        "https://aalto.fi/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Technical University of Denmark",
+      "hostname": "dtu.dk",
+      "aliases": [
+        "www.dtu.dk"
+      ],
+      "destinations": [
+        "physics.dtu.dk"
+      ],
+      "sources": [
+        "https://dtu.dk/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "University of Oxford",
+      "hostname": "ox.ac.uk",
+      "aliases": [
+        "www.ox.ac.uk"
+      ],
+      "destinations": [
+        "www.physics.ox.ac.uk",
+        "www.maths.ox.ac.uk",
+        "people.maths.ox.ac.uk",
+        "courses.maths.ox.ac.uk"
+      ],
+      "sources": [
+        "https://ox.ac.uk/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "University of Cambridge",
+      "hostname": "cam.ac.uk",
+      "aliases": [
+        "www.cam.ac.uk"
+      ],
+      "destinations": [
+        "www.phy.cam.ac.uk",
+        "www.damtp.cam.ac.uk",
+        "www.tcm.phy.cam.ac.uk",
+        "www.maths.cam.ac.uk"
+      ],
+      "sources": [
+        "https://cam.ac.uk/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "ETH Zurich",
+      "hostname": "ethz.ch",
+      "aliases": [
+        "www.ethz.ch"
+      ],
+      "destinations": [
+        "phys.ethz.ch",
+        "www.phys.ethz.ch",
+        "itp.phys.ethz.ch",
+        "www.itp.phys.ethz.ch",
+        "edu.itp.phys.ethz.ch",
+        "people.phys.ethz.ch"
+      ],
+      "sources": [
+        "https://ethz.ch/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "EPFL",
+      "hostname": "epfl.ch",
+      "aliases": [
+        "www.epfl.ch"
+      ],
+      "destinations": [
+        "infoscience.epfl.ch"
+      ],
+      "sources": [
+        "https://epfl.ch/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Imperial College London",
+      "hostname": "imperial.ac.uk",
+      "aliases": [
+        "www.imperial.ac.uk"
+      ],
+      "destinations": [
+        "wwwf.imperial.ac.uk"
+      ],
+      "sources": [
+        "https://imperial.ac.uk/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "University of Edinburgh",
+      "hostname": "ed.ac.uk",
+      "aliases": [
+        "www.ed.ac.uk"
+      ],
+      "destinations": [
+        "www.ph.ed.ac.uk",
+        "www2.ph.ed.ac.uk",
+        "www.maths.ed.ac.uk",
+        "maths.ed.ac.uk"
+      ],
+      "sources": [
+        "https://ed.ac.uk/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Technical University of Munich",
+      "hostname": "tum.de",
+      "aliases": [
+        "www.tum.de"
+      ],
+      "destinations": [
+        "www.ph.nat.tum.de",
+        "www.nat.tum.de"
+      ],
+      "sources": [
+        "https://tum.de/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "MIT",
+      "hostname": "mit.edu",
+      "aliases": [
+        "www.mit.edu"
+      ],
+      "destinations": [
+        "physics.mit.edu",
+        "math.mit.edu",
+        "web.mit.edu"
+      ],
+      "sources": [
+        "https://mit.edu/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Harvard University",
+      "hostname": "harvard.edu",
+      "aliases": [
+        "www.harvard.edu"
+      ],
+      "destinations": [
+        "physics.harvard.edu",
+        "www.math.harvard.edu",
+        "scholar.harvard.edu",
+        "people.fas.harvard.edu"
+      ],
+      "sources": [
+        "https://harvard.edu/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Stanford University",
+      "hostname": "stanford.edu",
+      "aliases": [
+        "www.stanford.edu"
+      ],
+      "destinations": [
+        "physics.stanford.edu",
+        "math.stanford.edu",
+        "mathematics.stanford.edu",
+        "sitp.stanford.edu",
+        "web.stanford.edu"
+      ],
+      "sources": [
+        "https://stanford.edu/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Princeton University",
+      "hostname": "princeton.edu",
+      "aliases": [
+        "www.princeton.edu"
+      ],
+      "destinations": [
+        "phy.princeton.edu",
+        "www.math.princeton.edu",
+        "web.math.princeton.edu",
+        "pcts.princeton.edu"
+      ],
+      "sources": [
+        "https://princeton.edu/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Cornell University",
+      "hostname": "cornell.edu",
+      "aliases": [
+        "www.cornell.edu"
+      ],
+      "destinations": [
+        "physics.cornell.edu",
+        "www.lassp.cornell.edu",
+        "sethna.lassp.cornell.edu",
+        "math.cornell.edu"
+      ],
+      "sources": [
+        "https://cornell.edu/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "UC Berkeley",
+      "hostname": "berkeley.edu",
+      "aliases": [
+        "www.berkeley.edu"
+      ],
+      "destinations": [
+        "physics.berkeley.edu",
+        "math.berkeley.edu",
+        "bctp.berkeley.edu"
+      ],
+      "sources": [
+        "https://berkeley.edu/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "Caltech",
+      "hostname": "caltech.edu",
+      "aliases": [
+        "www.caltech.edu"
+      ],
+      "destinations": [
+        "pma.caltech.edu",
+        "www.theory.caltech.edu",
+        "theory.caltech.edu"
+      ],
+      "sources": [
+        "https://caltech.edu/"
+      ]
+    },
+    {
+      "category": "University",
+      "label": "UC Santa Barbara",
+      "hostname": "ucsb.edu",
+      "aliases": [
+        "www.ucsb.edu"
+      ],
+      "destinations": [
+        "www.physics.ucsb.edu",
+        "physics.ucsb.edu"
+      ],
+      "sources": [
+        "https://ucsb.edu/"
+      ]
+    },
+    {
+      "category": "Development",
+      "label": "GitHub",
+      "hostname": "github.com",
+      "aliases": [
+        "www.github.com"
+      ]
+    },
+    {
+      "category": "Development",
+      "label": "GitLab",
+      "hostname": "gitlab.com",
+      "destinations": [
+        "about.gitlab.com"
+      ],
+      "sources": [
+        "https://gitlab.com/"
+      ]
+    },
+    {
+      "category": "Development",
+      "label": "Bitbucket",
+      "hostname": "bitbucket.org",
+      "sources": [
+        "https://bitbucket.org/"
+      ]
+    },
+    {
+      "category": "Development",
+      "label": "Stack Overflow",
+      "hostname": "stackoverflow.com",
+      "sources": [
+        "https://stackoverflow.com/"
+      ]
+    },
+    {
+      "category": "Development",
+      "label": "MDN",
+      "hostname": "developer.mozilla.org",
+      "sources": [
+        "https://developer.mozilla.org/"
+      ]
+    },
+    {
+      "category": "Development",
+      "label": "Python documentation",
+      "hostname": "docs.python.org",
+      "sources": [
+        "https://docs.python.org/"
+      ]
+    },
+    {
+      "category": "Development",
+      "label": "PyPI",
+      "hostname": "pypi.org",
+      "sources": [
+        "https://pypi.org/"
+      ]
+    },
+    {
+      "category": "Development",
+      "label": "npm",
+      "hostname": "npmjs.com",
+      "aliases": [
+        "www.npmjs.com"
+      ],
+      "sources": [
+        "https://npmjs.com/"
+      ]
+    },
+    {
+      "category": "Development",
+      "label": "Node.js",
+      "hostname": "nodejs.org",
+      "sources": [
+        "https://nodejs.org/"
+      ]
+    },
+    {
+      "category": "Physics institutes",
+      "label": "Nordita",
+      "hostname": "nordita.org",
+      "aliases": [
+        "www.nordita.org"
+      ],
+      "sources": [
+        "https://nordita.org/"
+      ]
+    },
+    {
+      "category": "Physics institutes",
+      "label": "Perimeter Institute",
+      "hostname": "perimeterinstitute.ca",
+      "aliases": [
+        "www.perimeterinstitute.ca"
+      ],
+      "sources": [
+        "https://perimeterinstitute.ca/"
+      ]
+    },
+    {
+      "category": "Physics institutes",
+      "label": "KITP",
+      "hostname": "kitp.ucsb.edu",
+      "aliases": [
+        "www.kitp.ucsb.edu"
+      ],
+      "destinations": [
+        "online.kitp.ucsb.edu"
+      ],
+      "sources": [
+        "https://kitp.ucsb.edu/"
+      ]
+    },
+    {
+      "category": "Physics institutes",
+      "label": "ICTP",
+      "hostname": "ictp.it",
+      "aliases": [
+        "www.ictp.it"
+      ],
+      "destinations": [
+        "indico.ictp.it"
+      ],
+      "sources": [
+        "https://ictp.it/"
+      ]
+    },
+    {
+      "category": "Physics institutes",
+      "label": "CERN",
+      "hostname": "home.cern",
+      "destinations": [
+        "cern.ch",
+        "www.cern.ch",
+        "th-dep.web.cern.ch",
+        "indico.cern.ch",
+        "cds.cern.ch"
+      ],
+      "sources": [
+        "https://home.cern/"
+      ]
+    },
+    {
+      "category": "Physics institutes",
+      "label": "DESY",
+      "hostname": "desy.de",
+      "aliases": [
+        "www.desy.de"
+      ],
+      "destinations": [
+        "theory-hamburg.desy.de",
+        "indico.desy.de"
+      ],
+      "sources": [
+        "https://desy.de/"
+      ]
+    },
+    {
+      "category": "Physics institutes",
+      "label": "Institute for Advanced Study",
+      "hostname": "ias.edu",
+      "aliases": [
+        "www.ias.edu"
+      ],
+      "destinations": [
+        "video.ias.edu"
+      ],
+      "sources": [
+        "https://ias.edu/"
+      ]
+    },
+    {
+      "category": "Physics institutes",
+      "label": "SISSA",
+      "hostname": "sissa.it",
+      "aliases": [
+        "www.sissa.it"
+      ],
+      "destinations": [
+        "people.sissa.it"
+      ],
+      "sources": [
+        "https://sissa.it/"
+      ]
+    },
+    {
+      "category": "Physics institutes",
+      "label": "Max Planck Complex Systems",
+      "hostname": "www.pks.mpg.de",
+      "sources": [
+        "https://www.pks.mpg.de/"
+      ]
+    },
+    {
+      "category": "Physics institutes",
+      "label": "Max Planck Solid State Research",
+      "hostname": "www.fkf.mpg.de",
+      "sources": [
+        "https://www.fkf.mpg.de/"
+      ]
+    },
+    {
+      "category": "Physics institutes",
+      "label": "Isaac Newton Institute",
+      "hostname": "newton.ac.uk",
+      "aliases": [
+        "www.newton.ac.uk"
+      ],
+      "sources": [
+        "https://newton.ac.uk/"
+      ]
+    },
+    {
+      "category": "Learning",
+      "label": "MIT OpenCourseWare",
+      "hostname": "ocw.mit.edu",
+      "sources": [
+        "https://ocw.mit.edu/"
+      ]
+    },
+    {
+      "category": "Learning",
+      "label": "Perimeter lecture archive",
+      "hostname": "pirsa.org",
+      "sources": [
+        "https://pirsa.org/"
+      ]
+    },
+    {
+      "category": "Learning",
+      "label": "Coursera",
+      "hostname": "coursera.org",
+      "aliases": [
+        "www.coursera.org"
+      ],
+      "sources": [
+        "https://coursera.org/"
+      ]
+    },
+    {
+      "category": "Learning",
+      "label": "edX",
+      "hostname": "edx.org",
+      "aliases": [
+        "www.edx.org"
+      ],
+      "destinations": [
+        "learning.edx.org",
+        "home.edx.org"
+      ],
+      "sources": [
+        "https://edx.org/"
+      ]
+    },
+    {
+      "category": "Learning",
+      "label": "Feynman Lectures",
+      "hostname": "www.feynmanlectures.caltech.edu",
+      "sources": [
+        "https://www.feynmanlectures.caltech.edu/"
+      ]
+    },
+    {
+      "category": "Learning",
+      "label": "NumPy",
+      "hostname": "numpy.org",
+      "sources": [
+        "https://numpy.org/"
+      ]
+    },
+    {
+      "category": "Learning",
+      "label": "SciPy",
+      "hostname": "scipy.org",
+      "destinations": [
+        "docs.scipy.org"
+      ],
+      "sources": [
+        "https://scipy.org/"
+      ]
+    },
+    {
+      "category": "Learning",
+      "label": "Julia",
+      "hostname": "julialang.org",
+      "destinations": [
+        "docs.julialang.org"
+      ],
+      "sources": [
+        "https://julialang.org/"
+      ]
+    },
+    {
+      "category": "Learning",
+      "label": "DLMF",
+      "hostname": "dlmf.nist.gov",
+      "sources": [
+        "https://dlmf.nist.gov/"
+      ]
+    },
+    {
+      "category": "Learning",
+      "label": "Netlib",
+      "hostname": "netlib.org",
+      "aliases": [
+        "www.netlib.org"
+      ],
+      "sources": [
+        "https://netlib.org/"
+      ]
+    },
+    {
+      "category": "Learning",
+      "label": "Chebfun",
+      "hostname": "chebfun.org",
+      "aliases": [
+        "www.chebfun.org"
+      ],
+      "sources": [
+        "https://chebfun.org/"
+      ]
+    },
+    {
+      "category": "Cloud storage",
+      "label": "Google Drive",
+      "hostname": "drive.google.com",
+      "sources": [
+        "https://drive.google.com/"
+      ]
+    },
+    {
+      "category": "Cloud storage",
+      "label": "OneDrive",
+      "hostname": "onedrive.live.com",
+      "destinations": [
+        "onedrive.cloud.microsoft"
+      ],
+      "sources": [
+        "https://onedrive.live.com/"
+      ]
+    },
+    {
+      "category": "Cloud storage",
+      "label": "Dropbox",
+      "hostname": "dropbox.com",
+      "aliases": [
+        "www.dropbox.com"
+      ],
+      "sources": [
+        "https://dropbox.com/"
+      ]
+    },
+    {
+      "category": "Cloud storage",
+      "label": "Box",
+      "hostname": "app.box.com",
+      "sources": [
+        "https://app.box.com/"
+      ]
+    },
+    {
+      "category": "Productivity",
+      "label": "Google Docs, Sheets, Slides and Forms",
+      "hostname": "docs.google.com",
+      "sources": [
+        "https://docs.google.com/"
+      ]
+    },
+    {
+      "category": "Productivity",
+      "label": "Google Calendar",
+      "hostname": "calendar.google.com",
+      "sources": [
+        "https://calendar.google.com/"
+      ]
+    },
+    {
+      "category": "Productivity",
+      "label": "Google Keep",
+      "hostname": "keep.google.com",
+      "sources": [
+        "https://keep.google.com/"
+      ]
+    },
+    {
+      "category": "Productivity",
+      "label": "Microsoft web documents",
+      "hostname": "word.cloud.microsoft",
+      "destinations": [
+        "excel.cloud.microsoft",
+        "powerpoint.cloud.microsoft"
+      ],
+      "sources": [
+        "https://word.cloud.microsoft/"
+      ]
+    },
+    {
+      "category": "Productivity",
+      "label": "Notion",
+      "hostname": "notion.so",
+      "aliases": [
+        "www.notion.so"
+      ],
+      "destinations": [
+        "notion.com",
+        "www.notion.com"
+      ],
+      "sources": [
+        "https://notion.so/"
+      ]
+    },
+    {
+      "category": "Productivity",
+      "label": "Trello",
+      "hostname": "trello.com",
+      "sources": [
+        "https://trello.com/"
+      ]
+    },
+    {
+      "category": "Productivity",
+      "label": "Figma",
+      "hostname": "figma.com",
+      "aliases": [
+        "www.figma.com"
+      ],
+      "sources": [
+        "https://figma.com/"
+      ]
+    },
+    {
+      "category": "Communication",
+      "label": "Google Meet",
+      "hostname": "meet.google.com",
+      "destinations": [
+        "workspace.google.com"
+      ],
+      "sources": [
+        "https://meet.google.com/"
+      ]
+    },
+    {
+      "category": "Communication",
+      "label": "Microsoft Teams",
+      "hostname": "teams.microsoft.com",
+      "destinations": [
+        "teams.cloud.microsoft"
+      ],
+      "sources": [
+        "https://teams.microsoft.com/"
+      ]
+    },
+    {
+      "category": "Communication",
+      "label": "Slack",
+      "hostname": "slack.com",
+      "destinations": [
+        "app.slack.com"
+      ],
+      "sources": [
+        "https://slack.com/"
+      ]
+    },
+    {
+      "category": "Communication",
+      "label": "Zoom",
+      "hostname": "zoom.us",
+      "aliases": [
+        "www.zoom.us"
+      ],
+      "destinations": [
+        "app.zoom.us",
+        "www.zoom.com"
+      ],
+      "sources": [
+        "https://zoom.us/"
+      ]
+    },
+    {
+      "category": "Utilities",
+      "label": "Wikipedia",
+      "hostname": "wikipedia.org",
+      "aliases": [
+        "www.wikipedia.org"
+      ],
+      "destinations": [
+        "en.wikipedia.org",
+        "sv.wikipedia.org"
+      ],
+      "sources": [
+        "https://wikipedia.org/"
+      ]
+    },
+    {
+      "category": "Utilities",
+      "label": "Google Translate",
+      "hostname": "translate.google.com",
+      "sources": [
+        "https://translate.google.com/"
+      ]
+    },
+    {
+      "category": "Utilities",
+      "label": "DeepL",
+      "hostname": "deepl.com",
+      "aliases": [
+        "www.deepl.com"
+      ],
+      "sources": [
+        "https://deepl.com/"
+      ]
+    },
+    {
+      "category": "Utilities",
+      "label": "Mozilla Support",
+      "hostname": "support.mozilla.org",
+      "sources": [
+        "https://support.mozilla.org/"
+      ]
+    },
+    {
+      "category": "Utilities",
+      "label": "Google Support",
+      "hostname": "support.google.com",
+      "sources": [
+        "https://support.google.com/"
+      ]
+    },
+    {
+      "category": "Utilities",
+      "label": "Microsoft Support",
+      "hostname": "support.microsoft.com",
+      "sources": [
+        "https://support.microsoft.com/"
+      ]
+    }
+  ],
+  "exactHostnames": 298,
+  "anonymous": true,
+  "credentialsUsed": false,
+  "authenticatedBrowserCompatibilityTested": false,
+  "results": [
+    {
+      "hostname": "aalto.fi",
+      "steps": [],
+      "outcome": "TLS_ERROR"
+    },
+    {
+      "hostname": "about.gitlab.com",
+      "steps": [
+        {
+          "hostname": "about.gitlab.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "academic.oup.com",
+      "steps": [
+        {
+          "hostname": "academic.oup.com",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "app.box.com",
+      "steps": [],
+      "outcome": "NETWORK_UNAVAILABLE"
+    },
+    {
+      "hostname": "app.slack.com",
+      "steps": [
+        {
+          "hostname": "app.slack.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "app.zoom.us",
+      "steps": [
+        {
+          "hostname": "app.zoom.us",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "app.zoom.us",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "aps.org",
+      "steps": [
+        {
+          "hostname": "aps.org",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.aps.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "arxiv.org",
+      "steps": [
+        {
+          "hostname": "arxiv.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "bctp.berkeley.edu",
+      "steps": [
+        {
+          "hostname": "bctp.berkeley.edu",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "physics.berkeley.edu",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "physics.berkeley.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "berkeley.edu",
+      "steps": [
+        {
+          "hostname": "berkeley.edu",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.berkeley.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "bitbucket.org",
+      "steps": [
+        {
+          "hostname": "bitbucket.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "calendar.google.com",
+      "steps": [
+        {
+          "hostname": "calendar.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "calendar.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "accounts.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "accounts.google.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "caltech.edu",
+      "steps": [],
+      "outcome": "TLS_ERROR"
+    },
+    {
+      "hostname": "cam.ac.uk",
+      "steps": [
+        {
+          "hostname": "cam.ac.uk",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.cam.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "cambridge.org",
+      "steps": [
+        {
+          "hostname": "cambridge.org",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.cambridge.org",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "canvas.instructure.com",
+      "steps": [
+        {
+          "hostname": "canvas.instructure.com",
+          "status": 503,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "canvas.kth.se",
+      "steps": [
+        {
+          "hostname": "canvas.kth.se",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "canvas.kth.se",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "canvas.kth.se",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "saml-5.sys.kth.se",
+          "status": 400,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "cds.cern.ch",
+      "steps": [
+        {
+          "hostname": "cds.cern.ch",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "cern.ch",
+      "steps": [
+        {
+          "hostname": "cern.ch",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "home.cern",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "chalmers.se",
+      "steps": [
+        {
+          "hostname": "chalmers.se",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.chalmers.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "chatgpt.com",
+      "steps": [
+        {
+          "hostname": "chatgpt.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "chebfun.org",
+      "steps": [],
+      "outcome": "NETWORK_UNAVAILABLE"
+    },
+    {
+      "hostname": "claude.ai",
+      "steps": [
+        {
+          "hostname": "claude.ai",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "claude.ai",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "cornell.edu",
+      "steps": [
+        {
+          "hostname": "cornell.edu",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.cornell.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "coursera.org",
+      "steps": [
+        {
+          "hostname": "coursera.org",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.coursera.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "courses.maths.ox.ac.uk",
+      "steps": [
+        {
+          "hostname": "courses.maths.ox.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "crossref.org",
+      "steps": [
+        {
+          "hostname": "crossref.org",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.crossref.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "dblp.org",
+      "steps": [
+        {
+          "hostname": "dblp.org",
+          "status": 202,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "deepl.com",
+      "steps": [
+        {
+          "hostname": "deepl.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.deepl.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.deepl.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "desy.de",
+      "steps": [
+        {
+          "hostname": "desy.de",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "developer.mozilla.org",
+      "steps": [
+        {
+          "hostname": "developer.mozilla.org",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "developer.mozilla.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "dl.acm.org",
+      "steps": [
+        {
+          "hostname": "dl.acm.org",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "dlmf.nist.gov",
+      "steps": [
+        {
+          "hostname": "dlmf.nist.gov",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "doaj.org",
+      "steps": [
+        {
+          "hostname": "doaj.org",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "docs.google.com",
+      "steps": [
+        {
+          "hostname": "docs.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "accounts.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "accounts.google.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "docs.julialang.org",
+      "steps": [
+        {
+          "hostname": "docs.julialang.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "docs.python.org",
+      "steps": [
+        {
+          "hostname": "docs.python.org",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "docs.python.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "docs.scipy.org",
+      "steps": [
+        {
+          "hostname": "docs.scipy.org",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "docs.scipy.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "doi.org",
+      "steps": [
+        {
+          "hostname": "doi.org",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.doi.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "drive.google.com",
+      "steps": [
+        {
+          "hostname": "drive.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "accounts.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "accounts.google.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "dropbox.com",
+      "steps": [],
+      "outcome": "NETWORK_UNAVAILABLE"
+    },
+    {
+      "hostname": "dtu.dk",
+      "steps": [
+        {
+          "hostname": "dtu.dk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "ed.ac.uk",
+      "steps": [],
+      "outcome": "NETWORK_UNAVAILABLE"
+    },
+    {
+      "hostname": "edu.itp.phys.ethz.ch",
+      "steps": [
+        {
+          "hostname": "edu.itp.phys.ethz.ch",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "edx.org",
+      "steps": [
+        {
+          "hostname": "edx.org",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.edx.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "en.wikipedia.org",
+      "steps": [],
+      "outcome": "NETWORK_UNAVAILABLE"
+    },
+    {
+      "hostname": "epfl.ch",
+      "steps": [
+        {
+          "hostname": "epfl.ch",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.epfl.ch",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "www.epfl.ch",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "epubs.siam.org",
+      "steps": [
+        {
+          "hostname": "epubs.siam.org",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "ethz.ch",
+      "steps": [
+        {
+          "hostname": "ethz.ch",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "ethz.ch",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "excel.cloud.microsoft",
+      "steps": [
+        {
+          "hostname": "excel.cloud.microsoft",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "excel.cloud.microsoft",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "figma.com",
+      "steps": [
+        {
+          "hostname": "figma.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.figma.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "fysik.su.se",
+      "steps": [
+        {
+          "hostname": "fysik.su.se",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.fysik.su.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "github.com",
+      "steps": [
+        {
+          "hostname": "github.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "gitlab.com",
+      "steps": [
+        {
+          "hostname": "gitlab.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "about.gitlab.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "gu.se",
+      "steps": [
+        {
+          "hostname": "gu.se",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.gu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "harvard.edu",
+      "steps": [
+        {
+          "hostname": "harvard.edu",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.harvard.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "helsinki.fi",
+      "steps": [
+        {
+          "hostname": "helsinki.fi",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.helsinki.fi",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "www.helsinki.fi",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "home.cern",
+      "steps": [
+        {
+          "hostname": "home.cern",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "home.edx.org",
+      "steps": [
+        {
+          "hostname": "home.edx.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "ias.edu",
+      "steps": [
+        {
+          "hostname": "ias.edu",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "ictp.it",
+      "steps": [
+        {
+          "hostname": "ictp.it",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "www.ictp.it",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "ieeexplore.ieee.org",
+      "steps": [
+        {
+          "hostname": "ieeexplore.ieee.org",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "ieeexplore.ieee.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "imperial.ac.uk",
+      "steps": [
+        {
+          "hostname": "imperial.ac.uk",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.imperial.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "indico.cern.ch",
+      "steps": [
+        {
+          "hostname": "indico.cern.ch",
+          "status": 400,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "indico.desy.de",
+      "steps": [
+        {
+          "hostname": "indico.desy.de",
+          "status": 400,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "indico.ictp.it",
+      "steps": [
+        {
+          "hostname": "indico.ictp.it",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "infoscience.epfl.ch",
+      "steps": [
+        {
+          "hostname": "infoscience.epfl.ch",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "infoscience.epfl.ch",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "inspirehep.net",
+      "steps": [
+        {
+          "hostname": "inspirehep.net",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "intra.kth.se",
+      "steps": [
+        {
+          "hostname": "intra.kth.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "iopscience.iop.org",
+      "steps": [
+        {
+          "hostname": "iopscience.iop.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "itp.phys.ethz.ch",
+      "steps": [
+        {
+          "hostname": "itp.phys.ethz.ch",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "journals.aps.org",
+      "steps": [
+        {
+          "hostname": "journals.aps.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "jstor.org",
+      "steps": [
+        {
+          "hostname": "jstor.org",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.jstor.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "julialang.org",
+      "steps": [
+        {
+          "hostname": "julialang.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "keep.google.com",
+      "steps": [
+        {
+          "hostname": "keep.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "accounts.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "accounts.google.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "ki.se",
+      "steps": [
+        {
+          "hostname": "ki.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "kitp.ucsb.edu",
+      "steps": [
+        {
+          "hostname": "kitp.ucsb.edu",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.kitp.ucsb.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "kth.se",
+      "steps": [
+        {
+          "hostname": "kth.se",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.kth.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "ku.dk",
+      "steps": [],
+      "outcome": "NETWORK_UNAVAILABLE"
+    },
+    {
+      "hostname": "learn.canvas.net",
+      "steps": [
+        {
+          "hostname": "learn.canvas.net",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "learn.canvas.net",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "learn.canvas.net",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "learning.edx.org",
+      "steps": [
+        {
+          "hostname": "learning.edx.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "link.aps.org",
+      "steps": [
+        {
+          "hostname": "link.aps.org",
+          "status": 303,
+          "https": true
+        },
+        {
+          "hostname": "journals.aps.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "link.springer.com",
+      "steps": [
+        {
+          "hostname": "link.springer.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "liu.se",
+      "steps": [
+        {
+          "hostname": "liu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "ltu.se",
+      "steps": [
+        {
+          "hostname": "ltu.se",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.ltu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "lu.se",
+      "steps": [
+        {
+          "hostname": "lu.se",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.lu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "m365.cloud.microsoft",
+      "steps": [
+        {
+          "hostname": "m365.cloud.microsoft",
+          "status": 405,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "mail.google.com",
+      "steps": [
+        {
+          "hostname": "mail.google.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "mail.google.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "mail.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "accounts.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "accounts.google.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "math.berkeley.edu",
+      "steps": [
+        {
+          "hostname": "math.berkeley.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "math.cornell.edu",
+      "steps": [
+        {
+          "hostname": "math.cornell.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "math.mit.edu",
+      "steps": [
+        {
+          "hostname": "math.mit.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "math.stanford.edu",
+      "steps": [],
+      "outcome": "TLS_ERROR"
+    },
+    {
+      "hostname": "mathematics.stanford.edu",
+      "steps": [
+        {
+          "hostname": "mathematics.stanford.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "maths.ed.ac.uk",
+      "steps": [
+        {
+          "hostname": "maths.ed.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "meet.google.com",
+      "steps": [
+        {
+          "hostname": "meet.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "meet.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "apps.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "workspace.google.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "microsoft365.com",
+      "steps": [
+        {
+          "hostname": "microsoft365.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "m365.cloud.microsoft",
+          "status": 405,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "mit.edu",
+      "steps": [
+        {
+          "hostname": "mit.edu",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "web.mit.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "nature.com",
+      "steps": [
+        {
+          "hostname": "nature.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.nature.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "nbi.ku.dk",
+      "steps": [],
+      "outcome": "NETWORK_UNAVAILABLE"
+    },
+    {
+      "hostname": "nbia.nbi.ku.dk",
+      "steps": [],
+      "outcome": "NETWORK_UNAVAILABLE"
+    },
+    {
+      "hostname": "ncbi.nlm.nih.gov",
+      "steps": [
+        {
+          "hostname": "ncbi.nlm.nih.gov",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.ncbi.nlm.nih.gov",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "netlib.org",
+      "steps": [
+        {
+          "hostname": "netlib.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "newton.ac.uk",
+      "steps": [
+        {
+          "hostname": "newton.ac.uk",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.newton.ac.uk",
+          "status": 301,
+          "https": false
+        },
+        {
+          "hostname": "www.newton.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "nodejs.org",
+      "steps": [
+        {
+          "hostname": "nodejs.org",
+          "status": 307,
+          "https": true
+        },
+        {
+          "hostname": "nodejs.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "nordita.org",
+      "steps": [
+        {
+          "hostname": "nordita.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "notion.com",
+      "steps": [
+        {
+          "hostname": "notion.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "www.notion.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "notion.so",
+      "steps": [
+        {
+          "hostname": "notion.so",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.notion.so",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "npmjs.com",
+      "steps": [
+        {
+          "hostname": "npmjs.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.npmjs.com",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "numpy.org",
+      "steps": [
+        {
+          "hostname": "numpy.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "ocw.mit.edu",
+      "steps": [
+        {
+          "hostname": "ocw.mit.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "office.com",
+      "steps": [
+        {
+          "hostname": "office.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.office.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "m365.cloud.microsoft",
+          "status": 405,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "onedrive.cloud.microsoft",
+      "steps": [
+        {
+          "hostname": "onedrive.cloud.microsoft",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "onedrive.cloud.microsoft",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "onedrive.live.com",
+      "steps": [
+        {
+          "hostname": "onedrive.live.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "www.microsoft.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "www.microsoft.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "online.kitp.ucsb.edu",
+      "steps": [],
+      "outcome": "TLS_ERROR"
+    },
+    {
+      "hostname": "onlinelibrary.wiley.com",
+      "steps": [
+        {
+          "hostname": "onlinelibrary.wiley.com",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "openalex.org",
+      "steps": [
+        {
+          "hostname": "openalex.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "orcid.org",
+      "steps": [
+        {
+          "hostname": "orcid.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "osf.io",
+      "steps": [
+        {
+          "hostname": "osf.io",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "outlook.cloud.microsoft",
+      "steps": [
+        {
+          "hostname": "outlook.cloud.microsoft",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "outlook.cloud.microsoft",
+          "status": 417,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "outlook.com",
+      "steps": [
+        {
+          "hostname": "outlook.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "outlook.com",
+          "status": 417,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "outlook.live.com",
+      "steps": [
+        {
+          "hostname": "outlook.live.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "outlook.live.com",
+          "status": 417,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "outlook.office.com",
+      "steps": [
+        {
+          "hostname": "outlook.office.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "outlook.office.com",
+          "status": 417,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "outlook.office365.com",
+      "steps": [
+        {
+          "hostname": "outlook.office365.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "outlook.office365.com",
+          "status": 417,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "overleaf.com",
+      "steps": [
+        {
+          "hostname": "overleaf.com",
+          "status": 308,
+          "https": true
+        },
+        {
+          "hostname": "www.overleaf.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "ox.ac.uk",
+      "steps": [
+        {
+          "hostname": "ox.ac.uk",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.ox.ac.uk",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "pcts.princeton.edu",
+      "steps": [
+        {
+          "hostname": "pcts.princeton.edu",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "people.fas.harvard.edu",
+      "steps": [
+        {
+          "hostname": "people.fas.harvard.edu",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "people.maths.ox.ac.uk",
+      "steps": [
+        {
+          "hostname": "people.maths.ox.ac.uk",
+          "status": 307,
+          "https": true
+        },
+        {
+          "hostname": "www.maths.ox.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "people.phys.ethz.ch",
+      "steps": [
+        {
+          "hostname": "people.phys.ethz.ch",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "people.sissa.it",
+      "steps": [
+        {
+          "hostname": "people.sissa.it",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "perimeterinstitute.ca",
+      "steps": [
+        {
+          "hostname": "perimeterinstitute.ca",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "phy.princeton.edu",
+      "steps": [
+        {
+          "hostname": "phy.princeton.edu",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "phys.ethz.ch",
+      "steps": [
+        {
+          "hostname": "phys.ethz.ch",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.phys.ethz.ch",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "physics.aalto.fi",
+      "steps": [
+        {
+          "hostname": "physics.aalto.fi",
+          "status": 302,
+          "https": true
+        }
+      ],
+      "outcome": "TLS_ERROR"
+    },
+    {
+      "hostname": "physics.aps.org",
+      "steps": [
+        {
+          "hostname": "physics.aps.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "physics.berkeley.edu",
+      "steps": [
+        {
+          "hostname": "physics.berkeley.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "physics.cornell.edu",
+      "steps": [
+        {
+          "hostname": "physics.cornell.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "physics.dtu.dk",
+      "steps": [
+        {
+          "hostname": "physics.dtu.dk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "physics.harvard.edu",
+      "steps": [
+        {
+          "hostname": "physics.harvard.edu",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "physics.kth.se",
+      "steps": [
+        {
+          "hostname": "physics.kth.se",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.physics.kth.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "physics.mit.edu",
+      "steps": [
+        {
+          "hostname": "physics.mit.edu",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "physics.stanford.edu",
+      "steps": [
+        {
+          "hostname": "physics.stanford.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "physics.ucsb.edu",
+      "steps": [
+        {
+          "hostname": "physics.ucsb.edu",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.physics.ucsb.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "physics.uu.se",
+      "steps": [
+        {
+          "hostname": "physics.uu.se",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.uu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "pirsa.org",
+      "steps": [
+        {
+          "hostname": "pirsa.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "pma.caltech.edu",
+      "steps": [],
+      "outcome": "TLS_ERROR"
+    },
+    {
+      "hostname": "pmc.ncbi.nlm.nih.gov",
+      "steps": [
+        {
+          "hostname": "pmc.ncbi.nlm.nih.gov",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "powerpoint.cloud.microsoft",
+      "steps": [
+        {
+          "hostname": "powerpoint.cloud.microsoft",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "powerpoint.cloud.microsoft",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "princeton.edu",
+      "steps": [
+        {
+          "hostname": "princeton.edu",
+          "status": 302,
+          "https": true
+        }
+      ],
+      "outcome": "TLS_ERROR"
+    },
+    {
+      "hostname": "pubmed.ncbi.nlm.nih.gov",
+      "steps": [
+        {
+          "hostname": "pubmed.ncbi.nlm.nih.gov",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "pubs.acs.org",
+      "steps": [
+        {
+          "hostname": "pubs.acs.org",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "pubs.aip.org",
+      "steps": [
+        {
+          "hostname": "pubs.aip.org",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "pypi.org",
+      "steps": [
+        {
+          "hostname": "pypi.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "royalsocietypublishing.org",
+      "steps": [
+        {
+          "hostname": "royalsocietypublishing.org",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "scholar.google.com",
+      "steps": [
+        {
+          "hostname": "scholar.google.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "scholar.harvard.edu",
+      "steps": [
+        {
+          "hostname": "scholar.harvard.edu",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "science.org",
+      "steps": [
+        {
+          "hostname": "science.org",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.science.org",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "sciencedirect.com",
+      "steps": [
+        {
+          "hostname": "sciencedirect.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.sciencedirect.com",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "scipost.org",
+      "steps": [
+        {
+          "hostname": "scipost.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "scipy.org",
+      "steps": [
+        {
+          "hostname": "scipy.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "semanticscholar.org",
+      "steps": [
+        {
+          "hostname": "semanticscholar.org",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.semanticscholar.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "sethna.lassp.cornell.edu",
+      "steps": [],
+      "outcome": "TLS_ERROR"
+    },
+    {
+      "hostname": "sissa.it",
+      "steps": [
+        {
+          "hostname": "sissa.it",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.sissa.it",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "sitp.stanford.edu",
+      "steps": [
+        {
+          "hostname": "sitp.stanford.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "slack.com",
+      "steps": [
+        {
+          "hostname": "slack.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "springer.com",
+      "steps": [
+        {
+          "hostname": "springer.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.springer.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "link.springer.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "stackoverflow.com",
+      "steps": [
+        {
+          "hostname": "stackoverflow.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "stackoverflow.com",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "stanford.edu",
+      "steps": [
+        {
+          "hostname": "stanford.edu",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.stanford.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "student.ladok.se",
+      "steps": [
+        {
+          "hostname": "student.ladok.se",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "student.ladok.se",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "student.ladok.se",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "student.ladok.se",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "student.ladok.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "su.se",
+      "steps": [
+        {
+          "hostname": "su.se",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.su.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "support.google.com",
+      "steps": [
+        {
+          "hostname": "support.google.com",
+          "status": 404,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "support.microsoft.com",
+      "steps": [
+        {
+          "hostname": "support.microsoft.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "support.microsoft.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "support.mozilla.org",
+      "steps": [
+        {
+          "hostname": "support.mozilla.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "sv.wikipedia.org",
+      "steps": [],
+      "outcome": "NETWORK_UNAVAILABLE"
+    },
+    {
+      "hostname": "teams.cloud.microsoft",
+      "steps": [
+        {
+          "hostname": "teams.cloud.microsoft",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "teams.cloud.microsoft",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "teams.microsoft.com",
+      "steps": [
+        {
+          "hostname": "teams.microsoft.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "teams.microsoft.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "teams.microsoft.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "teams.microsoft.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "th-dep.web.cern.ch",
+      "steps": [
+        {
+          "hostname": "th-dep.web.cern.ch",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "theory-hamburg.desy.de",
+      "steps": [
+        {
+          "hostname": "theory-hamburg.desy.de",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "theory.caltech.edu",
+      "steps": [],
+      "outcome": "TLS_ERROR"
+    },
+    {
+      "hostname": "translate.google.com",
+      "steps": [
+        {
+          "hostname": "translate.google.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "consent.google.com",
+          "status": 303,
+          "https": true
+        },
+        {
+          "hostname": "translate.google.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "trello.com",
+      "steps": [
+        {
+          "hostname": "trello.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "tum.de",
+      "steps": [
+        {
+          "hostname": "tum.de",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.tum.de",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "ucsb.edu",
+      "steps": [
+        {
+          "hostname": "ucsb.edu",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.ucsb.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "uio.no",
+      "steps": [
+        {
+          "hostname": "uio.no",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.uio.no",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "umu.se",
+      "steps": [
+        {
+          "hostname": "umu.se",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "www.umu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "user.it.uu.se",
+      "steps": [
+        {
+          "hostname": "user.it.uu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "users.aalto.fi",
+      "steps": [
+        {
+          "hostname": "users.aalto.fi",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "uu.se",
+      "steps": [
+        {
+          "hostname": "uu.se",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.uu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "video.ias.edu",
+      "steps": [
+        {
+          "hostname": "video.ias.edu",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.ias.edu",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "web.math.princeton.edu",
+      "steps": [
+        {
+          "hostname": "web.math.princeton.edu",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.math.princeton.edu",
+          "status": 301,
+          "https": false
+        },
+        {
+          "hostname": "www.math.princeton.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "web.mit.edu",
+      "steps": [
+        {
+          "hostname": "web.mit.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "web.stanford.edu",
+      "steps": [
+        {
+          "hostname": "web.stanford.edu",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.stanford.edu",
+          "status": 301,
+          "https": false
+        },
+        {
+          "hostname": "www.stanford.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "webmail.kth.se",
+      "steps": [
+        {
+          "hostname": "webmail.kth.se",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "webmail.kth.se",
+          "status": 440,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "wikipedia.org",
+      "steps": [],
+      "outcome": "NETWORK_UNAVAILABLE"
+    },
+    {
+      "hostname": "word.cloud.microsoft",
+      "steps": [
+        {
+          "hostname": "word.cloud.microsoft",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "word.cloud.microsoft",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "workspace.google.com",
+      "steps": [
+        {
+          "hostname": "workspace.google.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.aalto.fi",
+      "steps": [],
+      "outcome": "TLS_ERROR"
+    },
+    {
+      "hostname": "www.aps.org",
+      "steps": [
+        {
+          "hostname": "www.aps.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.berkeley.edu",
+      "steps": [
+        {
+          "hostname": "www.berkeley.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.caltech.edu",
+      "steps": [
+        {
+          "hostname": "www.caltech.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.cam.ac.uk",
+      "steps": [
+        {
+          "hostname": "www.cam.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.cambridge.org",
+      "steps": [
+        {
+          "hostname": "www.cambridge.org",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.cern.ch",
+      "steps": [
+        {
+          "hostname": "www.cern.ch",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "home.cern",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.chalmers.se",
+      "steps": [
+        {
+          "hostname": "www.chalmers.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.chebfun.org",
+      "steps": [
+        {
+          "hostname": "www.chebfun.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.cornell.edu",
+      "steps": [
+        {
+          "hostname": "www.cornell.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.coursera.org",
+      "steps": [
+        {
+          "hostname": "www.coursera.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.crossref.org",
+      "steps": [
+        {
+          "hostname": "www.crossref.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.damtp.cam.ac.uk",
+      "steps": [
+        {
+          "hostname": "www.damtp.cam.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.deepl.com",
+      "steps": [
+        {
+          "hostname": "www.deepl.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.deepl.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.desy.de",
+      "steps": [
+        {
+          "hostname": "www.desy.de",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "desy.de",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.doi.org",
+      "steps": [
+        {
+          "hostname": "www.doi.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.dropbox.com",
+      "steps": [],
+      "outcome": "NETWORK_UNAVAILABLE"
+    },
+    {
+      "hostname": "www.dtu.dk",
+      "steps": [
+        {
+          "hostname": "www.dtu.dk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.ed.ac.uk",
+      "steps": [
+        {
+          "hostname": "www.ed.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.edx.org",
+      "steps": [
+        {
+          "hostname": "www.edx.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.epfl.ch",
+      "steps": [
+        {
+          "hostname": "www.epfl.ch",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "www.epfl.ch",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.ethz.ch",
+      "steps": [
+        {
+          "hostname": "www.ethz.ch",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "ethz.ch",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "ethz.ch",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.feynmanlectures.caltech.edu",
+      "steps": [
+        {
+          "hostname": "www.feynmanlectures.caltech.edu",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.figma.com",
+      "steps": [
+        {
+          "hostname": "www.figma.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.fkf.mpg.de",
+      "steps": [
+        {
+          "hostname": "www.fkf.mpg.de",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.fkf.mpg.de",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.fysik.lu.se",
+      "steps": [
+        {
+          "hostname": "www.fysik.lu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.fysik.su.se",
+      "steps": [
+        {
+          "hostname": "www.fysik.su.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.github.com",
+      "steps": [
+        {
+          "hostname": "www.github.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "github.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.gu.se",
+      "steps": [
+        {
+          "hostname": "www.gu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.harvard.edu",
+      "steps": [
+        {
+          "hostname": "www.harvard.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.helsinki.fi",
+      "steps": [
+        {
+          "hostname": "www.helsinki.fi",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "www.helsinki.fi",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.ias.edu",
+      "steps": [
+        {
+          "hostname": "www.ias.edu",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.ictp.it",
+      "steps": [
+        {
+          "hostname": "www.ictp.it",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.ifm.liu.se",
+      "steps": [
+        {
+          "hostname": "www.ifm.liu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.imperial.ac.uk",
+      "steps": [
+        {
+          "hostname": "www.imperial.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.it.uu.se",
+      "steps": [
+        {
+          "hostname": "www.it.uu.se",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "www.uu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.itp.phys.ethz.ch",
+      "steps": [
+        {
+          "hostname": "www.itp.phys.ethz.ch",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "itp.phys.ethz.ch",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.jstor.org",
+      "steps": [
+        {
+          "hostname": "www.jstor.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.ki.se",
+      "steps": [
+        {
+          "hostname": "www.ki.se",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "ki.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.kitp.ucsb.edu",
+      "steps": [
+        {
+          "hostname": "www.kitp.ucsb.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.kth.se",
+      "steps": [
+        {
+          "hostname": "www.kth.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.ku.dk",
+      "steps": [
+        {
+          "hostname": "www.ku.dk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.lassp.cornell.edu",
+      "steps": [
+        {
+          "hostname": "www.lassp.cornell.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.liu.se",
+      "steps": [
+        {
+          "hostname": "www.liu.se",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "liu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.ltu.se",
+      "steps": [
+        {
+          "hostname": "www.ltu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.lu.se",
+      "steps": [
+        {
+          "hostname": "www.lu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.matfys.lu.se",
+      "steps": [
+        {
+          "hostname": "www.matfys.lu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.math.harvard.edu",
+      "steps": [
+        {
+          "hostname": "www.math.harvard.edu",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.math.princeton.edu",
+      "steps": [
+        {
+          "hostname": "www.math.princeton.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.maths.cam.ac.uk",
+      "steps": [
+        {
+          "hostname": "www.maths.cam.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.maths.ed.ac.uk",
+      "steps": [
+        {
+          "hostname": "www.maths.ed.ac.uk",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "maths.ed.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.maths.ox.ac.uk",
+      "steps": [
+        {
+          "hostname": "www.maths.ox.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.microsoft.com",
+      "steps": [
+        {
+          "hostname": "www.microsoft.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.microsoft365.com",
+      "steps": [
+        {
+          "hostname": "www.microsoft365.com",
+          "status": 302,
+          "https": true
+        },
+        {
+          "hostname": "m365.cloud.microsoft",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.mit.edu",
+      "steps": [
+        {
+          "hostname": "www.mit.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.mn.uio.no",
+      "steps": [
+        {
+          "hostname": "www.mn.uio.no",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.nat.tum.de",
+      "steps": [
+        {
+          "hostname": "www.nat.tum.de",
+          "status": 307,
+          "https": true
+        },
+        {
+          "hostname": "www.nat.tum.de",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.nature.com",
+      "steps": [
+        {
+          "hostname": "www.nature.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.netlib.org",
+      "steps": [
+        {
+          "hostname": "www.netlib.org",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "netlib.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.newton.ac.uk",
+      "steps": [
+        {
+          "hostname": "www.newton.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.nordita.org",
+      "steps": [
+        {
+          "hostname": "www.nordita.org",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "nordita.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.notion.com",
+      "steps": [
+        {
+          "hostname": "www.notion.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.notion.so",
+      "steps": [
+        {
+          "hostname": "www.notion.so",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.npmjs.com",
+      "steps": [
+        {
+          "hostname": "www.npmjs.com",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.office.com",
+      "steps": [
+        {
+          "hostname": "www.office.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "m365.cloud.microsoft",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.outlook.com",
+      "steps": [
+        {
+          "hostname": "www.outlook.com",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.outlook.com",
+          "status": 417,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.overleaf.com",
+      "steps": [
+        {
+          "hostname": "www.overleaf.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.ox.ac.uk",
+      "steps": [
+        {
+          "hostname": "www.ox.ac.uk",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.perimeterinstitute.ca",
+      "steps": [
+        {
+          "hostname": "www.perimeterinstitute.ca",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "perimeterinstitute.ca",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.ph.ed.ac.uk",
+      "steps": [
+        {
+          "hostname": "www.ph.ed.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.ph.nat.tum.de",
+      "steps": [
+        {
+          "hostname": "www.ph.nat.tum.de",
+          "status": 307,
+          "https": true
+        },
+        {
+          "hostname": "www.ph.nat.tum.de",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.phy.cam.ac.uk",
+      "steps": [
+        {
+          "hostname": "www.phy.cam.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.phys.ethz.ch",
+      "steps": [
+        {
+          "hostname": "www.phys.ethz.ch",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.physics.helsinki.fi",
+      "steps": [
+        {
+          "hostname": "www.physics.helsinki.fi",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.helsinki.fi",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.helsinki.fi",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.physics.kth.se",
+      "steps": [
+        {
+          "hostname": "www.physics.kth.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.physics.ox.ac.uk",
+      "steps": [
+        {
+          "hostname": "www.physics.ox.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.physics.ucsb.edu",
+      "steps": [
+        {
+          "hostname": "www.physics.ucsb.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.physics.uu.se",
+      "steps": [
+        {
+          "hostname": "www.physics.uu.se",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.uu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.pks.mpg.de",
+      "steps": [
+        {
+          "hostname": "www.pks.mpg.de",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.princeton.edu",
+      "steps": [],
+      "outcome": "TLS_ERROR"
+    },
+    {
+      "hostname": "www.science.org",
+      "steps": [
+        {
+          "hostname": "www.science.org",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.sciencedirect.com",
+      "steps": [
+        {
+          "hostname": "www.sciencedirect.com",
+          "status": 403,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.semanticscholar.org",
+      "steps": [
+        {
+          "hostname": "www.semanticscholar.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.sissa.it",
+      "steps": [
+        {
+          "hostname": "www.sissa.it",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.stanford.edu",
+      "steps": [
+        {
+          "hostname": "www.stanford.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.su.se",
+      "steps": [
+        {
+          "hostname": "www.su.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.tcm.phy.cam.ac.uk",
+      "steps": [
+        {
+          "hostname": "www.tcm.phy.cam.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.theory.caltech.edu",
+      "steps": [
+        {
+          "hostname": "www.theory.caltech.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.tum.de",
+      "steps": [
+        {
+          "hostname": "www.tum.de",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.ucsb.edu",
+      "steps": [
+        {
+          "hostname": "www.ucsb.edu",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.uio.no",
+      "steps": [
+        {
+          "hostname": "www.uio.no",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.umu.se",
+      "steps": [
+        {
+          "hostname": "www.umu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.uu.se",
+      "steps": [
+        {
+          "hostname": "www.uu.se",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.wikipedia.org",
+      "steps": [],
+      "outcome": "NETWORK_UNAVAILABLE"
+    },
+    {
+      "hostname": "www.zoom.com",
+      "steps": [
+        {
+          "hostname": "www.zoom.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.zoom.us",
+      "steps": [
+        {
+          "hostname": "www.zoom.us",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.zoom.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www.zotero.org",
+      "steps": [
+        {
+          "hostname": "www.zotero.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "www2.ph.ed.ac.uk",
+      "steps": [
+        {
+          "hostname": "www2.ph.ed.ac.uk",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.ph.ed.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "wwwf.imperial.ac.uk",
+      "steps": [
+        {
+          "hostname": "wwwf.imperial.ac.uk",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.imperial.ac.uk",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "zenodo.org",
+      "steps": [
+        {
+          "hostname": "zenodo.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "zoom.us",
+      "steps": [
+        {
+          "hostname": "zoom.us",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.zoom.com",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    },
+    {
+      "hostname": "zotero.org",
+      "steps": [
+        {
+          "hostname": "zotero.org",
+          "status": 301,
+          "https": true
+        },
+        {
+          "hostname": "www.zotero.org",
+          "status": 200,
+          "https": true
+        }
+      ],
+      "outcome": "HTTP_RESPONSE"
+    }
+  ],
+  "notes": [
+    "Anonymous HEAD responses verify reachability, not login or full page function.",
+    "403/405 and TLS/network failures are retained honestly; browser lookup/official references supplement ownership.",
+    "No TLS verification was disabled. Public sign-in query strings, cookies and credentials are not recorded.",
+    "Obsolete/unconfirmed Chalmers fy, Lund thep, DESY theory and ICTP TV candidates were omitted in favor of current sites.",
+    "Pre-release correction removes only youtube.com and www.youtube.com from the 0.1.18 catalog. Existing saved user permissions are not removed. Other hostnames and their original public probe evidence remain unchanged."
+  ],
+  "publicReferences": [
+    {
+      "label": "David Tong theoretical physics lectures",
+      "url": "https://www.damtp.cam.ac.uk/user/tong/teaching.htm"
+    },
+    {
+      "label": "Sethna statistical mechanics",
+      "url": "https://sethna.lassp.cornell.edu/StatMech/"
+    },
+    {
+      "label": "Oxford numerical analysis",
+      "url": "https://people.maths.ox.ac.uk/trefethen/publication/publication.html"
+    },
+    {
+      "label": "ETH statistical physics",
+      "url": "https://edu.itp.phys.ethz.ch/hs13/StatPhys/Lecture-Notes.pdf"
+    },
+    {
+      "label": "KITP lecture archive",
+      "url": "https://online.kitp.ucsb.edu/"
+    },
+    {
+      "label": "Perimeter lecture archive",
+      "url": "https://pirsa.org/"
+    },
+    {
+      "label": "Caltech Feynman Lectures",
+      "url": "https://www.feynmanlectures.caltech.edu/"
+    },
+    {
+      "label": "Lund mathematical physics",
+      "url": "https://www.matfys.lu.se/"
+    },
+    {
+      "label": "Niels Bohr Institute",
+      "url": "https://nbi.ku.dk/english/"
+    },
+    {
+      "label": "Niels Bohr International Academy",
+      "url": "https://nbia.nbi.ku.dk/"
+    },
+    {
+      "label": "DESY theoretical physics",
+      "url": "https://theory-hamburg.desy.de/"
+    },
+    {
+      "label": "DTU current physics department",
+      "url": "https://physics.dtu.dk/"
+    },
+    {
+      "label": "Work/school OneDrive tenant-specific destinations",
+      "url": "https://learn.microsoft.com/en-us/sharepoint/list-onedrive-urls"
+    }
+  ]
+}

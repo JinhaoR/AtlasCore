@@ -1,0 +1,19 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.2.8",
+  "firefox": "160.0",
+  "controls": {
+    "baseline": true,
+    "during": {
+      "opacity": "0.6",
+      "disabled": true
+    },
+    "opacities": [
+      "1",
+      "0.6"
+    ],
+    "samePin": true,
+    "cancelRecreatedRequest": true
+  },
+  "status": "PASS"
+}

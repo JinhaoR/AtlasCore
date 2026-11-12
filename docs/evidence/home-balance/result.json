@@ -1,0 +1,74 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.2.8",
+  "firefox": "160.0",
+  "balance": {
+    "homeCenter": {
+      "topGap": 161.68333435058594,
+      "bottomGap": 161.69996643066406
+    },
+    "rowCapacity": [
+      {
+        "height": 64,
+        "scroll": 64
+      },
+      {
+        "height": 128,
+        "scroll": 128
+      },
+      {
+        "height": 128,
+        "scroll": 192
+      }
+    ],
+    "customOrder": [
+      "ai",
+      "development",
+      "cloud storage",
+      "communication",
+      "learning",
+      "mail",
+      "physics institutes",
+      "productivity",
+      "scholar / research",
+      "university",
+      "utilities",
+      "writing"
+    ],
+    "dropExcursionPx": [
+      0,
+      0.0,
+      0,
+      0.0
+    ],
+    "modeAndOrderSurviveReload": true,
+    "restartPreserved": true
+  },
+  "motion": {
+    "runs": [
+      {
+        "pinWrites": 0,
+        "allStyleWrites": 213,
+        "samples": 311,
+        "medianMs": 6.059999999999945,
+        "p95Ms": 6.079999999999927
+      },
+      {
+        "pinWrites": 0,
+        "allStyleWrites": 213,
+        "samples": 311,
+        "medianMs": 6.059999999999491,
+        "p95Ms": 6.079999999999927
+      },
+      {
+        "pinWrites": 0,
+        "allStyleWrites": 213,
+        "samples": 311,
+        "medianMs": 6.059999999999491,
+        "p95Ms": 6.079999999999927
+      }
+    ],
+    "note": "Headless native Firefox; synthetic pointer path, actual browser rAF timestamps. Not a physical-display GPU profile."
+  },
+  "status": "PASS"
+}

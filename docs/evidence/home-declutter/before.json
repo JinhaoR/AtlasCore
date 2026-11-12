@@ -1,0 +1,6349 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.2.7",
+  "firefox": "160.0",
+  "declutter": {
+    "baseline": true,
+    "wheel": {
+      "labelsDuringMovement": 101,
+      "popoverDuringMovement": 1,
+      "movingFrames": 257
+    },
+    "category": {
+      "count": 32,
+      "hidden": 20,
+      "toggles": 1
+    },
+    "samples": [
+      {
+        "t": 176.56,
+        "angle": "rotate(0deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 182.62,
+        "angle": "rotate(0deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 188.68,
+        "angle": "rotate(0deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 194.74,
+        "angle": "rotate(0deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 200.8,
+        "angle": "rotate(10.194deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 206.88,
+        "angle": "rotate(10.194deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 212.94,
+        "angle": "rotate(10.194deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 219,
+        "angle": "rotate(10.194deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 225.06,
+        "angle": "rotate(10.194deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 231.12,
+        "angle": "rotate(20.687deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 237.18,
+        "angle": "rotate(20.687deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 243.24,
+        "angle": "rotate(28.073deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 249.3,
+        "angle": "rotate(28.073deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 255.36,
+        "angle": "rotate(28.073deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 261.42,
+        "angle": "rotate(28.073deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 267.48,
+        "angle": "rotate(28.073deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 273.54,
+        "angle": "rotate(35.48deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 279.62,
+        "angle": "rotate(35.48deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 285.68,
+        "angle": "rotate(42.972deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 291.74,
+        "angle": "rotate(42.972deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 297.8,
+        "angle": "rotate(42.972deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 303.86,
+        "angle": "rotate(42.972deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 309.92,
+        "angle": "rotate(42.972deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 315.98,
+        "angle": "rotate(50.737deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 322.04,
+        "angle": "rotate(50.737deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 328.1,
+        "angle": "rotate(58.164deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 334.18,
+        "angle": "rotate(58.164deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 340.24,
+        "angle": "rotate(58.164deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 346.3,
+        "angle": "rotate(58.164deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 352.36,
+        "angle": "rotate(58.164deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 358.42,
+        "angle": "rotate(65.646deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 364.48,
+        "angle": "rotate(65.646deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 370.54,
+        "angle": "rotate(73.13deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 376.6,
+        "angle": "rotate(73.13deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 382.66,
+        "angle": "rotate(73.13deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 388.72,
+        "angle": "rotate(73.13deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 394.8,
+        "angle": "rotate(73.13deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 400.86,
+        "angle": "rotate(80.549deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 406.92,
+        "angle": "rotate(82.183deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 412.98,
+        "angle": "rotate(84.205deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 419.04,
+        "angle": "rotate(86.209deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 425.1,
+        "angle": "rotate(88.196deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 431.16,
+        "angle": "rotate(90.165deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 437.22,
+        "angle": "rotate(92.118deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 443.28,
+        "angle": "rotate(94.054deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 449.36,
+        "angle": "rotate(95.973deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 455.42,
+        "angle": "rotate(97.882deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 461.48,
+        "angle": "rotate(99.768deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 467.54,
+        "angle": "rotate(101.638deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 473.6,
+        "angle": "rotate(103.492deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 479.66,
+        "angle": "rotate(105.33deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 485.72,
+        "angle": "rotate(107.152deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 491.78,
+        "angle": "rotate(108.958deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 497.84,
+        "angle": "rotate(110.749deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 503.9,
+        "angle": "rotate(112.524deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 509.98,
+        "angle": "rotate(114.284deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 516.04,
+        "angle": "rotate(116.035deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 522.1,
+        "angle": "rotate(117.765deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 528.16,
+        "angle": "rotate(119.479deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 534.22,
+        "angle": "rotate(121.179deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 540.28,
+        "angle": "rotate(122.865deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 546.34,
+        "angle": "rotate(124.536deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 552.4,
+        "angle": "rotate(126.192deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 558.46,
+        "angle": "rotate(127.834deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 564.54,
+        "angle": "rotate(129.462deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 570.6,
+        "angle": "rotate(131.082deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 576.66,
+        "angle": "rotate(132.682deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 582.72,
+        "angle": "rotate(134.268deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 588.78,
+        "angle": "rotate(135.841deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 594.84,
+        "angle": "rotate(137.4deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 600.9,
+        "angle": "rotate(138.945deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 606.96,
+        "angle": "rotate(140.477deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 613.02,
+        "angle": "rotate(141.997deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 619.08,
+        "angle": "rotate(143.502deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 625.16,
+        "angle": "rotate(144.995deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 631.22,
+        "angle": "rotate(146.48deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 637.28,
+        "angle": "rotate(147.948deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 643.34,
+        "angle": "rotate(149.402deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 649.4,
+        "angle": "rotate(150.845deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 655.46,
+        "angle": "rotate(152.274deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 661.52,
+        "angle": "rotate(153.692deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 667.58,
+        "angle": "rotate(155.097deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 673.64,
+        "angle": "rotate(156.49deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 679.72,
+        "angle": "rotate(157.871deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 685.78,
+        "angle": "rotate(159.244deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 691.84,
+        "angle": "rotate(160.602deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 697.9,
+        "angle": "rotate(161.947deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 703.96,
+        "angle": "rotate(163.281deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 710.02,
+        "angle": "rotate(164.604deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 716.08,
+        "angle": "rotate(165.915deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 722.14,
+        "angle": "rotate(167.215deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 728.2,
+        "angle": "rotate(168.503deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 734.26,
+        "angle": "rotate(169.781deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 740.34,
+        "angle": "rotate(171.047deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 746.4,
+        "angle": "rotate(172.307deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 752.46,
+        "angle": "rotate(173.552deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 758.52,
+        "angle": "rotate(174.786deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 764.58,
+        "angle": "rotate(176.009deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 770.64,
+        "angle": "rotate(177.222deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 776.7,
+        "angle": "rotate(178.424deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 782.76,
+        "angle": "rotate(179.616deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 788.82,
+        "angle": "rotate(180.798deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 794.88,
+        "angle": "rotate(181.969deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 800.96,
+        "angle": "rotate(183.13deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 807.02,
+        "angle": "rotate(184.286deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 813.08,
+        "angle": "rotate(185.427deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 819.14,
+        "angle": "rotate(186.559deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 825.2,
+        "angle": "rotate(187.681deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 831.26,
+        "angle": "rotate(188.793deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 837.32,
+        "angle": "rotate(189.895deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 843.38,
+        "angle": "rotate(190.988deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 849.44,
+        "angle": "rotate(192.072deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 855.52,
+        "angle": "rotate(193.146deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 861.58,
+        "angle": "rotate(194.215deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 867.64,
+        "angle": "rotate(195.271deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 873.7,
+        "angle": "rotate(196.318deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 879.76,
+        "angle": "rotate(197.355deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 885.82,
+        "angle": "rotate(198.384deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 891.88,
+        "angle": "rotate(199.404deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 897.94,
+        "angle": "rotate(200.415deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 904,
+        "angle": "rotate(201.417deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 910.06,
+        "angle": "rotate(202.411deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 916.14,
+        "angle": "rotate(203.396deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 922.2,
+        "angle": "rotate(204.376deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 928.26,
+        "angle": "rotate(205.345deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 934.32,
+        "angle": "rotate(206.305deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 940.38,
+        "angle": "rotate(207.256deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 946.44,
+        "angle": "rotate(208.2deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 952.5,
+        "angle": "rotate(209.135deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 958.56,
+        "angle": "rotate(210.062deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 964.62,
+        "angle": "rotate(210.981deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 970.7,
+        "angle": "rotate(211.893deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 976.76,
+        "angle": "rotate(212.799deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 982.82,
+        "angle": "rotate(213.695deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 988.88,
+        "angle": "rotate(214.583deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 994.94,
+        "angle": "rotate(215.463deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1001,
+        "angle": "rotate(216.336deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1007.06,
+        "angle": "rotate(217.201deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1013.12,
+        "angle": "rotate(218.059deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1019.18,
+        "angle": "rotate(218.909deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1025.24,
+        "angle": "rotate(219.752deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1031.32,
+        "angle": "rotate(220.588deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1037.38,
+        "angle": "rotate(221.419deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1043.44,
+        "angle": "rotate(222.24deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1049.5,
+        "angle": "rotate(223.054deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1055.56,
+        "angle": "rotate(223.862deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1061.62,
+        "angle": "rotate(224.662deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1067.68,
+        "angle": "rotate(225.455deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1073.74,
+        "angle": "rotate(226.242deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1079.8,
+        "angle": "rotate(227.022deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1085.88,
+        "angle": "rotate(227.795deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1091.94,
+        "angle": "rotate(228.564deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1098,
+        "angle": "rotate(229.324deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1104.06,
+        "angle": "rotate(230.077deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1110.12,
+        "angle": "rotate(230.823deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1116.18,
+        "angle": "rotate(231.564deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1122.24,
+        "angle": "rotate(232.298deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1128.3,
+        "angle": "rotate(233.025deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1134.36,
+        "angle": "rotate(233.747deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1140.42,
+        "angle": "rotate(234.462deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1146.5,
+        "angle": "rotate(235.171deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1152.56,
+        "angle": "rotate(235.876deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1158.62,
+        "angle": "rotate(236.572deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1164.68,
+        "angle": "rotate(237.263deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1170.74,
+        "angle": "rotate(237.948deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1176.8,
+        "angle": "rotate(238.627deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1182.86,
+        "angle": "rotate(239.3deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1188.92,
+        "angle": "rotate(239.967deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1194.98,
+        "angle": "rotate(240.629deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1201.06,
+        "angle": "rotate(241.284deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1207.12,
+        "angle": "rotate(241.937deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1213.18,
+        "angle": "rotate(242.581deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1219.24,
+        "angle": "rotate(243.22deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1225.3,
+        "angle": "rotate(243.853deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1231.36,
+        "angle": "rotate(244.481deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1237.42,
+        "angle": "rotate(245.104deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1243.48,
+        "angle": "rotate(245.721deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1249.54,
+        "angle": "rotate(246.333deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1255.6,
+        "angle": "rotate(246.94deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1261.68,
+        "angle": "rotate(247.541deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1267.74,
+        "angle": "rotate(248.139deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1273.8,
+        "angle": "rotate(248.73deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1279.86,
+        "angle": "rotate(249.316deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1285.92,
+        "angle": "rotate(249.897deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1291.98,
+        "angle": "rotate(250.473deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1298.04,
+        "angle": "rotate(251.044deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1304.1,
+        "angle": "rotate(251.61deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1310.16,
+        "angle": "rotate(252.171deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1316.24,
+        "angle": "rotate(252.727deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1322.3,
+        "angle": "rotate(253.281deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1328.36,
+        "angle": "rotate(253.827deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1334.42,
+        "angle": "rotate(254.369deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1340.48,
+        "angle": "rotate(254.907deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1346.54,
+        "angle": "rotate(255.439deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1352.6,
+        "angle": "rotate(255.967deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1358.66,
+        "angle": "rotate(256.491deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1364.72,
+        "angle": "rotate(257.01deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1370.78,
+        "angle": "rotate(257.525deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1376.86,
+        "angle": "rotate(258.035deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1382.92,
+        "angle": "rotate(258.542deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1388.98,
+        "angle": "rotate(259.043deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1395.04,
+        "angle": "rotate(259.541deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1401.1,
+        "angle": "rotate(260.033deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1407.16,
+        "angle": "rotate(260.522deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1413.22,
+        "angle": "rotate(261.006deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1419.28,
+        "angle": "rotate(261.486deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1425.34,
+        "angle": "rotate(261.962deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1431.4,
+        "angle": "rotate(262.434deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1437.48,
+        "angle": "rotate(262.902deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1443.54,
+        "angle": "rotate(263.367deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1449.6,
+        "angle": "rotate(263.827deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1455.66,
+        "angle": "rotate(264.283deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1461.72,
+        "angle": "rotate(264.735deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1467.78,
+        "angle": "rotate(265.183deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1473.84,
+        "angle": "rotate(265.627deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1479.9,
+        "angle": "rotate(266.067deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1485.96,
+        "angle": "rotate(266.504deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1492.04,
+        "angle": "rotate(266.936deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1498.1,
+        "angle": "rotate(267.367deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1504.16,
+        "angle": "rotate(267.792deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1510.22,
+        "angle": "rotate(268.214deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1516.28,
+        "angle": "rotate(268.632deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1522.34,
+        "angle": "rotate(269.046deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1528.4,
+        "angle": "rotate(269.457deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1534.46,
+        "angle": "rotate(269.864deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1540.52,
+        "angle": "rotate(270.268deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1546.58,
+        "angle": "rotate(270.668deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1552.66,
+        "angle": "rotate(271.065deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1558.72,
+        "angle": "rotate(271.46deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1564.78,
+        "angle": "rotate(271.85deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1570.84,
+        "angle": "rotate(272.236deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1576.9,
+        "angle": "rotate(272.62deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1582.96,
+        "angle": "rotate(273deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1589.02,
+        "angle": "rotate(273.376deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1595.08,
+        "angle": "rotate(273.75deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 0
+      },
+      {
+        "t": 1601.14,
+        "angle": "rotate(274.12deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1607.22,
+        "angle": "rotate(274.487deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1613.28,
+        "angle": "rotate(274.852deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1619.34,
+        "angle": "rotate(275.213deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1625.4,
+        "angle": "rotate(275.571deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1631.46,
+        "angle": "rotate(275.925deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1637.52,
+        "angle": "rotate(276.277deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1643.58,
+        "angle": "rotate(276.625deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1649.64,
+        "angle": "rotate(276.971deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1655.7,
+        "angle": "rotate(277.313deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1661.76,
+        "angle": "rotate(277.653deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1667.84,
+        "angle": "rotate(277.99deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1673.9,
+        "angle": "rotate(278.324deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1679.96,
+        "angle": "rotate(278.655deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1686.02,
+        "angle": "rotate(278.983deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1692.08,
+        "angle": "rotate(279.308deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1698.14,
+        "angle": "rotate(279.631deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1704.2,
+        "angle": "rotate(279.95deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1710.26,
+        "angle": "rotate(280.267deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1716.32,
+        "angle": "rotate(280.581deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1722.4,
+        "angle": "rotate(280.893deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1728.46,
+        "angle": "rotate(281.202deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1734.52,
+        "angle": "rotate(281.508deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1740.58,
+        "angle": "rotate(281.812deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1746.64,
+        "angle": "rotate(282.113deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1752.7,
+        "angle": "rotate(282.411deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1758.76,
+        "angle": "rotate(282.706deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1764.82,
+        "angle": "rotate(283deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1770.88,
+        "angle": "rotate(283.29deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1776.94,
+        "angle": "rotate(283.578deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1783.02,
+        "angle": "rotate(283.864deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1789.08,
+        "angle": "rotate(284.148deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1795.14,
+        "angle": "rotate(284.428deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1801.2,
+        "angle": "rotate(284.707deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1807.26,
+        "angle": "rotate(284.982deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1813.32,
+        "angle": "rotate(285.256deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1819.38,
+        "angle": "rotate(285.527deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1825.44,
+        "angle": "rotate(285.796deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1831.5,
+        "angle": "rotate(286.062deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1837.58,
+        "angle": "rotate(286.326deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1843.64,
+        "angle": "rotate(286.589deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1849.7,
+        "angle": "rotate(286.849deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1855.76,
+        "angle": "rotate(287.106deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1861.82,
+        "angle": "rotate(287.361deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1867.88,
+        "angle": "rotate(287.614deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1873.94,
+        "angle": "rotate(287.865deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1880,
+        "angle": "rotate(288.113deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1886.06,
+        "angle": "rotate(288.36deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1892.12,
+        "angle": "rotate(288.604deg)",
+        "moving": null,
+        "popover": false,
+        "labels": 1
+      },
+      {
+        "t": 1898.2,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1904.26,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1910.32,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1916.38,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1922.44,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1928.5,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1934.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1940.62,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1946.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1952.76,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1958.82,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1964.88,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1970.94,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1977,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1983.06,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1989.12,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 1995.18,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2001.24,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2007.3,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2013.38,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2019.44,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2025.5,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2031.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2037.62,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2043.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2049.74,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2055.8,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2061.86,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2067.92,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2073.98,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2080.04,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2086.1,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2092.16,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2098.22,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2104.28,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2110.34,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2116.42,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2122.48,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2128.54,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2134.6,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2140.66,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2146.72,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2152.78,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2158.84,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2164.9,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2170.96,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2177.02,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2183.1,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2189.16,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2195.22,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2201.28,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2207.34,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2213.4,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2219.46,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2225.52,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2231.58,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2237.64,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2243.72,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2249.78,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2255.84,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2261.9,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2267.96,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2274.02,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2280.08,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2286.14,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2292.2,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2298.28,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2304.34,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2310.4,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2316.46,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2322.52,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2328.58,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2334.64,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2340.7,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2346.76,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2352.82,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2358.9,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2364.96,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2371.02,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2377.08,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2383.14,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2389.2,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2395.26,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2401.32,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2407.38,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2413.46,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2419.52,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2425.58,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2431.64,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2437.7,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2443.76,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2449.82,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2455.88,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2461.94,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2468,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2474.08,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2480.14,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2486.2,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2492.26,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2498.32,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2504.38,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2510.44,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2516.5,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2522.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2528.64,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2534.7,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2540.76,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2546.82,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2552.88,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2558.94,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2565,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2571.06,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2577.12,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2583.18,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2589.26,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2595.32,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2601.38,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2607.44,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2613.5,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2619.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2625.62,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2631.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2637.74,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2643.8,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2649.88,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2655.94,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2662,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2668.06,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2674.12,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2680.18,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2686.24,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2692.3,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2698.36,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2704.44,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2710.5,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2716.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2722.62,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2728.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2734.74,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2740.8,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2746.86,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2752.92,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2758.98,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2765.06,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2771.12,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2777.18,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2783.24,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2789.3,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2795.36,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2801.42,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2807.48,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2813.54,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2819.62,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2825.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2831.74,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2837.8,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2843.86,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2849.92,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2855.98,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2862.04,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2868.1,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2874.16,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2880.24,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2886.3,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2892.36,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2898.42,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2904.48,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2910.54,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2916.6,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2922.66,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2928.72,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2934.8,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2940.86,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2946.92,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2952.98,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2959.04,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2965.1,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2971.16,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2977.22,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2983.28,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2989.34,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 2995.4,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3001.48,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3007.54,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3013.6,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3019.66,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3025.72,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3031.78,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3062.1,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3068.16,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3074.22,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3080.28,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3086.34,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3092.4,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3098.46,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3104.52,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3110.58,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3116.66,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3122.72,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3128.78,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3134.84,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3140.9,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3146.96,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3153.02,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3159.08,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3165.14,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3171.22,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3177.28,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3183.34,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3189.4,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3195.46,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3201.52,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3207.58,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3213.64,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3219.7,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3225.76,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3231.84,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3237.9,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3243.96,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3250.02,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3256.08,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3262.14,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3268.2,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3274.26,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3280.32,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3286.4,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3292.46,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3298.52,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3304.58,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3310.64,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3316.7,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3322.76,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3328.82,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3334.88,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3340.94,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3347.02,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3353.08,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3359.14,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3365.2,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3371.26,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3377.32,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3383.38,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3389.44,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3395.5,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3401.58,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3407.64,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3413.7,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3419.76,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3425.82,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3431.88,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3437.94,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3444,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3450.06,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3456.12,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3462.2,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3468.26,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3474.32,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3480.38,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3486.44,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3492.5,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3498.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3504.62,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3510.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3516.76,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3522.82,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3528.88,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3534.94,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3541,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3547.06,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3553.12,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3559.18,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3565.24,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3571.3,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3577.38,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3583.44,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3589.5,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3595.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3601.62,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3607.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3613.74,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3619.8,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3625.86,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3631.94,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3638,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3644.06,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3650.12,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3656.18,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3662.24,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3668.3,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3674.36,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3680.42,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3686.48,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3692.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3698.62,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3704.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3710.74,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3716.8,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3722.86,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3728.92,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3734.98,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3741.04,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3747.1,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3753.18,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3759.24,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3765.3,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3771.36,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3777.42,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3783.48,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3789.54,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3795.6,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3801.66,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3807.74,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3813.8,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3819.86,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3825.92,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3831.98,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3838.04,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3844.1,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3850.16,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3856.22,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3862.28,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3868.36,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3874.42,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3880.48,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3886.54,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3892.6,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3898.66,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3904.72,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3910.78,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3916.84,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3922.92,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3928.98,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3935.04,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3941.1,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3947.16,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3953.22,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3959.28,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3965.34,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3971.4,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3977.46,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3983.54,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3989.6,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 3995.66,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4001.72,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4007.78,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4013.84,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4019.9,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4025.96,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4032.02,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4038.1,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4044.16,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4050.22,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4056.28,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4062.34,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4068.4,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4074.46,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4080.52,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4086.58,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4092.64,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4098.72,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4104.78,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4110.84,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4116.9,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4122.96,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4129.02,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4135.08,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4141.14,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4147.2,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4153.26,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4159.34,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4165.4,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4171.46,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4177.52,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4183.58,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4189.64,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4195.7,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4201.76,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4207.82,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4213.9,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4219.96,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4226.02,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4232.08,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4238.14,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4244.2,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4250.26,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4256.32,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4262.38,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4268.44,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4274.52,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4280.58,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4286.64,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4292.7,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4298.76,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4304.82,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4310.88,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4316.94,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4323,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4329.06,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4335.14,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4341.2,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4347.26,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4353.32,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4359.38,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4365.44,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4371.5,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4377.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4383.62,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4389.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4395.76,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4401.82,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4407.88,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4413.94,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4420,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4426.06,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4432.12,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4438.18,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4444.24,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4450.32,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4456.38,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4462.44,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4468.5,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4474.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4480.62,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4486.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4492.74,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4498.8,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4504.86,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4510.94,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4517,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4523.06,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4529.12,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4535.18,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4541.24,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4547.3,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4553.36,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4559.42,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4565.5,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4571.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4577.62,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4583.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4589.74,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4595.8,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4601.86,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4607.92,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4613.98,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4620.04,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4626.12,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4632.18,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4638.24,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4644.3,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4650.36,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4656.42,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4662.48,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4668.54,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4674.6,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4680.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4686.74,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4692.8,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4698.86,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4704.92,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4710.98,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4717.04,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4723.1,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4729.16,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4735.22,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4741.3,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4747.36,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4753.42,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4759.48,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4765.54,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4771.6,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4777.66,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4783.72,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4789.78,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4795.86,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4801.92,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4807.98,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4814.04,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4820.1,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4826.16,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4832.22,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4838.28,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4844.34,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4850.4,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4856.48,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4862.54,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4868.6,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4874.66,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4880.72,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4886.78,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4892.84,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4898.9,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4904.96,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4911.04,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4917.1,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4923.16,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4929.22,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4935.28,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4941.34,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4947.4,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4953.46,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4959.52,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4965.58,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4971.66,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4977.72,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4983.78,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4989.84,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 4995.9,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5001.96,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5008.02,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5014.08,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5020.14,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5026.22,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5032.28,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5038.34,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5044.4,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5050.46,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5056.52,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5062.58,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5068.64,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5074.7,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5080.76,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5086.84,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5092.9,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5098.96,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5105.02,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5111.08,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5117.14,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5123.2,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5129.26,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5135.32,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5141.4,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5147.46,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5153.52,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5159.58,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5165.64,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5171.7,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5177.76,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5183.82,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5189.88,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5195.94,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5202.02,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5208.08,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5214.14,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5220.2,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5226.26,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5232.32,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5238.38,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5244.44,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5250.5,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5256.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5262.64,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5268.7,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5274.76,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5280.82,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5286.88,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5292.94,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5299,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5305.06,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5311.12,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5317.2,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5323.26,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5329.32,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5335.38,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5341.44,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5347.5,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5353.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5359.62,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5365.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5371.74,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5377.82,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5383.88,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5389.94,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5396,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5402.06,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5408.12,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5414.18,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5420.24,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5426.3,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5432.38,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5438.44,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5444.5,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5450.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5456.62,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5462.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5468.74,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5474.8,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5480.86,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5486.92,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5493,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5499.06,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5505.12,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5511.18,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5517.24,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5523.3,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5529.36,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5535.42,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5541.48,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5547.56,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5553.62,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5559.68,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5565.74,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5571.8,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5577.86,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5583.92,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5589.98,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5596.04,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5602.1,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5608.18,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5614.24,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5620.3,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5626.36,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5632.42,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5638.48,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5644.54,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5650.6,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5656.66,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5662.74,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5668.8,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      },
+      {
+        "t": 5674.86,
+        "angle": "rotate(288.846deg)",
+        "moving": null,
+        "popover": true,
+        "labels": 1
+      }
+    ]
+  },
+  "status": "PASS"
+}

@@ -1,0 +1,66 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.2.4",
+  "firefox": "159.0.1",
+  "interactions": {
+    "outerRingDrag": true,
+    "frictionSettles": true,
+    "reducedMotion": true,
+    "escapeCancels": true,
+    "dragPreviewBeforeSave": true,
+    "vaultInSettings": true,
+    "vaultProposalRemainsProtected": true,
+    "pinAndLayoutStateUnchanged": true,
+    "viewports": [
+      {
+        "zoom": 1,
+        "width": 2538,
+        "client": 2538,
+        "scroll": 2538
+      },
+      {
+        "zoom": 1,
+        "width": 1488,
+        "client": 1488,
+        "scroll": 1488
+      },
+      {
+        "zoom": 1,
+        "width": 1200,
+        "client": 1200,
+        "scroll": 1200
+      },
+      {
+        "zoom": 1.25,
+        "width": 1190,
+        "client": 1190,
+        "scroll": 1190
+      },
+      {
+        "zoom": 1.5,
+        "width": 992,
+        "client": 992,
+        "scroll": 992
+      },
+      {
+        "zoom": 2,
+        "width": 744,
+        "client": 744,
+        "scroll": 744
+      },
+      {
+        "zoom": 1,
+        "width": 500,
+        "client": 500,
+        "scroll": 500
+      },
+      {
+        "zoom": 2,
+        "width": 250,
+        "client": 250,
+        "scroll": 250
+      }
+    ]
+  },
+  "status": "PASS"
+}

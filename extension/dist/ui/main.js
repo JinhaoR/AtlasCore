@@ -1,5 +1,163 @@
 "use strict";
 (() => {
+  // src/ui/presentation-client.ts
+  var current = null;
+  var presentationView = () => current;
+  async function presentationCommand(command) {
+    const r = await browser.runtime.sendMessage(command);
+    if (!r || r.error) throw new Error(r?.error ?? "PRESENTATION_UNAVAILABLE");
+    if (r.pins && r.bookmarks && r.sync) current = r;
+    return r;
+  }
+  var remoteBookmarks = {
+    async load() {
+      return (await presentationCommand({ kind: "PRESENTATION_READ" })).bookmarks;
+    },
+    async save(revision, value) {
+      return presentationCommand({ kind: "BOOKMARK_SAVE", revision, value });
+    },
+    close() {
+    }
+  };
+  async function setPin(id, pinned, hosts = []) {
+    try {
+      return (await presentationCommand({ kind: "PIN_SET", id, pinned, hosts })).type;
+    } catch {
+      return "UNCERTAIN";
+    }
+  }
+
+  // src/ui/dom.ts
+  function setProperty(node, key2, value) {
+    if (node[key2] !== value) node[key2] = value;
+  }
+  function setAttribute(node, name, value) {
+    if (node.getAttribute(name) === value) return;
+    if (value === null) node.removeAttribute(name);
+    else node.setAttribute(name, value);
+  }
+  function reconcileChildren(parent, children) {
+    const keep = new Set(children);
+    for (const child of [...parent.children]) if (!keep.has(child)) child.remove();
+    children.forEach((child, index) => {
+      if (parent.children[index] !== child) parent.insertBefore(child, parent.children[index] ?? null);
+    });
+  }
+
+  // src/ui/bookmark-sync.ts
+  var el = (id) => document.getElementById(id);
+  function initializeBookmarkSync(changed) {
+    const dialog = el("bookmark-sync-dialog");
+    let busy2 = false, comparisonToken = null, trigger = null;
+    const labels = { NONE: "Bookmarks are connected.", CONFLICT: "Changes overlap. Compare both copies before continuing.", ROOT_MISSING: "Bookmark connection needs to be reconnected.", PERMISSION: "Firefox bookmark permission is off. Reconnect to resume.", STORAGE: "Bookmark sync could not finish. Your saved access rules are unchanged.", UNSUPPORTED: "Some bookmarks exceed supported limits. Review the folder before retrying.", DUPLICATE: "Two folders identify the same site. Combine them in Firefox, then retry." };
+    function render2() {
+      const state = presentationView()?.sync;
+      const message = state?.enabled ? labels[state.issue] : "Connect your Firefox toolbar and Atlas pins.";
+      setProperty(el("bookmark-sync-status"), "textContent", message);
+      setProperty(el("bookmark-sync-warning"), "hidden", true);
+      for (const id of ["settings-connect-bookmarks"]) {
+        const connected = state?.enabled && state.scope === "toolbar";
+        setProperty(el(id), "textContent", connected && state.issue !== "NONE" ? "Bookmarks need attention" : connected ? "Firefox bookmarks" : "Connect Firefox bookmarks");
+        setProperty(el(id), "title", connected ? "Manage bookmark connection" : "Sync toolbar bookmarks and Atlas pins. Unpinning deletes the synchronized toolbar bookmarks; folders are untouched.");
+      }
+      setProperty(el("grant-bookmark-permission"), "hidden", !!state?.enabled && state.scope === "toolbar" && state.issue !== "PERMISSION" && state.issue !== "ROOT_MISSING");
+      setProperty(el("sync-ongoing-warnings"), "textContent", state?.warnings.join(" ") ?? "");
+      setProperty(el("bookmark-sync-warning-text"), "textContent", state?.issue === "NONE" && state.warnings.length ? "Some Firefox entries are not included in Atlas shortcuts." : message);
+      setProperty(el("disconnect-bookmark-sync"), "hidden", !state?.enabled);
+      setProperty(el("compare-bookmark-sync"), "hidden", state?.issue !== "CONFLICT");
+      setProperty(el("retry-bookmark-sync"), "hidden", !state?.enabled || state.issue === "NONE" || state.issue === "CONFLICT" || state.issue === "ROOT_MISSING");
+      for (const b of dialog.querySelectorAll("button")) setProperty(b, "disabled", busy2);
+      for (const b of dialog.querySelectorAll("[data-sync-side]")) setProperty(b, "disabled", busy2 || !comparisonToken);
+    }
+    function showGroups(container, groups) {
+      container.replaceChildren(...groups.map((g) => {
+        const li = document.createElement("li"), title = document.createElement("strong"), list = document.createElement("ul");
+        title.textContent = `${g.label}${g.pinned ? "" : " \xB7 unpinned"}`;
+        for (const p of g.pages) {
+          const item = document.createElement("li");
+          item.textContent = `${p.label} \u2014 ${p.url}`;
+          list.append(item);
+        }
+        li.append(title, list);
+        return li;
+      }));
+    }
+    async function action(work) {
+      if (busy2) return;
+      busy2 = true;
+      render2();
+      el("bookmark-sync-feedback").textContent = "";
+      try {
+        await work();
+        changed();
+      } catch {
+        open();
+        el("bookmark-sync-feedback").textContent = "Could not complete bookmark sync. Your edits and access rules are preserved. Retry, or reconnect if the folder changed.";
+      } finally {
+        busy2 = false;
+        render2();
+      }
+    }
+    function open() {
+      trigger = document.activeElement;
+      dialog.hidden = false;
+      dialog.showModal();
+      el("bookmark-sync-heading").focus();
+      render2();
+    }
+    function close() {
+      if (busy2) return;
+      dialog.close();
+      dialog.hidden = true;
+      comparisonToken = null;
+      el("sync-comparison").hidden = true;
+      trigger?.focus({ preventScroll: true });
+    }
+    function connect() {
+      const permission = browser.permissions.request({ permissions: ["bookmarks"] });
+      void action(async () => {
+        if (!await permission) {
+          open();
+          el("bookmark-sync-feedback").textContent = "Bookmark permission was not granted. Your Atlas pins are unchanged.";
+          return;
+        }
+        await presentationCommand({ kind: "SYNC_TOOLBAR" });
+        if (presentationView()?.sync.issue !== "NONE") open();
+      });
+    }
+    for (const id of ["settings-connect-bookmarks", "open-bookmark-sync"]) el(id).addEventListener("click", () => {
+      const state = presentationView()?.sync;
+      if (state?.enabled && state.scope === "toolbar") open();
+      else connect();
+    });
+    el("close-bookmark-sync").addEventListener("click", close);
+    dialog.addEventListener("cancel", (e) => {
+      e.preventDefault();
+      close();
+    });
+    el("grant-bookmark-permission").addEventListener("click", connect);
+    el("disconnect-bookmark-sync").addEventListener("click", () => void action(async () => {
+      await presentationCommand({ kind: "SYNC_DISABLE" });
+      el("bookmark-sync-feedback").textContent = "Disconnected. Both copies remain saved.";
+    }));
+    el("retry-bookmark-sync").addEventListener("click", () => void action(async () => {
+      await presentationCommand({ kind: "SYNC_RETRY" });
+    }));
+    el("compare-bookmark-sync").addEventListener("click", () => void action(async () => {
+      const r = await presentationCommand({ kind: "SYNC_COMPARE" });
+      comparisonToken = r.comparison.token;
+      showGroups(el("sync-local-groups"), r.comparison.local);
+      showGroups(el("sync-remote-groups"), r.comparison.remote);
+      el("sync-comparison").hidden = false;
+    }));
+    for (const b of dialog.querySelectorAll("[data-sync-side]")) b.addEventListener("click", () => void action(async () => {
+      await presentationCommand({ kind: "SYNC_RESOLVE", side: b.dataset.syncSide, token: comparisonToken });
+      comparisonToken = null;
+      el("sync-comparison").hidden = true;
+    }));
+    return { render: render2 };
+  }
+
   // ../packages/core/dist/target.js
   function normalizeHostname(input2) {
     if (typeof input2 !== "string")
@@ -74,19 +232,47 @@
   function normalizePolicy(input2) {
     if (input2 === null || typeof input2 !== "object" || Array.isArray(input2))
       return null;
-    if (Object.keys(input2).some((key) => key !== "whitelist" && key !== "blacklist") || !Object.hasOwn(input2, "whitelist") || !Object.hasOwn(input2, "blacklist") || !("whitelist" in input2) || !("blacklist" in input2)) {
+    if (Object.keys(input2).some((key2) => key2 !== "whitelist" && key2 !== "blacklist" && key2 !== "whitelistSubdomains") || !Object.hasOwn(input2, "whitelist") || !Object.hasOwn(input2, "blacklist") || !("whitelist" in input2) || !("blacklist" in input2)) {
       return null;
     }
     const whitelist = normalizeEntries(input2.whitelist);
     const blacklist = normalizeEntries(input2.blacklist);
     if (whitelist === null || blacklist === null)
       return null;
-    return { whitelist, blacklist };
+    if (!Object.hasOwn(input2, "whitelistSubdomains"))
+      return { whitelist, blacklist };
+    const whitelistSubdomains = normalizeEntries(input2.whitelistSubdomains);
+    if (whitelistSubdomains === null || whitelistSubdomains.some((hostname2) => hostname2.split(".").length < 2))
+      return null;
+    return { whitelist, blacklist, whitelistSubdomains };
+  }
+  function isWhitelistRemoval(currentInput, candidateInput) {
+    const current2 = normalizePolicy(currentInput), candidate = normalizePolicy(candidateInput);
+    if (current2 === null || candidate === null)
+      return false;
+    const beforeBlack = new Set(current2.blacklist), afterBlack = new Set(candidate.blacklist);
+    if (beforeBlack.size !== afterBlack.size || [...afterBlack].some((host2) => !beforeBlack.has(host2)))
+      return false;
+    let removed = false;
+    for (const field of ["whitelist", "whitelistSubdomains"]) {
+      const before = new Set(current2[field] ?? []), after = new Set(candidate[field] ?? []);
+      if ([...after].some((host2) => !before.has(host2)))
+        return false;
+      if (after.size < before.size)
+        removed = true;
+    }
+    return removed;
   }
 
   // ../packages/core/dist/evaluate.js
   function evaluate(requestedSite, currentPolicy) {
+    return evaluateNormalized(requestedSite, normalizePolicy(currentPolicy));
+  }
+  function evaluateMany(requestedSites, currentPolicy) {
     const policy = normalizePolicy(currentPolicy);
+    return requestedSites.map((site2) => evaluateNormalized(site2, policy));
+  }
+  function evaluateNormalized(requestedSite, policy) {
     if (policy === null)
       return { outcome: "DENY", reason: "INVALID_POLICY" };
     const target = normalizeTarget(requestedSite);
@@ -98,12 +284,19 @@
     if (policy.whitelist.includes(target.hostname)) {
       return { outcome: "ALLOW", reason: "WHITELISTED", target };
     }
+    let scopeRoot;
+    for (const root of policy.whitelistSubdomains ?? []) {
+      if ((target.hostname === root || target.hostname.endsWith(`.${root}`)) && (scopeRoot === void 0 || root.length > scopeRoot.length))
+        scopeRoot = root;
+    }
+    if (scopeRoot !== void 0)
+      return { outcome: "ALLOW", reason: "WHITELISTED_SCOPE", target, scopeRoot };
     return { outcome: "GREYLIST", reason: "UNLISTED", target };
   }
 
   // ../packages/core/dist/access-state.js
-  function hasFields(value, fields) {
-    return value !== null && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === fields.length && fields.every((field) => Object.hasOwn(value, field));
+  function hasFields(value, fields2) {
+    return value !== null && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === fields2.length && fields2.every((field) => Object.hasOwn(value, field));
   }
   function nonnegativeInteger(value) {
     return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
@@ -433,10 +626,31 @@
       }
     };
   }
+  function endAccess(requestId, input2) {
+    const prepared = prepareContext(input2);
+    if (!prepared.ok)
+      return reject(prepared.reason, null);
+    const { state, now, policyRevision } = prepared.value;
+    if (!positiveInteger(requestId))
+      return reject("INVALID_REQUEST_ID", state);
+    const grant = state.grants.find((entry) => entry.requestId === requestId);
+    if (!grant)
+      return reject("GRANT_NOT_FOUND", state);
+    if (grant.policyRevision !== policyRevision)
+      return reject("POLICY_CHANGED", state);
+    if (now >= grant.expiresAt)
+      return reject("GRANT_EXPIRED", state);
+    return {
+      ok: true,
+      type: "ENDED",
+      requestId,
+      nextState: { ...state, grants: state.grants.filter((entry) => entry.requestId !== requestId) }
+    };
+  }
 
   // ../packages/core/dist/journey-state.js
-  function hasJourneyFields(value, fields) {
-    return value !== null && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === fields.length && fields.every((field) => Object.hasOwn(value, field));
+  function hasJourneyFields(value, fields2) {
+    return value !== null && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === fields2.length && fields2.every((field) => Object.hasOwn(value, field));
   }
   function validContextId(value) {
     return typeof value === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(value);
@@ -623,8 +837,8 @@
   }
 
   // ../packages/core/dist/vault-state.js
-  function hasFields2(value, fields) {
-    return value !== null && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === fields.length && fields.every((field) => Object.hasOwn(value, field));
+  function hasFields2(value, fields2) {
+    return value !== null && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === fields2.length && fields2.every((field) => Object.hasOwn(value, field));
   }
   function freezeVaultData(value) {
     if (value !== null && typeof value === "object") {
@@ -640,14 +854,15 @@
       return null;
     return {
       whitelist: [...new Set(policy.whitelist)].sort(),
-      blacklist: [...new Set(policy.blacklist)].sort()
+      blacklist: [...new Set(policy.blacklist)].sort(),
+      ...policy.whitelistSubdomains === void 0 ? {} : { whitelistSubdomains: [...new Set(policy.whitelistSubdomains)].sort() }
     };
   }
   function sameEntries(left, right) {
     return left.length === right.length && left.every((host2, index) => host2 === right[index]);
   }
   function samePolicy(left, right) {
-    return sameEntries(left.whitelist, right.whitelist) && sameEntries(left.blacklist, right.blacklist);
+    return sameEntries(left.whitelist, right.whitelist) && sameEntries(left.blacklist, right.blacklist) && sameEntries(left.whitelistSubdomains ?? [], right.whitelistSubdomains ?? []);
   }
   function readProposal(value) {
     const protectedFields = value !== null && typeof value === "object" && Object.hasOwn(value, "candidateConfiguration");
@@ -667,7 +882,8 @@
     if (!positiveInteger(value.id) || !nonnegativeInteger(value.basePolicyRevision) || !nonnegativeInteger(value.createdAt) || !nonnegativeInteger(value.readyAt) || !nonnegativeInteger(value.confirmBy) || value.readyAt <= value.createdAt || value.confirmBy <= value.readyAt)
       return null;
     const candidatePolicy = canonicalPolicy(value.candidatePolicy);
-    if (candidatePolicy === null || !hasFields2(value.candidatePolicy, ["whitelist", "blacklist"]) || !Array.isArray(value.candidatePolicy.whitelist) || !Array.isArray(value.candidatePolicy.blacklist) || !sameEntries(value.candidatePolicy.whitelist, candidatePolicy.whitelist) || !sameEntries(value.candidatePolicy.blacklist, candidatePolicy.blacklist))
+    const scoped = candidatePolicy?.whitelistSubdomains !== void 0;
+    if (candidatePolicy === null || !hasFields2(value.candidatePolicy, ["whitelist", "blacklist", ...scoped ? ["whitelistSubdomains"] : []]) || !Array.isArray(value.candidatePolicy.whitelist) || !Array.isArray(value.candidatePolicy.blacklist) || !sameEntries(value.candidatePolicy.whitelist, candidatePolicy.whitelist) || !sameEntries(value.candidatePolicy.blacklist, candidatePolicy.blacklist) || scoped && (!Array.isArray(value.candidatePolicy.whitelistSubdomains) || !sameEntries(value.candidatePolicy.whitelistSubdomains, candidatePolicy.whitelistSubdomains)))
       return null;
     return {
       id: value.id,
@@ -872,7 +1088,9 @@
       ...policy.whitelist,
       ...policy.blacklist,
       ...candidate.whitelist,
-      ...candidate.blacklist
+      ...candidate.blacklist,
+      ...policy.whitelistSubdomains ?? [],
+      ...candidate.whitelistSubdomains ?? []
     ])].sort();
     const classifications = [];
     for (const hostname2 of hosts) {
@@ -892,6 +1110,7 @@
         confirmBy: proposal.confirmBy,
         phase: now >= proposal.confirmBy ? "EXPIRED" : now < proposal.readyAt ? "WAITING" : "READY",
         whitelist: listChanges(policy.whitelist, candidate.whitelist),
+        ...policy.whitelistSubdomains === void 0 && candidate.whitelistSubdomains === void 0 ? {} : { whitelistSubdomains: listChanges(policy.whitelistSubdomains ?? [], candidate.whitelistSubdomains ?? []) },
         blacklist: listChanges(policy.blacklist, candidate.blacklist),
         classifications,
         invalidatesAccess: !samePolicy(candidate, policy),
@@ -1033,10 +1252,10 @@
       return deny(prepared.reason, prepared.nextState);
     const { policy, now } = prepared.value;
     let state = prepared.value.state;
-    const fields = ["journeyId", "contextId", "target"];
+    const fields2 = ["journeyId", "contextId", "target"];
     if (navigation2 !== null && typeof navigation2 === "object" && Object.hasOwn(navigation2, "continuation"))
-      fields.push("continuation");
-    if (!hasJourneyFields(navigation2, fields)) {
+      fields2.push("continuation");
+    if (!hasJourneyFields(navigation2, fields2)) {
       return deny("INVALID_NAVIGATION", state);
     }
     const continuation = Object.hasOwn(navigation2, "continuation") ? readJourneyContinuation(navigation2.continuation) : void 0;
@@ -1288,10 +1507,10 @@
       case "BEGIN_NAVIGATION":
       case "CHECK_NAVIGATION":
       case "RECORD_JOURNEY_NAVIGATION": {
-        const fields = ["contextId", "journeyId"];
+        const fields2 = ["contextId", "journeyId"];
         if (input2.context !== null && typeof input2.context === "object" && Object.hasOwn(input2.context, "continuation"))
-          fields.push("continuation");
-        if (!hasJourneyFields(input2, ["kind", "target", "context"]) || !hasJourneyFields(input2.context, fields))
+          fields2.push("continuation");
+        if (!hasJourneyFields(input2, ["kind", "target", "context"]) || !hasJourneyFields(input2.context, fields2))
           return invalid();
         const target = readTarget(input2.target);
         if (target === null)
@@ -1322,6 +1541,7 @@
       }
       case "CONFIRM_ACCESS":
       case "CANCEL_ACCESS":
+      case "END_ACCESS":
         if (!hasJourneyFields(input2, ["kind", "requestId"]))
           return invalid();
         return positiveInteger(input2.requestId) ? valid({ kind, requestId: input2.requestId }) : invalid("INVALID_REQUEST_ID");
@@ -1330,6 +1550,14 @@
           return invalid();
         const candidatePolicy = normalizePolicy(input2.candidatePolicy);
         return candidatePolicy === null ? invalid("INVALID_CANDIDATE_POLICY") : valid({ kind, candidatePolicy });
+      }
+      case "REMOVE_WHITELIST": {
+        if (!hasJourneyFields(input2, ["kind", "candidatePolicy", "basePolicyRevision"]))
+          return invalid();
+        if (!nonnegativeInteger(input2.basePolicyRevision))
+          return invalid("INVALID_POLICY_REVISION");
+        const candidatePolicy = normalizePolicy(input2.candidatePolicy);
+        return candidatePolicy === null ? invalid("INVALID_CANDIDATE_POLICY") : valid({ kind, candidatePolicy, basePolicyRevision: input2.basePolicyRevision });
       }
       case "PROPOSE_SETTINGS": {
         if (!hasJourneyFields(input2, ["kind", "candidateConfiguration"]))
@@ -1369,6 +1597,9 @@
   }
   function journeyContext(snapshot, now) {
     return { policy: snapshot.policy, policyRevision: snapshot.policyRevision, state: snapshot.journeyState, now };
+  }
+  function isWhitelistDecision(decision) {
+    return decision.outcome === "ALLOW" && (decision.reason === "WHITELISTED" || decision.reason === "WHITELISTED_SCOPE");
   }
   function vaultContext(snapshot, now) {
     return {
@@ -1442,25 +1673,27 @@
     const bindingError = checkBinding(operation.context, snapshot);
     if (bindingError !== null)
       return reject4(bindingError, snapshot);
-    const current = snapshot.journeyState.journeys.find((j) => j.id === operation.context.journeyId);
+    const current2 = snapshot.journeyState.journeys.find((j) => j.id === operation.context.journeyId);
     const access = evaluateAccess(operation.target, accessContext(snapshot, now));
     const departure = operation.context.continuation?.kind === "ROOT_DEPARTURE" ? operation.context.continuation : void 0;
     if (departure !== void 0) {
       if (access.decision.outcome === "DENY" || managedDenies(snapshot, operation.target.hostname, managed)) {
         return navigationPlan(operation, snapshot, now, managed);
       }
-      if (evaluateAccess({ hostname: departure.sourceHostname }, accessContext(snapshot, now)).decision.reason !== "WHITELISTED") {
+      if (managedDenies(snapshot, departure.sourceHostname, managed))
+        return reject4("MANAGED_BLACKLISTED", snapshot);
+      if (!isWhitelistDecision(evaluateAccess({ hostname: departure.sourceHostname }, accessContext(snapshot, now)).decision)) {
         return reject4("NOT_WHITELISTED", snapshot);
       }
       if (departure.sourceHostname === operation.target.hostname)
         return reject4("INVALID_NAVIGATION", snapshot);
-      if (access.decision.outcome === "ALLOW" && access.decision.reason === "WHITELISTED") {
+      if (isWhitelistDecision(access.decision)) {
         return beginNavigation({ ...operation, context: {
           contextId: operation.context.contextId,
           journeyId: operation.context.journeyId
         } }, snapshot, now, managed, configuration);
       }
-      if (current !== void 0 && current.phase !== "ENDED") {
+      if (current2 !== void 0 && current2.phase !== "ENDED") {
         return navigationPlan(operation, snapshot, now, managed);
       }
       const started2 = startJourney({ hostname: departure.sourceHostname }, operation.context.contextId, journeyContext(snapshot, now), configuration.journeyLimits);
@@ -1470,14 +1703,14 @@
       const plan2 = navigationPlan({ ...operation, context: { ...operation.context, journeyId: started2.journey.id } }, candidate2, now, managed);
       return makePlan(plan2.result, snapshot, plan2.observationSnapshot ?? candidate2);
     }
-    if (access.decision.outcome !== "ALLOW" || access.decision.reason !== "WHITELISTED") {
+    if (!isWhitelistDecision(access.decision) || managedDenies(snapshot, operation.target.hostname, managed)) {
       return navigationPlan(operation, snapshot, now, managed);
     }
-    if (current !== void 0 && current.phase !== "ENDED") {
-      if (continuesJourney(current, operation.target.hostname, operation.context.continuation) || current.phase === "STARTED" && current.rootHostname === operation.target.hostname) {
+    if (current2 !== void 0 && current2.phase !== "ENDED") {
+      if (continuesJourney(current2, operation.target.hostname, operation.context.continuation) || current2.phase === "STARTED" && current2.rootHostname === operation.target.hostname) {
         return navigationPlan(operation, snapshot, now, managed);
       }
-      snapshot = { ...snapshot, journeyState: replaceJourney(snapshot.journeyState, finishJourney(current, "UNRELATED_NAVIGATION", now)) };
+      snapshot = { ...snapshot, journeyState: replaceJourney(snapshot.journeyState, finishJourney(current2, "UNRELATED_NAVIGATION", now)) };
     }
     const started = startJourney(operation.target, operation.context.contextId, journeyContext(snapshot, now), configuration.journeyLimits);
     if (!started.ok || started.type !== "STARTED")
@@ -1490,10 +1723,10 @@
     return managed !== void 0 && !snapshot.policy.blacklist.includes(hostname2) && !snapshot.policy.whitelist.includes(hostname2) && managedBlacklistContains(managed, hostname2) === true;
   }
   function planAtlasOperation(operationInput, contextInput) {
-    const fields = ["snapshot", "now", "configuration"];
+    const fields2 = ["snapshot", "now", "configuration"];
     if (contextInput !== null && typeof contextInput === "object" && Object.hasOwn(contextInput, "managedBlacklist"))
-      fields.push("managedBlacklist");
-    if (!hasJourneyFields(contextInput, fields))
+      fields2.push("managedBlacklist");
+    if (!hasJourneyFields(contextInput, fields2))
       return reject4("INVALID_CONTEXT");
     const validated = validateAtlasSnapshot(contextInput.snapshot);
     if (!validated.ok)
@@ -1516,11 +1749,12 @@
     const journeys = observeJourneys(journeyContext(snapshot, now));
     if (!journeys.ok)
       return reject4(journeys.reason);
+    const journeyState = { ...journeys.nextState, journeys: journeys.nextState.journeys.map((journey) => journey.phase !== "ENDED" && managedDenies(snapshot, journey.rootHostname, managedList) ? finishJourney(journey, "ROOT_NOT_WHITELISTED", now) : journey) };
     const observation = {
       ...snapshot,
       accessState: { ...snapshot.accessState, lastObservedAt: now, policyRevision: snapshot.policyRevision },
       vaultState: { ...snapshot.vaultState, lastObservedAt: now, policyRevision: snapshot.policyRevision },
-      journeyState: journeys.nextState
+      journeyState
     };
     if (!parsed.ok)
       return reject4(parsed.reason, observation);
@@ -1549,13 +1783,37 @@
         return navigationPlan(operation, observation, now, managedList);
       case "OBSERVE_TIME":
         return makePlan({ type: "OBSERVED" }, observation);
+      case "REMOVE_WHITELIST": {
+        if (operation.basePolicyRevision !== observation.policyRevision)
+          return reject4("POLICY_CHANGED", observation);
+        if (!isWhitelistRemoval(observation.policy, operation.candidatePolicy))
+          return reject4("NOT_WHITELIST_REMOVAL", observation);
+        const policyRevision = observation.policyRevision + 1;
+        if (!nonnegativeInteger(policyRevision))
+          return reject4("REVISION_EXHAUSTED", observation);
+        const next = {
+          ...observation,
+          policy: { ...operation.candidatePolicy, blacklist: observation.policy.blacklist },
+          policyRevision,
+          accessState: { ...observation.accessState, policyRevision },
+          vaultState: { ...observation.vaultState, policyRevision }
+        };
+        const invalidated = observeJourneys(journeyContext(next, now));
+        if (!invalidated.ok)
+          return reject4(invalidated.reason, observation);
+        return makePlan({ type: "TRANSITION_PREPARED", operation: operation.kind, id: policyRevision }, observation, { ...next, journeyState: invalidated.nextState });
+      }
       case "START_ACCESS":
         return accessPlan(operation.kind, startAccess(operation.target, accessContext(observation, now), configuration.accessTiming, operation.scopeHostnames), observation);
       case "CONFIRM_ACCESS":
         return accessPlan(operation.kind, confirmAccess(operation.requestId, accessContext(observation, now)), observation);
+      case "END_ACCESS":
+        return accessPlan(operation.kind, endAccess(operation.requestId, accessContext(observation, now)), observation);
       case "CANCEL_ACCESS":
         return accessPlan(operation.kind, cancelAccess(operation.requestId, accessContext(observation, now)), observation);
       case "START_JOURNEY":
+        if (managedDenies(observation, operation.root.hostname, managedList))
+          return reject4("MANAGED_BLACKLISTED", observation);
         return journeyPlan(operation.kind, startJourney(operation.root, operation.contextId, journeyContext(observation, now), configuration.journeyLimits), observation);
       case "CANCEL_JOURNEY":
       case "CLOSE_JOURNEY_CONTEXT": {
@@ -2358,8 +2616,464 @@
     return parseImpl(url, 5, suffixLookup, options, getEmptyResult());
   }
 
+  // src/presets/curated-upgrade-v2.ts
+  var legacyCuratedUpgradeId = "research-infrastructure-2026-10-v2";
+  var legacyCuratedUpgradeKey = `curated:${legacyCuratedUpgradeId}`;
+  var legacyCuratedUpgradeHosts = Object.freeze([
+    "aalto.fi",
+    "about.gitlab.com",
+    "academic.oup.com",
+    "app.box.com",
+    "app.slack.com",
+    "app.zoom.us",
+    "aps.org",
+    "arxiv.org",
+    "bctp.berkeley.edu",
+    "berkeley.edu",
+    "bitbucket.org",
+    "calendar.google.com",
+    "caltech.edu",
+    "cam.ac.uk",
+    "cambridge.org",
+    "canvas.instructure.com",
+    "canvas.kth.se",
+    "cds.cern.ch",
+    "cern.ch",
+    "chalmers.se",
+    "chatgpt.com",
+    "chebfun.org",
+    "claude.ai",
+    "cornell.edu",
+    "coursera.org",
+    "courses.maths.ox.ac.uk",
+    "crossref.org",
+    "dblp.org",
+    "deepl.com",
+    "desy.de",
+    "developer.mozilla.org",
+    "dl.acm.org",
+    "dlmf.nist.gov",
+    "doaj.org",
+    "docs.google.com",
+    "docs.julialang.org",
+    "docs.python.org",
+    "docs.scipy.org",
+    "doi.org",
+    "drive.google.com",
+    "dropbox.com",
+    "dtu.dk",
+    "ed.ac.uk",
+    "edu.itp.phys.ethz.ch",
+    "edx.org",
+    "en.wikipedia.org",
+    "epfl.ch",
+    "epubs.siam.org",
+    "ethz.ch",
+    "excel.cloud.microsoft",
+    "figma.com",
+    "fysik.su.se",
+    "github.com",
+    "gitlab.com",
+    "gu.se",
+    "harvard.edu",
+    "helsinki.fi",
+    "home.cern",
+    "home.edx.org",
+    "ias.edu",
+    "ictp.it",
+    "ieeexplore.ieee.org",
+    "imperial.ac.uk",
+    "indico.cern.ch",
+    "indico.desy.de",
+    "indico.ictp.it",
+    "infoscience.epfl.ch",
+    "inspirehep.net",
+    "intra.kth.se",
+    "iopscience.iop.org",
+    "itp.phys.ethz.ch",
+    "journals.aps.org",
+    "jstor.org",
+    "julialang.org",
+    "keep.google.com",
+    "ki.se",
+    "kitp.ucsb.edu",
+    "kth.se",
+    "ku.dk",
+    "learn.canvas.net",
+    "learning.edx.org",
+    "link.aps.org",
+    "link.springer.com",
+    "liu.se",
+    "ltu.se",
+    "lu.se",
+    "m365.cloud.microsoft",
+    "mail.google.com",
+    "math.berkeley.edu",
+    "math.cornell.edu",
+    "math.mit.edu",
+    "math.stanford.edu",
+    "mathematics.stanford.edu",
+    "maths.ed.ac.uk",
+    "meet.google.com",
+    "microsoft365.com",
+    "mit.edu",
+    "nature.com",
+    "nbi.ku.dk",
+    "nbia.nbi.ku.dk",
+    "ncbi.nlm.nih.gov",
+    "netlib.org",
+    "newton.ac.uk",
+    "nodejs.org",
+    "nordita.org",
+    "notion.com",
+    "notion.so",
+    "npmjs.com",
+    "numpy.org",
+    "ocw.mit.edu",
+    "office.com",
+    "onedrive.cloud.microsoft",
+    "onedrive.live.com",
+    "online.kitp.ucsb.edu",
+    "onlinelibrary.wiley.com",
+    "openalex.org",
+    "orcid.org",
+    "osf.io",
+    "outlook.cloud.microsoft",
+    "outlook.com",
+    "outlook.live.com",
+    "outlook.office.com",
+    "outlook.office365.com",
+    "overleaf.com",
+    "ox.ac.uk",
+    "pcts.princeton.edu",
+    "people.fas.harvard.edu",
+    "people.maths.ox.ac.uk",
+    "people.phys.ethz.ch",
+    "people.sissa.it",
+    "perimeterinstitute.ca",
+    "phy.princeton.edu",
+    "phys.ethz.ch",
+    "physics.aalto.fi",
+    "physics.aps.org",
+    "physics.berkeley.edu",
+    "physics.cornell.edu",
+    "physics.dtu.dk",
+    "physics.harvard.edu",
+    "physics.kth.se",
+    "physics.mit.edu",
+    "physics.stanford.edu",
+    "physics.ucsb.edu",
+    "physics.uu.se",
+    "pirsa.org",
+    "pma.caltech.edu",
+    "pmc.ncbi.nlm.nih.gov",
+    "powerpoint.cloud.microsoft",
+    "princeton.edu",
+    "pubmed.ncbi.nlm.nih.gov",
+    "pubs.acs.org",
+    "pubs.aip.org",
+    "pypi.org",
+    "royalsocietypublishing.org",
+    "scholar.google.com",
+    "scholar.harvard.edu",
+    "science.org",
+    "sciencedirect.com",
+    "scipost.org",
+    "scipy.org",
+    "semanticscholar.org",
+    "sethna.lassp.cornell.edu",
+    "sissa.it",
+    "sitp.stanford.edu",
+    "slack.com",
+    "springer.com",
+    "stackoverflow.com",
+    "stanford.edu",
+    "student.ladok.se",
+    "su.se",
+    "support.google.com",
+    "support.microsoft.com",
+    "support.mozilla.org",
+    "sv.wikipedia.org",
+    "teams.cloud.microsoft",
+    "teams.microsoft.com",
+    "th-dep.web.cern.ch",
+    "theory-hamburg.desy.de",
+    "theory.caltech.edu",
+    "translate.google.com",
+    "trello.com",
+    "tum.de",
+    "ucsb.edu",
+    "uio.no",
+    "umu.se",
+    "user.it.uu.se",
+    "users.aalto.fi",
+    "uu.se",
+    "video.ias.edu",
+    "web.math.princeton.edu",
+    "web.mit.edu",
+    "web.stanford.edu",
+    "webmail.kth.se",
+    "wikipedia.org",
+    "word.cloud.microsoft",
+    "workspace.google.com",
+    "www.aalto.fi",
+    "www.aps.org",
+    "www.berkeley.edu",
+    "www.caltech.edu",
+    "www.cam.ac.uk",
+    "www.cambridge.org",
+    "www.cern.ch",
+    "www.chalmers.se",
+    "www.chebfun.org",
+    "www.cornell.edu",
+    "www.coursera.org",
+    "www.crossref.org",
+    "www.damtp.cam.ac.uk",
+    "www.deepl.com",
+    "www.desy.de",
+    "www.doi.org",
+    "www.dropbox.com",
+    "www.dtu.dk",
+    "www.ed.ac.uk",
+    "www.edx.org",
+    "www.epfl.ch",
+    "www.ethz.ch",
+    "www.feynmanlectures.caltech.edu",
+    "www.figma.com",
+    "www.fkf.mpg.de",
+    "www.fysik.lu.se",
+    "www.fysik.su.se",
+    "www.github.com",
+    "www.gu.se",
+    "www.harvard.edu",
+    "www.helsinki.fi",
+    "www.ias.edu",
+    "www.ictp.it",
+    "www.ifm.liu.se",
+    "www.imperial.ac.uk",
+    "www.it.uu.se",
+    "www.itp.phys.ethz.ch",
+    "www.jstor.org",
+    "www.ki.se",
+    "www.kitp.ucsb.edu",
+    "www.kth.se",
+    "www.ku.dk",
+    "www.lassp.cornell.edu",
+    "www.liu.se",
+    "www.ltu.se",
+    "www.lu.se",
+    "www.matfys.lu.se",
+    "www.math.harvard.edu",
+    "www.math.princeton.edu",
+    "www.maths.cam.ac.uk",
+    "www.maths.ed.ac.uk",
+    "www.maths.ox.ac.uk",
+    "www.microsoft.com",
+    "www.microsoft365.com",
+    "www.mit.edu",
+    "www.mn.uio.no",
+    "www.nat.tum.de",
+    "www.nature.com",
+    "www.netlib.org",
+    "www.newton.ac.uk",
+    "www.nordita.org",
+    "www.notion.com",
+    "www.notion.so",
+    "www.npmjs.com",
+    "www.office.com",
+    "www.outlook.com",
+    "www.overleaf.com",
+    "www.ox.ac.uk",
+    "www.perimeterinstitute.ca",
+    "www.ph.ed.ac.uk",
+    "www.ph.nat.tum.de",
+    "www.phy.cam.ac.uk",
+    "www.phys.ethz.ch",
+    "www.physics.helsinki.fi",
+    "www.physics.kth.se",
+    "www.physics.ox.ac.uk",
+    "www.physics.ucsb.edu",
+    "www.physics.uu.se",
+    "www.pks.mpg.de",
+    "www.princeton.edu",
+    "www.science.org",
+    "www.sciencedirect.com",
+    "www.semanticscholar.org",
+    "www.sissa.it",
+    "www.stanford.edu",
+    "www.su.se",
+    "www.tcm.phy.cam.ac.uk",
+    "www.theory.caltech.edu",
+    "www.tum.de",
+    "www.ucsb.edu",
+    "www.uio.no",
+    "www.umu.se",
+    "www.uu.se",
+    "www.wikipedia.org",
+    "www.zoom.com",
+    "www.zoom.us",
+    "www.zotero.org",
+    "www2.ph.ed.ac.uk",
+    "wwwf.imperial.ac.uk",
+    "zenodo.org",
+    "zoom.us",
+    "zotero.org"
+  ]);
+
+  // src/presets/curated-upgrade.ts
+  var curatedUpgradeId = "research-infrastructure-2026-10-v3";
+  var curatedUpgradeKey = `curated:${curatedUpgradeId}`;
+  var withdrawn = /* @__PURE__ */ new Set(["wikipedia.org", "www.wikipedia.org", "en.wikipedia.org", "sv.wikipedia.org"]);
+  var curatedUpgradeHosts = Object.freeze(legacyCuratedUpgradeHosts.filter((host2) => !withdrawn.has(host2)));
+
+  // src/presets/curated-scopes.ts
+  var curatedScopeId = "curated-subdomains-2026-11-v1";
+  var curatedScopeKey = `curated:${curatedScopeId}`;
+  var curatedScopeHosts = curatedUpgradeHosts;
+  var coveredBy = (host2, root) => host2 === root || host2.endsWith(`.${root}`);
+  function curatedScopeRoots(hosts) {
+    const unique = [...new Set(hosts)];
+    for (const host2 of unique) {
+      const p = parse(host2, { allowPrivateDomains: true });
+      if (normalizeTarget({ hostname: host2 })?.hostname !== host2 || p.isIp || !p.domain || !(p.isIcann || p.isPrivate) || p.publicSuffix === host2 || host2 === "google.com" || host2 === "www.google.com") throw new TypeError("INVALID_CURATED_SCOPE");
+    }
+    return unique.filter((host2) => !unique.some((root) => root !== host2 && coveredBy(host2, root))).sort();
+  }
+  var initialCuratedScopes = Object.freeze(curatedScopeRoots(curatedScopeHosts));
+  var lists = ["added", "alreadyPresent", "covered", "skippedBlacklisted", "skippedNotAllowed"];
+  var fields = ["id", "kind", "policyRevisionBefore", "policyRevisionAfter", ...lists];
+
+  // src/presets/curated-expansion.ts
+  var site = (label, hostname2, aliases = [], destinations = [], source) => ({
+    label,
+    hostname: hostname2,
+    ...aliases.length ? { aliases } : {},
+    ...destinations.length ? { destinations } : {},
+    sources: [source ?? `https://${hostname2}/`]
+  });
+  var expandedServiceDestinations = {
+    "journals.aps.org": ["aps.org", "www.aps.org", "physics.aps.org"],
+    "outlook.com": ["outlook.cloud.microsoft"],
+    "microsoft365.com": ["m365.cloud.microsoft", "office.com", "www.office.com", "www.microsoft.com"],
+    "crossref.org": ["www.crossref.org"],
+    "doi.org": ["www.doi.org"],
+    "ncbi.nlm.nih.gov": ["www.ncbi.nlm.nih.gov"]
+  };
+  var curatedExpansion = [
+    { label: "Scholar / Research", services: [
+      site("Zotero", "zotero.org", ["www.zotero.org"]),
+      site("Zenodo", "zenodo.org"),
+      site("OSF", "osf.io"),
+      site("OpenAlex", "openalex.org"),
+      site("DOAJ", "doaj.org"),
+      site("DBLP", "dblp.org"),
+      site("PubMed Central", "pmc.ncbi.nlm.nih.gov"),
+      site("ACS Publications", "pubs.acs.org"),
+      site("Royal Society Publishing", "royalsocietypublishing.org"),
+      site("SIAM Publications", "epubs.siam.org"),
+      site("SciPost", "scipost.org")
+    ] },
+    { label: "University", services: [
+      site("KTH", "kth.se", ["www.kth.se"], ["intra.kth.se", "www.physics.kth.se", "physics.kth.se"]),
+      site("Stockholm University", "su.se", ["www.su.se"], ["fysik.su.se", "www.fysik.su.se"]),
+      site("Karolinska Institutet", "ki.se", ["www.ki.se"]),
+      site("Uppsala University", "uu.se", ["www.uu.se"], ["physics.uu.se", "www.physics.uu.se", "www.it.uu.se", "user.it.uu.se"]),
+      site("Lund University", "lu.se", ["www.lu.se"], ["www.fysik.lu.se", "www.matfys.lu.se"]),
+      site("Chalmers", "chalmers.se", ["www.chalmers.se"]),
+      site("University of Gothenburg", "gu.se", ["www.gu.se"]),
+      site("Linkoping University", "liu.se", ["www.liu.se"], ["www.ifm.liu.se"]),
+      site("Umea University", "umu.se", ["www.umu.se"]),
+      site("Lulea University of Technology", "ltu.se", ["www.ltu.se"]),
+      site("University of Copenhagen", "ku.dk", ["www.ku.dk"], ["nbi.ku.dk", "nbia.nbi.ku.dk"]),
+      site("University of Oslo", "uio.no", ["www.uio.no"], ["www.mn.uio.no"]),
+      site("University of Helsinki", "helsinki.fi", ["www.helsinki.fi"], ["www.physics.helsinki.fi"]),
+      site("Aalto University", "aalto.fi", ["www.aalto.fi"], ["physics.aalto.fi", "users.aalto.fi"]),
+      site("Technical University of Denmark", "dtu.dk", ["www.dtu.dk"], ["physics.dtu.dk"]),
+      site("University of Oxford", "ox.ac.uk", ["www.ox.ac.uk"], ["www.physics.ox.ac.uk", "www.maths.ox.ac.uk", "people.maths.ox.ac.uk", "courses.maths.ox.ac.uk"]),
+      site("University of Cambridge", "cam.ac.uk", ["www.cam.ac.uk"], ["www.phy.cam.ac.uk", "www.damtp.cam.ac.uk", "www.tcm.phy.cam.ac.uk", "www.maths.cam.ac.uk"]),
+      site("ETH Zurich", "ethz.ch", ["www.ethz.ch"], ["phys.ethz.ch", "www.phys.ethz.ch", "itp.phys.ethz.ch", "www.itp.phys.ethz.ch", "edu.itp.phys.ethz.ch", "people.phys.ethz.ch"]),
+      site("EPFL", "epfl.ch", ["www.epfl.ch"], ["infoscience.epfl.ch"]),
+      site("Imperial College London", "imperial.ac.uk", ["www.imperial.ac.uk"], ["wwwf.imperial.ac.uk"]),
+      site("University of Edinburgh", "ed.ac.uk", ["www.ed.ac.uk"], ["www.ph.ed.ac.uk", "www2.ph.ed.ac.uk", "www.maths.ed.ac.uk", "maths.ed.ac.uk"]),
+      site("Technical University of Munich", "tum.de", ["www.tum.de"], ["www.ph.nat.tum.de", "www.nat.tum.de"]),
+      site("MIT", "mit.edu", ["www.mit.edu"], ["physics.mit.edu", "math.mit.edu", "web.mit.edu"]),
+      site("Harvard University", "harvard.edu", ["www.harvard.edu"], ["physics.harvard.edu", "www.math.harvard.edu", "scholar.harvard.edu", "people.fas.harvard.edu"]),
+      site("Stanford University", "stanford.edu", ["www.stanford.edu"], ["physics.stanford.edu", "math.stanford.edu", "mathematics.stanford.edu", "sitp.stanford.edu", "web.stanford.edu"]),
+      site("Princeton University", "princeton.edu", ["www.princeton.edu"], ["phy.princeton.edu", "www.math.princeton.edu", "web.math.princeton.edu", "pcts.princeton.edu"]),
+      site("Cornell University", "cornell.edu", ["www.cornell.edu"], ["physics.cornell.edu", "www.lassp.cornell.edu", "sethna.lassp.cornell.edu", "math.cornell.edu"]),
+      site("UC Berkeley", "berkeley.edu", ["www.berkeley.edu"], ["physics.berkeley.edu", "math.berkeley.edu", "bctp.berkeley.edu"]),
+      site("Caltech", "caltech.edu", ["www.caltech.edu"], ["pma.caltech.edu", "www.theory.caltech.edu", "theory.caltech.edu"]),
+      site("UC Santa Barbara", "ucsb.edu", ["www.ucsb.edu"], ["www.physics.ucsb.edu", "physics.ucsb.edu"])
+    ] },
+    { label: "Physics institutes", services: [
+      site("Nordita", "nordita.org", ["www.nordita.org"]),
+      site("Perimeter Institute", "perimeterinstitute.ca", ["www.perimeterinstitute.ca"]),
+      site("KITP", "kitp.ucsb.edu", ["www.kitp.ucsb.edu"], ["online.kitp.ucsb.edu"]),
+      site("ICTP", "ictp.it", ["www.ictp.it"], ["indico.ictp.it"]),
+      site("CERN", "home.cern", [], ["cern.ch", "www.cern.ch", "th-dep.web.cern.ch", "indico.cern.ch", "cds.cern.ch"]),
+      site("DESY", "desy.de", ["www.desy.de"], ["theory-hamburg.desy.de", "indico.desy.de"]),
+      site("Institute for Advanced Study", "ias.edu", ["www.ias.edu"], ["video.ias.edu"]),
+      site("SISSA", "sissa.it", ["www.sissa.it"], ["people.sissa.it"]),
+      site("Max Planck Complex Systems", "www.pks.mpg.de"),
+      site("Max Planck Solid State Research", "www.fkf.mpg.de"),
+      site("Isaac Newton Institute", "newton.ac.uk", ["www.newton.ac.uk"])
+    ] },
+    { label: "Learning", services: [
+      site("MIT OpenCourseWare", "ocw.mit.edu"),
+      site("Perimeter lecture archive", "pirsa.org"),
+      site("Coursera", "coursera.org", ["www.coursera.org"]),
+      site("edX", "edx.org", ["www.edx.org"], ["learning.edx.org", "home.edx.org"]),
+      site("Feynman Lectures", "www.feynmanlectures.caltech.edu"),
+      site("NumPy", "numpy.org"),
+      site("SciPy", "scipy.org", [], ["docs.scipy.org"]),
+      site("Julia", "julialang.org", [], ["docs.julialang.org"]),
+      site("DLMF", "dlmf.nist.gov"),
+      site("Netlib", "netlib.org", ["www.netlib.org"]),
+      site("Chebfun", "chebfun.org", ["www.chebfun.org"])
+    ] },
+    { label: "Cloud storage", services: [
+      site("Google Drive", "drive.google.com"),
+      site("OneDrive", "onedrive.live.com", [], ["onedrive.cloud.microsoft"]),
+      site("Dropbox", "dropbox.com", ["www.dropbox.com"]),
+      site("Box", "app.box.com")
+    ] },
+    { label: "Productivity", services: [
+      site("Google Docs, Sheets, Slides and Forms", "docs.google.com"),
+      site("Google Calendar", "calendar.google.com"),
+      site("Google Keep", "keep.google.com"),
+      site("Microsoft web documents", "word.cloud.microsoft", [], ["excel.cloud.microsoft", "powerpoint.cloud.microsoft"]),
+      site("Notion", "notion.so", ["www.notion.so"], ["notion.com", "www.notion.com"]),
+      site("Trello", "trello.com"),
+      site("Figma", "figma.com", ["www.figma.com"])
+    ] },
+    { label: "Communication", services: [
+      site("Google Meet", "meet.google.com", [], ["workspace.google.com"]),
+      site("Microsoft Teams", "teams.microsoft.com", [], ["teams.cloud.microsoft"]),
+      site("Slack", "slack.com", [], ["app.slack.com"]),
+      site("Zoom", "zoom.us", ["www.zoom.us"], ["app.zoom.us", "www.zoom.com"])
+    ] },
+    { label: "Development", services: [
+      site("GitLab", "gitlab.com", [], ["about.gitlab.com"]),
+      site("Bitbucket", "bitbucket.org"),
+      site("Stack Overflow", "stackoverflow.com"),
+      site("MDN", "developer.mozilla.org"),
+      site("Python documentation", "docs.python.org"),
+      site("PyPI", "pypi.org"),
+      site("npm", "npmjs.com", ["www.npmjs.com"]),
+      site("Node.js", "nodejs.org")
+    ] },
+    { label: "Utilities", services: [
+      site("Wikipedia", "wikipedia.org", ["www.wikipedia.org"], ["en.wikipedia.org", "sv.wikipedia.org"]),
+      site("Google Translate", "translate.google.com"),
+      site("DeepL", "deepl.com", ["www.deepl.com"]),
+      site("Mozilla Support", "support.mozilla.org"),
+      site("Google Support", "support.google.com"),
+      site("Microsoft Support", "support.microsoft.com")
+    ] }
+  ];
+
   // src/presets/curated-whitelist.ts
-  var curatedWhitelist = [
+  var legacyCuratedWhitelist = [
     { label: "AI", services: [
       { label: "ChatGPT", hostname: "chatgpt.com" },
       { label: "Claude", hostname: "claude.ai" }
@@ -2374,9 +3088,6 @@
         destinations: ["outlook.live.com", "outlook.office.com", "outlook.office365.com"]
       },
       { label: "Microsoft 365", hostname: "microsoft365.com", aliases: ["www.microsoft365.com"] }
-    ] },
-    { label: "Video", services: [
-      { label: "YouTube", hostname: "youtube.com", aliases: ["www.youtube.com"] }
     ] },
     { label: "Scholar / Research", services: [
       { label: "Google Scholar", hostname: "scholar.google.com" },
@@ -2412,11 +3123,19 @@
       { label: "GitHub", hostname: "github.com", aliases: ["www.github.com"] }
     ] }
   ];
+  var curatedServiceCatalog = [...legacyCuratedWhitelist, ...curatedExpansion].reduce((groups, group) => {
+    const services = group.services.map((service) => expandedServiceDestinations[service.hostname] ? { ...service, destinations: [...service.destinations ?? [], ...expandedServiceDestinations[service.hostname]] } : service);
+    const index = groups.findIndex((existing) => existing.label === group.label);
+    if (index < 0) groups.push({ ...group, services });
+    else groups[index] = { ...groups[index], services: [...groups[index].services, ...services] };
+    return groups;
+  }, []);
+  var curatedWhitelist = curatedServiceCatalog.map((group) => ({ ...group, services: group.services.filter((service) => service.hostname !== "wikipedia.org") })).filter((group) => group.services.length > 0);
   function serviceHostnames(service) {
     return [service.hostname, ...service.aliases ?? [], ...service.destinations ?? []];
   }
   function serviceLabel(hostname2) {
-    for (const group of curatedWhitelist) for (const service of group.services) {
+    for (const group of curatedServiceCatalog) for (const service of group.services) {
       if (serviceHostnames(service).includes(hostname2)) return service.label;
     }
     return hostname2;
@@ -2427,86 +3146,13 @@
       if (normalizeTarget({ hostname: hostname2 })?.hostname !== hostname2) throw new TypeError("Invalid curated hostname");
       hostnames.add(hostname2);
     }
-    return { whitelist: [...hostnames], blacklist: [] };
-  }
-
-  // src/ui/categories.ts
-  var categoryKey = (label) => label.trim().replace(/\s+/g, " ").toLocaleLowerCase("en");
-  var categoryLabel = (label) => label.trim().replace(/\s+/g, " ");
-  var predefinedCategories = [...curatedWhitelist.map((group) => group.label), "Your destinations"];
-  function categorySuggestions(committed, drafted = []) {
-    const labels = /* @__PURE__ */ new Map();
-    for (const label of [...predefinedCategories, ...committed, ...drafted]) {
-      const normalized = categoryLabel(label);
-      if (normalized && normalized.length <= 64 && !labels.has(categoryKey(normalized))) labels.set(categoryKey(normalized), normalized);
-    }
-    return [...labels.values()];
-  }
-  function canonicalCategory(label, existing) {
-    return existing.find((value) => categoryKey(value) === categoryKey(label)) ?? categoryLabel(label);
-  }
-
-  // src/ui/destinations.ts
-  function destinationIndex(policy, metadata2 = []) {
-    const active = new Set(policy.whitelist.filter((hostname2) => evaluate({ hostname: hostname2 }, policy).outcome === "ALLOW"));
-    const entries2 = [];
-    for (const item of metadata2) {
-      const hostnames = item.hostnames.filter((host2) => active.has(host2));
-      if (hostnames.length === 0) continue;
-      entries2.push({
-        id: item.id,
-        label: item.label,
-        category: item.category,
-        hostname: hostnames.includes(item.primaryHostname) ? item.primaryHostname : hostnames[0],
-        hostnames
-      });
-      hostnames.forEach((host2) => active.delete(host2));
-    }
-    for (const group of curatedWhitelist) for (const service of group.services) {
-      const hostnames = serviceHostnames(service).filter((hostname2) => active.has(hostname2));
-      if (hostnames.length === 0) continue;
-      entries2.push({ id: `service:${service.hostname}`, label: service.label, hostname: hostnames[0], hostnames, category: group.label });
-      hostnames.forEach((hostname2) => active.delete(hostname2));
-    }
-    for (const hostname2 of [...active].sort()) entries2.push({ label: hostname2, hostname: hostname2, hostnames: [hostname2], category: "Your destinations" });
-    const curatedIds = curatedWhitelist.flatMap((group) => group.services.map((service) => `service:${service.hostname}`));
-    const order = (entry) => {
-      const index = curatedIds.indexOf(entry.id ?? "");
-      return index < 0 ? curatedIds.length : index;
-    };
-    const categories = categorySuggestions(metadata2.map((item) => item.category));
-    return entries2.sort((a, b) => order(a) - order(b)).map((entry) => ({ ...entry, category: canonicalCategory(entry.category, categories) }));
-  }
-  function policyDestinationIndex(policy, metadata2 = []) {
-    return destinationIndex({ whitelist: [.../* @__PURE__ */ new Set([...policy.whitelist, ...policy.blacklist])], blacklist: [] }, metadata2);
-  }
-  function searchDestinations(entries2, query) {
-    const words = query.trim().toLocaleLowerCase("en").split(/\s+/).filter(Boolean);
-    if (words.length === 0) return [];
-    return entries2.filter((entry) => words.every((word) => `${entry.label} ${entry.hostnames.join(" ")}`.toLocaleLowerCase("en").includes(word)));
-  }
-  function searchDestinationTargets(entries2, query) {
-    const term = query.trim().toLocaleLowerCase("en");
-    if (!term) return [];
-    const exact = entries2.flatMap((entry) => entry.hostnames.includes(term) ? [{ entry, hostname: term, match: "EXACT_HOST" }] : []);
-    if (exact.length) return exact;
-    const address = parse(term, { allowPrivateDomains: true });
-    if (address.domain !== null && (address.isIcann || address.isPrivate) && !term.endsWith(".")) return [];
-    const words = term.split(/\s+/);
-    return searchDestinations(entries2, query).flatMap((entry) => {
-      if (words.every((word) => entry.label.toLocaleLowerCase("en").includes(word))) return [{ entry, hostname: entry.hostname, match: "NAME" }];
-      const service = curatedWhitelist.flatMap((group) => group.services).find((item) => serviceHostnames(item).includes(entry.hostname));
-      const points = [service?.hostname ?? entry.hostname, ...service?.destinations ?? []];
-      const hosts = entry.hostnames.filter((host2) => words.every((word) => host2.includes(word)));
-      if (!hosts.length) return [{ entry, hostname: entry.hostname, match: "NAME" }];
-      return hosts.map((hostname2) => ({ entry, hostname: hostname2, match: points.includes(hostname2) ? "ENTRY_POINT" : service?.aliases?.includes(hostname2) ? "ALIAS" : "HOST" }));
-    });
+    return { whitelist: [...hostnames], blacklist: [], whitelistSubdomains: curatedScopeRoots([...hostnames]) };
   }
 
   // src/ui/home-model.ts
   function destinationId(entry) {
     if (entry.id !== void 0) return entry.id;
-    for (const group of curatedWhitelist) for (const service of group.services) {
+    for (const group of curatedServiceCatalog) for (const service of group.services) {
       if (serviceHostnames(service).includes(entry.hostname)) return `service:${service.hostname}`;
     }
     return `host:${entry.hostname}`;
@@ -2540,12 +3186,376 @@
     return next;
   }
   function destinationEntryPoints(entry) {
-    for (const group of curatedWhitelist) for (const service of group.services) {
+    for (const group of curatedServiceCatalog) for (const service of group.services) {
       if (!serviceHostnames(service).includes(entry.hostname)) continue;
       const active = [service.hostname, ...service.destinations ?? []].filter((hostname2) => entry.hostnames.includes(hostname2));
       return active.length > 0 ? active : [entry.hostname];
     }
     return [entry.hostname];
+  }
+
+  // src/ui/website-icons.ts
+  var maxBytes = 1024 * 1024;
+  function publicImageUrl(value, base) {
+    try {
+      const url = new URL(value, base);
+      return ["https:", "http:"].includes(url.protocol) && !url.username && !url.password ? url.href : null;
+    } catch {
+      return null;
+    }
+  }
+  function declaredIconUrls(html, base) {
+    const icons = [];
+    const head = html.split(/<\/head\s*>/i)[0];
+    for (const tag of head.matchAll(/<link\b(?:"[^"]*"|'[^']*'|[^'">])*>/gi)) {
+      const attributes = /* @__PURE__ */ new Map();
+      for (const attribute of tag[0].matchAll(/([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/g))
+        attributes.set(attribute[1].toLowerCase(), (attribute[2] ?? attribute[3] ?? attribute[4] ?? "").replaceAll("&amp;", "&"));
+      if (!attributes.get("rel")?.toLowerCase().split(/\s+/).some((rel) => ["icon", "apple-touch-icon"].includes(rel))) continue;
+      const href = attributes.get("href");
+      const url = href ? publicImageUrl(href, base) : null;
+      if (url === null) continue;
+      const size = Number.parseInt(attributes.get("sizes") ?? "", 10);
+      icons.push({ url, size: Number.isFinite(size) ? Math.min(size, 256) : 48 });
+    }
+    return [...new Set(icons.sort((a, b) => b.size - a.size).map((icon2) => icon2.url))];
+  }
+  async function limitedBytes(response) {
+    if (!response.ok || Number(response.headers.get("content-length") ?? 0) > maxBytes || !response.body) return null;
+    const reader = response.body.getReader();
+    const chunks = [];
+    let length = 0;
+    try {
+      while (true) {
+        const next = await reader.read();
+        if (next.done) break;
+        length += next.value.length;
+        if (length > maxBytes) {
+          await reader.cancel();
+          return null;
+        }
+        chunks.push(next.value);
+      }
+    } finally {
+      reader.releaseLock();
+    }
+    const bytes = new Uint8Array(length);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.length;
+    }
+    return bytes;
+  }
+  function imageType(bytes) {
+    const prefix = [...bytes.slice(0, 12)].map((byte) => String.fromCharCode(byte)).join("");
+    if (prefix.startsWith("\x89PNG\r\n\n")) return "image/png";
+    if (prefix.startsWith("\0\0\0")) return "image/x-icon";
+    if (prefix.startsWith("GIF87a") || prefix.startsWith("GIF89a")) return "image/gif";
+    if (bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255) return "image/jpeg";
+    if (prefix.startsWith("RIFF") && prefix.slice(8) === "WEBP") return "image/webp";
+    if (/^\s*(?:<\?xml[^>]*>\s*)?<svg[\s>]/i.test(new TextDecoder().decode(bytes.slice(0, 512)))) return "image/svg+xml";
+    return null;
+  }
+  async function decodesImage(blob) {
+    if (typeof Image === "undefined") return true;
+    const url = URL.createObjectURL(blob);
+    try {
+      const image = new Image();
+      image.src = url;
+      await image.decode();
+      return image.naturalWidth > 0 && image.naturalHeight > 0;
+    } catch {
+      return false;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+  async function validatedWebsiteIcon(response) {
+    const bytes = await limitedBytes(response), type = bytes ? imageType(bytes) : null;
+    if (!bytes || !type) return null;
+    const blob = new Blob([bytes.buffer], { type });
+    return await decodesImage(blob) ? blob : null;
+  }
+  async function loadWebsiteIcon(hostname2, observedIcon, fetcher = fetch) {
+    if (!/^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/.test(hostname2)) return null;
+    const root = `https://${hostname2}/`;
+    let controller = new AbortController();
+    let timer = setTimeout(() => {
+      controller.abort();
+    }, 5e3);
+    const options = { credentials: "omit", referrerPolicy: "no-referrer", signal: controller.signal };
+    const image = async (url) => {
+      try {
+        return await validatedWebsiteIcon(await fetcher(url, options));
+      } catch {
+        return null;
+      }
+    };
+    let conventional = null;
+    try {
+      if (observedIcon) {
+        const observed = /^data:image\/(?:png|x-icon|vnd\.microsoft\.icon|gif|jpeg|webp|svg\+xml)[;,]/i.test(observedIcon) ? observedIcon : publicImageUrl(observedIcon, root);
+        if (observed) {
+          const icon2 = await image(observed);
+          if (icon2) return icon2;
+        }
+      }
+      try {
+        const page2 = await fetcher(root, options);
+        const bytes = await limitedBytes(page2);
+        if (bytes) for (const url of declaredIconUrls(new TextDecoder().decode(bytes), page2.url || root).slice(0, 4)) {
+          const icon2 = await image(url);
+          if (icon2) return icon2;
+        }
+      } catch {
+      }
+      conventional = await image(new URL("favicon.ico", root).href);
+    } finally {
+      clearTimeout(timer);
+    }
+    if (conventional) return conventional;
+    if (!hostname2.includes(".") || /^\d+(?:\.\d+){3}$/.test(hostname2) || /\.(?:localhost|local|internal|lan|home|corp|test|example|invalid)$/.test(hostname2)) return null;
+    const cached = new URL("https://www.google.com/s2/favicons");
+    cached.searchParams.set("domain", hostname2);
+    cached.searchParams.set("sz", "64");
+    controller = new AbortController();
+    options.signal = controller.signal;
+    timer = setTimeout(() => {
+      controller.abort();
+    }, 4e3);
+    try {
+      return await image(cached.href);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  // src/ui/website-icon-cache.ts
+  var namespace = "atlas-website-icons-v1";
+  var lifetime = 7 * 24 * 60 * 60 * 1e3;
+  var maximumEntries = 128;
+  var maximumBytes = 64 * 1024;
+  var key = (hostname2) => hostname2.length <= 253 && /^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/.test(hostname2) ? `https://atlas-assets.invalid/icons/${hostname2}` : null;
+  function createWebsiteIconCache(storage = globalThis.caches, now = () => Date.now()) {
+    let opening, writes = Promise.resolve();
+    const open = () => opening ??= storage ? storage.open(namespace).catch(() => null) : Promise.resolve(null);
+    return {
+      async read(hostname2) {
+        const url = key(hostname2);
+        if (!url) return null;
+        try {
+          const cache = await open(), response = await cache?.match(url);
+          if (!response) return null;
+          const created = Number(response.headers.get("x-atlas-created")), size = Number(response.headers.get("content-length"));
+          if (created > 0 && created <= now() && now() - created < lifetime && size > 0 && size <= maximumBytes) {
+            const blob = await validatedWebsiteIcon(response);
+            if (blob && blob.size <= maximumBytes) return blob;
+          }
+          await cache?.delete(url);
+        } catch {
+        }
+        return null;
+      },
+      write(hostname2, blob) {
+        const url = key(hostname2);
+        if (!url || !blob.size || blob.size > maximumBytes) return Promise.resolve();
+        writes = writes.then(async () => {
+          const cache = await open();
+          if (!cache) return;
+          await cache.put(url, new Response(blob, { headers: {
+            "content-type": blob.type,
+            "content-length": String(blob.size),
+            "x-atlas-created": String(now())
+          } }));
+          const keys = await cache.keys();
+          for (const oldest of keys.slice(0, Math.max(0, keys.length - maximumEntries))) await cache.delete(oldest);
+        }).catch(() => {
+        });
+        return writes;
+      }
+    };
+  }
+
+  // src/ui/destination-cards.ts
+  function icon(name) {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    node.classList.add("icon");
+    setAttribute(node, "aria-hidden", "true");
+    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    setAttribute(use, "href", `#icon-${name}`);
+    node.append(use);
+    return node;
+  }
+  function initializeDestinationCards(options) {
+    let disposed2 = false;
+    const websiteIcons = /* @__PURE__ */ new Map();
+    const observedIcons = /* @__PURE__ */ new Map();
+    const assetCache = createWebsiteIconCache(browser.extension?.inIncognitoContext ? null : globalThis.caches);
+    const iconSnapshot = browser.tabs.query({}).then((tabs) => {
+      if (disposed2) return;
+      for (const tab of tabs) if (tab.url && tab.favIconUrl) {
+        try {
+          const hostname2 = new URL(tab.url).hostname;
+          if (!observedIcons.has(hostname2)) observedIcons.set(hostname2, tab.favIconUrl);
+        } catch {
+        }
+      }
+    }).catch(() => {
+    });
+    const iconObserver = new IntersectionObserver((changes) => {
+      for (const change of changes) if (change.isIntersecting) {
+        iconObserver.unobserve(change.target);
+        const image = change.target;
+        void displayWebsiteIcon(image, image.dataset.hostname);
+      }
+    }, { rootMargin: "160px" });
+    async function displayWebsiteIcon(image, hostname2, refresh = false) {
+      if (disposed2) return;
+      setProperty(image.dataset, "hostname", hostname2);
+      if (!websiteIcons.has(hostname2)) websiteIcons.set(hostname2, (async () => {
+        const cached = refresh ? null : await assetCache.read(hostname2);
+        if (cached || disposed2) return cached;
+        await iconSnapshot;
+        const blob = disposed2 ? null : await loadWebsiteIcon(hostname2, observedIcons.get(hostname2));
+        if (blob) void assetCache.write(hostname2, blob);
+        return blob;
+      })().then((blob) => blob && !disposed2 ? URL.createObjectURL(blob) : null).catch(() => null));
+      const loading = websiteIcons.get(hostname2);
+      const url = await loading;
+      if (!image.isConnected || image.dataset.hostname !== hostname2 || websiteIcons.get(hostname2) !== loading) return;
+      if (image.getAttribute("src") !== (url ?? "site.svg")) image.src = url ?? "site.svg";
+    }
+    function makeSiteMark(hostname2, existing) {
+      if (existing) {
+        if (existing.dataset.hostname === hostname2) return existing;
+        const image2 = existing.querySelector("img");
+        setProperty(existing.dataset, "hostname", hostname2);
+        setProperty(image2.dataset, "hostname", hostname2);
+        image2.src = "site.svg";
+        iconObserver.observe(image2);
+        return existing;
+      }
+      const mark = document.createElement("span");
+      mark.className = "service-mark";
+      setAttribute(mark, "aria-hidden", "true");
+      setProperty(mark.dataset, "hostname", hostname2);
+      const image = document.createElement("img");
+      image.className = "site-icon";
+      image.width = 32;
+      image.height = 32;
+      image.alt = "";
+      image.src = "site.svg";
+      image.loading = "lazy";
+      setProperty(image.dataset, "hostname", hostname2);
+      image.addEventListener("error", () => {
+        if (!image.src.endsWith("/site.svg")) image.src = "site.svg";
+      });
+      mark.append(image);
+      iconObserver.observe(image);
+      return mark;
+    }
+    function makeDestinationCard(entry) {
+      const card = document.createElement("div");
+      card.className = "destination-card";
+      setProperty(card.dataset, "destinationId", destinationId(entry));
+      const points = destinationEntryPoints(entry);
+      const addresses = document.createElement("select");
+      addresses.className = "service-addresses";
+      setAttribute(addresses, "aria-label", `${entry.label} entry point`);
+      points.forEach((hostname2) => addresses.append(new Option(hostname2, hostname2)));
+      setProperty(addresses, "hidden", points.length < 2);
+      const open = document.createElement("button");
+      open.className = "destination-open";
+      open.type = "button";
+      setAttribute(open, "aria-label", `Open ${entry.label}`);
+      setProperty(open.dataset, "destinationId", destinationId(entry));
+      setProperty(open, "title", entry.hostnames.join(", "));
+      const mark = makeSiteMark(addresses.value), image = mark.querySelector("img");
+      const copy = document.createElement("span");
+      copy.className = "destination-copy";
+      const name = document.createElement("span");
+      name.className = "destination-name";
+      setProperty(name, "textContent", entry.label);
+      const host2 = document.createElement("span");
+      host2.className = "destination-host";
+      setProperty(host2, "textContent", addresses.value);
+      addresses.addEventListener("change", () => {
+        setProperty(host2, "textContent", addresses.value);
+        setProperty(open, "title", addresses.value);
+        void displayWebsiteIcon(image, addresses.value);
+      });
+      copy.append(name, host2);
+      open.append(mark, copy);
+      open.addEventListener("click", () => {
+        void options.open(`https://${addresses.value}/`);
+      });
+      const pin = document.createElement("button");
+      pin.type = "button";
+      pin.className = "pin-button";
+      setProperty(pin.dataset, "pinId", destinationId(entry));
+      setProperty(pin.dataset, "label", entry.label);
+      pin.append(icon("pin"));
+      pin.addEventListener("click", () => {
+        options.togglePin(destinationId(entry));
+      });
+      card.append(open, pin);
+      if (points.length > 1) {
+        const details = document.createElement("details");
+        details.className = "entry-points";
+        const summary = document.createElement("summary");
+        setProperty(summary, "title", `Choose ${entry.label} entry point`);
+        setAttribute(summary, "aria-label", summary.title);
+        summary.append(icon("chevron"));
+        details.append(summary, addresses);
+        card.append(details);
+      }
+      return card;
+    }
+    function observeWebsiteIcon(_tabId, changes, tab) {
+      if (!changes.favIconUrl && !changes.url || !tab.url || !tab.favIconUrl) return;
+      try {
+        const hostname2 = new URL(tab.url).hostname;
+        if (observedIcons.get(hostname2) === tab.favIconUrl) return;
+        observedIcons.set(hostname2, tab.favIconUrl);
+        const previous = websiteIcons.get(hostname2);
+        websiteIcons.delete(hostname2);
+        if (previous) void previous.then((url) => {
+          if (url) URL.revokeObjectURL(url);
+        });
+        for (const image of document.querySelectorAll(".site-icon")) if (image.dataset.hostname === hostname2)
+          void displayWebsiteIcon(image, hostname2, true);
+      } catch {
+      }
+    }
+    browser.tabs.onUpdated.addListener(observeWebsiteIcon);
+    function dispose() {
+      disposed2 = true;
+      iconObserver.disconnect();
+      browser.tabs.onUpdated.removeListener(observeWebsiteIcon);
+      for (const promise of websiteIcons.values()) void promise.then((url) => {
+        if (url) URL.revokeObjectURL(url);
+      });
+      websiteIcons.clear();
+      observedIcons.clear();
+    }
+    return { create: makeDestinationCard, siteMark: makeSiteMark, dispose };
+  }
+
+  // src/ui/categories.ts
+  var categoryKey = (label) => label.trim().replace(/\s+/g, " ").toLocaleLowerCase("en");
+  var categoryLabel = (label) => label.trim().replace(/\s+/g, " ");
+  var predefinedCategories = [...curatedWhitelist.map((group) => group.label), "Your destinations"];
+  function categorySuggestions(committed, drafted = []) {
+    const labels = /* @__PURE__ */ new Map();
+    for (const label of [...predefinedCategories, ...committed, ...drafted]) {
+      const normalized = categoryLabel(label);
+      if (normalized && normalized.length <= 64 && !labels.has(categoryKey(normalized))) labels.set(categoryKey(normalized), normalized);
+    }
+    return [...labels.values()];
+  }
+  function canonicalCategory(label, existing) {
+    return existing.find((value) => categoryKey(value) === categoryKey(label)) ?? categoryLabel(label);
   }
 
   // src/ui/destination-metadata.ts
@@ -2572,11 +3582,15 @@
       const item = stored.pending;
       const destination = item.destination === null ? null : metadata(item.destination);
       const policy = item.candidatePolicy;
-      if (Number.isSafeInteger(item.proposalId) && item.proposalId > 0 && Number.isSafeInteger(item.basePolicyRevision) && item.basePolicyRevision >= 0 && (item.destination === null || destination !== null) && (item.removedId === null || validDestinationId(item.removedId)) && typeof item.pin === "boolean" && policy && Array.isArray(policy.whitelist) && Array.isArray(policy.blacklist) && policy.whitelist.length + policy.blacklist.length <= 1e4 && [...policy.whitelist, ...policy.blacklist].every(hostname)) {
+      if (Number.isSafeInteger(item.proposalId) && item.proposalId > 0 && Number.isSafeInteger(item.basePolicyRevision) && item.basePolicyRevision >= 0 && (item.destination === null || destination !== null) && (item.removedId === null || validDestinationId(item.removedId)) && typeof item.pin === "boolean" && policy && Array.isArray(policy.whitelist) && Array.isArray(policy.blacklist) && policy.whitelist.length + policy.blacklist.length <= 1e4 && [...policy.whitelist, ...policy.blacklist].every(hostname) && evaluate("metadata-validation.example", policy).reason !== "INVALID_POLICY") {
         pending = {
           proposalId: item.proposalId,
           basePolicyRevision: item.basePolicyRevision,
-          candidatePolicy: { whitelist: [...policy.whitelist], blacklist: [...policy.blacklist] },
+          candidatePolicy: {
+            whitelist: [...policy.whitelist],
+            blacklist: [...policy.blacklist],
+            ...policy.whitelistSubdomains !== void 0 ? { whitelistSubdomains: [...policy.whitelistSubdomains] } : {}
+          },
           destination,
           removedId: item.removedId,
           pin: item.pin
@@ -2585,7 +3599,7 @@
     }
     return { version: 1, destinations, pending };
   }
-  var samePolicy2 = (a, b) => ["whitelist", "blacklist"].every((key) => JSON.stringify([...a[key]].sort()) === JSON.stringify([...b[key]].sort()));
+  var samePolicy2 = (a, b) => ["whitelist", "blacklist", "whitelistSubdomains"].every((key2) => JSON.stringify([...a[key2] ?? []].sort()) === JSON.stringify([...b[key2] ?? []].sort()));
   function replaceDestinationMetadata(entries2, destination, removedId) {
     const claimed = new Set(destination?.hostnames ?? []);
     const next = entries2.flatMap((item) => {
@@ -2616,19 +3630,19 @@
   function homeCategories(allowed, all = allowed, definitions = []) {
     const groups = /* @__PURE__ */ new Map();
     for (const label of [...allowed.map((e) => e.category), ...all.map((e) => e.category), ...definitions]) {
-      const key = categoryKey(label);
-      if (key && !groups.has(key)) groups.set(key, { label: categoryLabel(label), members: /* @__PURE__ */ new Set(), count: 0 });
+      const key2 = categoryKey(label);
+      if (key2 && !groups.has(key2)) groups.set(key2, { label: categoryLabel(label), members: /* @__PURE__ */ new Set(), count: 0 });
     }
     for (const entry of all) groups.get(categoryKey(entry.category))?.members.add(destinationId(entry));
     for (const entry of allowed) {
       const group = groups.get(categoryKey(entry.category));
       if (group) group.count++;
     }
-    const rank = (key) => {
-      const index = legacyOrder.indexOf(key);
+    const rank = (key2) => {
+      const index = legacyOrder.indexOf(key2);
       return index < 0 ? legacyOrder.length : index;
     };
-    return [...groups].map(([key, group]) => ({ key, label: group.label, count: group.count, members: [...group.members].sort() })).sort((a, b) => Number(b.count > 0) - Number(a.count > 0) || rank(a.key) - rank(b.key));
+    return [...groups].map(([key2, group]) => ({ key: key2, label: group.label, count: group.count, members: [...group.members].sort() })).sort((a, b) => Number(b.count > 0) - Number(a.count > 0) || rank(a.key) - rank(b.key));
   }
   function readHomeLayout(input2) {
     if (!input2 || typeof input2 !== "object" || Array.isArray(input2)) return null;
@@ -2649,15 +3663,15 @@
       collapsed: false,
       members: [...c.members]
     })) };
-    const current = new Map(catalog.map((c) => [c.key, c])), known = new Set(saved.categories.map((c) => c.key));
+    const current2 = new Map(catalog.map((c) => [c.key, c])), known = new Set(saved.categories.map((c) => c.key));
     const renamed = /* @__PURE__ */ new Map();
-    for (const old of saved.categories) if (!current.has(old.key) && old.members.length) {
+    for (const old of saved.categories) if (!current2.has(old.key) && old.members.length) {
       const candidates = catalog.filter((c) => !known.has(c.key) && same(c.members, old.members));
-      const competing = saved.categories.filter((c) => !current.has(c.key) && same(c.members, old.members));
+      const competing = saved.categories.filter((c) => !current2.has(c.key) && same(c.members, old.members));
       if (candidates.length === 1 && competing.length === 1) renamed.set(old.key, candidates[0]);
     }
     const categories = saved.categories.map((old) => {
-      const c = current.get(old.key) ?? renamed.get(old.key);
+      const c = current2.get(old.key) ?? renamed.get(old.key);
       return c ? { ...old, key: c.key, label: c.label, members: [...c.members] } : { ...old, members: [...old.members] };
     });
     const retained = new Set(categories.map((c) => c.key));
@@ -2665,15 +3679,23 @@
     categories.push(...added.map((c) => ({ key: c.key, label: c.label, visible: true, collapsed: false, members: [...c.members] })));
     return { version: 1, categories };
   }
-  function changeHomeLayout(layout, key, action, available = layout.categories.map((c) => c.key)) {
+  function changeHomeLayout(layout, key2, action, available = layout.categories.map((c) => c.key)) {
     const categories = layout.categories.map((c) => ({ ...c, members: [...c.members] }));
-    const index = categories.findIndex((c) => c.key === key);
+    const index = categories.findIndex((c) => c.key === key2);
     if (index < 0) return { version: 1, categories };
-    if (action === "VISIBILITY") categories[index].visible = !categories[index].visible;
+    if (typeof action === "object") {
+      const order = categories.filter((c) => available.includes(c.key));
+      const from = order.findIndex((c) => c.key === key2), to = order.findIndex((c) => c.key === action.moveTo);
+      if (from >= 0 && to >= 0 && from !== to) {
+        order.splice(to, 0, order.splice(from, 1)[0]);
+        let cursor = 0;
+        return { version: 1, categories: categories.map((c) => available.includes(c.key) ? order[cursor++] : c) };
+      }
+    } else if (action === "VISIBILITY") categories[index].visible = !categories[index].visible;
     else if (action === "COLLAPSE") categories[index].collapsed = !categories[index].collapsed;
     else {
       const order = categories.filter((c) => available.includes(c.key));
-      const position = order.findIndex((c) => c.key === key), neighbor = order[position + (action === "UP" ? -1 : 1)];
+      const position = order.findIndex((c) => c.key === key2), neighbor = order[position + (action === "UP" ? -1 : 1)];
       if (neighbor) {
         const other = categories.findIndex((c) => c.key === neighbor.key);
         [categories[index], categories[other]] = [categories[other], categories[index]];
@@ -2681,31 +3703,176 @@
     }
     return { version: 1, categories };
   }
-  function displayedHomeCategories(layout, catalog) {
-    const current = new Map(catalog.map((c) => [c.key, c]));
-    return layout.categories.flatMap((c) => c.visible && (current.get(c.key)?.count ?? 0) > 0 ? [{ ...c, count: current.get(c.key).count }] : []);
-  }
 
-  // src/ui/dom.ts
-  function setProperty(node, key, value) {
-    if (node[key] !== value) node[key] = value;
+  // src/ui/home-bookmarks.ts
+  var emptyBookmarks = () => ({ version: 1, groups: [] });
+  function validBookmarkPage(page2) {
+    return !!page2 && typeof page2.id === "string" && /^[a-zA-Z0-9:.-]{1,280}$/.test(page2.id) && typeof page2.label === "string" && page2.label.trim().length > 0 && page2.label.length <= 100 && typeof page2.url === "string" && page2.url.length <= 4096 && page2.url.trim() === page2.url && /^https?:\/\//i.test(page2.url) && normalizeTarget(page2.url) !== null;
   }
-  function setAttribute(node, name, value) {
-    if (node.getAttribute(name) === value) return;
-    if (value === null) node.removeAttribute(name);
-    else node.setAttribute(name, value);
+  function readHomeBookmarks(input2) {
+    if (!input2 || typeof input2 !== "object" || Array.isArray(input2)) return null;
+    const value = input2;
+    if (Object.keys(value).sort().join(",") !== "groups,version" || value.version !== 1 || !Array.isArray(value.groups) || value.groups.length > 2e3) return null;
+    let count = 0;
+    const parents = /* @__PURE__ */ new Set();
+    for (const group of value.groups) {
+      if (!group || Object.keys(group).sort().join(",") !== "pages,parentId" || !validDestinationId(group.parentId) || parents.has(group.parentId) || !Array.isArray(group.pages) || !group.pages.length || group.pages.length > 100) return null;
+      parents.add(group.parentId);
+      count += group.pages.length;
+      if (count > 2e3 || new Set(group.pages.map((p) => p?.id)).size !== group.pages.length) return null;
+      for (const p of group.pages) if (!p || Object.keys(p).sort().join(",") !== "id,label,url" || !validBookmarkPage(p)) return null;
+    }
+    return structuredClone(value);
   }
-  function reconcileChildren(parent, children) {
-    const keep = new Set(children);
-    for (const child of [...parent.children]) if (!keep.has(child)) child.remove();
-    children.forEach((child, index) => {
-      if (parent.children[index] !== child) parent.insertBefore(child, parent.children[index] ?? null);
-    });
+  function defaultBookmarkPages(entry) {
+    return destinationEntryPoints(entry).map((host2, i) => ({ id: `entry:${host2}`, label: i === 0 ? `${entry.label} home` : host2, url: `https://${host2}/` }));
   }
+  function bookmarkPages(value, parentId, entry) {
+    return value?.groups.find((g) => g.parentId === parentId)?.pages ?? defaultBookmarkPages(entry);
+  }
+  function replaceBookmarkPages(value, parentId, pages) {
+    const groups = (value ?? emptyBookmarks()).groups.filter((g) => g.parentId !== parentId);
+    if (pages.length) groups.push({ parentId, pages });
+    return validDestinationId(parentId) ? readHomeBookmarks({ version: 1, groups }) : null;
+  }
+  var same2 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  var BookmarkSession = class {
+    constructor(repository, changed = () => {
+    }) {
+      this.repository = repository;
+      this.changed = changed;
+    }
+    saved = null;
+    parentId = null;
+    draft = [];
+    dirty = false;
+    busy = false;
+    conflict = false;
+    failure = null;
+    reviewed = null;
+    baseRevision = 0;
+    defaults = [];
+    loading = null;
+    refresh() {
+      if (this.loading || this.busy) return this.loading ?? Promise.resolve();
+      this.loading = (async () => {
+        try {
+          const wasConflict = this.conflict;
+          const latest = await this.repository.load();
+          if (this.dirty && latest.revision !== this.baseRevision) {
+            const expected = this.saved && this.parentId ? replaceBookmarkPages(this.saved.value, this.parentId, this.draft) : null;
+            if (expected && same2(expected, latest.value)) {
+              this.dirty = false;
+              this.failure = null;
+              this.conflict = false;
+              this.baseRevision = latest.revision;
+            } else this.conflict = true;
+          }
+          if (!this.dirty && this.parentId && latest.revision !== this.baseRevision) {
+            this.draft = structuredClone(latest.value?.groups.find((g) => g.parentId === this.parentId)?.pages ?? this.defaults);
+            this.baseRevision = latest.revision;
+          }
+          if (!same2(this.saved, latest) || this.failure === "UNAVAILABLE" || this.conflict !== wasConflict) {
+            this.saved = latest;
+            if (this.failure === "UNAVAILABLE") this.failure = null;
+            this.changed();
+          }
+        } catch {
+          if (this.failure !== "UNAVAILABLE") {
+            this.failure = "UNAVAILABLE";
+            this.changed();
+          }
+        }
+      })().finally(() => {
+        this.loading = null;
+      });
+      return this.loading;
+    }
+    async edit(parentId, defaults) {
+      if (this.loading) await this.loading;
+      if (this.busy || this.dirty || !this.saved || this.failure === "UNAVAILABLE") return false;
+      this.parentId = parentId;
+      this.baseRevision = this.saved.revision;
+      this.defaults = structuredClone(defaults);
+      this.draft = structuredClone(this.saved.value?.groups.find((g) => g.parentId === parentId)?.pages ?? defaults);
+      this.conflict = false;
+      this.reviewed = null;
+      this.failure = null;
+      this.changed();
+      return true;
+    }
+    update(pages) {
+      if (this.busy || !this.parentId) return;
+      this.draft = structuredClone(pages);
+      this.dirty = true;
+      this.failure = null;
+      this.changed();
+    }
+    discard() {
+      if (this.busy) return;
+      this.parentId = null;
+      this.draft = [];
+      this.dirty = false;
+      this.conflict = false;
+      this.failure = null;
+      this.reviewed = null;
+      this.changed();
+    }
+    async reviewLatest() {
+      if (this.loading) await this.loading;
+      if (this.busy) return;
+      try {
+        this.reviewed = await this.repository.load();
+        this.changed();
+      } catch {
+        this.failure = "UNAVAILABLE";
+        this.changed();
+      }
+    }
+    async save(useReviewed = false) {
+      if (this.loading) await this.loading;
+      if (this.busy || !this.saved || !this.parentId || !this.dirty || this.conflict && !useReviewed) return false;
+      const baseline = useReviewed ? this.reviewed : this.saved;
+      if (!baseline) return false;
+      const value = replaceBookmarkPages(baseline.value, this.parentId, this.draft);
+      if (!value) {
+        this.failure = "INVALID";
+        this.changed();
+        return false;
+      }
+      this.busy = true;
+      this.changed();
+      try {
+        const result = await this.repository.save(useReviewed ? baseline.revision : this.baseRevision, value);
+        if (result.type === "SAVED") {
+          this.saved = result.envelope;
+          this.baseRevision = result.envelope.revision;
+          this.dirty = false;
+          this.failure = null;
+          this.conflict = false;
+          this.reviewed = null;
+          return true;
+        }
+        if (result.type === "CONFLICT") {
+          this.conflict = true;
+          this.reviewed = null;
+        } else this.failure = result.type;
+      } catch {
+        this.failure = "UNCERTAIN";
+      } finally {
+        this.busy = false;
+        this.changed();
+      }
+      return false;
+    }
+  };
 
   // src/ui/home-layout-storage.ts
   var homeLayoutDatabase = "atlas-home-layout-v1";
   async function openHomeLayoutRepository(factory = indexedDB, name = homeLayoutDatabase) {
+    return openRecord(factory, name, "current", readHomeLayout);
+  }
+  async function openRecord(factory, name, key2, validate) {
     const db = await new Promise((resolve, reject5) => {
       const request = factory.open(name, 1);
       let rejected = false;
@@ -2722,14 +3889,14 @@
     db.onversionchange = () => db.close();
     const decode = (input2) => {
       if (input2 === void 0) return { revision: 0, value: null };
-      const record = input2, value = readHomeLayout(record?.value);
+      const record = input2, value = validate(record?.value);
       if (!value || Object.keys(record).sort().join(",") !== "revision,value" || !Number.isSafeInteger(record.revision) || record.revision < 1) throw new Error("HOME_LAYOUT_INVALID");
       return { revision: record.revision, value };
     };
     return {
       load: () => new Promise((resolve, reject5) => {
         try {
-          const tx = db.transaction("layout", "readonly"), request = tx.objectStore("layout").get("current");
+          const tx = db.transaction("layout", "readonly"), request = tx.objectStore("layout").get(key2);
           let envelope;
           request.onsuccess = () => {
             try {
@@ -2747,29 +3914,29 @@
         }
       }),
       save: (revision, value) => new Promise((resolve) => {
-        const candidate = readHomeLayout(value);
+        const candidate = validate(value);
         if (!candidate || !Number.isSafeInteger(revision) || revision < 0 || revision >= Number.MAX_SAFE_INTEGER) {
           resolve({ type: "FAILED" });
           return;
         }
         try {
-          const tx = db.transaction("layout", "readwrite"), store = tx.objectStore("layout"), request = store.get("current");
+          const tx = db.transaction("layout", "readwrite"), store = tx.objectStore("layout"), request = store.get(key2);
           let result = { type: "FAILED" };
           request.onsuccess = () => {
-            let current;
+            let current2;
             try {
-              current = decode(request.result);
+              current2 = decode(request.result);
             } catch {
               tx.abort();
               return;
             }
-            if (revision !== current.revision) {
-              result = { type: "CONFLICT", envelope: current };
+            if (revision !== current2.revision) {
+              result = { type: "CONFLICT", envelope: current2 };
               return;
             }
             const envelope = { revision: revision + 1, value: candidate };
             try {
-              store.put(envelope, "current");
+              store.put(envelope, key2);
               result = { type: "SAVED", envelope };
             } catch {
               tx.abort();
@@ -2787,8 +3954,1691 @@
     };
   }
 
+  // src/ui/category-icons.ts
+  var categoryIcons = ["category", "folder", "book", "university", "feather", "code", "mail", "network", "home", "sites", "vault", "search", "pin", "brain", "atom", "calculator", "flask", "globe", "cloud", "tools", "music", "camera", "heart", "calendar", "chart", "leaf", "coffee", "game", "film"];
+  var categoryIconNames = { category: "Grid", folder: "Folder", book: "Book", university: "University", feather: "Writing", code: "Code", mail: "Mail", network: "Connections", home: "Home", sites: "Browser", vault: "Archive", search: "Search", pin: "Pin", brain: "Brain", atom: "Atom", calculator: "Calculator", flask: "Science", globe: "World", cloud: "Cloud", tools: "Tools", music: "Music", camera: "Photography", heart: "Health", calendar: "Calendar", chart: "Chart", leaf: "Nature", coffee: "Coffee", game: "Games", film: "Film" };
+  function defaultCategoryIcon(label) {
+    return /research|scholar|learning/i.test(label) ? "book" : /university|institute/i.test(label) ? "university" : /writing/i.test(label) ? "feather" : /development/i.test(label) ? "code" : /mail|communication/i.test(label) ? "mail" : /^ai$/i.test(label) ? "network" : "category";
+  }
+  function readCategoryIcons(input2) {
+    if (!input2 || typeof input2 !== "object") return null;
+    const value = input2, keys = /* @__PURE__ */ new Set();
+    if (Object.keys(value).sort().join(",") !== "entries,version" || value.version !== 1 || !Array.isArray(value.entries) || value.entries.length > 4096) return null;
+    for (const entry of value.entries) {
+      if (!entry || Object.keys(entry).sort().join(",") !== "icon,key" || typeof entry.key !== "string" || !entry.key || entry.key.length > 64 || categoryKey(entry.key) !== entry.key || keys.has(entry.key) || !categoryIcons.includes(entry.icon)) return null;
+      keys.add(entry.key);
+    }
+    return structuredClone(value);
+  }
+  var openCategoryIconRepository = (factory = indexedDB, name = homeLayoutDatabase) => openRecord(factory, name, "category-icons-v1", readCategoryIcons);
+  var same3 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  var CategoryIconSession = class {
+    constructor(repository, changed) {
+      this.repository = repository;
+      this.changed = changed;
+    }
+    saved = null;
+    draft = null;
+    busy = false;
+    conflict = false;
+    failure = null;
+    loading = null;
+    icon(key2, label) {
+      return this.saved?.value?.entries.find((e) => e.key === key2)?.icon ?? defaultCategoryIcon(label);
+    }
+    refresh() {
+      if (this.loading || this.busy) return this.loading ?? Promise.resolve();
+      this.loading = (async () => {
+        try {
+          const latest = await this.repository.load(), before = JSON.stringify([this.saved, this.draft, this.conflict, this.failure]);
+          if (this.draft && latest.revision !== this.saved?.revision) {
+            if (same3(latest.value, this.draft)) {
+              this.draft = null;
+              this.conflict = false;
+              this.failure = null;
+            } else this.conflict = true;
+          }
+          if (!this.draft) this.saved = latest;
+          if (this.failure === "UNAVAILABLE") this.failure = null;
+          if (before !== JSON.stringify([this.saved, this.draft, this.conflict, this.failure])) this.changed();
+        } catch {
+          if (this.failure !== "UNAVAILABLE") {
+            this.failure = "UNAVAILABLE";
+            this.changed();
+          }
+        }
+      })().finally(() => {
+        this.loading = null;
+      });
+      return this.loading;
+    }
+    async change(key2, icon2) {
+      if (this.loading) await this.loading;
+      if (!this.saved || this.busy || this.conflict || this.failure === "UNAVAILABLE") return false;
+      const entries2 = [...(this.draft ?? this.saved.value)?.entries ?? []].filter((e) => e.key !== key2);
+      if (icon2 !== "") entries2.push({ key: key2, icon: icon2 });
+      const draft = readCategoryIcons({ version: 1, entries: entries2 });
+      if (!draft) return false;
+      this.draft = draft;
+      return this.persist();
+    }
+    async persist() {
+      if (!this.saved || !this.draft || this.busy || this.conflict) return false;
+      this.busy = true;
+      this.changed();
+      try {
+        const result = await this.repository.save(this.saved.revision, this.draft);
+        if (result.type === "SAVED") {
+          this.saved = result.envelope;
+          this.draft = null;
+          this.failure = null;
+          return true;
+        }
+        if (result.type === "CONFLICT") this.conflict = true;
+        else this.failure = result.type;
+      } catch {
+        this.failure = "UNCERTAIN";
+      } finally {
+        this.busy = false;
+        this.changed();
+      }
+      return false;
+    }
+    async retry() {
+      await this.refresh();
+      if (this.failure === "UNAVAILABLE" || this.conflict) return false;
+      return this.draft ? this.persist() : !this.failure;
+    }
+    async useSaved() {
+      if (this.loading) await this.loading;
+      if (this.busy) return;
+      this.busy = true;
+      this.changed();
+      try {
+        this.saved = await this.repository.load();
+        this.draft = null;
+        this.failure = null;
+        this.conflict = false;
+      } catch {
+        this.failure = "UNAVAILABLE";
+      } finally {
+        this.busy = false;
+        this.changed();
+      }
+    }
+  };
+
+  // src/ui/home-shortcuts.ts
+  function initializeHomeShortcuts(primary, select, reorder = () => {
+  }, controls = "sites-list") {
+    const buttons = /* @__PURE__ */ new Map();
+    let keys = [], suppressClick = false, movable = false;
+    let ghost = null;
+    let settling = false;
+    let latest = [[], null, true];
+    let drag = null;
+    function clearDrag(reset = true) {
+      if (!drag) return;
+      const previous = drag;
+      drag = null;
+      if (previous?.source.hasPointerCapture?.(previous.id)) previous.source.releasePointerCapture(previous.id);
+      ghost?.remove();
+      ghost = null;
+      for (const button of buttons.values()) {
+        setAttribute(button, "data-dragging", null);
+        if (reset) button.style.removeProperty("transform");
+      }
+    }
+    primary.addEventListener("pointermove", (event) => {
+      if (!drag || event.pointerId !== drag.id || !movable) return;
+      if (!drag.active && Math.hypot(event.clientX - drag.x, event.clientY - drag.y) < 6) return;
+      if (!drag.active) {
+        drag.active = true;
+        suppressClick = true;
+        drag.source.setPointerCapture(event.pointerId);
+        const rect = drag.source.getBoundingClientRect();
+        drag.dx = drag.x - rect.left;
+        drag.dy = drag.y - rect.top;
+        ghost = drag.source.cloneNode(true);
+        ghost.classList.add("category-drag-ghost");
+        ghost.removeAttribute("id");
+        ghost.setAttribute("aria-hidden", "true");
+        ghost.setAttribute("tabindex", "-1");
+        ghost.style.width = `${rect.width}px`;
+        ghost.style.height = `${rect.height}px`;
+        document.body.append(ghost);
+        setAttribute(drag.source, "data-dragging", "true");
+      }
+      event.preventDefault();
+      ghost.style.left = `${event.clientX - drag.dx}px`;
+      ghost.style.top = `${event.clientY - drag.dy}px`;
+      const bounds = primary.getBoundingClientRect();
+      if (event.clientY < bounds.top + 28) primary.scrollTop -= 12;
+      else if (event.clientY > bounds.bottom - 28) primary.scrollTop += 12;
+      const slots = keys.map((key2) => {
+        const b = buttons.get(key2);
+        return { key: key2, x: b.offsetLeft, y: b.offsetTop, w: b.offsetWidth, h: b.offsetHeight };
+      });
+      const origin = primary.getBoundingClientRect();
+      const x = event.clientX - origin.left + primary.scrollLeft, y = event.clientY - origin.top + primary.scrollTop;
+      const inside = event.clientX >= bounds.left && event.clientX <= bounds.right && event.clientY >= bounds.top && event.clientY <= bounds.bottom;
+      const closest = inside ? [...slots].sort((a, b) => Math.hypot(x - a.x - a.w / 2, y - a.y - a.h / 2) - Math.hypot(x - b.x - b.w / 2, y - b.y - b.h / 2))[0] : null;
+      drag.target = closest?.key ?? null;
+      const order = [...keys];
+      const from = order.indexOf(drag.key), to = closest ? order.indexOf(closest.key) : from;
+      order.splice(from, 1);
+      order.splice(to, 0, drag.key);
+      for (const [index, key2] of order.entries()) {
+        const old = slots.find((s) => s.key === key2), next = slots[index];
+        buttons.get(key2).style.transform = `translate(${next.x - old.x}px, ${next.y - old.y}px)`;
+      }
+    });
+    primary.addEventListener("pointerup", (event) => {
+      if (!drag || event.pointerId !== drag.id) return;
+      const { key: key2, target, active } = drag;
+      if (!active || !target || target === key2 || !movable) {
+        clearDrag();
+        return;
+      }
+      settling = true;
+      clearDrag(false);
+      void Promise.resolve(reorder(key2, target)).finally(() => {
+        settling = false;
+        for (const button of buttons.values()) {
+          button.style.transition = "none";
+          button.style.removeProperty("transform");
+        }
+        render2(...latest);
+        void primary.offsetWidth;
+        for (const button of buttons.values()) button.style.removeProperty("transition");
+      });
+    });
+    primary.addEventListener("pointercancel", () => clearDrag());
+    primary.addEventListener("lostpointercapture", () => clearDrag());
+    primary.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") clearDrag();
+    });
+    if (typeof window !== "undefined") {
+      window.addEventListener("pagehide", () => clearDrag());
+      window.addEventListener("blur", () => clearDrag());
+      window.addEventListener("pointerup", () => clearDrag());
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) clearDrag();
+      });
+    }
+    function render2(groups, selected2 = null, canMove = true) {
+      latest = [groups, selected2, canMove];
+      if (settling) return;
+      const nextKeys = groups.map((g) => g.dataset.categoryKey);
+      if (drag && (keys.length !== nextKeys.length || keys.some((key2, i) => key2 !== nextKeys[i]))) clearDrag();
+      keys = nextKeys;
+      movable = canMove;
+      if (drag && (!keys.includes(drag.key) || !movable)) clearDrag();
+      const focused = document.activeElement;
+      const nodes = groups.map((group) => {
+        const key2 = group.dataset.categoryKey, label = group.dataset.category;
+        let button = buttons.get(key2);
+        if (!button) {
+          button = document.createElement("button");
+          button.type = "button";
+          button.className = "category-shortcut";
+          button.dataset.categoryKey = key2;
+          button.append(icon("category"), document.createElement("span"));
+          button.addEventListener("pointerdown", (event) => {
+            suppressClick = false;
+            if (settling || !movable || event.button !== 0 || !event.isPrimary) return;
+            clearDrag();
+            drag = { key: key2, source: button, id: event.pointerId, x: event.clientX, y: event.clientY, active: false, target: null, dx: 0, dy: 0 };
+          });
+          button.addEventListener("click", () => {
+            if (suppressClick) {
+              suppressClick = false;
+              return;
+            }
+            select(key2);
+          });
+          button.addEventListener("dragstart", (event) => event.preventDefault());
+          button.addEventListener("keydown", (event) => {
+            suppressClick = false;
+            if (settling || !movable || !event.altKey || !["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) return;
+            event.preventDefault();
+            const offset = event.key === "ArrowUp" || event.key === "ArrowLeft" ? -1 : 1;
+            const target = keys[keys.indexOf(key2) + offset];
+            if (target) reorder(key2, target);
+          });
+          buttons.set(key2, button);
+        }
+        setAttribute(button.querySelector("use"), "href", `#icon-${group.dataset.icon ?? defaultCategoryIcon(label)}`);
+        setProperty(button.querySelector("span"), "textContent", label);
+        if (group.dataset.count !== void 0) {
+          let count = button.querySelector(".category-count");
+          if (!count) {
+            count = document.createElement("small");
+            count.className = "category-count";
+            button.append(count);
+          }
+          setProperty(count, "textContent", `${group.dataset.count} ${group.dataset.count === "1" ? "site" : "sites"}`);
+        }
+        setAttribute(button, "data-reorderable", String(movable));
+        setProperty(button, "title", `${label} \xB7 Drag to reorder, or use Alt + arrow keys`);
+        setAttribute(button, "aria-keyshortcuts", "Alt+ArrowUp Alt+ArrowDown Alt+ArrowLeft Alt+ArrowRight");
+        setAttribute(button, "aria-label", `${key2 === selected2 ? "Close" : "Explore"} ${label} category`);
+        setAttribute(button, "aria-expanded", String(key2 === selected2));
+        setAttribute(button, "aria-controls", controls);
+        setAttribute(button, "aria-pressed", String(key2 === selected2));
+        return button;
+      });
+      if (!drag?.active) reconcileChildren(primary, nodes);
+      if (focused?.isConnected && nodes.includes(focused) && document.activeElement === document.body) focused.focus({ preventScroll: true });
+      for (const [key2] of buttons) if (!keys.includes(key2)) buttons.delete(key2);
+    }
+    return render2;
+  }
+
+  // src/ui/ui-text.ts
+  var uiText = {
+    appearance: "Appearance",
+    defaultTheme: "Default",
+    lightTestTheme: "Light (test)",
+    celestialTheme: "Celestial",
+    parchmentTheme: "Parchment",
+    retryThemeSave: "Retry appearance save",
+    "categoryOrder": "Category order",
+    "alphabetical": "Alphabetical",
+    "mostUsed": "Most used",
+    "customOrder": "Custom order",
+    "loadSavedOrder": "Load saved order",
+    "folderManagedInFirefox": "Manage these pages in Firefox bookmarks.",
+    "chooseFolderIcon": "Choose folder icon",
+    "moreBookmarks": "More bookmarks",
+    "atlasYourSites": "Atlas \u2014 Your sites",
+    "skipToContent": "Skip to content",
+    "atlas": "Atlas",
+    "home": "Home",
+    "allSites": "All sites",
+    "settings": "Settings",
+    "yourInternetWithIntention": "YOUR INTERNET, WITH INTENTION",
+    "aPlaceForTheThingsYou": "A place for the things you choose.",
+    "welcomeToAtlas": "WELCOME TO ATLAS",
+    "chooseYourFirstSites": "Choose your first sites",
+    "startWithTheseCuratedSitesYou": "Start with these curated sites. You can add exact hostnames before saving your initial policy.",
+    "includeTheCuratedAtlasAllowedSites": "Include the curated Atlas Allowed sites",
+    "additionalHostnamesAndManualBlockedSites": "Additional hostnames and manual Blocked sites",
+    "additionalAllowedHostnames": "Additional allowed hostnames",
+    "blockedSites": "Blocked sites",
+    "saveMyInitialPolicy": "Save my initial policy",
+    "thisSetupIsAvailableOnceLater": "This setup is available once. Later additions use Vault; Allowed sites removals apply after review without waiting.",
+    "loadingVerifiedSites": "Loading verified sites.",
+    "retryLoading": "Retry loading",
+    "policyRecovery": "Policy & recovery",
+    "homeTitle": "Choose your direction.",
+    "homeSubtitle": "A quiet way through the web.",
+    "searchYourSites": "Search your sites",
+    "exploreByCategory": "Explore by category",
+    "noMatchingSitesTryAnotherName": "No matching sites. Try another name or hostname.",
+    "categories": "\u2190 Categories",
+    "pinned": "Pinned",
+    "firefoxBookmarks": "Firefox bookmarks",
+    "morePinnedSites": "More pinned sites",
+    "pinSitesFromACategoryOr": "Pin sites from a category or All sites to keep them close.",
+    "pinnedPagesCannotBeVerifiedOther": "Pinned pages cannot be verified. Other sites and policy are unchanged.",
+    "retryLoadingPins": "Retry loading pins",
+    "greylist": "Greylist",
+    "journeys": "Journeys",
+    "noTemporaryAccessIsActive": "No requests or temporary access.",
+    "currentAccessCannotBeVerifiedRight": "Current access cannot be verified right now.",
+    "reviewBookmarkSync": "Review bookmark sync",
+    "yourCategoriesAreHiddenChooseWhich": "Your categories are hidden. Choose which to show in Settings \u2192 Home & categories.",
+    "yourVerifiedSiteListIsEmpty": "Your verified site list is empty. Add sites through Sites & Access and Vault.",
+    "currentDestination": "CURRENT DESTINATION",
+    "noTabSelected": "No tab selected",
+    "yourNextSite": "Your next site",
+    "chooseATab": "Choose a tab",
+    "journeyEnded": "Journey ended",
+    "restartJourney": "Restart journey",
+    "requestTemporaryAccess": "Request temporary access",
+    "confirmAndOpen": "Confirm and open",
+    "openSiteHome": "Open site home",
+    "retrySiteHome": "Try site home again",
+    "endTemporaryAccess": "End access",
+    "cancelRequest": "Cancel request",
+    "startJourneyInThisTab": "Start Journey in this tab",
+    "openingStartsAtTheSiteHome": "Opening starts at the site home. Return to your task from there.",
+    "journey": "Journey",
+    "none": "None",
+    "noJourneyInThisTab": "No Journey in this tab.",
+    "endJourney": "End Journey",
+    "browsingTab": "Browsing tab",
+    "noWebsitesYet": "No websites yet",
+    "decisionDetails": "Decision details",
+    "aFrozenProposalIsWaitingIn": "A frozen proposal is waiting in Vault. Editable drafts and submitted batches remain separate; a new policy batch cannot replace it.",
+    "reviewExistingProposal": "Review existing proposal",
+    "retryDisplaySave": "Retry display save",
+    "retryLocalDraftSave": "Retry local draft save",
+    "discardDamagedLocalDraftData": "Discard damaged local draft data",
+    "loadNewerSharedDraft": "Load newer shared draft",
+    "technicalDetails": "Technical details",
+    "sitesTitle": "Your sites",
+    "sitesSubtitle": "Find a place. Decide how it belongs.",
+    "searchCommittedSites": "Search committed sites",
+    "filterAccess": "Filter access",
+    "allAccess": "All access",
+    "allowed": "Allowed",
+    "blocked": "Blocked",
+    "mixedRules": "Mixed rules",
+    "addSite": "Add site",
+    "noMatchingSites": "No matching sites.",
+    "backToSites": "\u2190 Back to sites",
+    "aPlaceForEverySite": "A place for every site.",
+    "selectASiteToInspectIts": "Select a site to inspect its current access or prepare changes.",
+    "currentSite": "CURRENT SITE",
+    "theseSavedRulesAreActiveReview": "These saved rules are active. Review staged edits before applying: additions wait in Vault; Removing allowed sites have no cooldown.",
+    "editSite": "Edit site",
+    "stageRemoval": "Stage removal",
+    "draftEdit": "DRAFT EDIT",
+    "addASite": "Add a site",
+    "closeEditor": "Close editor",
+    "yourActiveAccessRulesHaveNot": "Your active access rules have not changed.",
+    "display": "Display",
+    "name": "Name",
+    "category": "Category",
+    "chooseAnExistingCategoryOrEnter": "Choose an existing category or enter a new one.",
+    "pinOnHomeWhenApplied": "Pin on Home when applied",
+    "access": "Access",
+    "keepCurrentAccessRules": "Keep current access rules",
+    "allowedSites": "Allowed sites",
+    "primaryHostname": "Primary hostname",
+    "includeCommonWwwCounterpart": "Include common www counterpart",
+    "alsoAllowAllSubdomainsOfThis": "Also allow all subdomains of this hostname",
+    "otherExplicitHostnames": "Other explicit hostnames",
+    "additionalHostsSeparatedByCommas": "Additional hosts, separated by commas",
+    "theseAreExactRulesTheSeparate": "These are exact rules. The separate subdomain option applies only to the primary hostname; wildcard strings are unsupported.",
+    "addingAccessWaitsInVaultAllowed": "Adding access waits in Vault. Allowed sites removals apply after review without waiting; display-only edits save directly.",
+    "addToDraft": "Add to draft",
+    "saveDisplayDetails": "Save display details",
+    "yourDraft": "Your draft",
+    "loadingSavedDraft": "Loading saved draft\u2026",
+    "loading": "Loading",
+    "reviewChanges": "Review changes",
+    "reviewStaleDraft": "Review stale draft",
+    "reviewYourChanges": "Review your changes",
+    "theseEditsArePreparedYourActive": "These edits are prepared. Your active access rules have not changed.",
+    "submitToVault": "Submit to Vault",
+    "continueEditing": "Continue editing",
+    "discardDraft": "Discard draft",
+    "returnToEditor": "Return to editor",
+    "reconciliationPreview": "Reconciliation preview",
+    "currentCommittedValuesYourProposedResult": "Current committed values \u2192 your proposed result. Accepting retains these proposed changes against the current baseline; it does not apply them.",
+    "acceptReviewedResultAgainstCurrentState": "Accept reviewed result against current state",
+    "submittedBatchAndOutcome": "Previous changes",
+    "completeSiteOutcome": "Complete site outcome",
+    "checkSavedSubmissionOutcome": "Check saved submission outcome",
+    "restoreAsEditableDraft": "Restore as editable draft",
+    "keepCurrentDisplayDetails": "Keep current display details",
+    "settingsSubtitle": "Make the rules clear, then give them time.",
+    "timingFriction": "Timing & friction",
+    "homeCategories": "Pins & category icons",
+    "vault": "Vault",
+    "managedBlocking": "Managed blocking",
+    "diagnostics": "Diagnostics",
+    "aFrozenChangeIsWaitingIn": "A frozen change is waiting in Vault.",
+    "reviewProposal": "Review proposal",
+    "text": "\u2192",
+    "protected": "Protected",
+    "changesWaitUnderYourCurrentVault": "Changes wait under your current Vault protection and need confirmation. Existing waits, grants and Journeys keep their original terms.",
+    "temporaryAccess": "Temporary access",
+    "waitingPeriod": "Waiting period",
+    "seconds": "seconds",
+    "confirmationWindow": "Confirmation window",
+    "accessDuration": "Access duration",
+    "vaultProtection": "Vault protection",
+    "journeyBounds": "Journey bounds",
+    "lifetime": "Lifetime",
+    "maximumHops": "Maximum hops",
+    "reviewTimingChange": "Review timing change",
+    "connectYourToolbarBookmarksAndAtlas": "Firefox toolbar bookmarks and folders appear on your compass. Folder contents stay managed in Firefox.",
+    "connectFirefoxBookmarks": "Connect Firefox bookmarks",
+    "advancedPinEditing": "Advanced pin editing",
+    "manageIndividualShortcutPagesHere": "Manage individual shortcut pages here.",
+    "editAtlasShortcuts": "Edit Atlas shortcuts",
+    "categories2": "Categories",
+    "noCategoriesAreAvailableYet": "No categories are available yet.",
+    "retryCategoryOrder": "Retry category order",
+    "loadSavedLayout": "Load saved layout",
+    "retryCategoryIcons": "Retry category icons",
+    "loadSavedIcons": "Load saved icons",
+    "stevenblack": "StevenBlack",
+    "loadingTheBundledBlockingList": "Loading the bundled blocking list\u2026",
+    "sourceAndUpdateDetails": "Source and update details",
+    "temporaryAccessAndJourneyCannotOverride": "Temporary access and Journey cannot override this list. An exact allowed-site entry overrides a managed entry. Additional subdomains remain subject to managed blocking; your own blocked-site rules always win.",
+    "noPolicyLoaded": "No policy loaded.",
+    "reloadKeepsYourSavedPolicyRecovery": "Reload keeps your saved policy. Recovery retries failed startup or verifies saved state. It does not confirm a change or reset your policy.",
+    "reloadAndReconcileState": "Reload and reconcile state",
+    "bundledSiteCollection": "Bundled site collection",
+    "curatedUpdatesRetainYourSavedSites": "Curated updates retain your saved sites and manual Blocked sites.",
+    "addCuratedSites": "Add curated sites",
+    "navigationDiagnostics": "Navigation diagnostics",
+    "localLast200Events": "Local \xB7 last 200 events",
+    "navigationHostnamesClearOnRestartSanitized": "Navigation hostnames clear on restart. Sanitized runtime faults from the latest incident remain available after restart. Exports include visited hostnames; review them before sharing.",
+    "scope": "Scope",
+    "selectedTab": "Selected tab",
+    "allTabs": "All tabs",
+    "exportJson": "Export JSON",
+    "clearLog": "Clear log",
+    "recentNavigationEvents": "Recent navigation events",
+    "sequence": "Sequence",
+    "event": "Event",
+    "tabNavigation": "Tab / navigation",
+    "hostname": "Hostname",
+    "coreResult": "Core result",
+    "noEventsInThisView": "No events in this view.",
+    "vaultSubtitle": "A moment to consider.",
+    "yourProposedChanges": "Your proposed changes",
+    "timingChanges": "Timing changes",
+    "setting": "Setting",
+    "active": "Active",
+    "proposed": "Proposed",
+    "namesCategoriesPinsAndExactScope": "Names, categories, pins and exact scope accompany this frozen proposal. Display details apply only after its matching commit.",
+    "whatHappensNext": "What happens next",
+    "fullProposalDetails": "Full proposal details",
+    "confirmChange": "Confirm change",
+    "backToSites2": "Back to sites",
+    "cancelProposal": "Cancel proposal",
+    "thisProposalIsFrozenToChange": "This proposal is frozen. To change it, cancel and prepare a new draft. Cancelling keeps your current rules.",
+    "serviceEntryPoints": "Service entry points",
+    "editPages": "Edit pages",
+    "editPinsAndPages": "Edit pins and pages",
+    "site": "Site",
+    "pinSite": "Pin site",
+    "pinChangesSaveSeparately": "Pin changes save separately.",
+    "shortcutName": "Shortcut name",
+    "saveShortcutName": "Save shortcut name",
+    "movePinEarlier": "Move pin earlier",
+    "movePinLater": "Move pin later",
+    "openNormalServiceEntryPoints": "Open normal service entry points",
+    "noSavedPagesSavingRestoresThis": "No saved pages. Saving restores this site's normal entry points.",
+    "addPage": "Add page",
+    "reviewNewerSavedVersion": "Review newer saved version",
+    "newerSavedPages": "Newer saved pages",
+    "yourEditablePagesAboveWillReplace": "Your editable pages above will replace this site's reviewed list. Other sites are preserved.",
+    "saveMyPagesOverThisReviewed": "Save my pages over this reviewed version",
+    "savePages": "Save pages",
+    "cancel": "Cancel",
+    "close": "Close",
+    "connectAFirefoxBookmarkFolderTo": "Firefox toolbar bookmarks and Atlas pins stay in sync. Folder contents are managed in Firefox.",
+    "onlyTheFolderYouChooseIs": "Bookmarks never change site access rules.",
+    "onlyBookmarksDirectlyOnTheToolbar": "Unpinning a site deletes its synchronized toolbar bookmarks. Folders are displayed without changing their contents.",
+    "chooseTheCopyToKeep": "Choose the copy to keep",
+    "bothCopiesAreShownBelowChoosing": "Both copies are shown below. Choosing one replaces the connected copy with these values; access rules are unchanged.",
+    "keepTheseAtlasShortcuts": "Keep these Atlas shortcuts",
+    "firefox": "Firefox",
+    "keepTheseFirefoxBookmarks": "Keep these Firefox bookmarks",
+    "compareConflictingChanges": "Compare conflicting changes",
+    "retrySync": "Retry sync",
+    "disconnectKeepingBothCopies": "Disconnect, keeping both copies",
+    "placeholder224": "Your institution's Canvas hostname",
+    "placeholder225": "Sites to block",
+    "placeholder226": "Search your sites\u2026",
+    "placeholder227": "Search names, categories or hosts\u2026",
+    "placeholder228": "example.com",
+    "placeholder229": "another.exact-host.com"
+  };
+
+  // src/ui/category-icon-picker.ts
+  function categoryIconPicker(choose, label = "Category icon") {
+    const panel = document.createElement("div");
+    panel.popover = "auto";
+    panel.className = "category-icon-picker";
+    panel.setAttribute("role", "dialog");
+    panel.setAttribute("aria-label", label);
+    let trigger = null, key2 = "";
+    function close(restore = false) {
+      if (panel.matches(":popover-open")) panel.hidePopover();
+      if (restore && trigger?.isConnected) trigger.focus({ preventScroll: true });
+    }
+    for (const value of ["", ...categoryIcons]) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "icon-option";
+      button.dataset.icon = value;
+      const name = value ? categoryIconNames[value] : "Automatic";
+      button.title = name;
+      button.setAttribute("aria-label", name);
+      button.append(icon(value || "category"));
+      if (!value) {
+        const label2 = document.createElement("span");
+        label2.textContent = name;
+        button.append(label2);
+      }
+      button.addEventListener("click", () => {
+        const selected2 = key2;
+        close(true);
+        choose(selected2, value);
+      });
+      panel.append(button);
+    }
+    panel.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close(true);
+      }
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) {
+        e.preventDefault();
+        const buttons = [...panel.querySelectorAll("button")], at = buttons.indexOf(document.activeElement);
+        const next = e.key === "Home" ? 0 : e.key === "End" ? buttons.length - 1 : (at + ({ ArrowLeft: -1, ArrowRight: 1, ArrowUp: -4, ArrowDown: 4 }[e.key] ?? 0) + buttons.length) % buttons.length;
+        buttons[next]?.focus();
+      }
+    });
+    document.body.append(panel);
+    return (button, category, current2) => {
+      if (trigger === button && panel.matches(":popover-open")) {
+        close(true);
+        return;
+      }
+      close();
+      trigger = button;
+      key2 = category;
+      for (const item of panel.querySelectorAll("button")) item.setAttribute("aria-pressed", String(item.dataset.icon === current2));
+      panel.showPopover({ source: button });
+      const r = button.getBoundingClientRect(), box = panel.getBoundingClientRect();
+      panel.style.left = `${Math.max(12, Math.min(innerWidth - box.width - 12, r.left))}px`;
+      panel.style.top = `${Math.max(12, Math.min(innerHeight - box.height - 12, r.bottom + 8))}px`;
+      panel.querySelector('[aria-pressed="true"]')?.focus();
+    };
+  }
+
+  // src/ui/bookmark-editor.ts
+  var el2 = (id) => document.getElementById(id);
+  function initializeBookmarkEditor(session, togglePin2, open) {
+    const dialog = el2("bookmark-editor"), parent = el2("bookmark-parent");
+    const rows = /* @__PURE__ */ new Map();
+    let entries2 = [], pins2 = [], pinEnabled = false;
+    let optionsKey = "", trigger = null;
+    let labelParent = null, labelBefore = null, labelBusy = false, labelDirty = false;
+    const entry = () => entries2.find((e) => destinationId(e) === session.parentId);
+    const change = (pages) => session.update(pages);
+    function close(discard) {
+      if (session.busy || labelBusy || !discard && labelDirty) return;
+      if (discard) {
+        session.discard();
+        labelDirty = false;
+        labelParent = null;
+      }
+      dialog.close();
+      setProperty(dialog, "hidden", true);
+      if (trigger?.isConnected && !trigger.closest("[hidden]")) trigger.focus({ preventScroll: true });
+    }
+    function cancel() {
+      if (!session.dirty && !labelDirty || window.confirm("Discard your unsaved edits? Saved bookmarks and access rules stay unchanged.")) close(true);
+    }
+    async function select(id) {
+      if (labelBusy || session.busy) return;
+      if ((session.dirty || labelDirty) && !window.confirm("Discard these unsaved edits and switch sites?")) {
+        parent.value = session.parentId ?? "";
+        return;
+      }
+      session.discard();
+      labelDirty = false;
+      labelParent = null;
+      const e = entries2.find((e2) => destinationId(e2) === id);
+      await session.edit(id, e ? defaultBookmarkPages(e) : []);
+      render2();
+    }
+    function render2() {
+      if (!dialog.open) return;
+      const savedLabel = session.parentId ? presentationView()?.sync.labels[session.parentId] ?? null : null;
+      if (labelParent !== session.parentId || !labelBusy && !labelDirty && labelBefore !== savedLabel) {
+        labelDirty = false;
+        labelParent = session.parentId;
+        labelBefore = savedLabel;
+        el2("bookmark-label").value = labelBefore ?? entry()?.label ?? "";
+        el2("bookmark-label-status").textContent = "";
+      }
+      setProperty(el2("save-bookmark-label"), "disabled", labelBusy || !entry());
+      for (const direction of ["up", "down"]) setProperty(el2(`pin-${direction}`), "disabled", labelBusy || !pins2.includes(session.parentId ?? "") || pins2.indexOf(session.parentId) === (direction === "up" ? 0 : pins2.length - 1));
+      const choices = [
+        ...entries2.map((e) => ({ id: destinationId(e), label: e.label })),
+        ...(session.saved?.value?.groups ?? []).filter((g) => !entries2.some((e) => destinationId(e) === g.parentId)).map((g) => ({ id: g.parentId, label: `${g.parentId.replace(/^(host|service):/, "")} \xB7 unavailable` }))
+      ];
+      const key2 = JSON.stringify(choices);
+      if (key2 !== optionsKey) {
+        optionsKey = key2;
+        reconcileChildren(parent, choices.map((c) => new Option(c.label, c.id)));
+      }
+      setProperty(parent, "value", session.parentId ?? "");
+      setProperty(parent, "disabled", session.busy || labelBusy);
+      const nodes = session.draft.map((page2, index) => {
+        let row = rows.get(page2.id);
+        if (!row) {
+          row = document.createElement("li");
+          row.className = "bookmark-edit-row";
+          row.dataset.pageId = page2.id;
+          const nameLabel = document.createElement("label");
+          nameLabel.textContent = "Name";
+          const name = document.createElement("input");
+          name.maxLength = 100;
+          name.autocomplete = "off";
+          name.dataset.field = "label";
+          nameLabel.append(name);
+          const urlLabel = document.createElement("label");
+          urlLabel.textContent = "Page URL";
+          const url = document.createElement("input");
+          url.type = "url";
+          url.maxLength = 4096;
+          url.autocomplete = "off";
+          url.spellcheck = false;
+          url.dataset.field = "url";
+          urlLabel.append(url);
+          for (const [field, input2] of [["label", name], ["url", url]]) input2.addEventListener("input", () => {
+            change(session.draft.map((p) => p.id === page2.id ? { ...p, [field]: input2.value } : p));
+          });
+          const actions = document.createElement("div");
+          actions.className = "bookmark-row-actions";
+          for (const [action, label] of [["up", "Move up"], ["down", "Move down"], ["remove", "Remove"]]) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "text-button";
+            button.dataset.action = action;
+            button.textContent = label;
+            button.addEventListener("click", () => {
+              const list = [...session.draft], i = list.findIndex((p) => p.id === page2.id);
+              if (i < 0) return;
+              if (action === "remove") list.splice(i, 1);
+              else {
+                const other = i + (action === "up" ? -1 : 1);
+                if (other < 0 || other >= list.length) return;
+                [list[i], list[other]] = [list[other], list[i]];
+              }
+              change(list);
+              if (action === "remove") (el2("bookmark-pages").querySelector("input") ?? el2("add-bookmark-page")).focus();
+              else button.focus({ preventScroll: true });
+            });
+            actions.append(button);
+          }
+          row.append(nameLabel, urlLabel, actions);
+          rows.set(page2.id, row);
+        }
+        setProperty(row.querySelector('[data-field="label"]'), "value", page2.label);
+        setProperty(row.querySelector('[data-field="url"]'), "value", page2.url);
+        for (const input2 of row.querySelectorAll("input")) setProperty(input2, "disabled", session.busy);
+        for (const button of row.querySelectorAll("button")) {
+          setProperty(button, "disabled", session.busy || button.dataset.action === "up" && index === 0 || button.dataset.action === "down" && index === session.draft.length - 1);
+          setAttribute(button, "aria-label", `${button.textContent} ${page2.label || "page"}`);
+        }
+        return row;
+      });
+      const focused = document.activeElement;
+      reconcileChildren(el2("bookmark-pages"), nodes);
+      if (focused?.isConnected && document.activeElement === document.body) focused.focus({ preventScroll: true });
+      for (const [id] of rows) if (!session.draft.some((p) => p.id === id)) rows.delete(id);
+      setProperty(el2("bookmark-parent-note"), "textContent", !entry() ? "This site is unavailable. Its saved pages are retained, but no active pin is shown. Remove all pages and save to clear them." : "Pages belong to this site only. Saving pages does not change access rules or pin order.");
+      setProperty(el2("bookmark-empty"), "hidden", session.draft.length > 0);
+      const message = session.busy ? "Saving pages\u2026" : session.conflict ? "Another Atlas page saved newer bookmarks. Your edits are retained. Review the saved version before overwriting it." : session.failure === "INVALID" ? "Give every page a name and a supported full HTTP(S) URL without embedded credentials. Maximum 100 pages per site." : session.failure ? "Pages are not verified as saved. Your edits remain here; retry before closing this page." : session.dirty ? "Unsaved page edits. Home still uses saved bookmarks." : "Saved pages. Browsing permission is unchanged.";
+      setProperty(el2("bookmark-status"), "textContent", message);
+      setProperty(el2("save-bookmarks"), "disabled", session.busy || !session.dirty || session.conflict || !session.saved);
+      setProperty(el2("save-bookmarks"), "textContent", session.failure && session.failure !== "INVALID" ? "Retry save" : "Save pages");
+      setProperty(el2("add-bookmark-page"), "disabled", session.busy || !entry() || session.draft.length >= 100);
+      setProperty(el2("cancel-bookmarks"), "disabled", session.busy);
+      setProperty(el2("review-bookmark-conflict"), "hidden", !session.conflict);
+      setProperty(el2("review-bookmark-conflict"), "disabled", session.busy);
+      const review = session.reviewed?.value?.groups.find((g) => g.parentId === session.parentId)?.pages ?? [];
+      const reviewText = session.reviewed ? review.length ? review.map((p) => `${p.label}
+${p.url}`).join("\n\n") : "No page override is saved for this site." : "";
+      setProperty(el2("bookmark-latest"), "textContent", reviewText);
+      setProperty(el2("bookmark-conflict-review"), "hidden", !session.reviewed);
+      setProperty(el2("save-reviewed-bookmarks"), "disabled", session.busy || !session.reviewed);
+      setProperty(el2("pin-bookmark-parent"), "disabled", !entry() || !pinEnabled || session.busy);
+      setProperty(el2("pin-bookmark-parent"), "textContent", pins2.includes(session.parentId ?? "") ? "Unpin site" : "Pin site");
+      const service = el2("bookmark-service-pages"), defaults = entry() ? defaultBookmarkPages(entry()) : [];
+      const serviceKey = JSON.stringify(defaults);
+      if (service.dataset.key !== serviceKey) {
+        service.dataset.key = serviceKey;
+        reconcileChildren(service, defaults.map((p) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "text-button";
+          button.textContent = p.label;
+          button.addEventListener("click", () => open(p.url));
+          return button;
+        }));
+      }
+      setProperty(el2("bookmark-service-entry-points"), "hidden", !entry());
+      for (const button of service.querySelectorAll("button")) setProperty(button, "disabled", !pinEnabled || session.failure === "UNAVAILABLE");
+    }
+    el2("bookmark-label").addEventListener("input", () => {
+      labelDirty = true;
+    });
+    el2("save-bookmark-label").addEventListener("click", () => {
+      if (labelBusy || !session.parentId) return;
+      labelBusy = true;
+      render2();
+      void presentationCommand({ kind: "PIN_LABEL", id: session.parentId, label: el2("bookmark-label").value, before: labelBefore }).then(() => {
+        labelDirty = false;
+        labelBefore = presentationView()?.sync.labels[session.parentId] ?? null;
+        el2("bookmark-label-status").textContent = "Shortcut name saved. Site access is unchanged.";
+      }).catch(() => {
+        el2("bookmark-label-status").textContent = "Name not saved. Your text is retained. If another window changed this shortcut, close and reopen this editor to compare before retrying.";
+      }).finally(() => {
+        labelBusy = false;
+        render2();
+      });
+    });
+    for (const direction of ["up", "down"]) el2(`pin-${direction}`).addEventListener("click", () => {
+      if (labelBusy) return;
+      const before = [...pins2], next = [...pins2], i = next.indexOf(session.parentId), j = i + (direction === "up" ? -1 : 1);
+      if (i < 0 || j < 0 || j >= next.length) return;
+      [next[i], next[j]] = [next[j], next[i]];
+      labelBusy = true;
+      render2();
+      void presentationCommand({ kind: "PIN_ORDER", before, pins: next }).then(() => {
+        pins2 = next;
+        el2("bookmark-label-status").textContent = "Pin order saved.";
+      }).catch(() => {
+        el2("bookmark-label-status").textContent = "Pin order not saved. Another window may have changed it. Review the current order and retry.";
+      }).finally(() => {
+        labelBusy = false;
+        render2();
+      });
+    });
+    parent.addEventListener("change", () => void select(parent.value));
+    el2("add-bookmark-page").addEventListener("click", () => {
+      change([...session.draft, { id: crypto.randomUUID(), label: "", url: "" }]);
+      el2("bookmark-pages").lastElementChild?.querySelector("input")?.focus();
+    });
+    el2("cancel-bookmarks").addEventListener("click", cancel);
+    dialog.addEventListener("cancel", (e) => {
+      e.preventDefault();
+      cancel();
+    });
+    el2("save-bookmarks").addEventListener("click", () => void session.save().then((ok) => {
+      if (ok) close(false);
+    }));
+    el2("review-bookmark-conflict").addEventListener("click", () => void session.reviewLatest());
+    el2("save-reviewed-bookmarks").addEventListener("click", () => void session.save(true).then((ok) => {
+      if (ok) close(false);
+    }));
+    el2("pin-bookmark-parent").addEventListener("click", () => {
+      if (session.parentId) togglePin2(session.parentId);
+    });
+    return {
+      render(next, order, enabled) {
+        entries2 = next;
+        pins2 = order;
+        pinEnabled = enabled;
+        render2();
+      },
+      async open(id, from) {
+        trigger = from ?? document.activeElement;
+        if (!session.saved) await session.refresh();
+        const retained = session.parentId && (entries2.some((e) => destinationId(e) === session.parentId) || session.saved?.value?.groups.some((g) => g.parentId === session.parentId)) ? session.parentId : void 0;
+        const target = id ?? retained ?? pins2.find((p) => entries2.some((e) => destinationId(e) === p)) ?? (entries2[0] ? destinationId(entries2[0]) : session.saved?.value?.groups[0]?.parentId);
+        if (!target || !session.saved) return;
+        if (!session.dirty) {
+          const e = entries2.find((e2) => destinationId(e2) === target);
+          await session.edit(target, e ? defaultBookmarkPages(e) : []);
+        }
+        setProperty(dialog, "hidden", false);
+        dialog.showModal();
+        render2();
+        el2("bookmark-editor-title").focus();
+      }
+    };
+  }
+
+  // src/ui/compass-motion.ts
+  function angularMotion() {
+    let last = null, position = 0, latest = -Infinity;
+    let samples = [];
+    return {
+      move(x, y, at) {
+        if (!Number.isFinite(at) || at < latest) return 0;
+        latest = at;
+        if (Math.hypot(x, y) < 12) {
+          last = null;
+          samples = [];
+          return 0;
+        }
+        const next = Math.atan2(y, x);
+        let delta = last === null ? 0 : next - last;
+        if (delta > Math.PI) delta -= 2 * Math.PI;
+        if (delta < -Math.PI) delta += 2 * Math.PI;
+        last = next;
+        const degrees = delta * 180 / Math.PI;
+        position += degrees;
+        samples = samples.filter((s) => s.at >= at - 100 && s.at !== at).slice(-63);
+        samples.push({ at, position });
+        return degrees;
+      },
+      velocity(at) {
+        if (at < latest || at - latest >= 100 || samples.length < 2) return 0;
+        const recent = samples.filter((s) => s.at >= at - 100);
+        if (at > latest) recent.push({ at, position });
+        if (recent.length < 2 || recent.at(-1).at - recent[0].at < 12) return 0;
+        const meanTime = recent.reduce((sum, s) => sum + s.at - at, 0) / recent.length;
+        const meanPosition = recent.reduce((sum, s) => sum + s.position, 0) / recent.length;
+        let covariance = 0, variance = 0;
+        for (const s of recent) {
+          const t = s.at - at - meanTime;
+          covariance += t * (s.position - meanPosition);
+          variance += t * t;
+        }
+        return variance === 0 ? 0 : Math.max(-1.2, Math.min(1.2, covariance / variance));
+      }
+    };
+  }
+  function coastRotation(speed, milliseconds) {
+    const decay = Math.exp(-Math.max(0, milliseconds) / 700);
+    return { speed: speed * decay, degrees: speed * 700 * (1 - decay) };
+  }
+
+  // src/ui/home-pins.ts
+  var compassCapacity = 10;
+  var el3 = (id) => document.getElementById(id);
+  function initializeHomePins(options) {
+    const nodes = /* @__PURE__ */ new Map(), chooserRows = /* @__PURE__ */ new Map();
+    const chooser = el3("pin-chooser"), primary = el3("pinned-primary");
+    const handle = el3("compass-handle");
+    let session = null, editor = null;
+    let entries2 = [], pins2 = [], active = [];
+    let available = false, pinEnabled = false, opening = null, failed = false, disposed2 = false;
+    let selected2 = null, keyboardOpened = false;
+    let hover, leaving;
+    let angle = 0, gesture = null;
+    let coast = 0, paint = 0;
+    const schedulePaint = () => {
+      if (!paint) paint = requestAnimationFrame(() => {
+        paint = 0;
+        placePins();
+      });
+    };
+    let iconEdit = null;
+    async function saveFolderIcon() {
+      const edit = iconEdit;
+      if (!edit) return;
+      setProperty(el3("retry-folder-icon"), "disabled", true);
+      try {
+        await presentationCommand({ kind: "FOLDER_ICON", ...edit });
+        if (iconEdit === edit) iconEdit = null;
+        el3("pin-folder-error").textContent = "";
+        el3("retry-folder-icon").hidden = true;
+        changed();
+      } catch (error) {
+        openChooser(`folder:${edit.id}`, true);
+        const conflict = error instanceof Error && error.message === "CONFLICT";
+        el3("pin-folder-error").textContent = conflict ? "This icon changed in another Atlas window. Choose again to replace the current icon." : "Icon not saved. Your choice is kept; retry when storage is available.";
+        el3("retry-folder-icon").hidden = conflict;
+      } finally {
+        setProperty(el3("retry-folder-icon"), "disabled", false);
+      }
+    }
+    const pickFolderIcon = categoryIconPicker((id, value) => {
+      iconEdit = { id, icon: value, before: presentationView()?.sync.folderIcons?.[id] ?? "" };
+      void saveFolderIcon();
+    }, "Folder icon");
+    const composition = el3("compass-handle").closest(".compass-composition");
+    const moving = (value) => setProperty(composition.dataset, "moving", String(value));
+    const stopCoast = () => {
+      cancelAnimationFrame(coast);
+      coast = 0;
+      moving(gesture?.moved ?? false);
+    };
+    let suppressClick = false;
+    const clearHover = () => {
+      clearTimeout(hover);
+      clearTimeout(leaving);
+      hover = leaving = void 0;
+    };
+    const changed = () => {
+      if (!disposed2) {
+        render2();
+        options.changed();
+      }
+    };
+    function load() {
+      if (opening) return opening;
+      opening = (async () => {
+        try {
+          const repository = remoteBookmarks;
+          if (disposed2) {
+            repository.close();
+            return;
+          }
+          session = new BookmarkSession(repository, changed);
+          editor = initializeBookmarkEditor(session, options.togglePin, (url) => launch(url));
+          failed = false;
+          await session.refresh();
+        } catch {
+          failed = true;
+        } finally {
+          opening = null;
+          changed();
+        }
+      })();
+      return opening;
+    }
+    const launch = (url) => {
+      if (available && session?.saved && session.failure !== "UNAVAILABLE" && !failed) void options.open(url);
+    };
+    function closeChooser(restore = false) {
+      clearHover();
+      const selectedNode = selected2 ? nodes.get(selected2)?.node : null;
+      const trigger = selectedNode?.isConnected ? selectedNode : nodes.get("overflow")?.node;
+      if (chooser.matches(":popover-open")) chooser.hidePopover();
+      if (trigger) setAttribute(trigger, "aria-expanded", "false");
+      selected2 = null;
+      if (restore) (trigger?.isConnected && !trigger.disabled ? trigger : handle).focus({ preventScroll: true });
+    }
+    function positionChooser() {
+      const selectedNode = selected2 ? nodes.get(selected2)?.node : null;
+      const trigger = selectedNode?.isConnected ? selectedNode : nodes.get("overflow")?.node;
+      if (!trigger) return;
+      const rect = trigger.getBoundingClientRect(), box = chooser.getBoundingClientRect();
+      chooser.style.left = `${Math.max(12, Math.min(innerWidth - box.width - 12, rect.left + rect.width / 2 - box.width / 2))}px`;
+      chooser.style.top = `${Math.max(12, rect.bottom + box.height + 10 < innerHeight ? rect.bottom + 8 : rect.top - box.height - 8)}px`;
+    }
+    function renderChooser() {
+      const pin = selected2 ? nodes.get(selected2) : null;
+      if (!pin) {
+        closeChooser();
+        return;
+      }
+      setProperty(el3("pin-chooser-title"), "textContent", pin.entry.label);
+      setProperty(el3("edit-pin-pages"), "hidden", !!pin.folder || !!pin.children);
+      setProperty(el3("edit-folder-icon"), "hidden", !pin.folder);
+      setProperty(el3("pin-folder-note"), "hidden", !pin.folder);
+      const pages = pin.children ? pin.children.map((id) => ({ id, label: nodes.get(id).entry.label, url: "" })) : pin.pages;
+      const wanted = pages.map((page2) => {
+        let button = chooserRows.get(page2.id);
+        if (!button) {
+          button = document.createElement("button");
+          button.type = "button";
+          button.className = "bookmark-open";
+          button.append(document.createElement("strong"), document.createElement("span"));
+          button.addEventListener("click", () => {
+            if (selected2 && nodes.get(selected2)?.children?.includes(page2.id)) {
+              openChooser(page2.id, true);
+              return;
+            }
+            const current2 = selected2 ? nodes.get(selected2)?.pages.find((p) => p.id === page2.id) : null;
+            if (current2) launch(current2.url);
+          });
+          chooserRows.set(page2.id, button);
+        }
+        setProperty(button.querySelector("strong"), "textContent", page2.label);
+        const status = page2.url ? options.status?.(page2.url) : "";
+        setProperty(button.querySelector("span"), "textContent", `${page2.url}${status ? ` \xB7 ${status}` : ""}`);
+        setProperty(button, "disabled", !available || session?.failure === "UNAVAILABLE");
+        return button;
+      });
+      const focused = document.activeElement;
+      reconcileChildren(el3("pin-chooser-pages"), wanted);
+      for (const [id] of chooserRows) if (!pages.some((p) => p.id === id)) chooserRows.delete(id);
+      if (focused && !focused.isConnected) (wanted.find((b) => !b.disabled) ?? el3("edit-pin-pages")).focus({ preventScroll: true });
+      else if (focused?.isConnected && document.activeElement === document.body) focused.focus({ preventScroll: true });
+      const defaults = pin.folder || pin.children ? [] : defaultBookmarkPages(pin.entry), key2 = JSON.stringify(defaults);
+      const list = el3("pin-service-pages");
+      if (list.dataset.key !== key2) {
+        list.dataset.key = key2;
+        reconcileChildren(list, defaults.map((page2) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "text-button";
+          button.textContent = page2.label;
+          button.addEventListener("click", () => launch(page2.url));
+          return button;
+        }));
+      }
+      for (const button of list.querySelectorAll("button")) setProperty(button, "disabled", !available || session?.failure === "UNAVAILABLE");
+      setProperty(el3("pin-service-entry-points"), "hidden", !session?.saved?.value?.groups.some((g) => g.parentId === selected2));
+    }
+    function openChooser(id, focus) {
+      if (gesture?.moved || !available) return;
+      stopCoast();
+      clearHover();
+      if (selected2 !== id) closeChooser();
+      selected2 = id;
+      keyboardOpened = focus;
+      renderChooser();
+      const selectedNode = nodes.get(id)?.node;
+      const trigger = selectedNode?.isConnected ? selectedNode : nodes.get("overflow")?.node;
+      if (!trigger) return;
+      setAttribute(trigger, "aria-expanded", "true");
+      if (!chooser.matches(":popover-open")) chooser.showPopover({ source: trigger });
+      positionChooser();
+      if (focus) chooser.querySelector(".bookmark-open:not(:disabled)")?.focus({ preventScroll: true });
+    }
+    function render2() {
+      const sync = presentationView()?.sync;
+      const folders = sync?.folders ?? [];
+      const ordinary = [...pinnedDestinations(entries2, pins2)];
+      const folderEntries = folders.map((f) => ({ id: `folder:${f.id}`, label: f.label, hostname: "", hostnames: [], category: "" }));
+      const all = [...ordinary, ...folderEntries];
+      const order = sync?.toolbarOrder ?? [];
+      active = [...order.flatMap((id) => all.filter((e) => destinationId(e) === id)), ...all.filter((e) => !order.includes(destinationId(e)))];
+      const extra = active.length > compassCapacity ? active.slice(compassCapacity - 1).map(destinationId) : [];
+      const shown = [...active, ...extra.length ? [{ id: "overflow", label: uiText.moreBookmarks, hostname: "", hostnames: [], category: "" }] : []];
+      const enabled = available && !!session?.saved && session.failure !== "UNAVAILABLE" && !failed;
+      const buttons = shown.map((entry) => {
+        const id = destinationId(entry);
+        let pin = nodes.get(id);
+        if (!pin) {
+          const node = document.createElement("button");
+          node.type = "button";
+          node.className = "compass-pin";
+          node.dataset.destinationId = id;
+          const label = document.createElement("span");
+          label.className = "pin-label";
+          const badge2 = document.createElement("span");
+          badge2.className = "pin-count";
+          badge2.setAttribute("aria-hidden", "true");
+          const mark2 = entry.hostname ? options.siteMark(entry.hostname) : document.createElement("span");
+          if (!entry.hostname) {
+            mark2.className = "service-mark folder-mark";
+            mark2.append(icon("folder"));
+          }
+          node.append(mark2, label, badge2);
+          pin = { node, entry, pages: [] };
+          nodes.set(id, pin);
+          node.addEventListener("pointerdown", stopCoast);
+          node.addEventListener("focus", stopCoast);
+          node.addEventListener("click", (e) => {
+            stopCoast();
+            if (suppressClick) {
+              e.preventDefault();
+              return;
+            }
+            const current2 = nodes.get(id);
+            if (!current2) return;
+            if (!current2.folder && !current2.children && current2.pages.length === 1) launch(current2.pages[0].url);
+            else openChooser(id, true);
+          });
+          node.addEventListener("pointerenter", (e) => {
+            clearHover();
+            if (!coast && !gesture?.moved && e.pointerType === "mouse" && matchMedia("(hover: hover) and (pointer: fine)").matches && ((nodes.get(id)?.pages.length ?? 0) > 1 || !!nodes.get(id)?.folder || !!nodes.get(id)?.children))
+              hover = setTimeout(() => {
+                if (!coast && !gesture?.moved) openChooser(id, false);
+              }, 300);
+          });
+          node.addEventListener("pointerleave", () => {
+            clearTimeout(hover);
+            if (!keyboardOpened) leaving = setTimeout(() => {
+              if (!chooser.matches(":hover") && !chooser.contains(document.activeElement)) closeChooser();
+            }, 220);
+          });
+        }
+        const folder = folders.find((f) => `folder:${f.id}` === id);
+        pin.entry = entry;
+        pin.folder = folder?.id;
+        pin.children = id === "overflow" ? extra : void 0;
+        pin.pages = folder?.pages ?? (id === "overflow" ? [] : bookmarkPages(session?.saved?.value ?? null, id, entry));
+        const mark = pin.node.querySelector(".service-mark");
+        if (entry.hostname) options.siteMark(entry.hostname, mark);
+        else {
+          const name = folder ? sync?.folderIcons?.[folder.id] ?? "folder" : "folder";
+          if (mark.dataset.icon !== name) {
+            mark.dataset.icon = name;
+            mark.replaceChildren(icon(name));
+          }
+        }
+        const status = (entry.hostname && options.status?.(pin.pages[0]?.url ?? `https://${entry.hostname}/`)) ?? "";
+        setProperty(pin.node.querySelector(".pin-label"), "textContent", `${entry.label}${status && status !== "Allowed" ? ` \xB7 ${status}` : ""}`);
+        setProperty(pin.node, "title", `${entry.label}${status ? ` \xB7 ${status}` : ""}`);
+        const badge = pin.node.querySelector(".pin-count");
+        setProperty(badge, "textContent", String(pin.children?.length ?? pin.pages.length));
+        setProperty(badge, "hidden", !pin.children && pin.pages.length < 2);
+        setAttribute(pin.node, "aria-label", !pin.folder && !pin.children && pin.pages.length === 1 ? `Open ${pin.pages[0].label}` : `${entry.label}, ${pin.children?.length ?? pin.pages.length} ${pin.children ? "groups" : "pages"}`);
+        setAttribute(pin.node, "aria-haspopup", pin.folder || pin.children || pin.pages.length > 1 ? "dialog" : null);
+        setAttribute(pin.node, "aria-expanded", pin.folder || pin.children || pin.pages.length > 1 ? String(selected2 === id) : null);
+        setProperty(pin.node, "disabled", !enabled);
+        return pin.node;
+      });
+      const focused = document.activeElement;
+      reconcileChildren(primary, extra.length ? [...buttons.slice(0, compassCapacity - 1), buttons.at(-1)] : buttons);
+      for (const [id] of nodes) if (!shown.some((e) => destinationId(e) === id)) nodes.delete(id);
+      if (focused?.isConnected && document.activeElement === document.body) focused.focus({ preventScroll: true });
+      setProperty(el3("pinned-section").dataset, "count", entries2.length === 0 && !available ? "loading" : String(Math.min(active.length, compassCapacity)));
+      setProperty(el3("pinned-empty"), "hidden", active.length > 0 || !available);
+      setProperty(handle, "disabled", !enabled || active.length < 2);
+      setProperty(el3("edit-pins"), "disabled", !session?.saved || failed || session.failure === "UNAVAILABLE" || entries2.length === 0 && !session.saved.value?.groups.length);
+      const warning = failed || session?.failure === "UNAVAILABLE";
+      setProperty(el3("bookmark-warning"), "hidden", !warning);
+      setProperty(el3("pinned-list").dataset, "loading", String(!session?.saved && !warning));
+      if (selected2) {
+        if (!nodes.has(selected2)) closeChooser(true);
+        else renderChooser();
+      }
+      arrangePins();
+      placePins();
+      editor?.render(entries2, pins2, pinEnabled);
+    }
+    function placePins() {
+      const rotation = `${Math.round(angle * 1e3) / 1e3}deg`;
+      if (composition.style.getPropertyValue("--wheel-angle") !== rotation) composition.style.setProperty("--wheel-angle", rotation);
+    }
+    function arrangePins() {
+      const children = [...primary.children];
+      children.forEach((node, index) => {
+        const radians = (-90 + index * 360 / Math.max(1, children.length)) * Math.PI / 180, style = node.style;
+        const x = `${(Math.cos(radians) * 134).toFixed(2)}px`, y = `${(Math.sin(radians) * 134).toFixed(2)}px`;
+        if (style.getPropertyValue("--pin-x") !== x) style.setProperty("--pin-x", x);
+        if (style.getPropertyValue("--pin-y") !== y) style.setProperty("--pin-y", y);
+      });
+    }
+    function endGesture() {
+      stopCoast();
+      cancelAnimationFrame(paint);
+      paint = 0;
+      placePins();
+      if (!gesture) return;
+      const old = gesture;
+      gesture = null;
+      moving(false);
+      if (handle.hasPointerCapture(old.id)) handle.releasePointerCapture(old.id);
+      setProperty(handle.dataset, "dragging", "false");
+      if (old.moved) {
+        suppressClick = true;
+        setTimeout(() => {
+          suppressClick = false;
+        }, 0);
+      }
+    }
+    function releaseGesture(e) {
+      if (!gesture || gesture.id !== e.pointerId) return;
+      const old = gesture;
+      endGesture();
+      if (!old.moved || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      let speed = old.motion.velocity(e.timeStamp), last = performance.now(), elapsed = 0;
+      if (Math.abs(speed) <= 8e-3) return;
+      const step = (now) => {
+        const dt = Math.min(4e3 - elapsed, Math.max(0, now - last));
+        last = now;
+        elapsed += dt;
+        const next = coastRotation(speed, dt);
+        speed = next.speed;
+        angle = (angle + next.degrees) % 360;
+        placePins();
+        if (Math.abs(speed) > 8e-3 && elapsed < 4e3 && !disposed2 && available && !document.hidden) coast = requestAnimationFrame(step);
+        else {
+          coast = 0;
+          moving(false);
+        }
+      };
+      moving(true);
+      coast = requestAnimationFrame(step);
+    }
+    handle.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0 || !e.isPrimary || handle.disabled) return;
+      stopCoast();
+      const r = handle.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      const motion = angularMotion();
+      motion.move(e.clientX - cx, e.clientY - cy, e.timeStamp);
+      gesture = { id: e.pointerId, x: e.clientX, y: e.clientY, cx, cy, motion, moved: false };
+      handle.setPointerCapture(e.pointerId);
+    });
+    handle.addEventListener("pointermove", (e) => {
+      if (!gesture || gesture.id !== e.pointerId) return;
+      if (!gesture.moved && Math.hypot(e.clientX - gesture.x, e.clientY - gesture.y) < 6) return;
+      if (!gesture.moved) {
+        gesture.moved = true;
+        moving(true);
+        closeChooser();
+        setProperty(handle.dataset, "dragging", "true");
+      }
+      const samples = e.getCoalescedEvents?.() ?? [];
+      for (const sample of samples.length ? samples : [e])
+        angle = (angle + gesture.motion.move(sample.clientX - gesture.cx, sample.clientY - gesture.cy, sample.timeStamp)) % 360;
+      schedulePaint();
+    });
+    handle.addEventListener("pointerup", releaseGesture);
+    for (const event of ["pointercancel", "lostpointercapture"]) handle.addEventListener(event, () => {
+      if (gesture) endGesture();
+    });
+    handle.addEventListener("click", (e) => e.preventDefault());
+    handle.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        endGesture();
+      }
+    });
+    chooser.addEventListener("pointerenter", () => clearTimeout(leaving));
+    chooser.addEventListener("pointerleave", () => {
+      if (!keyboardOpened) leaving = setTimeout(() => {
+        if (!chooser.contains(document.activeElement)) closeChooser();
+      }, 220);
+    });
+    chooser.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeChooser(true);
+      }
+    });
+    chooser.addEventListener("toggle", () => {
+      if (!chooser.matches(":popover-open") && selected2) closeChooser();
+    });
+    el3("retry-folder-icon").addEventListener("click", () => void saveFolderIcon());
+    el3("edit-folder-icon").addEventListener("click", () => {
+      const folder = selected2 ? nodes.get(selected2)?.folder : void 0;
+      if (folder) pickFolderIcon(el3("edit-folder-icon"), folder, presentationView()?.sync.folderIcons?.[folder] ?? "");
+    });
+    el3("edit-pin-pages").addEventListener("click", () => {
+      const id = selected2;
+      const trigger = id ? nodes.get(id)?.node : void 0;
+      closeChooser();
+      void editor?.open(id ?? void 0, trigger);
+    });
+    el3("edit-pins").addEventListener("click", () => {
+      closeChooser();
+      void editor?.open(void 0, el3("edit-pins"));
+    });
+    el3("retry-bookmarks").addEventListener("click", () => {
+      if (session) void session.refresh();
+      else void load();
+    });
+    const onViewport = () => {
+      closeChooser();
+      endGesture();
+    };
+    const onScroll = (event) => {
+      if (!(event.target instanceof Node) || !chooser.contains(event.target)) onViewport();
+    };
+    const onVisibility = () => {
+      if (document.hidden) onViewport();
+    };
+    const onUnload = (event) => {
+      if (session?.dirty) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
+    };
+    window.addEventListener("resize", onViewport);
+    document.addEventListener("scroll", onScroll, true);
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("blur", endGesture);
+    window.addEventListener("beforeunload", onUnload);
+    void load();
+    return {
+      render(next, order, enabled, editable) {
+        entries2 = next;
+        pins2 = order;
+        available = enabled;
+        pinEnabled = editable;
+        if (!enabled) endGesture();
+        render2();
+      },
+      refresh: () => session?.refresh(),
+      leave() {
+        closeChooser();
+        endGesture();
+      },
+      dispose() {
+        disposed2 = true;
+        closeChooser();
+        endGesture();
+        session?.repository.close();
+        window.removeEventListener("resize", onViewport);
+        document.removeEventListener("scroll", onScroll, true);
+        document.removeEventListener("visibilitychange", onVisibility);
+        window.removeEventListener("blur", endGesture);
+        window.removeEventListener("beforeunload", onUnload);
+      }
+    };
+  }
+
+  // src/ui/data-view.ts
+  function hasCommittedCollection(controller) {
+    return controller?.snapshot != null && ["READY", "LOADING", "COMMITTING"].includes(controller.status);
+  }
+  function collectionPresentation(controller, count, attempted, hasLastVerified) {
+    if (hasCommittedCollection(controller)) return { phase: count === 0 ? "EMPTY" : "READY", stale: false, message: "" };
+    const loading = !attempted || controller?.status === "LOADING" || controller?.status === "COMMITTING";
+    return {
+      phase: loading ? "LOADING" : "UNAVAILABLE",
+      stale: hasLastVerified,
+      message: `${loading ? "Loading verified sites." : "Sites are temporarily unavailable. Retry or open Policy & recovery."}${hasLastVerified ? " Showing last verified information; it may be out of date. Browsing actions are unavailable." : ""}`
+    };
+  }
+
+  // src/ui/pin-status.ts
+  function pinAccessStatus(view2, url, now) {
+    const state = view2?.controller;
+    if (!hasCommittedCollection(state) || !state?.snapshot) return "Access unverified";
+    const result = evaluate(url, state.snapshot.policy);
+    if (result.outcome === "DENY") return "Blocked";
+    if (result.outcome === "ALLOW") return result.reason === "WHITELISTED_SCOPE" ? "Domain rule \xB7 safety checks apply" : "Allowed";
+    if ("target" in result) {
+      const host2 = result.target.hostname;
+      if (view2?.temporaryAccess?.some((g) => g.hostnames.includes(host2) && g.expiresAt > now)) return "Temporary access";
+      if (view2?.pendingAccess?.some((g) => g.hostnames.includes(host2) && g.confirmBy > now)) return "Access request in progress";
+    }
+    return "No saved access rule \xB7 checked when opened";
+  }
+
+  // src/ui/settings-navigation.ts
+  var settingsSections = ["timing-settings", "home-settings", "vault-section", "managed-section", "recovery-section", "diagnostics"];
+  function settingsSection(value) {
+    return settingsSections.includes(value) ? value : "timing-settings";
+  }
+  function initializeSettingsNavigation(options) {
+    let selected2 = settingsSection(options.initial), active = false, shown = "";
+    const panels = settingsSections.map((id) => document.getElementById(id));
+    const buttons = [...document.querySelectorAll("[data-settings-panel]")];
+    function render2(visible, override) {
+      const shownPanel = override ?? selected2;
+      active = visible;
+      for (const panel of panels) setProperty(panel, "hidden", panel.id !== shownPanel);
+      for (const button of buttons) setAttribute(button, "aria-current", button.dataset.settingsPanel === shownPanel ? "page" : "false");
+      if (shown !== selected2) {
+        shown = selected2;
+        setProperty(panels.find((p) => p.id === selected2), "open", true);
+      }
+    }
+    function choose(value, remember = true) {
+      selected2 = settingsSection(value);
+      shown = "";
+      render2(active);
+      if (remember) options.remember(selected2);
+      panels.find((p) => p.id === selected2)?.querySelector("summary")?.focus({ preventScroll: true });
+    }
+    for (const button of buttons) button.addEventListener("click", () => choose(button.dataset.settingsPanel));
+    for (const panel of panels) panel.addEventListener("toggle", () => {
+      if (active && panel.open && panel.hidden) choose(panel.id);
+    });
+    return { render: render2, choose, value: () => selected2, restore(value) {
+      selected2 = settingsSection(value);
+      render2(active);
+    } };
+  }
+
+  // src/ui/viewport-scroll.ts
+  function viewportScrollSurface(page2, sitesView) {
+    const ids = page2 === "home" ? [] : page2 === "sites" ? sitesView === "review" ? ["destination-draft-items"] : sitesView === "detail" ? ["sites-editor"] : ["sites-categories", "sites-list"] : page2 === "settings" ? ["settings-workspace"] : page2 === "vault" ? ["vault-contents"] : ["pending-access-list"];
+    for (const id of [...ids, "main-content"]) {
+      const node = document.getElementById(id);
+      if (node && !node.closest("[hidden]") && node.clientHeight > 0 && ["auto", "scroll"].includes(getComputedStyle(node).overflowY)) return node;
+    }
+    return document.scrollingElement ?? document.documentElement;
+  }
+
+  // src/ui/presentation.ts
+  function authorityInterruptionCopy(issue) {
+    if (!issue) return "";
+    const fault = issue.internalFault;
+    return `Last authority interruption this session: ${issue.reason} \xB7 ${issue.status} (retained across recovery).` + (fault ? ` Core fault ${fault.sequence}: ${fault.operation} \xB7 ${fault.stage} \xB7 ${fault.error}.` + (fault.stateCounts ? ` State counts: ${fault.stateCounts.journeys} Journeys, ${fault.stateCounts.requests} requests, ${fault.stateCounts.grants} grants.` : "") : "");
+  }
+  function storageFailureCopy(storage) {
+    const failure = storage?.lastFailure;
+    if (!failure) return "";
+    const code = `Last storage issue: ${failure.operation} \xB7 ${failure.stage} \xB7 ${failure.cause}.`;
+    if (failure.cause === "QUOTA_EXCEEDED") return `${code} Firefox reported insufficient storage. Free disk space, then reload and reconcile state. Do not clear Atlas data.`;
+    return `${code} If access remains paused, reload and reconcile state. Your saved policy is retained.`;
+  }
+  function storageDiagnosticsCopy(storage) {
+    return storage ? `Storage this background session: ${storage.readTransactions} read transactions, ${storage.writeTransactions} write transactions, ${storage.committedWrites} committed snapshots, ${storage.failedCommits} failed commits. ${storageFailureCopy(storage)}` : "";
+  }
+  function startupCopy(startup) {
+    if (startup?.status !== "FAILED") return "";
+    if (startup.stage === "MANAGED_BLACKLIST") return "Atlas could not verify its bundled safety list. Retry startup in Settings. If this continues, obtain a verified signed Atlas update; keep the extension installed to preserve saved state.";
+    if (startup.stage === "STORAGE") return "Atlas could not open its saved state. Retry startup in Settings. If this continues, check Firefox storage availability.";
+    return "Atlas could not finish startup. Retry startup in Settings. Your saved policy is preserved.";
+  }
+  function canQueueOperation(view2) {
+    return view2?.status === "READY" || view2?.snapshot != null && (view2.status === "LOADING" || view2.status === "COMMITTING");
+  }
+  function accessOutcomeLabel(decision) {
+    if (!decision) return "No decision";
+    return {
+      ALLOW: "Allowed",
+      DENY: decision.reason === "BLACKLISTED" || decision.reason === "MANAGED_BLACKLISTED" ? "Blocked" : "Unavailable",
+      GREYLIST: "Requires access request",
+      WAIT: "Waiting",
+      REQUIRE_CONFIRMATION: "Confirm access"
+    }[decision.outcome];
+  }
+  function accessCopy(decision) {
+    if (decision === null) return { title: "Choose a tab", description: "Select a website to see its access status.", tone: "neutral" };
+    switch (decision.outcome) {
+      case "GREYLIST":
+        return { title: "Take a moment before continuing", description: "This site is outside your allowed sites. Start a request, then return to confirm temporary access.", tone: "wait" };
+      case "WAIT":
+        return { title: "Your waiting period is running", description: "You can leave this page and come back. When the wait ends, you still need to confirm.", tone: "wait" };
+      case "REQUIRE_CONFIRMATION":
+        return { title: "Ready when you are", description: "Confirm to open the site home with temporary access. Your policy stays the same.", tone: "ready" };
+      case "DENY":
+        return { title: decision.reason === "BLACKLISTED" || decision.reason === "MANAGED_BLACKLISTED" ? "This site is blocked" : "Access is unavailable", description: decision.reason === "BLACKLISTED" ? "Your blocked-site rule prevents access to this site." : decision.reason === "MANAGED_BLACKLISTED" ? "The managed StevenBlack list blocks this site. Temporary access and Journey cannot override it." : "Atlas could not authorize this navigation. Check the decision details below.", tone: decision.reason === "BLACKLISTED" || decision.reason === "MANAGED_BLACKLISTED" ? "blocked" : "unavailable" };
+      case "ALLOW":
+        return { title: "You can continue", description: decision.reason === "WHITELISTED" ? "This site is in your allowed sites." : decision.reason === "WHITELISTED_SCOPE" ? `This site is covered by your saved domain scope for ${decision.scopeRoot}.` : decision.reason === "ACTIVE_JOURNEY" ? "This navigation is covered by your current Journey. Its original deadline still applies." : "Temporary access is active. After it expires, this site will require another access request.", tone: "ready" };
+    }
+  }
+  function accessContextCopy(context) {
+    const result = context?.latest;
+    const decision = result?.type === "ASSESSMENT" ? result.decision : null;
+    if (!context || decision) return { ...accessCopy(decision), label: accessOutcomeLabel(decision), retryHome: false };
+    if (result?.type === "ADAPTER_ERROR" && (result.reason === "NAVIGATION_FAILED" || result.reason === "NAVIGATION_DID_NOT_START")) {
+      return {
+        title: "The site did not open",
+        label: "Navigation failed",
+        tone: "unavailable",
+        description: "Firefox could not complete this navigation. Try opening the site home again; Atlas will check access as usual.",
+        retryHome: context.hostname !== null && context.effect !== "FAILED" && context.effect !== "REMOVING"
+      };
+    }
+    if (result === null) return {
+      title: "Checking site access",
+      label: "Checking",
+      tone: "neutral",
+      description: "Atlas has not yet received an access decision for this tab.",
+      retryHome: false
+    };
+    return {
+      title: "Access is unavailable",
+      label: "Unavailable",
+      tone: "unavailable",
+      description: "Atlas could not verify access for this tab. Check the decision details below.",
+      retryHome: false
+    };
+  }
+  function countdown(deadline, now) {
+    const seconds2 = Math.max(0, Math.ceil((deadline - now) / 1e3));
+    return `${Math.floor(seconds2 / 60)}:${String(seconds2 % 60).padStart(2, "0")}`;
+  }
+  function selectedContext(contexts, selected2) {
+    return contexts.find((context) => String(context.tabId) === selected2);
+  }
+
+  // src/ui/diagnostics-panel.ts
+  function initializeDiagnosticsPanel(options) {
+    const element3 = (id) => document.getElementById(id);
+    let disposed2 = false, diagnosticKey = "", diagnosticEpoch = 0;
+    let diagnosticRequest = null;
+    const buildVersion = document.createElement("p");
+    buildVersion.id = "build-version";
+    buildVersion.className = "note";
+    setProperty(buildVersion, "textContent", `Atlas extension ${browser.runtime.getManifest().version}`);
+    element3("diagnostics").append(buildVersion);
+    const storageDiagnostic = document.createElement("p");
+    storageDiagnostic.id = "storage-diagnostic";
+    storageDiagnostic.className = "note";
+    element3("diagnostics").append(storageDiagnostic);
+    const runtimeDiagnostic = document.createElement("p");
+    runtimeDiagnostic.id = "runtime-diagnostic";
+    runtimeDiagnostic.className = "note";
+    element3("diagnostics").append(runtimeDiagnostic);
+    element3("diagnostics").append(element3("startup-diagnostic"));
+    element3("diagnostics").append(element3("action-diagnostic"));
+    function refresh() {
+      if (disposed2 || document.hidden || !options.visible() || !element3("diagnostics").open) {
+        ++diagnosticEpoch;
+        diagnosticRequest = null;
+        return Promise.resolve();
+      }
+      const tabId = element3("diagnostic-scope").value === "all" ? null : Number(options.selected() || -1);
+      if (diagnosticRequest?.scope === tabId) return diagnosticRequest.pending;
+      const ticket = ++diagnosticEpoch;
+      const pending = loadDiagnostics(tabId, ticket).finally(() => {
+        if (diagnosticRequest?.pending === pending) diagnosticRequest = null;
+      });
+      diagnosticRequest = { scope: tabId, pending };
+      return pending;
+    }
+    async function loadDiagnostics(tabId, ticket) {
+      try {
+        const response = await browser.runtime.sendMessage({ kind: "GET_DIAGNOSTICS", tabId });
+        if (ticket !== diagnosticEpoch || disposed2 || !options.visible() || !element3("diagnostics").open) return;
+        if (!Array.isArray(response?.entries)) throw new Error("DIAGNOSTICS_UNAVAILABLE");
+        const runtime = response.runtime;
+        const previous = runtime?.previousSession;
+        setProperty(runtimeDiagnostic, "textContent", runtime?.retention === "UNAVAILABLE" ? "Runtime diagnostics are available for this session, but could not be retained across restart." : previous?.faults.length ? `Retained incident from Atlas ${previous.version}: ${previous.faults.map((f) => `${f.subsystem} \xB7 ${f.error}${f.controller ? ` \xB7 ${f.controller.stage}` : ""}`).join("; ")}. Export diagnostics for numeric code locations.` : "No retained runtime incident. Diagnostic evidence never changes access permissions.");
+        const entries2 = response.entries;
+        const key2 = JSON.stringify(entries2);
+        if (key2 === diagnosticKey) return;
+        diagnosticKey = key2;
+        element3("diagnostic-rows").replaceChildren(...[...entries2].reverse().map((entry) => {
+          const row = document.createElement("tr");
+          const request = entry.method ? `
+${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7 no source origin"}${entry.continuationKind ? ` \xB7 ${entry.continuationKind}` : ""}` : "";
+          for (const value of [
+            String(entry.sequence),
+            `${entry.event}${request}`,
+            `${entry.tabId} / ${entry.navigationId}`,
+            entry.hostname ?? "\u2014",
+            `${entry.outcome ?? "\u2014"}${entry.reason ? ` \xB7 ${entry.reason}` : ""}`,
+            entry.journey ? `${entry.journey.id} \xB7 ${entry.journey.phase} \xB7 ${entry.journey.hopCount}/${entry.journey.maxHops}${entry.journey.endReason ? ` \xB7 ${entry.journey.endReason}` : ""}` : "\u2014"
+          ]) {
+            const cell = document.createElement("td");
+            setProperty(cell, "textContent", value);
+            row.append(cell);
+          }
+          return row;
+        }));
+        setProperty(element3("diagnostic-empty"), "hidden", entries2.length > 0);
+      } catch {
+        if (ticket === diagnosticEpoch) options.feedback("Diagnostics are temporarily unavailable.", "error");
+      }
+    }
+    element3("diagnostics").addEventListener("toggle", () => {
+      void refresh();
+    });
+    element3("diagnostic-scope").addEventListener("change", () => {
+      void refresh();
+    });
+    element3("clear-diagnostics").addEventListener("click", () => {
+      if (disposed2) return;
+      ++diagnosticEpoch;
+      diagnosticRequest = null;
+      void browser.runtime.sendMessage({ kind: "CLEAR_DIAGNOSTICS" }).then(() => refresh()).catch(() => options.feedback("Could not clear diagnostics.", "error"));
+    });
+    element3("export-diagnostics").addEventListener("click", () => {
+      if (disposed2) return;
+      const tabId = element3("diagnostic-scope").value === "all" ? null : Number(options.selected() || -1);
+      void browser.runtime.sendMessage({ kind: "GET_DIAGNOSTICS", tabId }).then((response) => {
+        if (disposed2) return;
+        if (!Array.isArray(response?.entries)) throw new Error("Unavailable");
+        const url = URL.createObjectURL(new Blob([JSON.stringify({ format: "atlas-diagnostics-v1", extensionVersion: browser.runtime.getManifest().version, entries: response.entries, storage: response.storage ?? null, authorityInterruption: response.authorityInterruption ?? null, curatedUpgrade: response.curatedUpgrade ?? null, runtime: response.runtime ?? null }, null, 2)], { type: "application/json" }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "atlas-diagnostics.json";
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1e3);
+      }).catch(() => options.feedback("Could not export diagnostics.", "error"));
+    });
+    return {
+      refresh,
+      invalidate() {
+        ++diagnosticEpoch;
+        diagnosticRequest = null;
+      },
+      dispose() {
+        disposed2 = true;
+        ++diagnosticEpoch;
+        diagnosticRequest = null;
+      },
+      render(view2) {
+        const text3 = [storageDiagnosticsCopy(view2?.storage), authorityInterruptionCopy(view2?.authorityInterruption)].filter(Boolean).join("\n");
+        setProperty(storageDiagnostic, "textContent", text3);
+      }
+    };
+  }
+
+  // src/ui/destinations.ts
+  function destinationIndex(policy, metadata2 = [], pins2 = []) {
+    const hosts = [...policy.whitelist, ...policy.whitelistSubdomains ?? []];
+    const decisions = evaluateMany(hosts, policy);
+    const active = new Set(hosts.filter((_, index) => decisions[index].outcome === "ALLOW"));
+    return groupDestinationHosts(active, metadata2, policy, pins2);
+  }
+  function groupDestinationHosts(active, metadata2, policy, pins2, mergeSubdomains = true) {
+    const entries2 = [];
+    const scoped = new Set(mergeSubdomains ? policy.whitelistSubdomains ?? [] : []);
+    const initialHosts = new Set(active);
+    const pinnedHost = (host2) => pins2.includes(`host:${host2}`) || pins2.includes(`service:${host2}`);
+    const catalogHosts = new Set(curatedServiceCatalog.flatMap((group) => group.services.flatMap((service) => serviceHostnames(service))));
+    const possibleParent = (host2) => [...scoped].some((root) => catalogHosts.has(root) && initialHosts.has(root) && !policy.blacklist.includes(root) && host2.endsWith(`.${root}`));
+    for (const item of metadata2) {
+      const hostnames = item.hostnames.filter((host2) => active.has(host2));
+      if (hostnames.length === 0) continue;
+      if (item.label === item.primaryHostname && item.category === "Your destinations" && !pins2.includes(item.id) && hostnames.every((host2) => !pinnedHost(host2) && !catalogHosts.has(host2) && !scoped.has(host2) && !policy.blacklist.includes(host2) && possibleParent(host2))) continue;
+      entries2.push({
+        id: item.id,
+        label: item.label,
+        category: item.category,
+        hostname: hostnames.includes(item.primaryHostname) ? item.primaryHostname : hostnames[0],
+        hostnames
+      });
+      hostnames.forEach((host2) => active.delete(host2));
+    }
+    for (const group of curatedServiceCatalog) for (const service of group.services) {
+      const hostnames = serviceHostnames(service).filter((hostname2) => active.has(hostname2));
+      if (hostnames.length === 0) continue;
+      entries2.push({ id: `service:${service.hostname}`, label: service.label, hostname: hostnames[0], hostnames, category: group.label });
+      hostnames.forEach((hostname2) => active.delete(hostname2));
+    }
+    const parents = entries2.flatMap((entry, index) => entry.hostnames.filter((host2) => catalogHosts.has(host2) && scoped.has(host2) && !policy.blacklist.includes(host2)).map((root) => ({ root, index }))).sort((a, b) => b.root.length - a.root.length);
+    for (const host2 of [...active].sort()) {
+      if (pinnedHost(host2) || scoped.has(host2) || policy.blacklist.includes(host2)) continue;
+      const parent = parents.find(({ root, index }) => host2.endsWith(`.${root}`) && entries2[index].hostnames.length < 100);
+      if (!parent) continue;
+      const entry = entries2[parent.index];
+      entries2[parent.index] = { ...entry, hostnames: [...entry.hostnames, host2] };
+      active.delete(host2);
+    }
+    for (const hostname2 of [...active].sort()) entries2.push({ label: hostname2, hostname: hostname2, hostnames: [hostname2], category: "Your destinations" });
+    const curatedIds = curatedServiceCatalog.flatMap((group) => group.services.map((service) => `service:${service.hostname}`));
+    const order = (entry) => {
+      const index = curatedIds.indexOf(entry.id ?? "");
+      return index < 0 ? curatedIds.length : index;
+    };
+    const categories = categorySuggestions(metadata2.map((item) => item.category));
+    return entries2.sort((a, b) => order(a) - order(b)).map((entry) => ({ ...entry, category: canonicalCategory(entry.category, categories) }));
+  }
+  function policyDestinationIndex(policy, metadata2 = [], pins2 = [], mergeSubdomains = true) {
+    if (evaluate("presentation-validation.invalid", policy).reason === "INVALID_POLICY") return [];
+    return groupDestinationHosts(/* @__PURE__ */ new Set([...policy.whitelist, ...policy.blacklist, ...policy.whitelistSubdomains ?? []]), metadata2, policy, pins2, mergeSubdomains);
+  }
+  function searchDestinations(entries2, query) {
+    const words = query.trim().toLocaleLowerCase("en").split(/\s+/).filter(Boolean);
+    if (words.length === 0) return [];
+    return entries2.filter((entry) => words.every((word) => `${entry.label} ${entry.hostnames.join(" ")}`.toLocaleLowerCase("en").includes(word)));
+  }
+  function searchDestinationTargets(entries2, query) {
+    const term = query.trim().toLocaleLowerCase("en");
+    if (!term) return [];
+    const exact = entries2.flatMap((entry) => entry.hostnames.includes(term) ? [{ entry, hostname: term, match: "EXACT_HOST" }] : []);
+    if (exact.length) return exact;
+    const address = parse(term, { allowPrivateDomains: true });
+    if (address.domain !== null && (address.isIcann || address.isPrivate) && !term.endsWith(".")) return [];
+    const words = term.split(/\s+/);
+    return searchDestinations(entries2, query).flatMap((entry) => {
+      if (words.every((word) => entry.label.toLocaleLowerCase("en").includes(word))) return [{ entry, hostname: entry.hostname, match: "NAME" }];
+      const service = curatedServiceCatalog.flatMap((group) => group.services).find((item) => serviceHostnames(item).includes(entry.hostname));
+      const points = [service?.hostname ?? entry.hostname, ...service?.destinations ?? []];
+      const hosts = entry.hostnames.filter((host2) => words.every((word) => host2.includes(word)));
+      if (!hosts.length) return [{ entry, hostname: entry.hostname, match: "NAME" }];
+      return hosts.map((hostname2) => ({ entry, hostname: hostname2, match: points.includes(hostname2) ? "ENTRY_POINT" : service?.aliases?.includes(hostname2) ? "ALIAS" : "HOST" }));
+    });
+  }
+
   // src/ui/home-layout-session.ts
-  var same2 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  var same4 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   var HomeLayoutSession = class {
     constructor(repository, changed = () => {
     }) {
@@ -2808,8 +5658,9 @@
     requested() {
       return reconcileHomeLayout(this.draft ?? this.saved?.value ?? null, this.catalog);
     }
+    /** Without a catalog, preload saved preferences without initializing or migrating them. */
     refresh(catalog) {
-      this.catalog = catalog;
+      if (catalog !== void 0) this.catalog = catalog;
       if (this.refreshing) return this.refreshing;
       if (this.busy) return this.refreshing ?? Promise.resolve();
       const pending = this.loadLatest(catalog);
@@ -2827,7 +5678,7 @@
       try {
         const latest = await this.repository.load();
         if (this.draft && this.saved && latest.revision !== this.saved.revision) {
-          if (same2(latest.value, this.draft)) {
+          if (same4(latest.value, this.draft)) {
             this.saved = latest;
             this.draft = null;
             this.failure = null;
@@ -2840,13 +5691,14 @@
           return;
         }
         if (this.draft) return;
-        if (!same2(this.saved, latest)) {
+        if (!same4(this.saved, latest)) {
           this.saved = latest;
           this.failure = null;
           this.changed();
         }
+        if (catalog === void 0) return;
         const reconciled = reconcileHomeLayout(latest.value, catalog);
-        if (!same2(reconciled, latest.value)) {
+        if (!same4(reconciled, latest.value)) {
           this.draft = reconciled;
           this.busy = true;
           this.changed();
@@ -2867,10 +5719,10 @@
         }
       }
     }
-    async change(key, action) {
+    async change(key2, action, available) {
       if (this.refreshing) await this.refreshing;
       if (this.busy || !this.saved || this.conflict || this.failure === "UNAVAILABLE") return false;
-      this.draft = changeHomeLayout(this.requested(), key, action, this.catalog.map((c) => c.key));
+      this.draft = changeHomeLayout(this.requested(), key2, action, available ?? this.catalog.map((c) => c.key));
       this.busy = true;
       this.changed();
       try {
@@ -2954,6 +5806,8 @@
         NO_POLICY_CHANGE: "These terms already match active policy and settings. No proposal was created.",
         PROPOSAL_EXPIRED: "The Vault confirmation window ended. Active policy is unchanged; cancel the expired proposal before preparing a new one.",
         REQUEST_EXPIRED: "The access confirmation window ended. No grant was created; start a new request if needed.",
+        GRANT_NOT_FOUND: "That temporary access is no longer active. Check the refreshed access list.",
+        GRANT_EXPIRED: "That temporary access has already expired.",
         PROPOSAL_NOT_FOUND: "That proposal is no longer pending. Review the current Vault state before trying again.",
         ALREADY_COMMITTED: "That proposal has already been committed. Check the current policy; do not confirm it again.",
         POLICY_CHANGED: "Policy changed since these terms were prepared. Review the current policy before starting a new request.",
@@ -2977,12 +5831,14 @@
       if (kind === "CANCEL_POLICY") return { tone: "success", message: "Vault proposal cancelled. Active policy and settings are unchanged." };
       if (kind === "START_ACCESS") return { tone: "success", message: "Access request saved. Wait, then return to confirm temporary access." };
       if (kind === "CONFIRM_ACCESS") return { tone: "success", message: "Temporary access confirmed and saved. Its original expiry applies." };
+      if (kind === "END_ACCESS") return { tone: "success", message: "Temporary access ended." };
       if (kind === "CANCEL_ACCESS") return { tone: "success", message: "Access request cancelled." };
     }
     if (kind === "RECOVER") return response.view?.controller?.status === "READY" ? { tone: "success", message: "Saved state verified. Recovery has not confirmed any proposal or reset your policy." } : { tone: "error", message: "Saved state is still unavailable. Your policy has not been reset. Check the recovery details." };
     return { tone: "status", message: "" };
   }
   function renderFeedback(node, feedback2) {
+    if (feedback2.tone === "success") feedback2 = { ...feedback2, message: "" };
     if (node.dataset.tone !== feedback2.tone) node.dataset.tone = feedback2.tone;
     const role = feedback2.tone === "error" || feedback2.tone === "uncertain" ? "alert" : "status";
     if (node.getAttribute("role") !== role) node.setAttribute("role", role);
@@ -2991,15 +5847,202 @@
     if (node.hidden !== (feedback2.message === "")) node.hidden = feedback2.message === "";
   }
 
+  // src/ui/destination-usage.ts
+  var usagePreferencesKey = "atlas-destination-usage-v1";
+  var usageHalfLifeMs = 7 * 24 * 60 * 60 * 1e3;
+  function readDestinationUsage(value) {
+    if (value === null || typeof value !== "object" || Array.isArray(value) || Object.keys(value).length > 2e3) return {};
+    const usage = /* @__PURE__ */ Object.create(null);
+    for (const [id, record] of Object.entries(value)) {
+      if (!validDestinationId(id) || record === null || typeof record !== "object") return {};
+      const item = record;
+      if (!Number.isSafeInteger(item.count) || item.count < 1 || !Number.isFinite(item.score) || item.score <= 0 || item.score > 1e6 || !Number.isSafeInteger(item.lastOpenedAt) || item.lastOpenedAt < 0) return {};
+      usage[id] = { count: item.count, score: item.score, lastOpenedAt: item.lastOpenedAt };
+    }
+    return usage;
+  }
+  function usageScore(record, now) {
+    return record === void 0 ? 0 : record.score * 2 ** (-Math.max(0, now - record.lastOpenedAt) / usageHalfLifeMs);
+  }
+
+  // src/ui/category-order.ts
+  function readCategoryOrder(input2) {
+    if (!input2 || typeof input2 !== "object") return null;
+    const v = input2;
+    if (!["keys,mode,version", "catalog,keys,mode,version"].includes(Object.keys(v).sort().join(",")) || v.version !== 1 || !["custom", "alphabetic", "usage"].includes(v.mode) || !Array.isArray(v.keys) || v.keys.length > 4096 || new Set(v.keys).size !== v.keys.length || v.keys.some((k) => typeof k !== "string" || !k || k.length > 64 || categoryKey(k) !== k)) return null;
+    if (v.catalog !== void 0 && !readHomeLayout(v.catalog)) return null;
+    return structuredClone(v);
+  }
+  function categoryOrderKeys(saved, current2, legacy) {
+    const before = saved?.catalog?.categories ?? [], after = reconcileHomeLayout(saved?.catalog ?? legacy, current2).categories;
+    const renamed = new Map(before.map((c, i) => [c.key, after[i]?.key ?? c.key]));
+    return [.../* @__PURE__ */ new Set([...(saved?.keys ?? legacy.categories.map((c) => c.key)).map((key2) => renamed.get(key2) ?? key2), ...after.map((c) => c.key)])];
+  }
+  function orderCategories(categories, mode, custom, entries2 = [], usage = {}, now = 0) {
+    const scores = /* @__PURE__ */ new Map(), seen = /* @__PURE__ */ new Set();
+    for (const entry of entries2) {
+      const id = destinationId(entry);
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const key2 = categoryKey(entry.category || "Uncategorized");
+      scores.set(key2, (scores.get(key2) ?? 0) + usageScore(usage[id], now));
+    }
+    const rank = (key2) => {
+      const i = custom.indexOf(key2);
+      return i < 0 ? custom.length : i;
+    };
+    return [...categories].sort((a, b) => (mode === "custom" ? rank(a.key) - rank(b.key) : mode === "usage" ? (scores.get(b.key) ?? 0) - (scores.get(a.key) ?? 0) : 0) || a.label.localeCompare(b.label, "en"));
+  }
+  var openCategoryOrderRepository = (factory = indexedDB, name = homeLayoutDatabase) => openRecord(factory, name, "category-order-v1", readCategoryOrder);
+  var same5 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  var CategoryOrderSession = class {
+    constructor(repository, changed) {
+      this.repository = repository;
+      this.changed = changed;
+    }
+    saved = null;
+    draft = null;
+    busy = false;
+    conflict = false;
+    failure = null;
+    loading = null;
+    refresh() {
+      if (this.loading || this.busy) return this.loading ?? Promise.resolve();
+      this.loading = (async () => {
+        try {
+          const latest = await this.repository.load(), before = JSON.stringify([this.saved, this.draft, this.conflict, this.failure]);
+          if (this.draft && latest.revision !== this.saved?.revision) {
+            if (same5(latest.value, this.draft)) {
+              this.draft = null;
+              this.conflict = false;
+              this.failure = null;
+            } else this.conflict = true;
+          }
+          if (!this.draft) this.saved = latest;
+          if (this.failure === "UNAVAILABLE") this.failure = null;
+          if (before !== JSON.stringify([this.saved, this.draft, this.conflict, this.failure])) this.changed();
+        } catch {
+          if (this.failure !== "UNAVAILABLE") {
+            this.failure = "UNAVAILABLE";
+            this.changed();
+          }
+        }
+      })().finally(() => {
+        this.loading = null;
+      });
+      return this.loading;
+    }
+    async change(value) {
+      if (this.loading) await this.loading;
+      if (!this.saved || this.busy || this.conflict || this.failure === "UNAVAILABLE") return false;
+      const draft = readCategoryOrder(value);
+      if (!draft) return false;
+      this.draft = draft;
+      return this.persist();
+    }
+    async persist() {
+      if (!this.saved || !this.draft || this.busy || this.conflict) return false;
+      this.busy = true;
+      this.changed();
+      try {
+        const result = await this.repository.save(this.saved.revision, this.draft);
+        if (result.type === "SAVED") {
+          this.saved = result.envelope;
+          this.draft = null;
+          this.failure = null;
+          return true;
+        }
+        if (result.type === "CONFLICT") this.conflict = true;
+        else this.failure = result.type;
+      } catch {
+        this.failure = "UNCERTAIN";
+      } finally {
+        this.busy = false;
+        this.changed();
+      }
+      return false;
+    }
+    async retry() {
+      await this.refresh();
+      if (this.failure === "UNAVAILABLE" || this.conflict) return false;
+      return this.draft ? this.persist() : !this.failure;
+    }
+    async useSaved() {
+      if (this.loading) await this.loading;
+      if (this.busy) return;
+      this.busy = true;
+      this.changed();
+      try {
+        this.saved = await this.repository.load();
+        this.draft = null;
+        this.failure = null;
+        this.conflict = false;
+      } catch {
+        this.failure = "UNAVAILABLE";
+      } finally {
+        this.busy = false;
+        this.changed();
+      }
+    }
+  };
+
   // src/ui/home-organization.ts
-  var el = (id) => document.getElementById(id);
-  var same3 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  var el4 = (id) => document.getElementById(id);
+  var same6 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   function initializeHomeOrganization(changed, repository = () => openHomeLayoutRepository()) {
     let session = null, catalog = [], verified = false;
     let failed = false, opening = false, disposed2 = false, rowsKey = "";
     let storage = null;
+    let ordering = null, orderFailed = false;
+    async function openOrder() {
+      try {
+        const repo = await openCategoryOrderRepository();
+        if (disposed2) {
+          repo.close();
+          return;
+        }
+        ordering = new CategoryOrderSession(repo, changed);
+        orderFailed = false;
+        await ordering.refresh();
+      } catch {
+        orderFailed = true;
+      }
+      if (!disposed2) changed();
+    }
+    const orderKeys = () => categoryOrderKeys(ordering?.saved?.value, catalog, layout());
+    async function reorder(key2, target, visible) {
+      if (!ordering) return;
+      const next = [...visible], from = next.indexOf(key2), to = next.indexOf(target);
+      if (from < 0 || to < 0 || from === to) return;
+      next.splice(to, 0, next.splice(from, 1)[0]);
+      await ordering.change({ version: 1, mode: "custom", keys: [...next, ...orderKeys().filter((k) => !next.includes(k))], catalog: layout() });
+    }
+    let icons = null, iconStorage = null, iconOpenFailed = false, iconsOpening = false;
+    const pickIcon = categoryIconPicker((key2, value) => {
+      void icons?.change(key2, value);
+    });
+    async function openIcons() {
+      if (iconsOpening || disposed2) return;
+      iconsOpening = true;
+      try {
+        iconStorage = await openCategoryIconRepository();
+        if (disposed2) {
+          iconStorage.close();
+          return;
+        }
+        icons = new CategoryIconSession(iconStorage, () => {
+          if (!disposed2) changed();
+        });
+        iconOpenFailed = false;
+        await icons.refresh();
+      } catch {
+        iconOpenFailed = true;
+      } finally {
+        iconsOpening = false;
+        if (!disposed2) changed();
+      }
+    }
     let deferredFocus = null;
-    let deferredHeading = null;
     async function open() {
       if (opening || disposed2) return;
       opening = true;
@@ -3013,6 +6056,8 @@
           if (!disposed2) changed();
         });
         failed = false;
+        await session.refresh();
+        if (disposed2) return;
         if (verified) await session.refresh(catalog);
       } catch {
         failed = true;
@@ -3023,33 +6068,37 @@
     }
     function observe(next, available) {
       verified = available;
-      if (!same3(catalog, next)) {
+      if (!same6(catalog, next)) {
         catalog = next;
         if (available) void session?.refresh(catalog);
       } else if (available && session?.saved === null && !session.busy && !session.failure) void session.refresh(catalog);
     }
     const layout = () => session?.current() ?? reconcileHomeLayout(null, catalog);
-    async function change(key, action) {
+    async function change(key2, action, completeDirectory = false) {
       if (!session) return;
-      await session.change(key, action);
+      const visible = layout().categories.filter((c) => (completeDirectory || c.visible) && catalog.some((item) => item.key === c.key && (completeDirectory ? item.members.length > 0 : item.count > 0))).map((c) => c.key);
+      await session.change(key2, action, typeof action === "object" ? visible : void 0);
       changed();
     }
-    function close() {
-      setProperty(el("home-customization"), "hidden", true);
-      setAttribute(el("customize-home"), "aria-expanded", "false");
-      el("customize-home").focus({ preventScroll: true });
-    }
     function render2() {
+      const sort = el4("sites-category-order");
+      setProperty(sort, "value", ordering?.saved?.value?.mode ?? "custom");
+      setProperty(sort, "disabled", !ordering?.saved || ordering.busy || ordering.conflict || !!ordering.failure || !!ordering.draft);
+      const orderIssue = orderFailed || !!ordering?.failure || !!ordering?.conflict;
+      setProperty(el4("category-order-error"), "hidden", !orderIssue);
+      setProperty(el4("category-order-message"), "textContent", ordering?.conflict ? "Another window saved a newer order. Your change is retained; load the saved order to reconcile." : "Category order could not be saved or verified. Your change is retained; retry.");
+      setProperty(el4("retry-category-order"), "hidden", !!ordering?.conflict);
+      setProperty(el4("reload-category-order"), "hidden", !ordering?.conflict);
       const focus = document.activeElement;
       const focusCategory = focus?.closest("[data-layout-category]")?.dataset.layoutCategory;
       const focusAction = focus?.dataset.layoutAction;
-      const headingCategory = focus?.classList.contains("category-heading") ? focus.closest("[data-category-key]")?.dataset.categoryKey : void 0;
       const working = session?.requested() ?? layout(), available = new Map(catalog.map((c) => [c.key, c]));
       const categories = working.categories.filter((c) => available.has(c.key));
-      const key = JSON.stringify(categories);
-      if (key !== rowsKey) {
-        rowsKey = key;
-        const list = el("home-layout-list"), focus2 = document.activeElement;
+      const iconChoices = icons?.draft ?? icons?.saved?.value;
+      const key2 = JSON.stringify([categories, iconChoices]);
+      if (key2 !== rowsKey) {
+        rowsKey = key2;
+        const list = el4("home-layout-list"), focus2 = document.activeElement;
         const category = focus2?.closest("[data-layout-category]")?.dataset.layoutCategory;
         const action = focus2?.dataset.layoutAction;
         const existing = new Map([...list.children].map((n) => [n.dataset.layoutCategory, n]));
@@ -3057,106 +6106,115 @@
           const row = existing.get(c.key) ?? document.createElement("li");
           setProperty(row.dataset, "layoutCategory", c.key);
           if (!row.children.length) {
-            const label = document.createElement("label");
-            label.className = "checkbox-label";
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            setProperty(checkbox.dataset, "layoutAction", "VISIBILITY");
-            checkbox.addEventListener("change", () => void change(row.dataset.layoutCategory, "VISIBILITY"));
-            const name = document.createElement("span");
-            name.className = "layout-category-name";
-            label.append(checkbox, name);
-            const controls = document.createElement("span");
-            controls.className = "layout-order-actions";
-            for (const direction of ["UP", "DOWN"]) {
-              const button = document.createElement("button");
-              button.type = "button";
-              button.className = "secondary compact";
-              setProperty(button, "textContent", direction === "UP" ? "\u2191" : "\u2193");
-              setProperty(button.dataset, "layoutAction", direction);
-              button.addEventListener("click", () => void change(row.dataset.layoutCategory, direction));
-              controls.append(button);
-            }
-            row.append(label, controls);
+            const label = document.createElement("span");
+            label.className = "layout-category-name";
+            const choice = document.createElement("button");
+            choice.type = "button";
+            choice.className = "category-icon-choice";
+            choice.dataset.layoutAction = "ICON";
+            choice.setAttribute("aria-haspopup", "dialog");
+            choice.append(icon("category"));
+            choice.addEventListener("click", () => pickIcon(choice, row.dataset.layoutCategory, choice.dataset.icon ?? ""));
+            row.append(choice, label);
           }
-          setProperty(row.querySelector("input"), "checked", c.visible);
           setProperty(row.querySelector(".layout-category-name"), "textContent", c.label);
-          for (const button of row.querySelectorAll("button")) {
-            const name = `Move ${c.label} ${button.dataset.layoutAction === "UP" ? "up" : "down"}`;
-            setAttribute(button, "aria-label", name);
-            setProperty(button, "title", name);
-          }
+          const chosenIcon = iconChoices?.entries.find((e) => e.key === c.key)?.icon;
+          setAttribute(row.querySelector("use"), "href", `#icon-${chosenIcon ?? defaultCategoryIcon(c.label)}`);
+          const picker = row.querySelector(".category-icon-choice");
+          setProperty(picker.dataset, "icon", chosenIcon ?? "");
+          setAttribute(picker, "aria-label", `Choose icon for ${c.label}`);
+          setProperty(picker, "title", `Choose icon for ${c.label}`);
           return row;
         });
         list.replaceChildren(...rows);
         if (category && action) rows.find((r) => r.dataset.layoutCategory === category)?.querySelector(`[data-layout-action="${action}"]`)?.focus({ preventScroll: true });
       }
       const locked = !session?.saved || session.busy || session.conflict || session.failure === "UNAVAILABLE";
-      if (locked && session?.busy) {
+      if (locked && session?.busy || icons?.busy) {
         if (focusCategory && focusAction) deferredFocus = { category: focusCategory, action: focusAction };
-        if (headingCategory) deferredHeading = headingCategory;
       }
-      for (const [index, row] of [...el("home-layout-list").children].entries()) {
+      for (const row of el4("home-layout-list").children) {
         const category = available.get(row.dataset.layoutCategory);
-        setProperty(row, "title", `${category?.count ?? 0} allowed destinations${category?.count === 0 ? " \xB7 no Home row while empty" : ""}`);
+        setProperty(row.querySelector(".category-icon-choice"), "disabled", !icons?.saved || icons.busy || icons.conflict || icons.failure === "UNAVAILABLE");
+        setProperty(row, "title", `${category?.count ?? 0} allowed sites${category?.count === 0 ? " \xB7 no Home row while empty" : ""}`);
         for (const input2 of row.querySelectorAll("input")) setProperty(input2, "disabled", locked);
-        for (const button of row.querySelectorAll("button")) setProperty(button, "disabled", locked || button.dataset.layoutAction === "UP" && index === 0 || button.dataset.layoutAction === "DOWN" && index === categories.length - 1);
       }
       const draft = session?.draft != null;
-      setProperty(el("customize-home"), "textContent", draft && !session?.busy ? "Customize Home \xB7 unsaved" : "Customize Home");
       const unavailable = failed || session?.failure === "UNAVAILABLE";
-      const message = session?.conflict ? "Another Atlas page saved a newer layout. Your arrangement is retained here. Load the saved layout before making further changes." : unavailable ? "Home preferences could not be verified. Saved policy is unaffected. Retry loading preferences." : session?.failure ? "Your arrangement is not verified as saved. It is retained in this page; retry before closing the page. Home still uses the acknowledged layout." : session?.busy ? session.draft ? "Saving Home layout\u2026" : "Loading Home preferences\u2026" : draft ? "Your arrangement is awaiting a verified save. Home still uses the acknowledged layout." : session?.saved ? "Home layout saved. Hidden categories remain in Sites & Access; pins and search are unchanged." : "Loading Home preferences\u2026";
-      renderFeedback(el("home-layout-status"), { message, tone: session?.conflict || session?.failure || failed ? "error" : "status" });
-      setProperty(el("home-layout-warning"), "hidden", !unavailable && !session?.failure && !session?.conflict);
-      setProperty(el("home-layout-warning"), "textContent", message);
-      setProperty(el("retry-home-layout"), "hidden", !failed && !session?.failure);
-      setProperty(el("retry-home-layout"), "disabled", opening || session?.busy === true || session?.conflict === true);
-      setProperty(el("load-saved-home-layout"), "hidden", !session?.conflict);
-      setProperty(el("load-saved-home-layout"), "disabled", session?.busy === true);
-      setProperty(el("home-layout-empty"), "hidden", categories.length > 0);
-      for (const heading of document.querySelectorAll(".category-heading")) setProperty(heading, "disabled", locked);
-      if (!locked) {
-        if (document.activeElement === document.body) {
-          if (deferredFocus && !el("home-customization").closest("[hidden]")) {
-            const row = [...el("home-layout-list").children].find((n) => n.dataset.layoutCategory === deferredFocus.category);
+      const message = session?.conflict ? "Another Atlas page saved a newer layout. Your arrangement is retained here. Load the saved layout before making further changes." : unavailable ? "Home preferences could not be verified. Saved policy is unaffected. Retry loading preferences." : session?.failure ? "Your arrangement is not verified as saved. It is retained in this page; retry before closing the page. Home still uses the acknowledged layout." : session?.busy ? session.draft ? "Saving Home layout\u2026" : "Loading Home preferences\u2026" : draft ? "Your arrangement is awaiting a verified save. Home still uses the acknowledged layout." : session?.saved ? "Category order saved. Hidden categories remain in All sites and search; pins are unchanged." : "Loading Home preferences\u2026";
+      renderFeedback(el4("home-layout-status"), { message: session?.conflict || session?.failure || failed ? message : "", tone: session?.conflict || session?.failure || failed ? "error" : "status" });
+      setProperty(el4("home-layout-warning"), "hidden", !unavailable && !session?.failure && !session?.conflict);
+      setProperty(el4("home-layout-warning"), "textContent", message);
+      setProperty(el4("retry-home-layout"), "hidden", !failed && !session?.failure);
+      setProperty(el4("retry-home-layout"), "disabled", opening || session?.busy === true || session?.conflict === true);
+      setProperty(el4("load-saved-home-layout"), "hidden", !session?.conflict);
+      setProperty(el4("load-saved-home-layout"), "disabled", session?.busy === true);
+      setProperty(el4("home-layout-empty"), "hidden", categories.length > 0);
+      const iconMessage = icons?.conflict ? "Another Atlas page saved newer icons. Your choices are retained here. Load saved icons to reconcile." : iconOpenFailed || icons?.failure === "UNAVAILABLE" ? "Category icons could not be loaded. Retry; saved order and access rules are unchanged." : icons?.failure ? "Icon changes are not verified as saved. Your choices are retained here; retry before closing." : icons?.busy ? "Saving category icon\u2026" : icons?.saved ? "Icons save automatically. Automatic uses the category name." : "Loading category icons\u2026";
+      renderFeedback(el4("category-icon-status"), { message: icons?.conflict || icons?.failure || iconOpenFailed ? iconMessage : "", tone: iconOpenFailed || icons?.failure || icons?.conflict ? "error" : "status" });
+      setProperty(el4("retry-category-icons"), "hidden", !iconOpenFailed && !icons?.failure);
+      setProperty(el4("retry-category-icons"), "disabled", iconsOpening || icons?.busy === true || icons?.conflict === true);
+      setProperty(el4("load-saved-category-icons"), "hidden", !icons?.conflict);
+      if (!locked && !icons?.busy) {
+        if (document.activeElement === document.body || document.activeElement === el4("home-settings")) {
+          if (deferredFocus && !el4("home-settings").closest("[hidden]")) {
+            const row = [...el4("home-layout-list").children].find((n) => n.dataset.layoutCategory === deferredFocus.category);
             const target = row?.querySelector(`[data-layout-action="${deferredFocus.action}"]`);
             (target?.disabled ? row?.querySelector("input") : target)?.focus({ preventScroll: true });
-          } else if (deferredHeading) [...document.querySelectorAll(".category-heading")].find((h) => h.closest("[data-category-key]")?.dataset.categoryKey === deferredHeading && !h.closest("[hidden]"))?.focus({ preventScroll: true });
+          }
         }
         deferredFocus = null;
-        deferredHeading = null;
       }
     }
-    el("customize-home").addEventListener("click", () => {
-      setProperty(el("home-customization"), "hidden", false);
-      setAttribute(el("customize-home"), "aria-expanded", "true");
-      render2();
-      el("home-customization").focus({ preventScroll: false });
-    });
-    el("close-home-customization").addEventListener("click", close);
-    el("home-customization").addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        close();
-      }
-    });
-    el("retry-home-layout").addEventListener("click", () => {
+    el4("retry-home-layout").addEventListener("click", () => {
       void (async () => {
         if (!session) await open();
         else await session.retry(catalog);
         changed();
       })();
     });
-    el("load-saved-home-layout").addEventListener("click", () => {
-      if (window.confirm("Load the newer saved Home layout? The unsaved arrangement in this page will be discarded. Policy, destinations and pins will remain."))
+    el4("load-saved-home-layout").addEventListener("click", () => {
+      if (window.confirm("Load the newer saved Home layout? The unsaved arrangement in this page will be discarded. Policy, sites and pins will remain."))
         void session?.useSaved(catalog).then(changed);
+    });
+    el4("retry-category-icons").addEventListener("click", () => {
+      void (icons ? icons.retry() : openIcons());
+    });
+    el4("load-saved-category-icons").addEventListener("click", () => {
+      if (window.confirm("Discard these unsaved icon choices and load the newer saved icons?")) void icons?.useSaved();
     });
     window.addEventListener("pagehide", () => {
       disposed2 = true;
       storage?.close();
+      iconStorage?.close();
     });
-    const initialized = open();
-    return { observe, layout, render: render2, change, initialized, refresh: () => verified ? session?.refresh(catalog) : void 0, session: () => session };
+    el4("sites-category-order").addEventListener("change", () => {
+      const mode = el4("sites-category-order").value;
+      void ordering?.change({ version: 1, mode, keys: orderKeys(), catalog: layout() });
+    });
+    el4("retry-category-order").addEventListener("click", () => {
+      void (ordering ? ordering.retry() : openOrder());
+    });
+    el4("reload-category-order").addEventListener("click", () => {
+      void ordering?.useSaved();
+    });
+    window.addEventListener("pagehide", () => ordering?.repository.close());
+    const initialized = Promise.all([open(), openIcons(), openOrder()]);
+    return {
+      observe,
+      layout,
+      render: render2,
+      change,
+      initialized,
+      reorder,
+      orderKeys,
+      orderMode: () => ordering?.saved?.value?.mode ?? "custom",
+      icon: (key2, label) => icons?.icon(key2, label) ?? defaultCategoryIcon(label),
+      canMove: () => !!session?.saved && !session.busy && !session.conflict && !session.failure && !!ordering?.saved && !ordering.busy && !ordering.conflict && !ordering.draft && ordering.failure === null,
+      loading: () => opening || !session?.saved && !failed && !session?.failure,
+      refresh: () => Promise.all([verified ? session?.refresh(catalog) : void 0, icons?.refresh(), ordering?.refresh()]),
+      session: () => session
+    };
   }
 
   // src/ui/home-access.ts
@@ -3179,6 +6237,152 @@
     };
   }
 
+  // src/ui/home-greylist.ts
+  var el5 = (id) => document.getElementById(id);
+  function initializeHomeGreylist(options) {
+    const rows = /* @__PURE__ */ new Map();
+    let current2 = null;
+    let selectedTab = "";
+    async function cancelAccess2(kind, requestId, hosts) {
+      const origin = current2?.contexts.find((c) => String(c.tabId) === selectedTab && c.hostname && hosts.includes(c.hostname));
+      const response = await options.send({ kind, requestId });
+      if (response?.result?.type === "COMMITTED" && origin) options.dismiss(origin.contextId, origin.navigationId);
+    }
+    const contextAction = (tabId, contextId, command) => {
+      if (current2?.contexts.some((c) => c.tabId === tabId && c.contextId === contextId)) void options.send(command);
+    };
+    function row(item, disabled) {
+      let record = rows.get(item.id);
+      if (!record) {
+        const node = document.createElement("li");
+        node.className = "temporary-row";
+        const copy = document.createElement("span");
+        copy.className = "temporary-copy";
+        const name = document.createElement("strong");
+        name.className = "temporary-name";
+        const scope2 = document.createElement("span");
+        scope2.className = "temporary-scope";
+        copy.append(name, scope2);
+        const actions = document.createElement("span");
+        actions.className = "temporary-actions";
+        const cancel2 = document.createElement("button");
+        cancel2.type = "button";
+        cancel2.className = "access-cancel";
+        cancel2.textContent = "Cancel";
+        const status2 = document.createElement("button");
+        status2.type = "button";
+        status2.className = "access-signal";
+        record = { node, item };
+        const saved = record;
+        status2.addEventListener("click", () => saved.item.run?.());
+        cancel2.addEventListener("click", () => saved.item.cancel?.());
+        actions.append(cancel2, status2);
+        node.append(copy, actions);
+        rows.set(item.id, record);
+      }
+      record.item = item;
+      setProperty(record.node.querySelector(".temporary-name"), "textContent", item.name);
+      const scope = record.node.querySelector(".temporary-scope");
+      setProperty(scope, "textContent", item.scope);
+      setProperty(scope, "title", item.scope);
+      const status = record.node.querySelector(".access-signal");
+      setProperty(status, "textContent", item.status);
+      setProperty(status.dataset, "tone", item.tone);
+      setProperty(status, "disabled", disabled || !item.run);
+      const cancel = record.node.querySelector(".access-cancel");
+      setProperty(cancel, "hidden", !item.cancel);
+      setProperty(cancel, "disabled", disabled);
+      return record.node;
+    }
+    return { render(view2, now, busy2, selected2) {
+      current2 = view2;
+      selectedTab = selected2;
+      const summary = homeAccessSummary(view2, now), items = [], journeys = [];
+      const disabled = busy2 || !summary.available || !canQueueOperation(view2?.controller);
+      for (const p of summary.pending) {
+        const waiting = p.outcome === "WAIT";
+        items.push({
+          id: `request:${p.requestId}`,
+          name: options.label(p.hostnames[0]),
+          scope: p.hostnames.join(", "),
+          tone: waiting ? "waiting" : "ready",
+          status: waiting ? `Waiting ${countdown(p.readyAt, now)}` : `Allow \xB7 ${countdown(p.confirmBy, now)}`,
+          cancel: () => void cancelAccess2("CANCEL_ACCESS", p.requestId, p.hostnames),
+          ...!waiting ? { run: () => void options.send({ kind: "CONFIRM_ACCESS", requestId: p.requestId }) } : {}
+        });
+      }
+      for (const g of summary.grants) items.push({
+        id: `grant:${g.requestId}`,
+        name: options.label(g.hostnames[0]),
+        scope: g.hostnames.join(", "),
+        tone: "active",
+        status: `Active ${countdown(g.expiresAt, now)} \xB7 Open`,
+        cancel: () => void cancelAccess2("END_ACCESS", g.requestId, g.hostnames),
+        run: () => void options.send({ kind: "OPEN_DESTINATION", url: `https://${g.hostnames[0]}/` })
+      });
+      const context = view2?.contexts.find((c) => String(c.tabId) === selected2);
+      if (context?.hostname && !summary.pending.some((p) => p.hostnames.includes(context.hostname)) && !summary.grants.some((g) => g.hostnames.includes(context.hostname))) {
+        const decision = context.latest?.type === "ASSESSMENT" ? context.latest.decision : null, scope = context.accessScope;
+        const item = { id: `context:${context.contextId}`, name: options.label(context.hostname), scope: context.hostname, status: "Unavailable", tone: "neutral" };
+        if (decision?.outcome === "GREYLIST") {
+          item.cancel = () => options.dismiss(context.contextId, context.navigationId);
+          if (scope?.status === "READY") {
+            item.scope = scope.hostnames.join(", ");
+            item.status = "Request access";
+            item.run = () => contextAction(context.tabId, context.contextId, { kind: "START_ACCESS", tabId: context.tabId, scopeId: scope.id });
+          } else {
+            item.status = "Checking address\u2026";
+            if (!disabled) options.prepare(context);
+          }
+        } else if (decision?.outcome === "ALLOW") {
+          item.status = "Allowed";
+        } else {
+          const copy = accessContextCopy(context);
+          item.status = copy.label;
+          item.scope = copy.description;
+          if (copy.retryHome) {
+            item.status = "Retry site";
+            item.run = () => contextAction(context.tabId, context.contextId, { kind: "OPEN_HOME", tabId: context.tabId });
+          }
+        }
+        if (context.effect === "FAILED") item.scope = "Firefox could not remove this page. Close the affected tab.";
+        if (decision?.outcome !== "ALLOW") items.unshift(item);
+      }
+      if (selected2 && !context) items.unshift({ id: "missing-context", name: "Tab unavailable", scope: "The original tab has closed. Open the site again to request access.", status: "Closed", tone: "neutral" });
+      for (const c of summary.journeys) journeys.push({
+        id: `journey:${c.contextId}:${c.journey.id}`,
+        name: options.label(c.journey.rootHostname),
+        scope: `Journey \xB7 Tab ${c.tabId}`,
+        tone: "active",
+        status: `${countdown(c.journey.expiresAt, now)} \xB7 End`,
+        run: () => contextAction(c.tabId, c.contextId, { kind: "CANCEL_JOURNEY", tabId: c.tabId })
+      });
+      if (context?.retry && !summary.journeys.some((c) => c.tabId === context.tabId)) {
+        const retry = context.retry;
+        journeys.push({
+          id: `retry:${context.contextId}`,
+          name: retry.destinationLabel,
+          scope: "Journey ended",
+          tone: "neutral",
+          status: "Start again",
+          ...context.effect !== "REMOVING" ? { run: () => contextAction(context.tabId, context.contextId, { kind: "RESTART_JOURNEY", tabId: context.tabId, journeyId: retry.journeyId }) } : {}
+        });
+      }
+      const focused = document.activeElement;
+      reconcileChildren(el5("pending-access-list"), items.map((i) => row(i, disabled)));
+      reconcileChildren(el5("other-journeys"), journeys.map((i) => row(i, disabled)));
+      const retained = new Set([...items, ...journeys].map((i) => i.id));
+      for (const id of rows.keys()) if (!retained.has(id)) rows.delete(id);
+      if (focused && !focused.isConnected) el5("temporary-title").focus({ preventScroll: true });
+      setProperty(el5("temporary-count"), "textContent", items.length ? `(${items.length})` : "");
+      setProperty(el5("home-journeys-count"), "textContent", journeys.length ? `(${journeys.length})` : "");
+      setProperty(el5("home-journeys-section"), "hidden", !journeys.length);
+      setProperty(el5("temporary-empty"), "hidden", !summary.available || !!items.length);
+      setProperty(el5("temporary-unavailable"), "hidden", summary.available);
+      setProperty(el5("temporary-section"), "hidden", summary.available && items.length === 0);
+    } };
+  }
+
   // src/ui/navigation-state.ts
   var navigationStorageKey = "atlas-page-navigation-v1";
   var emptySitesPosition = () => ({ selection: "", search: "", filter: "ALL", scroll: 0 });
@@ -3196,17 +6400,17 @@
     return structuredClone(s);
   }
   function navigationMemory(storage) {
-    let current = emptyNavigationState();
+    let current2 = emptyNavigationState();
     try {
-      current = readNavigationState(JSON.parse(storage.getItem(navigationStorageKey) ?? "null")) ?? current;
+      current2 = readNavigationState(JSON.parse(storage.getItem(navigationStorageKey) ?? "null")) ?? current2;
     } catch {
     }
     return {
-      value: () => current,
+      value: () => current2,
       save(value) {
         const checked = readNavigationState(value);
         if (!checked) return;
-        current = checked;
+        current2 = checked;
         try {
           storage.setItem(navigationStorageKey, JSON.stringify(checked));
         } catch {
@@ -3231,66 +6435,11 @@
     return null;
   }
 
-  // src/ui/data-view.ts
-  function hasCommittedCollection(controller) {
-    return controller?.snapshot != null && ["READY", "LOADING", "COMMITTING"].includes(controller.status);
-  }
-  function collectionPresentation(controller, count, attempted, hasLastVerified) {
-    if (hasCommittedCollection(controller)) return { phase: count === 0 ? "EMPTY" : "READY", stale: false, message: "" };
-    const loading = !attempted || controller?.status === "LOADING" || controller?.status === "COMMITTING";
-    return {
-      phase: loading ? "LOADING" : "UNAVAILABLE",
-      stale: hasLastVerified,
-      message: `${loading ? "Loading verified destinations." : "Destinations are temporarily unavailable. Retry or open Policy & recovery."}${hasLastVerified ? " Showing last verified information; it may be out of date. Browsing actions are unavailable." : ""}`
-    };
-  }
-
-  // src/ui/presentation-storage.ts
-  function savePresentation(source, key, value) {
-    let storage;
-    try {
-      storage = typeof source === "function" ? source() : source;
-    } catch {
-      return "UNCERTAIN";
-    }
-    let before;
-    try {
-      before = storage.getItem(key);
-    } catch {
-    }
-    try {
-      storage.setItem(key, value);
-      return "SAVED";
-    } catch {
-      try {
-        const after = storage.getItem(key);
-        if (after === value) return "SAVED";
-        return before !== void 0 && after === before ? "FAILED" : "UNCERTAIN";
-      } catch {
-        return "UNCERTAIN";
-      }
-    }
-  }
-
-  // src/ui/destination-usage.ts
-  var usagePreferencesKey = "atlas-destination-usage-v1";
-  var usageHalfLifeMs = 7 * 24 * 60 * 60 * 1e3;
-  function readDestinationUsage(value) {
-    if (value === null || typeof value !== "object" || Array.isArray(value) || Object.keys(value).length > 2e3) return {};
-    const usage2 = /* @__PURE__ */ Object.create(null);
-    for (const [id, record] of Object.entries(value)) {
-      if (!validDestinationId(id) || record === null || typeof record !== "object") return {};
-      const item = record;
-      if (!Number.isSafeInteger(item.count) || item.count < 1 || !Number.isFinite(item.score) || item.score <= 0 || item.score > 1e6 || !Number.isSafeInteger(item.lastOpenedAt) || item.lastOpenedAt < 0) return {};
-      usage2[id] = { count: item.count, score: item.score, lastOpenedAt: item.lastOpenedAt };
-    }
-    return usage2;
-  }
-  function usageScore(record, now) {
-    return record === void 0 ? 0 : record.score * 2 ** (-Math.max(0, now - record.lastOpenedAt) / usageHalfLifeMs);
-  }
-  function rankDestinations(entries2, usage2, now) {
-    return entries2.map((entry, index) => ({ entry, index })).sort((a, b) => usageScore(usage2[destinationId(b.entry)], now) - usageScore(usage2[destinationId(a.entry)], now) || a.index - b.index).map((item) => item.entry);
+  // src/ui/search-prefill.ts
+  function siteSearchPrefill(query) {
+    const name = query.trim().slice(0, 100);
+    const target = /^(https?:\/\/|[^\s/]+\.[^\s/]+)/i.test(query.trim()) ? normalizeTarget(query.trim()) : null;
+    return { name, hostname: target?.hostname ?? "" };
   }
 
   // src/ui/destination-policy.ts
@@ -3312,10 +6461,53 @@
     return unique.length <= 100 ? unique : null;
   }
 
+  // src/ui/presentation-storage.ts
+  function savePresentation(source, key2, value) {
+    let storage;
+    try {
+      storage = typeof source === "function" ? source() : source;
+    } catch {
+      return "UNCERTAIN";
+    }
+    let before;
+    try {
+      before = storage.getItem(key2);
+    } catch {
+    }
+    try {
+      storage.setItem(key2, value);
+      return "SAVED";
+    } catch {
+      try {
+        const after = storage.getItem(key2);
+        if (after === value) return "SAVED";
+        return before !== void 0 && after === before ? "FAILED" : "UNCERTAIN";
+      } catch {
+        return "UNCERTAIN";
+      }
+    }
+  }
+
+  // src/ui/subdomain-scope.ts
+  function canUseSubdomainScope(hostname2) {
+    const target = normalizeTarget({ hostname: hostname2.trim() });
+    if (!target) return false;
+    const parsed = parse(target.hostname, { allowPrivateDomains: true });
+    return !parsed.isIp && (parsed.isIcann === true || parsed.isPrivate === true) && parsed.domain !== null && parsed.publicSuffix !== target.hostname;
+  }
+  function subdomainScopeDescription(hostname2) {
+    const target = normalizeTarget({ hostname: hostname2.trim() });
+    if (!target || !canUseSubdomainScope(hostname2)) return "Choose a registered hostname before including all subdomains.";
+    return `Includes ${target.hostname} and every current or future subdomain at any depth. This is broad permission; enable it only when you deliberately trust the whole scope. Manual and managed blocking rules still apply to this scope.`;
+  }
+
   // src/ui/destination-draft.ts
-  var samePolicy3 = (a, b) => ["whitelist", "blacklist"].every((key) => JSON.stringify([...new Set(a[key])].sort()) === JSON.stringify([...new Set(b[key])].sort()));
+  var samePolicy3 = (a, b) => ["whitelist", "blacklist", "whitelistSubdomains"].every((key2) => {
+    const left = a[key2] ?? [], right = b[key2] ?? [];
+    return Array.isArray(left) && Array.isArray(right) && JSON.stringify([...new Set(left)].sort()) === JSON.stringify([...new Set(right)].sort());
+  });
   var metadataFingerprint = (entries2) => JSON.stringify(entries2);
-  var same4 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  var same7 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   var canonicalHosts = (hosts) => Array.isArray(hosts) && hosts.length <= 1e4 && hosts.every((host2) => typeof host2 === "string" && normalizeTarget({ hostname: host2 })?.hostname === host2) && new Set(hosts).size === hosts.length;
   function draftBaseline(snapshot, preferences, pins2) {
     return structuredClone({
@@ -3323,18 +6515,24 @@
       policy: snapshot.policy,
       metadata: preferences.destinations,
       pins: pins2,
-      entries: policyDestinationIndex(snapshot.policy, preferences.destinations).map((entry) => ({
-        metadata: {
-          id: destinationId(entry),
-          label: entry.label,
-          category: entry.category,
-          primaryHostname: entry.hostname,
-          hostnames: entry.hostnames
-        },
-        classification: "PRESERVE",
-        pinned: pinnedDestinations([entry], pins2).length > 0
-      }))
+      entries: baselineEntries(snapshot.policy, preferences.destinations, pins2)
     });
+  }
+  function baselineEntries(policy, metadata2, pins2, mergeSubdomains = true) {
+    const entries2 = policyDestinationIndex(policy, metadata2, pins2, mergeSubdomains);
+    const pinned = new Set(pinnedDestinations(entries2, pins2).map(destinationId));
+    return entries2.map((entry) => ({
+      metadata: {
+        id: destinationId(entry),
+        label: entry.label,
+        category: entry.category,
+        primaryHostname: entry.hostname,
+        hostnames: entry.hostnames
+      },
+      classification: "PRESERVE",
+      pinned: pinned.has(destinationId(entry)),
+      ...policy.whitelistSubdomains?.includes(entry.hostname) ? { includeSubdomains: true } : {}
+    }));
   }
   function newDestinationDraft(id, baseline) {
     return { version: 1, id, baseline: structuredClone(baseline), changes: [], editor: null };
@@ -3344,7 +6542,7 @@
     const change = { id, before, after: after ? structuredClone(after) : null };
     const changes = draft.changes.filter((item) => item.id !== id);
     if (before !== null || after !== null) {
-      if (!same4(before, after)) changes.splice(Math.min(draft.changes.findIndex((item) => item.id === id) < 0 ? changes.length : draft.changes.findIndex((item) => item.id === id), changes.length), 0, change);
+      if (!same7(before, after)) changes.splice(Math.min(draft.changes.findIndex((item) => item.id === id) < 0 ? changes.length : draft.changes.findIndex((item) => item.id === id), changes.length), 0, change);
     }
     return { ...draft, changes, editor: null };
   }
@@ -3355,7 +6553,7 @@
     const stale = [];
     if (draft.baseline.policyRevision !== baseline.policyRevision || !samePolicy3(draft.baseline.policy, baseline.policy)) stale.push("Committed policy changed");
     if (metadataFingerprint(draft.baseline.metadata) !== metadataFingerprint(baseline.metadata)) stale.push("Committed destination details changed");
-    if (!same4(draft.baseline.pins, baseline.pins)) stale.push("Saved pins changed");
+    if (!same7(draft.baseline.pins, baseline.pins)) stale.push("Saved pins changed");
     const conflicts = [];
     const touched = new Set(draft.changes.map((change) => change.id));
     const desired = [...baseline.entries.filter((entry) => !touched.has(entry.metadata.id)), ...draft.changes.flatMap((item) => item.after ? [item.after] : [])];
@@ -3371,22 +6569,39 @@
     const removed = new Set(draft.changes.flatMap((item) => [...item.before?.metadata.hostnames ?? [], ...item.after?.metadata.hostnames ?? []]));
     const whitelist = baseline.policy.whitelist.filter((host2) => !removed.has(host2));
     const blacklist = baseline.policy.blacklist.filter((host2) => !removed.has(host2));
+    const scopes = (baseline.policy.whitelistSubdomains ?? []).filter((host2) => !removed.has(host2));
     for (const change of draft.changes) {
       const after = change.after;
       if (!after) continue;
       if (after.classification === "PRESERVE") {
-        if (!change.before || !same4([...change.before.metadata.hostnames].sort(), [...after.metadata.hostnames].sort()))
-          conflicts.push({ id: change.id, message: "Choose Whitelist or Blacklist when changing exact hostname scope." });
+        if (!change.before || !same7([...change.before.metadata.hostnames].sort(), [...after.metadata.hostnames].sort()))
+          conflicts.push({ id: change.id, message: "Choose Allowed or Blocked when changing exact addresses." });
+        if (!!change.before?.includeSubdomains !== !!after.includeSubdomains)
+          conflicts.push({ id: change.id, message: "Choose Allowed to change access for all subdomains; display-only edits cannot change permission." });
         after.metadata.hostnames.forEach((host2) => {
           if (baseline.policy.whitelist.includes(host2)) whitelist.push(host2);
           if (baseline.policy.blacklist.includes(host2)) blacklist.push(host2);
         });
-      } else (after.classification === "WHITELIST" ? whitelist : blacklist).push(...after.metadata.hostnames);
+        scopes.push(...(baseline.policy.whitelistSubdomains ?? []).filter((host2) => after.metadata.hostnames.includes(host2)));
+      } else {
+        (after.classification === "WHITELIST" ? whitelist : blacklist).push(...after.metadata.hostnames);
+        if (after.classification === "WHITELIST") {
+          scopes.push(...(baseline.policy.whitelistSubdomains ?? []).filter((host2) => host2 !== after.metadata.primaryHostname && after.metadata.hostnames.includes(host2)));
+          if (after.includeSubdomains) {
+            if (!canUseSubdomainScope(after.metadata.primaryHostname)) conflicts.push({ id: change.id, message: "Choose a registered hostname for all-subdomain access; public and hosting suffixes cannot be trusted as a whole." });
+            else scopes.push(after.metadata.primaryHostname);
+          }
+        } else if (after.includeSubdomains) conflicts.push({ id: change.id, message: "All-subdomain access is available only for allowed-site changes." });
+      }
     }
-    const candidatePolicy = { whitelist: [...new Set(whitelist)].sort(), blacklist: [...new Set(blacklist)].sort() };
+    const candidatePolicy = {
+      whitelist: [...new Set(whitelist)].sort(),
+      blacklist: [...new Set(blacklist)].sort(),
+      ...scopes.length || baseline.policy.whitelistSubdomains !== void 0 ? { whitelistSubdomains: [...new Set(scopes)].sort() } : {}
+    };
     if (evaluate("draft-validation.example", candidatePolicy).reason === "INVALID_POLICY") conflicts.push({ id: "", message: "Core rejected the complete candidate policy." });
     for (const item of draft.changes) if (item.after?.pinned && !item.after.metadata.hostnames.some((host2) => evaluate({ hostname: host2 }, candidatePolicy).outcome === "ALLOW"))
-      conflicts.push({ id: item.id, message: "A Blacklisted destination cannot be pinned on Home." });
+      conflicts.push({ id: item.id, message: "This site editor cannot pin a blocked site. Existing bookmark shortcuts do not change access." });
     return {
       dirty: draft.changes.length > 0 || draft.editor !== null,
       stale,
@@ -3398,9 +6613,12 @@
   function validateDraftCandidate(draft, baseline, snapshot) {
     if (!readDestinationDraft(draft)) return { dirty: true, stale: [], conflicts: [{ id: "", message: "Local draft is invalid. It cannot be submitted." }], candidatePolicy: null, policyChanged: false };
     const assessment = assessDraft(draft, baseline);
-    if (!assessment.candidatePolicy || !assessment.policyChanged || assessment.stale.length || snapshot.vaultState.pendingProposal) return assessment;
+    if (!assessment.candidatePolicy || !assessment.policyChanged || assessment.stale.length) return assessment;
+    const removal = isWhitelistRemoval(snapshot.policy, assessment.candidatePolicy);
+    if (snapshot.vaultState.pendingProposal && !removal) return assessment;
     const now = Math.max(snapshot.accessState.lastObservedAt, snapshot.vaultState.lastObservedAt, snapshot.journeyState.lastObservedAt);
-    const plan = planAtlasOperation({ kind: "PROPOSE_POLICY", candidatePolicy: assessment.candidatePolicy }, { snapshot, now, configuration: snapshot.configuration });
+    const operation = removal ? { kind: "REMOVE_WHITELIST", candidatePolicy: assessment.candidatePolicy, basePolicyRevision: baseline.policyRevision } : { kind: "PROPOSE_POLICY", candidatePolicy: assessment.candidatePolicy };
+    const plan = planAtlasOperation(operation, { snapshot, now, configuration: snapshot.configuration });
     return plan.candidateSnapshot ? assessment : {
       ...assessment,
       candidatePolicy: null,
@@ -3410,28 +6628,32 @@
   function reconcileDraft(draft, baseline) {
     const conflicts = [];
     const changes = draft.changes.map((change) => {
-      const current = baseline.entries.find((entry) => entry.metadata.id === change.id) ?? null;
-      if (!same4(current, change.before)) conflicts.push({ id: change.id, message: "Committed destination details changed. Review current and proposed values, then explicitly accept this result, edit the item or remove it." });
+      const current2 = baseline.entries.find((entry) => entry.metadata.id === change.id) ?? null;
+      if (!same7(current2, change.before)) conflicts.push({ id: change.id, message: "Committed destination details changed. Review current and proposed values, then explicitly accept this result, edit the item or remove it." });
       else if (change.before && !samePolicy3(
         {
           whitelist: draft.baseline.policy.whitelist.filter((h) => change.before.metadata.hostnames.includes(h)),
-          blacklist: draft.baseline.policy.blacklist.filter((h) => change.before.metadata.hostnames.includes(h))
+          blacklist: draft.baseline.policy.blacklist.filter((h) => change.before.metadata.hostnames.includes(h)),
+          whitelistSubdomains: draft.baseline.policy.whitelistSubdomains?.filter((h) => change.before.metadata.hostnames.includes(h)) ?? []
         },
-        { whitelist: baseline.policy.whitelist.filter((h) => change.before.metadata.hostnames.includes(h)), blacklist: baseline.policy.blacklist.filter((h) => change.before.metadata.hostnames.includes(h)) }
+        { whitelist: baseline.policy.whitelist.filter((h) => change.before.metadata.hostnames.includes(h)), blacklist: baseline.policy.blacklist.filter((h) => change.before.metadata.hostnames.includes(h)), whitelistSubdomains: baseline.policy.whitelistSubdomains?.filter((h) => change.before.metadata.hostnames.includes(h)) ?? [] }
       ))
         conflicts.push({ id: change.id, message: "Committed exact rules changed. Review current and proposed classifications, then explicitly accept this result, edit the item or remove it." });
-      return { ...change, before: current };
+      return { ...change, before: current2 };
     });
     const next = { ...draft, baseline: structuredClone(baseline), changes };
     return { draft: next, conflicts: [...conflicts, ...assessDraft(next, baseline).conflicts] };
   }
   function destinationChangeSummary(change, beforePolicy, afterPolicy) {
     const before = change.before, after = change.after;
+    const remaining = after === null ? before?.metadata.hostnames.filter((host2) => evaluate({ hostname: host2 }, afterPolicy).reason === "WHITELISTED_SCOPE") ?? [] : [];
     const classification2 = (item, policy) => item ? [...new Set(item.metadata.hostnames.map((host2) => evaluate({ hostname: host2 }, policy).outcome === "ALLOW" ? "Whitelist" : evaluate({ hostname: host2 }, policy).outcome === "DENY" ? "Blacklist" : "Greylist"))].join(" / ") : "No explicit rule";
     return [
       after?.metadata.label ?? before?.metadata.label ?? change.id,
       `${before === null ? "Addition" : after === null ? "Removal" : "Modification"} \xB7 ${classification2(before, beforePolicy)} \u2192 ${classification2(after, afterPolicy)}`,
       `Exact hosts: ${before?.metadata.hostnames.join(", ") ?? "(none)"} \u2192 ${after?.metadata.hostnames.join(", ") ?? "(none)"}`,
+      ...remaining.length ? [`Still allowed by another saved scope: ${remaining.join(", ")}. Removing these exact entries does not remove the parent scope.`] : [],
+      ...(beforePolicy.whitelistSubdomains ?? []).some((host2) => before?.metadata.hostnames.includes(host2)) || (afterPolicy.whitelistSubdomains ?? []).some((host2) => after?.metadata.hostnames.includes(host2)) ? [`Domain + all subdomains: ${(beforePolicy.whitelistSubdomains ?? []).filter((host2) => before?.metadata.hostnames.includes(host2)).join(", ") || "(none)"} \u2192 ${(afterPolicy.whitelistSubdomains ?? []).filter((host2) => after?.metadata.hostnames.includes(host2)).join(", ") || "(none)"}. All current/future descendants; manual and managed blocking still apply to additional subdomains.`] : [],
       ...before && after && before.metadata.label !== after.metadata.label ? [`Name: ${before.metadata.label} \u2192 ${after.metadata.label}`] : [],
       `Category: ${before?.metadata.category ?? "(none)"} \u2192 ${after?.metadata.category ?? "(removed)"} \xB7 Pin: ${before?.pinned ? "Pinned" : "Not pinned"} \u2192 ${after?.pinned ? "Pinned" : "Not pinned"}`
     ];
@@ -3439,23 +6661,18 @@
   function readDestinationDraft(value) {
     if (!value || typeof value !== "object") return null;
     const item = value;
-    if (item.version !== 1 || typeof item.id !== "string" || !/^[a-zA-Z0-9_-]{1,128}$/.test(item.id) || !item.baseline || !Number.isSafeInteger(item.baseline.policyRevision) || item.baseline.policyRevision < 0 || !item.baseline.policy || !canonicalHosts(item.baseline.policy.whitelist) || !canonicalHosts(item.baseline.policy.blacklist) || evaluate("draft-validation.example", item.baseline.policy).reason === "INVALID_POLICY" || !Array.isArray(item.baseline.pins) || item.baseline.pins.length > 200 || !item.baseline.pins.every(validDestinationId) || !Array.isArray(item.baseline.metadata) || !Array.isArray(item.baseline.entries) || item.baseline.entries.length > 1e4 || !Array.isArray(item.changes) || item.changes.length > 2e3) return null;
-    const validEntry = (entry) => entry !== null && typeof entry === "object" && ["WHITELIST", "BLACKLIST", "PRESERVE"].includes(entry.classification) && typeof entry.pinned === "boolean" && readDestinationPreferences({ version: 1, destinations: [entry.metadata], pending: null }).destinations.length === 1;
+    if (item.version !== 1 || typeof item.id !== "string" || !/^[a-zA-Z0-9_-]{1,128}$/.test(item.id) || !item.baseline || !Number.isSafeInteger(item.baseline.policyRevision) || item.baseline.policyRevision < 0 || !item.baseline.policy || !canonicalHosts(item.baseline.policy.whitelist) || !canonicalHosts(item.baseline.policy.blacklist) || item.baseline.policy.whitelistSubdomains !== void 0 && !canonicalHosts(item.baseline.policy.whitelistSubdomains) || evaluate("draft-validation.example", item.baseline.policy).reason === "INVALID_POLICY" || !Array.isArray(item.baseline.pins) || item.baseline.pins.length > 200 || !item.baseline.pins.every(validDestinationId) || !Array.isArray(item.baseline.metadata) || !Array.isArray(item.baseline.entries) || item.baseline.entries.length > 1e4 || !Array.isArray(item.changes) || item.changes.length > 2e3) return null;
+    const validEntry = (entry) => entry !== null && typeof entry === "object" && ["WHITELIST", "BLACKLIST", "PRESERVE"].includes(entry.classification) && typeof entry.pinned === "boolean" && (entry.includeSubdomains === void 0 || typeof entry.includeSubdomains === "boolean") && readDestinationPreferences({ version: 1, destinations: [entry.metadata], pending: null }).destinations.length === 1;
     if (!item.baseline.entries.every(validEntry) || new Set(item.baseline.entries.map((e) => e.metadata.id)).size !== item.baseline.entries.length || readDestinationPreferences({ version: 1, destinations: item.baseline.metadata, pending: null }).destinations.length !== item.baseline.metadata.length || item.changes.some((change) => !change || !validDestinationId(change.id) || change.before === null && change.after === null || change.before !== null && (!validEntry(change.before) || change.before.metadata.id !== change.id) || change.after !== null && (!validEntry(change.after) || change.after.metadata.id !== change.id)) || new Set(item.changes.map((c) => c.id)).size !== item.changes.length) return null;
-    const expected = policyDestinationIndex(item.baseline.policy, item.baseline.metadata).map((entry) => ({ metadata: {
-      id: destinationId(entry),
-      label: entry.label,
-      category: entry.category,
-      primaryHostname: entry.hostname,
-      hostnames: entry.hostnames
-    }, classification: "PRESERVE", pinned: pinnedDestinations([entry], item.baseline.pins).length > 0 }));
-    if (!same4(expected, item.baseline.entries) || item.changes.some((change) => !same4(
+    const expected = baselineEntries(item.baseline.policy, item.baseline.metadata, item.baseline.pins);
+    const legacy = !same7(expected, item.baseline.entries) && same7(baselineEntries(item.baseline.policy, item.baseline.metadata, item.baseline.pins, false), item.baseline.entries);
+    if (!same7(expected, item.baseline.entries) && !legacy || item.changes.some((change) => !same7(
       change.before,
       item.baseline.entries.find((entry) => entry.metadata.id === change.id) ?? null
     ))) return null;
     if (item.editor !== null) {
       const e = item.editor;
-      if (!e || e.id !== null && !validDestinationId(e.id) || typeof e.name !== "string" || e.name.length > 100 || typeof e.hostname !== "string" || e.hostname.length > 253 || typeof e.category !== "string" || e.category.length > 64 || typeof e.extra !== "string" || e.extra.length > 4e3 || !["WHITELIST", "BLACKLIST", "PRESERVE"].includes(e.access) || typeof e.www !== "boolean" || typeof e.pinned !== "boolean") return null;
+      if (!e || e.id !== null && !validDestinationId(e.id) || typeof e.name !== "string" || e.name.length > 100 || typeof e.hostname !== "string" || e.hostname.length > 253 || typeof e.category !== "string" || e.category.length > 64 || typeof e.extra !== "string" || e.extra.length > 4e3 || !["WHITELIST", "BLACKLIST", "PRESERVE"].includes(e.access) || typeof e.www !== "boolean" || typeof e.pinned !== "boolean" || e.includeSubdomains !== void 0 && typeof e.includeSubdomains !== "boolean") return null;
     }
     return structuredClone(item);
   }
@@ -3471,10 +6688,11 @@
       const r = value.receipt;
       if (!r || typeof r !== "object") return null;
       const d = readDestinationDraft(r.draft);
-      if (!d || d.editor !== null || !d.changes.length || !["POLICY", "DISPLAY"].includes(r.kind) || !["PREPARED", "PROPOSED", "APPLYING", "DONE", "KEPT", "RESOLVED"].includes(r.phase) || !Number.isSafeInteger(r.expectedProposalId) || r.expectedProposalId < 1 || r.proposalId !== null && (!Number.isSafeInteger(r.proposalId) || r.proposalId < 1) || !Number.isSafeInteger(r.baseConfigurationRevision) || r.baseConfigurationRevision < 0 || r.owner !== null && (typeof r.owner !== "string" || !/^[a-zA-Z0-9_-]{1,128}$/.test(r.owner)) || !r.candidatePolicy || !Array.isArray(r.candidatePolicy.whitelist) || !Array.isArray(r.candidatePolicy.blacklist)) return null;
+      if (!d || d.editor !== null || !d.changes.length || !["POLICY", "DISPLAY", "REMOVAL"].includes(r.kind) || !["PREPARED", "PROPOSED", "APPLYING", "DONE", "KEPT", "RESOLVED"].includes(r.phase) || !Number.isSafeInteger(r.expectedProposalId) || r.expectedProposalId < 1 || r.proposalId !== null && (!Number.isSafeInteger(r.proposalId) || r.proposalId < 1) || !Number.isSafeInteger(r.baseConfigurationRevision) || r.baseConfigurationRevision < 0 || r.owner !== null && (typeof r.owner !== "string" || !/^[a-zA-Z0-9_-]{1,128}$/.test(r.owner)) || !r.candidatePolicy || !Array.isArray(r.candidatePolicy.whitelist) || !Array.isArray(r.candidatePolicy.blacklist) || evaluate("receipt-validation.example", r.candidatePolicy).reason === "INVALID_POLICY") return null;
       const candidate = assessDraft(d, d.baseline).candidatePolicy;
       if (!candidate || !samePolicy3(candidate, r.candidatePolicy)) return null;
       if (r.kind === "DISPLAY" && !samePolicy3(d.baseline.policy, r.candidatePolicy)) return null;
+      if (r.kind === "REMOVAL" && (r.proposalId !== null || !isWhitelistRemoval(d.baseline.policy, r.candidatePolicy))) return null;
     }
     return structuredClone(value);
   }
@@ -3526,18 +6744,18 @@
           const request = store.get("current");
           let result = { type: "FAILED" };
           request.onsuccess = () => {
-            let current;
+            let current2;
             try {
-              current = decode(request.result);
+              current2 = decode(request.result);
             } catch {
               result = { type: "CONFLICT", envelope: null };
               return;
             }
-            if (current.revision !== expectedRevision) {
-              result = { type: "CONFLICT", envelope: current };
+            if (current2.revision !== expectedRevision) {
+              result = { type: "CONFLICT", envelope: current2 };
               return;
             }
-            const envelope = { revision: current.revision + 1, value: structuredClone(value) };
+            const envelope = { revision: current2.revision + 1, value: structuredClone(value) };
             store.put(envelope, "current");
             result = { type: "SAVED", envelope };
           };
@@ -3587,6 +6805,7 @@
     failure = null;
     loadReason = null;
     queue = Promise.resolve();
+    editorWrite = null;
     async load() {
       try {
         const envelope = await this.repository.load();
@@ -3605,23 +6824,16 @@
       }
     }
     set(value, explicitRetry = false) {
-      this.value = structuredClone(value);
+      const next = structuredClone(value);
+      this.editorWrite = null;
+      this.value = next;
       this.unsaved = true;
       this.changed();
       if (!this.loaded || this.conflict || this.failure && !explicitRetry) return Promise.resolve(false);
       let saved = false;
       const captured = structuredClone(value);
       this.queue = this.queue.then(async () => {
-        if (this.conflict || this.failure && !explicitRetry) return;
-        const result = await this.repository.save(this.revision, captured);
-        if (result.type === "SAVED") {
-          this.revision = result.envelope.revision;
-          this.failure = null;
-          this.unsaved = JSON.stringify(this.value) !== JSON.stringify(captured);
-          saved = true;
-        } else if (result.type === "CONFLICT") this.conflict = true;
-        else this.failure = result.type;
-        this.changed();
+        saved = await this.write(captured, explicitRetry);
       }).catch(() => {
         this.failure = "UNCERTAIN";
         this.changed();
@@ -3630,6 +6842,45 @@
     }
     setDraft(draft) {
       return this.set({ ...this.value, draft });
+    }
+    /** Raw inputs only. Persist the newest queued editor, never coalesce a stage or receipt. */
+    setEditor(editor) {
+      const draft = this.value.draft;
+      if (!draft?.editor || editor && editor.id !== draft.editor.id) return;
+      if (editor === null) {
+        void this.setDraft({ ...draft, editor: null });
+        return;
+      }
+      const value = { ...this.value, draft: { ...draft, editor: structuredClone(editor) } };
+      this.value = value;
+      this.unsaved = true;
+      this.changed();
+      if (!this.loaded || this.conflict || this.failure) return;
+      if (this.editorWrite) {
+        this.editorWrite.value = value;
+        return;
+      }
+      const slot = { value };
+      this.editorWrite = slot;
+      this.queue = this.queue.then(async () => {
+        if (this.editorWrite === slot) this.editorWrite = null;
+        await this.write(structuredClone(slot.value), false);
+      }).catch(() => {
+        this.failure = "UNCERTAIN";
+        this.changed();
+      });
+    }
+    async write(captured, explicitRetry) {
+      if (this.conflict || this.failure && !explicitRetry) return false;
+      const result = await this.repository.save(this.revision, captured);
+      if (result.type === "SAVED") {
+        this.revision = result.envelope.revision;
+        this.failure = null;
+        this.unsaved = JSON.stringify(this.value) !== JSON.stringify(captured);
+      } else if (result.type === "CONFLICT") this.conflict = true;
+      else this.failure = result.type;
+      this.changed();
+      return result.type === "SAVED";
     }
     idle() {
       return this.queue;
@@ -3668,11 +6919,190 @@
     const assessment = assessDraft(receipt.draft, receipt.draft.baseline);
     if (!assessment.candidatePolicy || !samePolicy3(assessment.candidatePolicy, receipt.candidatePolicy)) return "INVALID";
     if (receipt.kind === "DISPLAY") return snapshot.policyRevision === receipt.draft.baseline.policyRevision && samePolicy3(snapshot.policy, receipt.candidatePolicy) ? "COMMITTED" : "INVALID";
+    if (receipt.kind === "REMOVAL") {
+      if (!isWhitelistRemoval(receipt.draft.baseline.policy, receipt.candidatePolicy)) return "INVALID";
+      return snapshot.policyRevision === receipt.draft.baseline.policyRevision + 1 && snapshot.configurationRevision === receipt.baseConfigurationRevision && samePolicy3(snapshot.policy, receipt.candidatePolicy) ? "COMMITTED" : "RESOLVED";
+    }
     const id = receipt.proposalId ?? receipt.expectedProposalId;
     const proposal = snapshot.vaultState.pendingProposal;
     if (proposal?.id === id && proposal.basePolicyRevision === receipt.draft.baseline.policyRevision && proposal.baseConfigurationRevision === receipt.baseConfigurationRevision && samePolicy3(proposal.candidatePolicy, receipt.candidatePolicy)) return "WAITING";
     if (snapshot.vaultState.lastApplied?.proposalId === id && snapshot.policyRevision === receipt.draft.baseline.policyRevision + 1 && samePolicy3(snapshot.policy, receipt.candidatePolicy)) return "COMMITTED";
     return receipt.proposalId === null ? "UNKNOWN" : "RESOLVED";
+  }
+
+  // src/ui/destination-editor.ts
+  function initializeDestinationEditor(options) {
+    const element3 = (id) => document.getElementById(id);
+    const input2 = (id) => element3(id);
+    const text3 = (id, value) => setProperty(element3(id), "textContent", value);
+    const json2 = (value) => JSON.stringify(value);
+    let editorKey = "";
+    function currentEditor() {
+      const editor = options.editor();
+      if (!editor) return null;
+      return {
+        id: editor.id,
+        name: input2("site-name").value,
+        hostname: input2("site-hostname").value,
+        category: input2("site-category").value,
+        access: element3("site-access").value,
+        www: input2("site-www").checked,
+        extra: input2("site-extra").value,
+        pinned: input2("site-pin").checked,
+        ...input2("site-subdomains").checked ? { includeSubdomains: true } : {}
+      };
+    }
+    function restoreEditor() {
+      if (!options.live()) return;
+      const editor = options.editor();
+      if (!editor) {
+        setProperty(element3("site-draft"), "hidden", true);
+        editorKey = "";
+        return;
+      }
+      if (json2(editor) === editorKey) return;
+      clearFieldError();
+      editorKey = json2(editor);
+      setProperty(element3("site-draft"), "hidden", false);
+      text3("site-draft-title", editor.id ? `Edit ${editor.name || "destination"}` : "Add a site");
+      setProperty(input2("site-name"), "value", editor.name);
+      setProperty(input2("site-hostname"), "value", editor.hostname);
+      setProperty(input2("site-category"), "value", editor.category);
+      setProperty(element3("site-preserve-rules"), "hidden", editor.id === null);
+      setProperty(element3("site-access"), "value", editor.access);
+      setProperty(input2("site-www"), "checked", editor.www);
+      setProperty(input2("site-extra"), "value", editor.extra);
+      setProperty(input2("site-pin"), "checked", editor.pinned);
+      setProperty(input2("site-subdomains"), "checked", editor.includeSubdomains === true);
+      scope();
+    }
+    function scope(locked = false) {
+      const counterpart = commonWwwCounterpart(input2("site-hostname").value.trim());
+      setProperty(input2("site-www"), "disabled", locked || counterpart === null);
+      text3("site-www-label", counterpart === null ? "No common www counterpart for this hostname" : `Include ${counterpart}`);
+      const hosts = explicitDestinationHosts(input2("site-hostname").value.trim(), counterpart !== null && input2("site-www").checked, input2("site-extra").value);
+      text3("site-scope-preview", hosts ? `Proposed exact hosts: ${hosts.join(", ")}` : "Enter valid exact hostnames. Wildcards are unsupported.");
+      const access = element3("site-access").value;
+      const scopeAvailable = canUseSubdomainScope(input2("site-hostname").value);
+      setProperty(input2("site-subdomains"), "disabled", locked || access !== "WHITELIST" || !scopeAvailable);
+      text3("site-subdomains-label", `Also allow all subdomains of ${input2("site-hostname").value.trim() || "this hostname"}`);
+      text3("site-subdomains-help", subdomainScopeDescription(input2("site-hostname").value) + " Exact listed hostnames keep their existing Allowed sites precedence. Additional subdomains remain subject to the managed list. Adding scope uses Vault; removing it has no cooldown.");
+      setProperty(element3("site-subdomains-help"), "hidden", !input2("site-subdomains").checked && scopeAvailable);
+      if (input2("site-subdomains").checked && hosts && access !== "BLACKLIST") text3("site-scope-preview", `Exact hosts: ${hosts.join(", ")}. Additional scope: ${hosts[0]} and all current/future subdomains at any depth. Managed blocking applies to additional subdomains.`);
+      const meaningfulPin = access !== "BLACKLIST" && (access !== "PRESERVE" || hosts?.some((host2) => evaluate({ hostname: host2 }, options.policy() ?? { whitelist: [], blacklist: [] }).outcome === "ALLOW"));
+      setProperty(element3("site-pin-field"), "hidden", !meaningfulPin);
+      setProperty(input2("site-pin"), "disabled", locked || !meaningfulPin);
+      setProperty(element3("save-site-display"), "hidden", !options.editor()?.id || access !== "PRESERVE");
+    }
+    function clearFieldError() {
+      for (const id of ["site-name", "site-hostname", "site-extra", "site-category"])
+        if (input2(id).getAttribute("aria-invalid") === "true") setAttribute(input2(id), "aria-invalid", "false");
+      renderFeedback(element3("site-field-error"), { tone: "status", message: "" });
+    }
+    return {
+      read: currentEditor,
+      restore: restoreEditor,
+      scope,
+      clearError: clearFieldError,
+      remember(editor) {
+        editorKey = json2(editor);
+      },
+      lock(locked) {
+        for (const field of element3("site-form").querySelectorAll("input, select"))
+          if (!["site-www", "site-pin", "site-subdomains"].includes(field.id)) setProperty(field, "disabled", locked);
+        if (options.editor()) scope(locked);
+      }
+    };
+  }
+
+  // src/ui/destination-change-view.ts
+  function destinationChangeView(change, beforePolicy, afterPolicy) {
+    const { before, after } = change;
+    const classification2 = (item, policy) => item ? [...new Set(item.metadata.hostnames.map((host2) => {
+      const decision = evaluate({ hostname: host2 }, policy);
+      return decision.outcome === "ALLOW" ? "Allowed" : decision.outcome === "DENY" ? "Blocked" : "Requires access request";
+    }))].join(" / ") : "No explicit rule";
+    const scope = (item, policy) => (policy.whitelistSubdomains ?? []).filter((h) => item?.metadata.hostnames.includes(h)).join(", ") || "Not included";
+    const rows = [
+      ["Access", classification2(before, beforePolicy), classification2(after, afterPolicy)],
+      ["Exact hosts", before?.metadata.hostnames.join(", ") ?? "(none)", after?.metadata.hostnames.join(", ") ?? "(none)"],
+      ["Subdomain bases", scope(before, beforePolicy), scope(after, afterPolicy)],
+      ["Name", before?.metadata.label ?? "(none)", after?.metadata.label ?? "(none)"],
+      ["Category", before?.metadata.category ?? "(none)", after?.metadata.category ?? "(none)"],
+      ["Home pin", before?.pinned ? "Pinned" : "Not pinned", after?.pinned ? "Pinned" : "Not pinned"]
+    ].filter((row, i) => i < 2 || row[1] !== row[2]);
+    const full = destinationChangeSummary(change, beforePolicy, afterPolicy);
+    return {
+      name: full[0],
+      kind: !before ? "New site" : !after ? "Removal" : "Prepared change",
+      rows,
+      warnings: full.filter((line) => line.startsWith("Still allowed by another saved scope:") || line.startsWith("Domain + all subdomains:")),
+      full
+    };
+  }
+  function renderDestinationChange(container, change, before, after) {
+    const view2 = destinationChangeView(change, before, after);
+    const heading = document.createElement("h3");
+    heading.textContent = view2.name;
+    const kind = document.createElement("p");
+    kind.className = "change-kind";
+    kind.textContent = view2.kind;
+    const table = document.createElement("table");
+    table.className = "change-comparison";
+    const head = document.createElement("thead"), row = document.createElement("tr");
+    for (const value of ["Change", "Current", "Proposed"]) {
+      const cell = document.createElement("th");
+      cell.textContent = value;
+      row.append(cell);
+    }
+    head.append(row);
+    table.append(head);
+    const body = document.createElement("tbody");
+    for (const values of view2.rows) {
+      const tr = document.createElement("tr");
+      for (const value of values) {
+        const td = document.createElement("td");
+        td.textContent = value;
+        tr.append(td);
+      }
+      body.append(tr);
+    }
+    table.append(body);
+    const warnings = view2.warnings.map((message) => {
+      const p = document.createElement("p");
+      p.className = "scope-note";
+      p.textContent = message;
+      return p;
+    });
+    const details = document.createElement("details"), summary = document.createElement("summary"), full = document.createElement("p");
+    details.className = "technical-review";
+    summary.textContent = "Technical details";
+    full.textContent = view2.full.join("\n");
+    details.append(summary, full);
+    container.replaceChildren(heading, kind, table, ...warnings, details);
+  }
+
+  // src/ui/site-directory.ts
+  function directoryCategories(entries2, order = []) {
+    const groups = /* @__PURE__ */ new Map();
+    for (const entry of entries2) {
+      const label = categoryLabel(entry.category) || "Uncategorized", key2 = categoryKey(label);
+      const group = groups.get(key2) ?? { key: key2, label, count: 0 };
+      group.count++;
+      groups.set(key2, group);
+    }
+    const rank = (key2) => {
+      const i = order.indexOf(key2);
+      return i < 0 ? order.length : i;
+    };
+    return [...groups.values()].sort((a, b) => rank(a.key) - rank(b.key) || a.label.localeCompare(b.label));
+  }
+  function matchesSite(entry, query) {
+    const value = `${entry.label} ${entry.category} ${entry.hostnames.join(" ")}`.toLowerCase();
+    return query.trim().toLowerCase().split(/\s+/).filter(Boolean).every((word) => value.includes(word));
+  }
+  function directoryView(value) {
+    return typeof value === "string" && (value === "all" || value.startsWith("category:") && value.length > 9 && value.length <= 265) ? value : null;
   }
 
   // src/ui/sites.ts
@@ -3690,10 +7120,34 @@
     let refreshing = null;
     let displaying = null;
     let entriesKey = "", savedEntries = [];
+    let savedOutcomes = /* @__PURE__ */ new Map();
     let lastPresentationSave = "SAVED";
     const position = options.position ?? emptySitesPosition();
-    let selection = position.selection, listKey = "", detailKey = "", batchKey = "", editorKey = "";
+    let selection = typeof options.initialSelection === "string" ? options.initialSelection : position.selection, listKey = "", detailKey = "", batchKey = "";
+    let detailVisible = options.initialView === void 0 ? !!position.selection : options.initialView === "detail";
+    const draftRows = /* @__PURE__ */ new Map();
+    const siteRows = /* @__PURE__ */ new Map();
     let restoredList = false;
+    let directory = directoryView(options.initialDirectory), searchFocused = false, suggestionKey = "";
+    const categoryNodes = /* @__PURE__ */ new Map();
+    const dialog = element("sites-editor");
+    function chooseDirectory(value, record = true) {
+      directory = directoryView(value);
+      searchFocused = false;
+      element("sites-list").scrollTop = 0;
+      if (record) options.directoryChanged?.();
+      options.changed();
+    }
+    function syncDialog() {
+      const open = detailVisible && !!(selection || session?.value.draft?.editor) && !reviewOpen && !element("sites-section").hidden;
+      if (open && !dialog.open) dialog.showModal?.();
+      if (!open && dialog.open) dialog.close();
+    }
+    function closeDetails() {
+      showView("browse");
+      syncDialog();
+      queueMicrotask(focusSelection);
+    }
     setProperty(input("sites-search"), "value", position.search);
     setProperty(element("sites-filter"), "value", position.filter);
     const navigation2 = () => ({
@@ -3704,15 +7158,34 @@
     });
     const remember = () => options.positionChanged?.(navigation2());
     function focusSelection() {
+      if (reviewOpen) {
+        element("draft-review-title").focus({ preventScroll: true });
+        return;
+      }
+      if (detailVisible && !reviewOpen) {
+        (element("site-draft").hidden ? element("site-detail") : input("site-name")).focus({ preventScroll: true });
+        return;
+      }
       const row = [...element("sites-list").querySelectorAll(".site-row")].find((r) => r.dataset.destinationId === selection);
-      (row ?? element("add-site")).focus({ preventScroll: true });
+      (directory !== null && row ? row : input("sites-search")).focus({ preventScroll: true });
     }
     let lastController = null;
-    let reconciliation = null, reviewOpen = false;
+    let reconciliation = null, reviewOpen = options.initialView === "review";
+    function showView(next, rememberView = true) {
+      reviewOpen = next === "review";
+      detailVisible = next === "detail";
+      if (rememberView) options.viewChanged?.(next, selection);
+      options.changed();
+    }
     const drafts = options.drafts ?? openDraftRepository();
     const initialized = drafts.then(async (repository) => {
+      if (disposed2) {
+        repository.close();
+        return;
+      }
       session = new DestinationWorkspaceSession(repository, options.changed);
       loadFailure = !await session.load();
+      if (session.value.draft?.editor && options.initialView === void 0) detailVisible = true;
       restoreEditor();
       options.changed();
     }).catch(() => {
@@ -3747,93 +7220,40 @@
     const baseline = (state) => draftBaseline(state, preferences, options.pins());
     const entries2 = () => {
       const policy = (options.controller()?.snapshot ? options.controller() : lastController)?.snapshot?.policy;
-      const key = json([policy, preferences.destinations]);
-      if (key !== entriesKey) {
-        entriesKey = key;
-        savedEntries = policy ? policyDestinationIndex(policy, preferences.destinations) : [];
+      const key2 = json([policy, preferences.destinations, options.pins()]);
+      if (key2 !== entriesKey) {
+        entriesKey = key2;
+        savedEntries = policy ? policyDestinationIndex(policy, preferences.destinations, options.pins()) : [];
+        const hosts = [...new Set(savedEntries.flatMap((entry) => entry.hostnames))];
+        const decisions = evaluateMany(hosts, policy);
+        savedOutcomes = new Map(hosts.map((host2, index) => [host2, decisions[index].outcome]));
       }
       return savedEntries;
     };
-    const classification2 = (entry, policy) => {
-      const outcomes = new Set(entry.hostnames.map((hostname2) => evaluate({ hostname: hostname2 }, policy).outcome));
+    const classification2 = (entry) => {
+      const outcomes = new Set(entry.hostnames.map((hostname2) => savedOutcomes.get(hostname2)));
       return outcomes.size > 1 ? "MIXED" : outcomes.has("DENY") ? "BLACKLIST" : outcomes.has("ALLOW") ? "WHITELIST" : "GREYLIST";
     };
+    const editorControls = initializeDestinationEditor({
+      editor: () => session?.value.draft?.editor,
+      policy: () => session?.value.draft?.baseline.policy,
+      live: () => !disposed2
+    });
+    const { read: currentEditor, restore: restoreEditor, scope, clearError: clearFieldError } = editorControls;
     const activeReceipt = () => session?.value.receipt && !["DONE", "KEPT", "RESOLVED"].includes(session.value.receipt.phase) ? session.value.receipt : null;
-    function currentEditor() {
-      const editor = session?.value.draft?.editor;
-      if (!editor) return null;
-      return {
-        id: editor.id,
-        name: input("site-name").value,
-        hostname: input("site-hostname").value,
-        category: input("site-category").value,
-        access: element("site-access").value,
-        www: input("site-www").checked,
-        extra: input("site-extra").value,
-        pinned: input("site-pin").checked
-      };
-    }
-    function restoreEditor() {
-      if (disposed2) return;
-      const editor = session?.value.draft?.editor;
-      if (!editor) {
-        setProperty(element("site-draft"), "hidden", true);
-        editorKey = "";
-        return;
-      }
-      if (json(editor) === editorKey) return;
-      clearFieldError();
-      editorKey = json(editor);
-      setProperty(element("site-draft"), "hidden", false);
-      text("site-draft-title", editor.id ? "Edit destination in local draft" : "Add a destination to your draft");
-      setProperty(input("site-name"), "value", editor.name);
-      setProperty(input("site-hostname"), "value", editor.hostname);
-      setProperty(input("site-category"), "value", editor.category);
-      setProperty(element("site-preserve-rules"), "hidden", editor.id === null);
-      setProperty(element("site-access"), "value", editor.access);
-      setProperty(input("site-www"), "checked", editor.www);
-      setProperty(input("site-extra"), "value", editor.extra);
-      setProperty(input("site-pin"), "checked", editor.pinned);
-      scope();
-    }
-    function scope(locked = false) {
-      const counterpart = commonWwwCounterpart(input("site-hostname").value.trim());
-      setProperty(input("site-www"), "disabled", locked || counterpart === null);
-      text("site-www-label", counterpart === null ? "No common www counterpart for this hostname" : `Include ${counterpart}`);
-      const hosts = explicitDestinationHosts(input("site-hostname").value.trim(), counterpart !== null && input("site-www").checked, input("site-extra").value);
-      text("site-scope-preview", hosts ? `Proposed exact hosts: ${hosts.join(", ")}` : "Enter valid exact hostnames. Wildcards are unsupported.");
-      const access = element("site-access").value;
-      const meaningfulPin = access !== "BLACKLIST" && (access !== "PRESERVE" || hosts?.some((host2) => evaluate({ hostname: host2 }, session.value.draft.baseline.policy).outcome === "ALLOW"));
-      setProperty(element("site-pin-field"), "hidden", !meaningfulPin);
-      setProperty(input("site-pin"), "disabled", locked || !meaningfulPin);
-      setProperty(element("save-site-display"), "hidden", !session?.value.draft?.editor?.id || access !== "PRESERVE");
-    }
     function persistEditor() {
       if (!session?.value.draft || submitting || activeReceipt() || session.conflict) return;
       clearFieldError();
       scope();
       const editor = currentEditor();
       if (!editor) return;
-      editorKey = json(editor);
-      void session.setDraft({ ...session.value.draft, editor });
+      editorControls.remember(editor);
+      session.setEditor(editor);
     }
-    function clearFieldError() {
-      for (const id of ["site-name", "site-hostname", "site-extra", "site-category"])
-        if (input(id).getAttribute("aria-invalid") === "true") setAttribute(input(id), "aria-invalid", "false");
-      renderFeedback(element("site-field-error"), { tone: "status", message: "" });
-    }
-    function begin(id) {
-      const state = options.controller()?.snapshot;
-      if (!state || !options.canEdit() || !session?.loaded || submitting || activeReceipt() || session.conflict) return;
-      if (session.value.draft?.editor) {
-        notice("Add or close the current editor first. Your entered values are preserved.");
-        input("site-name").focus();
-        return;
-      }
-      const draft = session.value.draft ?? newDestinationDraft(newId(), baseline(state));
+    function initialEditor(draft, id) {
       const item = id ? draft.changes.find((c) => c.id === id)?.after ?? draft.baseline.entries.find((e) => e.metadata.id === id) : null;
       const counterpart = commonWwwCounterpart(item?.metadata.primaryHostname ?? "");
-      const editor = {
+      return {
         id: item?.metadata.id ?? null,
         name: item?.metadata.label ?? "",
         hostname: item?.metadata.primaryHostname ?? "",
@@ -3841,30 +7261,65 @@
         access: item?.classification ?? "WHITELIST",
         www: item?.metadata.hostnames.includes(counterpart ?? "") ?? false,
         extra: item?.metadata.hostnames.filter((h) => h !== item.metadata.primaryHostname && h !== counterpart).join(", ") ?? "",
-        pinned: item?.pinned ?? false
+        pinned: item?.pinned ?? false,
+        ...item?.includeSubdomains ? { includeSubdomains: true } : {}
       };
+    }
+    function begin(id) {
+      const state = options.controller()?.snapshot;
+      if (!state || !options.canEdit() || !session?.loaded || submitting || activeReceipt() || session.conflict) return;
+      const draft = session.value.draft ?? newDestinationDraft(newId(), baseline(state));
+      if (id && !draft.changes.some((change) => change.id === id) && !draft.baseline.entries.some((entry) => entry.metadata.id === id)) {
+        notice("This site was added after your draft baseline. Review and reconcile the stale draft before editing its new terms. Your current work is preserved.");
+        element("reconcile-destination-draft").focus();
+        return;
+      }
+      if (draft.editor) {
+        if (draft.editor.id === (id ?? null)) {
+          revealEditor();
+          return;
+        }
+        const current2 = currentEditor() ?? draft.editor, initial2 = initialEditor(draft, draft.editor.id ?? void 0);
+        if (json(current2) !== json(initial2)) {
+          notice("Your current editor has unstaged changes. Add them to the batch or use Close editor before editing another site.");
+          revealEditor();
+          return;
+        }
+      }
+      const initial = initialEditor(draft, id);
+      const noMatches = !entries2().some((entry) => matchesSite(entry, input("sites-search").value));
+      const editor = !id && noMatches ? { ...initial, ...siteSearchPrefill(element("sites-search").value) } : initial;
       void session.setDraft({ ...draft, editor });
       restoreEditor();
-      reviewOpen = false;
-      options.changed();
-      notice("Editing local draft. Add this change to the batch when ready; active policy is unchanged.");
-      input("site-name").focus();
+      revealEditor();
+      notice("");
+    }
+    function revealEditor() {
+      showView("detail");
+      const expectedFocus = document.activeElement;
+      queueMicrotask(() => {
+        if (!detailVisible || reviewOpen || !session?.value.draft?.editor || document.activeElement !== expectedFocus || !element("site-field-error").hidden) return;
+        const panel = element("site-draft"), top = panel.getBoundingClientRect?.().top ?? 0;
+        if (top < 0 || top > window.innerHeight - 80) panel.scrollIntoView?.({ block: "start" });
+        input("site-name").focus({ preventScroll: true });
+      });
     }
     async function stage(immediateDisplay = false) {
       const state = options.controller()?.snapshot ?? lastController?.snapshot, editor = currentEditor(), draft = session?.value.draft;
       if (!state || !editor || !draft || !session || submitting || session.conflict || activeReceipt()) return;
       const hosts = explicitDestinationHosts(editor.hostname.trim(), commonWwwCounterpart(editor.hostname) !== null && editor.www, editor.extra);
-      const invalid = !editor.name.trim() || editor.name.trim().length > 100 ? "site-name" : !explicitDestinationHosts(editor.hostname.trim(), false, "") ? "site-hostname" : !hosts ? "site-extra" : !editor.category.trim() || editor.category.trim().length > 64 ? "site-category" : null;
+      const invalid = !editor.name.trim() || editor.name.trim().length > 100 ? "site-name" : !explicitDestinationHosts(editor.hostname.trim(), false, "") || editor.includeSubdomains && editor.access === "WHITELIST" && !canUseSubdomainScope(editor.hostname) ? "site-hostname" : !hosts ? "site-extra" : !editor.category.trim() || editor.category.trim().length > 64 ? "site-category" : null;
       if (invalid !== null || !hosts) {
         const messages = {
-          "site-name": "Enter a destination name of 1\u2013100 characters.",
+          "site-name": "Enter a site name of 1\u2013100 characters.",
           "site-hostname": "Enter an exact primary hostname, such as example.com. URLs and wildcards are unsupported.",
           "site-extra": "Enter valid additional exact hostnames, separated by commas. URLs and wildcards are unsupported.",
           "site-category": "Enter a category of 1\u201364 characters."
         };
         const field = input(invalid ?? "site-hostname");
         setAttribute(field, "aria-invalid", "true");
-        renderFeedback(element("site-field-error"), { message: messages[invalid ?? "site-hostname"], tone: "error" });
+        const message = invalid === "site-hostname" && editor.includeSubdomains && editor.access === "WHITELIST" && !canUseSubdomainScope(editor.hostname) ? "For all-subdomain access, enter a registered hostname or one of its subdomains. Public and private suffixes cannot be allowed as a whole." : messages[invalid ?? "site-hostname"];
+        renderFeedback(element("site-field-error"), { message, tone: "error" });
         const disclosure = field.closest("details");
         if (disclosure) disclosure.open = true;
         field.focus();
@@ -3875,18 +7330,23 @@
       const after = {
         metadata: { id, label: editor.name.trim(), category: canonicalCategory(editor.category, suggestions), primaryHostname: hosts[0], hostnames: hosts },
         classification: editor.access,
-        pinned: input("site-pin").disabled ? false : editor.pinned
+        pinned: input("site-pin").disabled ? false : editor.pinned,
+        ...editor.includeSubdomains && editor.access !== "BLACKLIST" ? { includeSubdomains: true } : {}
       };
       const staged = stageDestination(draft, id, after);
-      if (!await session.setDraft(staged)) {
-        session.value = { ...session.value, draft: { ...staged, editor } };
-        editorKey = json(editor);
+      const saving = session.setDraft(staged), published = session.value;
+      if (!await saving) {
+        if (session.value === published) {
+          session.value = { ...session.value, draft: { ...staged, editor } };
+          editorControls.remember(editor);
+        }
         notice("Draft could not be verified as saved. Your work is retained in this page; retry saving before closing it or submitting.", session.conflict ? "error" : "uncertain");
         options.changed();
         return;
       }
       restoreEditor();
-      options.changed();
+      showView("browse");
+      syncDialog();
       queueMicrotask(focusSelection);
       notice("Change added to saved local draft. No Vault wait has started and active policy is unchanged.", "success");
       if (immediateDisplay) {
@@ -3904,7 +7364,7 @@
       const draft = session.value.draft ?? newDestinationDraft(newId(), baseline(state));
       await session.setDraft(stageDestination(draft, id, null));
       options.changed();
-      notice("Removal staged in local draft. Managed Blacklist rules are unchanged.");
+      notice("Removal staged in local draft. Managed Blocked sites rules are unchanged.");
     }
     async function submit() {
       if (submitting || !session?.loaded) return;
@@ -3925,14 +7385,15 @@
         notice("Review and resolve stale data or draft conflicts before submission.", "error");
         return;
       }
-      if (assessment.policyChanged && state.vaultState.pendingProposal || preferences.pending) {
+      const removal = isWhitelistRemoval(state.policy, assessment.candidatePolicy);
+      if (assessment.policyChanged && !removal && state.vaultState.pendingProposal || preferences.pending) {
         notice("A frozen proposal or display save is already pending. Review the existing Vault proposal first.");
         return;
       }
       submitting = true;
       options.changed();
       const receipt = {
-        kind: assessment.policyChanged ? "POLICY" : "DISPLAY",
+        kind: removal ? "REMOVAL" : assessment.policyChanged ? "POLICY" : "DISPLAY",
         draft: structuredClone(draft),
         candidatePolicy: assessment.candidatePolicy,
         expectedProposalId: state.vaultState.nextProposalId,
@@ -3959,19 +7420,22 @@
         }
         let response;
         try {
-          response = await options.propose({ kind: "PROPOSE_POLICY", candidatePolicy: receipt.candidatePolicy, basePolicyRevision: draft.baseline.policyRevision });
+          response = await options.propose({ kind: removal ? "REMOVE_WHITELIST" : "PROPOSE_POLICY", candidatePolicy: receipt.candidatePolicy, basePolicyRevision: draft.baseline.policyRevision });
         } catch {
         }
         const proposal = response?.view?.controller?.snapshot?.vaultState.pendingProposal;
-        if (response?.result?.type === "COMMITTED" && proposal && samePolicy3(proposal.candidatePolicy, receipt.candidatePolicy)) {
+        const committed = response?.view?.controller;
+        if (removal && response?.result?.type === "COMMITTED" && response.result.operation === "REMOVE_WHITELIST" && committed?.status === "READY" && committed.snapshot && receiptOutcome(receipt, committed.snapshot) === "COMMITTED") {
+          if (await session.set({ ...session.value, draft: null, receipt: { ...receipt, phase: "PROPOSED" } })) await applyDisplay(false);
+        } else if (!removal && response?.result?.type === "COMMITTED" && proposal && samePolicy3(proposal.candidatePolicy, receipt.candidatePolicy)) {
           await session.set({ ...session.value, draft: null, receipt: { ...receipt, phase: "PROPOSED", proposalId: proposal.id } });
           restoreEditor();
           notice("One Vault proposal saved for the complete batch. Active policy is unchanged; wait and explicitly confirm in Vault.", "success");
           options.vault();
-        } else if (response?.result?.type === "REJECTED" || response?.result?.type === "BLOCKED" && response.result.reason !== "COMMIT_UNKNOWN" && response.result.status !== "RECONCILING" || response?.error === "POLICY_DRAFT_STALE") {
+        } else if (response?.result?.type === "REJECTED" || !removal && response?.result?.type === "BLOCKED" && response.result.reason !== "COMMIT_UNKNOWN" && response.result.status !== "RECONCILING" || response?.error === "POLICY_DRAFT_STALE") {
           await session.set({ ...session.value, receipt: { ...receipt, phase: "RESOLVED" } });
           notice("The batch was not submitted. Your saved draft is preserved; review current state before retrying.", "error");
-        } else notice("Proposal submission outcome is uncertain. Frozen intent is saved; check saved authority before another submission. Do not repeat the proposal.", "uncertain");
+        } else notice("Policy submission outcome is uncertain. Frozen intent is saved; check saved authority before another submission. Do not repeat the command.", "uncertain");
       } finally {
         submitting = false;
         options.changed();
@@ -3993,10 +7457,10 @@
           await session.set({
             ...session.value,
             draft: session.value.draft?.id === receipt.draft.id ? null : session.value.draft,
-            receipt: { ...receipt, proposalId: receipt.proposalId ?? receipt.expectedProposalId, phase: "PROPOSED", owner: null }
+            receipt: { ...receipt, proposalId: receipt.kind === "REMOVAL" ? null : receipt.proposalId ?? receipt.expectedProposalId, phase: "PROPOSED", owner: null }
           }, true);
           notice(outcome === "WAITING" ? "Existing saved proposal found. Review it in Vault; no second proposal was created." : "Policy committed and is active. Retry only accompanying display details.", "success");
-        } else if (receipt.proposalId !== null || state.vaultState.nextProposalId === receipt.expectedProposalId) {
+        } else if (receipt.kind === "REMOVAL" || receipt.proposalId !== null || state.vaultState.nextProposalId === receipt.expectedProposalId) {
           await session.set({ ...session.value, draft: session.value.draft ?? receipt.draft, receipt: { ...receipt, phase: "RESOLVED", owner: null } }, true);
           notice("No matching active proposal or commit remains. Editable batch restored for explicit review; no permission or new wait was created.");
         } else notice("Submission cannot be correlated with current authority. Keep frozen intent and inspect Vault before proceeding.", "uncertain");
@@ -4012,7 +7476,7 @@
       const state = await verifiedSnapshot();
       const canDiscardIntent = uncertainIntent && state && receiptOutcome(receipt, state) === "UNKNOWN" && !state.vaultState.pendingProposal && state.vaultState.nextProposalId > receipt.expectedProposalId;
       if (receipt.phase !== "APPLYING" && !canDiscardIntent) return;
-      const prompt = uncertainIntent ? "Discard this uncorrelated local batch and its remaining display terms? Its historical outcome cannot be established. Current saved policy and display details remain. No proposal will be sent, confirmed or cancelled." : "Keep current display details and discard this batch\u2019s remaining display edits? Committed policy will remain active.";
+      const prompt = uncertainIntent ? "Discard this uncorrelated local batch and its remaining display terms? Its historical outcome cannot be established. Current saved policy and display details remain. No proposal will be sent, confirmed or cancelled." : "Keep current display details and discard this batch\u2019s remaining display edits? Current access rules will remain active.";
       if (!window.confirm(prompt)) return;
       submitting = true;
       options.changed();
@@ -4073,23 +7537,23 @@
         return;
       }
       displayFailed = true;
-      const current = readPreferences();
+      const current2 = readPreferences();
       if (!preferencesAvailable) {
         notice("The display save outcome could not be verified because storage is unavailable. Frozen terms are preserved for retry; saved policy is unaffected.", "uncertain");
         return;
       }
-      let destinations = current.destinations;
+      let destinations = current2.destinations;
       for (const change of receipt.draft.changes) {
         const before = receipt.draft.baseline.metadata.find((item) => item.id === change.id) ?? null;
         const saved = destinations.find((item) => item.id === change.id) ?? null, after = change.after?.metadata ?? null;
         if (json(saved) !== json(before) && json(saved) !== json(after) || after && destinations.some((item) => item.id !== change.id && item.hostnames.some((host2) => after.hostnames.includes(host2)))) {
-          notice("Policy is preserved, but another page changed these display details. Retry cannot overwrite them. Review the conflicting destination or keep current display details.", "error");
+          notice("Policy is preserved, but another page changed these display details. Retry cannot overwrite them. Review the conflicting site or keep current display details.", "error");
           return;
         }
         destinations = replaceDestinationMetadata(destinations, after, change.id);
       }
-      if (!savePreferences({ ...current, destinations })) {
-        notice(receipt.kind === "POLICY" ? "Policy committed and is active. Display details could not be verified as saved. Retry only display details and pins; do not resubmit policy." : "Display details could not be verified as saved. Frozen values are preserved for explicit retry; exact access rules are unchanged.", lastPresentationSave === "FAILED" ? "error" : "uncertain");
+      if (!savePreferences({ ...current2, destinations })) {
+        notice(receipt.kind !== "DISPLAY" ? "Policy committed and is active. Display details could not be verified as saved. Retry only display details and pins; do not resubmit policy." : "Display details could not be verified as saved. Frozen values are preserved for explicit retry; exact access rules are unchanged.", lastPresentationSave === "FAILED" ? "error" : "uncertain");
         return;
       }
       for (const change of receipt.draft.changes) {
@@ -4099,9 +7563,9 @@
           notice("A pin changed elsewhere. Review it before retrying display details.", "error");
           return;
         }
-        const result = options.pin(change.id, after?.pinned ?? false, hosts);
+        const result = await options.pin(change.id, after?.pinned ?? false, hosts);
         if (result !== "SAVED") {
-          notice(receipt.kind === "POLICY" ? "Policy committed and is active. Display details saved, but pins could not be verified. Retry only display details and pins." : "Display details saved, but pins could not be verified. Retry the remaining display save; exact access rules are unchanged.", result === "FAILED" ? "error" : "uncertain");
+          notice(receipt.kind !== "DISPLAY" ? "Policy committed and is active. Display details saved, but pins could not be verified. Retry only display details and pins." : "Display details saved, but pins could not be verified. Retry the remaining display save; exact access rules are unchanged.", result === "FAILED" ? "error" : "uncertain");
           return;
         }
       }
@@ -4112,20 +7576,31 @@
       displayFailed = false;
       restoreEditor();
       options.changed();
-      notice(receipt.kind === "POLICY" ? "Complete batch policy committed. Accompanying display details and pins are saved." : "Display details and pins saved. Exact access rules are unchanged.", "success");
+      notice(receipt.kind === "REMOVAL" ? "Allowed sites removals applied without a cooldown. Display details and pins are saved." : receipt.kind === "POLICY" ? "Complete batch policy committed. Accompanying display details and pins are saved." : "Display details and pins saved. Exact access rules are unchanged.", "success");
+      if (receipt.kind !== "POLICY" && !element("sites-section").hidden && !session.value.draft?.editor) {
+        reviewOpen = false;
+        options.changed();
+        queueMicrotask(focusSelection);
+      }
     }
-    function legacyDisplay() {
+    let legacyApplying = false;
+    async function legacyDisplay() {
       const state = snapshot();
-      if (!state || !preferences.pending || legacyFailed || activeReceipt()) return;
+      if (!state || !preferences.pending || legacyFailed || activeReceipt() || legacyApplying) return;
       const pending = preferences.pending, result = reconcileDestinationPreferences(preferences, state);
       if (result.preferences === preferences) return;
       const hosts = pending.destination?.hostnames ?? preferences.destinations.find((d) => d.id === pending.removedId)?.hostnames ?? [];
-      if (!savePreferences(result.pinChange ? { ...result.preferences, pending } : result.preferences) || result.pinChange && (options.pin(result.pinChange.id, result.pinChange.pinned, hosts) !== "SAVED" || !savePreferences(result.preferences))) {
-        legacyFailed = true;
-        notice("Saved legacy policy is preserved. Retry only accompanying display details.", "error");
-      } else {
-        notice(result.pinChange ? "Policy committed. Accompanying display details and pins saved." : "Resolved pending display terms cleared.", "success");
-        options.changed();
+      legacyApplying = true;
+      try {
+        if (!savePreferences(result.pinChange ? { ...result.preferences, pending } : result.preferences) || result.pinChange && (await options.pin(result.pinChange.id, result.pinChange.pinned, hosts) !== "SAVED" || !savePreferences(result.preferences))) {
+          legacyFailed = true;
+          notice("Saved legacy policy is preserved. Retry only accompanying display details.", "error");
+        } else {
+          notice(result.pinChange ? "Policy committed. Accompanying display details and pins saved." : "Resolved pending display terms cleared.", "success");
+          options.changed();
+        }
+      } finally {
+        legacyApplying = false;
       }
     }
     function renderFrozenReview() {
@@ -4134,91 +7609,111 @@
       const panel = element("vault-destination-review");
       setProperty(panel, "hidden", !matched);
       if (matched) setProperty(element("vault-changes"), "hidden", true);
-      const key = matched ? json(receipt) : "";
-      if (panel.dataset.review === key) return;
-      setProperty(panel.dataset, "review", key);
+      const key2 = matched ? json(receipt) : "";
+      if (panel.dataset.review === key2) return;
+      setProperty(panel.dataset, "review", key2);
       element("vault-destination-items").replaceChildren(...(matched ? receipt.draft.changes : []).map((change) => {
         const li = document.createElement("li");
-        setProperty(li, "textContent", destinationChangeSummary(change, receipt.draft.baseline.policy, receipt.candidatePolicy).join("\n"));
+        renderDestinationChange(li, change, receipt.draft.baseline.policy, receipt.candidatePolicy);
         return li;
       }));
     }
     function renderBatch(state) {
       const draft = session?.value.draft, receipt = session?.value.receipt;
       const frozen = activeReceipt();
-      text("destination-draft-heading", frozen ? "Frozen destination batch" : "Local destination draft");
-      text("destination-workspace-kind", !session?.loaded ? loadFailure || session?.loadReason === "INVALID" ? "Local state unavailable" : "Loading local workspace" : frozen ? "Frozen submission" : draft ? "Editable \xB7 no authority" : receipt?.phase === "DONE" ? "Completed local batch" : receipt ? "Resolved local batch" : "No staged changes");
-      const workspace = session?.loaded && !draft && !receipt && !session.unsaved && !session.failure && !session.conflict && !loadFailure ? "empty" : "work";
+      text("destination-draft-heading", frozen ? "Submitted batch" : draft?.changes.length ? `${draft.changes.length} ${draft.changes.length === 1 ? "change" : "changes"} prepared` : draft?.editor ? "Editing your draft" : "Your draft");
+      text("destination-workspace-kind", !session?.loaded ? loadFailure || session?.loadReason === "INVALID" ? "Local state unavailable" : "Loading local workspace" : frozen ? "Frozen submission" : draft ? "Prepared changes" : receipt?.phase === "DONE" ? "Completed local batch" : receipt ? "Resolved local batch" : "No staged changes");
+      const workspace = session?.loaded && !draft && (!receipt || ["DONE", "KEPT"].includes(receipt.phase)) && !session.unsaved && !session.failure && !session.conflict && !loadFailure ? "empty" : "work";
+      setProperty(element("destination-draft-panel").dataset, "quiet", String(!!session?.loaded && !draft && !frozen && !session.unsaved && !session.failure && !session.conflict && !loadFailure));
       if (element("destination-draft-panel").dataset.workspace !== workspace) setProperty(element("destination-draft-panel").dataset, "workspace", workspace);
-      const current = state ? baseline(state) : draft?.baseline;
-      const assessment = draft && current ? state ? validateDraftCandidate(draft, current, state) : assessDraft(draft, current) : null;
-      let status = !session?.loaded ? session?.loadReason === "INVALID" ? "Saved local drafts are damaged or incompatible. Submission disabled. Explicitly discard damaged draft data to recover; policy is preserved." : loadFailure ? "Local draft storage unavailable. Saved drafts cannot be verified; submission disabled." : "Loading saved local draft\u2026" : session.conflict ? "Another Atlas window saved a newer draft. Your local work is retained. Explicitly reload the shared draft before continuing." : session.unsaved || session.failure ? "Unsaved local work. Keep this page open and retry saving; recovery is not guaranteed." : draft?.changes.length || draft?.editor ? `Saved editable draft \xB7 ${draft.changes.length} staged changes. No authority or Vault wait.` : "No local changes staged.";
+      const current2 = draft ? state ? baseline(state) : draft.baseline : void 0;
+      const assessment = draft && current2 ? state ? validateDraftCandidate(draft, current2, state) : assessDraft(draft, current2) : null;
+      let status = !session?.loaded ? session?.loadReason === "INVALID" ? "Saved local drafts are damaged or incompatible. Submission disabled. Explicitly discard damaged draft data to recover; policy is preserved." : loadFailure ? "Local draft storage unavailable. Saved drafts cannot be verified; submission disabled." : "Loading saved local draft\u2026" : session.conflict ? "Another Atlas window saved a newer draft. Your local work is retained. Explicitly reload the shared draft before continuing." : session.unsaved || session.failure ? "Unsaved local work. Keep this page open and retry saving; recovery is not guaranteed." : draft?.changes.length || draft?.editor ? `Saved locally \xB7 ${draft.changes.length} staged changes. Your active access rules have not changed.` : "No local changes staged.";
       if (!state && draft) status += " Authoritative state unavailable; draft retained, submission disabled.";
       text("destination-draft-status", status);
+      const problem = !!loadFailure || !!session?.failure || !!session?.conflict;
+      setProperty(element("draft-problem"), "hidden", !problem);
+      text("draft-problem-title", session?.conflict ? "A newer draft exists in another Atlas page" : !session?.loaded ? "Your saved draft could not be loaded" : session.failure === "UNCERTAIN" ? "Your draft save could not be verified" : "Your draft could not be saved");
+      text("draft-problem-copy", session?.conflict ? "Your edits remain in this page. Loading the newer shared draft will ask before replacing them." : !session?.loaded ? "Existing saved data has not been replaced. Retry loading before preparing or submitting changes." : session.failure === "UNCERTAIN" ? "Your entered values remain in this page. The saved outcome is uncertain. Keep this page open and retry verification before submitting or closing." : "Your entered values remain in this page. Keep it open and retry saving before submitting or closing.");
+      text("draft-problem-detail", session?.conflict ? "DRAFT_CONFLICT" : session?.loadReason ?? session?.failure ?? (loadFailure ? "DRAFT_STORAGE_UNAVAILABLE" : ""));
+      if (session?.loaded && reviewOpen && !draft?.changes.length) reviewOpen = false;
+      setProperty(element("destination-draft-panel").dataset, "review", String(reviewOpen));
+      setProperty(element("sites-section").dataset, "view", reviewOpen ? "review" : detailVisible ? "detail" : "browse");
+      syncDialog();
+      text("draft-review-count", `${draft?.changes.length ?? 0} ${draft?.changes.length === 1 ? "change" : "changes"} prepared`);
+      setProperty(element("resume-destination-editor"), "hidden", !draft?.editor || detailVisible || reviewOpen);
+      setProperty(element("discard-destination-summary"), "hidden", !draft || reviewOpen);
       text("destination-draft-stale", assessment?.stale.length ? `Stale draft: ${assessment.stale.join("; ")}. Review reconciliation before submission.` : "");
       setProperty(element("destination-draft-stale"), "hidden", !assessment?.stale.length);
-      const conflicts = assessment?.conflicts ?? [], key = json([draft?.changes, conflicts, reviewOpen, reconciliation]);
-      if (key !== batchKey) {
-        batchKey = key;
-        element("destination-draft-items").replaceChildren(...(draft?.changes ?? []).map((change) => {
-          const row = document.createElement("li");
-          row.className = "draft-item";
-          setProperty(row.dataset, "destinationId", change.id);
-          const content = document.createElement("div"), lines = destinationChangeSummary(change, draft.baseline.policy, assessment?.candidatePolicy ?? draft.baseline.policy);
-          lines.slice(0, reviewOpen ? lines.length : 3).forEach((line, index) => {
-            const p = document.createElement(index === 0 ? "strong" : "p");
-            setProperty(p, "textContent", line);
-            content.append(p);
-          });
-          conflicts.filter((c) => c.id === change.id).forEach((c) => {
-            const p = document.createElement("p");
-            setProperty(p, "textContent", c.message);
-            p.className = "draft-conflict";
-            content.append(p);
-          });
-          const actions = document.createElement("div");
-          actions.className = "actions";
-          const edit = document.createElement("button");
-          edit.type = "button";
-          setProperty(edit, "textContent", change.after ? "Edit staged item" : "Restore / edit");
-          edit.className = "secondary compact";
-          edit.dataset.draftAction = "EDIT";
-          setProperty(edit, "disabled", !state || !!activeReceipt() || !!session?.conflict);
-          edit.addEventListener("click", () => begin(change.id));
-          const remove = document.createElement("button");
-          remove.type = "button";
-          setProperty(remove, "textContent", "Remove from draft");
-          remove.className = "text-button";
-          remove.dataset.draftAction = "REMOVE";
-          remove.className = "text-button destructive";
-          setProperty(remove, "disabled", !!activeReceipt() || !!session?.conflict);
-          remove.addEventListener("click", () => {
-            if (session?.value.draft) void session.setDraft(unstageDestination(session.value.draft, change.id));
-          });
-          const removeRule = document.createElement("button");
-          removeRule.type = "button";
-          setProperty(removeRule, "textContent", "Stage removal");
-          removeRule.className = "text-button";
-          setProperty(removeRule, "hidden", change.after === null);
-          removeRule.dataset.draftAction = "REMOVE_RULE";
-          setProperty(removeRule, "disabled", !!activeReceipt() || !!session?.conflict);
-          removeRule.addEventListener("click", () => void stageRemoval(change.id));
-          actions.append(edit, remove, removeRule);
-          row.append(content, actions);
-          return row;
-        }));
+      const conflicts = assessment?.conflicts ?? [], key2 = json([draft?.changes, conflicts, reviewOpen, reconciliation]);
+      if (key2 !== batchKey) {
+        batchKey = key2;
+        const retained = /* @__PURE__ */ new Set();
+        const rows = (draft?.changes ?? []).map((change) => {
+          retained.add(change.id);
+          let row = draftRows.get(change.id);
+          if (!row) {
+            const node = document.createElement("li");
+            node.className = "draft-item";
+            node.dataset.destinationId = change.id;
+            const content = document.createElement("div"), actions = document.createElement("div");
+            actions.className = "actions";
+            const edit = document.createElement("button");
+            edit.type = "button";
+            edit.className = "secondary compact";
+            edit.dataset.draftAction = "EDIT";
+            edit.addEventListener("click", () => begin(change.id));
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.textContent = "Remove from draft";
+            remove.className = "text-button destructive";
+            remove.dataset.draftAction = "REMOVE";
+            remove.addEventListener("click", () => {
+              if (session?.value.draft) void session.setDraft(unstageDestination(session.value.draft, change.id));
+            });
+            const removeRule = document.createElement("button");
+            removeRule.type = "button";
+            removeRule.textContent = "Stage removal";
+            removeRule.className = "text-button";
+            removeRule.dataset.draftAction = "REMOVE_RULE";
+            removeRule.addEventListener("click", () => void stageRemoval(change.id));
+            actions.append(edit, remove, removeRule);
+            node.append(content, actions);
+            row = { node, content, edit, removeRule, key: "" };
+            draftRows.set(change.id, row);
+          }
+          const lines = destinationChangeSummary(change, draft.baseline.policy, assessment?.candidatePolicy ?? draft.baseline.policy);
+          const shown = reviewOpen ? lines : lines.filter((line, index) => index < 3 || line.startsWith("Domain + all subdomains:") || line.startsWith("Still allowed by another saved scope:"));
+          const errors = conflicts.filter((c) => c.id === change.id), contentKey = json([shown, errors]);
+          if (row.key !== contentKey) {
+            row.key = contentKey;
+            renderDestinationChange(row.content, change, draft.baseline.policy, assessment?.candidatePolicy ?? draft.baseline.policy);
+            row.content.append(...errors.map((c) => {
+              const p = document.createElement("p");
+              p.textContent = c.message;
+              p.className = "draft-conflict";
+              return p;
+            }));
+          }
+          setProperty(row.edit, "textContent", change.after ? "Edit staged item" : "Restore / edit");
+          setProperty(row.removeRule, "hidden", change.after === null);
+          return row.node;
+        });
+        for (const id of draftRows.keys()) if (!retained.has(id)) draftRows.delete(id);
+        reconcileChildren(element("destination-draft-items"), rows);
         element("destination-draft-conflicts").replaceChildren(...conflicts.map((c) => {
           const p = document.createElement("p");
           setProperty(p, "textContent", `${c.id ? `${c.id}: ` : ""}${c.message}`);
           return p;
         }));
         const preview = reconciliation;
+        const reconciledPolicy = preview ? assessDraft(preview.draft, preview.draft.baseline).candidatePolicy ?? preview.draft.baseline.policy : null;
         element("draft-reconciliation-items").replaceChildren(...(preview?.draft.changes ?? []).map((change) => {
           const li = document.createElement("li");
           setProperty(li, "textContent", destinationChangeSummary(
             change,
             preview.draft.baseline.policy,
-            assessDraft(preview.draft, preview.draft.baseline).candidatePolicy ?? preview.draft.baseline.policy
+            reconciledPolicy
           ).join("\n"));
           return li;
         }));
@@ -4230,18 +7725,30 @@
       }
       setProperty(element("draft-reconciliation"), "hidden", reconciliation === null);
       setProperty(element("reconcile-destination-draft"), "disabled", locked || !assessment?.stale.length);
+      setProperty(element("reconcile-destination-draft"), "hidden", !assessment?.stale.length);
       setProperty(element("accept-draft-reconciliation"), "disabled", locked || !reconciliation || assessDraft(reconciliation.draft, reconciliation.draft.baseline).conflicts.length > 0 || reconciliation.draft.editor !== null);
-      setProperty(element("review-destination-draft"), "disabled", !draft?.changes.length || draft.editor !== null);
-      setProperty(element("submit-destination-draft"), "disabled", locked || !!session?.unsaved || !!session?.failure || !reviewOpen || !assessment?.candidatePolicy || !!assessment.stale.length || !!draft?.editor || !draft?.changes.length || assessment.policyChanged && state?.vaultState.pendingProposal != null || preferences.pending !== null);
-      text("submit-destination-draft", assessment?.policyChanged ? "Submit complete batch to Vault" : "Save display changes");
-      text("draft-submit-help", activeReceipt() ? "This batch is frozen. Review or cancel it in Vault; resolve pending display saves before editing again." : state?.vaultState.pendingProposal ? "A proposal is already in Vault. Prepare local work freely; a new policy batch cannot replace it." : draft?.editor ? "Add or close the editor before reviewing the batch." : !reviewOpen && draft?.changes.length ? "Review the complete batch before submitting." : assessment?.stale.length ? "Accept a reviewed reconciliation before submission." : conflicts.length ? "Resolve the conflicts above before submission." : assessment?.policyChanged ? "One Vault wait and explicit confirmation protects the whole batch. Managed Blacklist rules remain unchanged." : "Names, categories and pins save directly without a Vault cooldown.");
+      setProperty(element("review-destination-draft"), "disabled", !draft?.changes.length);
+      setProperty(element("review-destination-draft"), "hidden", !draft?.changes.length);
+      setAttribute(element("review-destination-draft"), "aria-expanded", String(reviewOpen));
+      setProperty(element("destination-draft-items"), "hidden", !reviewOpen && !conflicts.length);
+      text("review-destination-draft", reviewOpen ? "Close review" : `Review ${draft?.changes.length ?? 0} ${draft?.changes.length === 1 ? "change" : "changes"}`);
+      const removal = !!state && !!assessment?.candidatePolicy && isWhitelistRemoval(state.policy, assessment.candidatePolicy);
+      setProperty(element("submit-destination-draft"), "disabled", locked || !!session?.unsaved || !!session?.failure || !reviewOpen || !assessment?.candidatePolicy || !!assessment.stale.length || !!draft?.editor || !draft?.changes.length || assessment.policyChanged && !removal && state?.vaultState.pendingProposal != null || preferences.pending !== null);
+      text("submit-destination-draft", removal ? "Remove allowed sites now" : assessment?.policyChanged ? "Submit to Vault" : "Save display changes");
+      text("draft-submit-help", activeReceipt() ? "This batch is frozen. Review or cancel it in Vault; resolve pending display saves before editing again." : state?.vaultState.pendingProposal && !removal ? "A proposal is already in Vault. Prepare local work freely; a new policy batch cannot replace it." : session?.unsaved || session?.failure ? "Review is a preview. Save or retry your local draft before submitting." : draft?.editor ? reviewOpen ? "Showing staged changes. Open editor changes are not included; add or close the editor before submitting." : "Review shows your staged batch. Add or close the editor before submitting." : !reviewOpen && draft?.changes.length ? "Review the complete batch before submitting." : assessment?.stale.length ? "Accept a reviewed reconciliation before submission." : conflicts.length ? "Resolve the conflicts above before submission." : removal ? "This only removes existing allowed-site rules, so no wait is needed. Blocked sites and settings stay unchanged. Any pending Vault proposal will need to be prepared again." : assessment?.policyChanged ? `These changes need ${state.configuration.vaultTiming.waitMs / 1e3} seconds of waiting in Vault, then your confirmation. Existing access rules stay active until you confirm.` : "Names, categories and pins save directly without a Vault cooldown.");
       setProperty(element("retry-destination-draft"), "hidden", !loadFailure && !session?.unsaved && !session?.failure);
       setProperty(element("discard-damaged-draft"), "hidden", session?.loadReason !== "INVALID");
       setProperty(element("reload-shared-draft"), "hidden", !session?.conflict);
       setProperty(element("discard-destination-draft"), "disabled", submitting || !draft || !!activeReceipt());
-      setProperty(element("destination-receipt"), "hidden", !receipt);
-      const outcome = receipt && state ? receiptOutcome(receipt, state) : null;
-      text("destination-receipt-status", !receipt ? "" : receipt.phase === "DONE" ? "Applied batch: policy (if changed), display details and pins acknowledged." : receipt.phase === "KEPT" ? "Current saved policy and display details kept; remaining local batch terms were discarded." : receipt.phase === "RESOLVED" ? "Proposal resolved without applying accompanying display details. Restore only as an editable draft." : outcome === "COMMITTED" ? receipt.kind === "POLICY" ? "Policy committed and active. Accompanying display details are pending or need retry." : "Display-only save pending; exact access rules are unchanged." : outcome === "WAITING" ? "Frozen Vault proposal saved. Active policy unchanged; waiting or explicit confirmation still required." : "Frozen submission intent. Check saved authority before retrying; no second policy command will be sent.");
+      setProperty(element("discard-destination-summary"), "disabled", submitting || !draft || !!activeReceipt());
+      setProperty(element("destination-receipt"), "hidden", !receipt || ["DONE", "KEPT"].includes(receipt.phase));
+      const receiptPanel = element("destination-receipt");
+      if (receipt && receiptPanel.dataset.phase !== receipt.phase) {
+        setProperty(receiptPanel.dataset, "phase", receipt.phase);
+        setProperty(receiptPanel, "open", !["DONE", "KEPT"].includes(receipt.phase));
+      }
+      const outcome = receipt && state && !["DONE", "KEPT", "RESOLVED"].includes(receipt.phase) ? receiptOutcome(receipt, state) : null;
+      text("destination-receipt-status", !receipt ? "" : receipt.phase === "DONE" ? "Applied batch: policy (if changed), display details and pins acknowledged." : receipt.phase === "KEPT" ? "Current saved policy and display details kept; remaining local batch terms were discarded." : receipt.phase === "RESOLVED" ? "Proposal resolved without applying accompanying display details. Restore only as an editable draft." : outcome === "COMMITTED" ? receipt.kind !== "DISPLAY" ? "Policy committed and active. Accompanying display details are pending or need retry." : "Display-only save pending; exact access rules are unchanged." : outcome === "WAITING" ? "Frozen Vault proposal saved. Active policy unchanged; waiting or explicit confirmation still required." : "Frozen submission intent. Check saved authority before retrying; no second policy command will be sent.");
       setProperty(element("check-draft-submission"), "hidden", !receipt || ["DONE", "KEPT", "RESOLVED"].includes(receipt.phase));
       setProperty(element("retry-site-save"), "hidden", !legacyFailed && !(receipt?.phase === "APPLYING" || displayFailed));
       const uncorrelated = receipt?.phase === "PREPARED" && outcome === "UNKNOWN" && state && !state.vaultState.pendingProposal && state.vaultState.nextProposalId > receipt.expectedProposalId;
@@ -4268,9 +7775,9 @@
       refreshing = session.refresh().then(async () => {
         if (disposed2) return;
         restoreEditor();
-        const receipt = activeReceipt(), current = snapshot();
-        if (receipt && current && !session.unsaved && !session.failure && !session.conflict) {
-          const outcome = receiptOutcome(receipt, current);
+        const receipt = activeReceipt(), current2 = snapshot();
+        if (receipt && current2 && !session.unsaved && !session.failure && !session.conflict) {
+          const outcome = receiptOutcome(receipt, current2);
           if (outcome === "COMMITTED" && receipt.phase === "PROPOSED") await applyDisplay(false);
           else if (outcome === "RESOLVED" && receipt.phase === "PROPOSED") await session.set({ ...session.value, receipt: { ...receipt, phase: "RESOLVED" } });
         }
@@ -4279,6 +7786,50 @@
       });
       return refreshing;
     }
+    function inspect(id) {
+      selection = id;
+      detailKey = "";
+      searchFocused = false;
+      remember();
+      showView("detail");
+      const expectedFocus = document.activeElement;
+      queueMicrotask(() => {
+        if (detailVisible && !reviewOpen && document.activeElement === expectedFocus && element("site-field-error").hidden) (element("site-draft").hidden ? element("site-detail") : input("site-name")).focus({ preventScroll: true });
+      });
+    }
+    function renderSuggestions(matches2, categories, query, ready) {
+      const panel = element("sites-search-results");
+      const matchingCategories = query ? categories.filter((c) => query.toLowerCase().split(/\s+/).every((w) => c.label.toLowerCase().includes(w))) : [];
+      const key2 = json([query, matches2, matchingCategories, ready]);
+      if (key2 !== suggestionKey) {
+        suggestionKey = key2;
+        const nodes = [];
+        const button = (label, action) => {
+          const node = document.createElement("button");
+          node.type = "button";
+          node.textContent = label;
+          node.addEventListener("click", action);
+          node.disabled = !ready;
+          nodes.push(node);
+        };
+        for (const category of matchingCategories) button(`${category.label} \xB7 ${category.count} sites`, () => {
+          input("sites-search").value = "";
+          chooseDirectory(`category:${category.key}`);
+          remember();
+        });
+        for (const entry of matches2.slice(0, 12)) button(`${entry.label} \xB7 ${entry.hostname}`, () => inspect(destinationId(entry)));
+        if (matches2.length) button(`View all ${matches2.length} results`, () => chooseDirectory("all"));
+        else {
+          const message = document.createElement("p");
+          message.className = "note";
+          message.textContent = ready ? "No matching sites. Add a site to prepare new access rules." : "Sites cannot be verified right now.";
+          nodes.push(message);
+        }
+        reconcileChildren(panel, nodes);
+      }
+      setProperty(panel, "hidden", !searchFocused || !query);
+      setAttribute(input("sites-search"), "aria-expanded", String(searchFocused && !!query));
+    }
     function render2(ready) {
       if (disposed2) return;
       const controller = options.controller();
@@ -4286,48 +7837,86 @@
       const display = controller?.snapshot ?? lastController?.snapshot;
       const presentationState = hasCommittedCollection(controller) ? controller.snapshot : null;
       legacyDisplay();
-      const all = entries2(), words = input("sites-search").value.trim().toLowerCase().split(/\s+/).filter(Boolean), filter = element("sites-filter").value;
-      const visible = all.filter((entry) => (filter === "ALL" || classification2(entry, display.policy) === filter || filter === "WHITELIST" && entry.hostnames.some((host2) => evaluate({ hostname: host2 }, display.policy).outcome === "ALLOW") || filter === "BLACKLIST" && entry.hostnames.some((host2) => evaluate({ hostname: host2 }, display.policy).outcome === "DENY")) && words.every((word) => `${entry.label} ${entry.category} ${entry.hostnames.join(" ")}`.toLowerCase().includes(word)));
+      if (element("sites-section").hidden) {
+        renderBatch(presentationState ?? null);
+        return;
+      }
+      const all = entries2(), query = input("sites-search").value.trim(), filter = element("sites-filter").value;
+      const allowedByFilter = all.filter((entry) => filter === "ALL" || classification2(entry) === filter || filter === "WHITELIST" && entry.hostnames.some((host2) => savedOutcomes.get(host2) === "ALLOW") || filter === "BLACKLIST" && entry.hostnames.some((host2) => savedOutcomes.get(host2) === "DENY"));
+      const matches2 = allowedByFilter.filter((entry) => matchesSite(entry, query));
+      const visible = directory?.startsWith("category:") ? allowedByFilter.filter((entry) => categoryKey(entry.category || "Uncategorized") === directory.slice(9)) : matches2;
+      let usage = {};
+      try {
+        usage = readDestinationUsage(JSON.parse(localStorage.getItem(usagePreferencesKey) ?? "null"));
+      } catch {
+      }
+      const categories = orderCategories(
+        directoryCategories(allowedByFilter),
+        options.categoryOrderMode?.() ?? "custom",
+        options.categoryOrder?.() ?? [],
+        allowedByFilter,
+        usage,
+        Date.now()
+      );
+      const groups = categories.map((category) => {
+        let node = categoryNodes.get(category.key);
+        if (!node) {
+          node = document.createElement("section");
+          categoryNodes.set(category.key, node);
+        }
+        setProperty(node.dataset, "categoryKey", category.key);
+        setProperty(node.dataset, "category", category.label);
+        setProperty(node.dataset, "count", String(category.count));
+        setProperty(node.dataset, "icon", options.categoryIcon?.(category.key, category.label) ?? "category");
+        return node;
+      });
+      options.renderCategories?.(groups);
+      setProperty(element("sites-categories"), "hidden", directory !== null);
+      setProperty(element("sites-category-order-label"), "hidden", directory !== null);
+      setProperty(element("sites-list"), "hidden", directory === null);
+      setProperty(element("sites-categories-back"), "hidden", directory === null);
+      text("sites-directory-title", directory?.startsWith("category:") ? categories.find((c) => c.key === directory.slice(9))?.label ?? "Category" : directory === "all" ? "All sites" : "Categories");
+      renderSuggestions(matches2, categories, query, ready);
       const phase = collectionPresentation(controller, all.length, options.attempted?.() === true || controller != null, display != null);
       setProperty(element("sites-section").dataset, "phase", phase.phase);
       setProperty(element("sites-recovery"), "hidden", phase.phase !== "UNAVAILABLE");
-      text("sites-status", phase.phase === "READY" || phase.phase === "EMPTY" ? `Committed policy \xB7 ${all.length} destinations \xB7 revision ${display.policyRevision}` : phase.message);
+      text("sites-status", phase.phase === "READY" || phase.phase === "EMPTY" ? `Current access rules \xB7 ${all.length} sites` : phase.message);
       setProperty(element("sites-pending"), "hidden", controller?.snapshot?.vaultState.pendingProposal == null);
-      const key = json([visible, display?.policy, session?.value.draft?.changes]);
-      if (key !== listKey) {
-        listKey = key;
+      const marked = new Set(session?.value.draft?.changes.map((change) => change.id));
+      const key2 = json([visible, display?.policy, visible.map((entry) => marked.has(destinationId(entry)))]);
+      if (key2 !== listKey) {
+        listKey = key2;
         const list = element("sites-list"), scroll = list.scrollTop ?? 0;
         const focused = document.activeElement, focusId = focused?.dataset.destinationId;
-        list.replaceChildren(...visible.map((entry) => {
-          const button = document.createElement("button");
-          button.type = "button";
-          button.className = "site-row";
-          setProperty(button.dataset, "destinationId", destinationId(entry));
-          const name = document.createElement("strong");
-          setProperty(name, "textContent", entry.label);
-          const category = document.createElement("span");
-          setProperty(category, "textContent", entry.category);
-          category.className = "note";
-          const badge = document.createElement("span");
-          setProperty(badge, "textContent", classification2(entry, display.policy) === "WHITELIST" ? "Whitelisted" : classification2(entry, display.policy) === "BLACKLIST" ? "Blacklisted" : "Mixed rules");
-          badge.className = "pill";
-          if (session?.value.draft?.changes.some((c) => c.id === destinationId(entry))) badge.textContent += " \xB7 Draft";
-          button.append(name, category, badge);
-          setProperty(button, "title", entry.hostnames.join(", "));
-          button.addEventListener("click", () => {
-            selection = destinationId(entry);
-            detailKey = "";
-            remember();
-            options.changed();
-            queueMicrotask(() => {
-              const detail2 = element("site-detail");
-              if (detail2.hidden || !element("site-draft").hidden) return;
-              if (matchMedia("(max-width: 1050px)").matches) detail2.scrollIntoView({ block: "start" });
-              detail2.focus({ preventScroll: true });
-            });
-          });
-          return button;
-        }));
+        const nodes = visible.map((entry) => {
+          const id = destinationId(entry);
+          let row = siteRows.get(id);
+          if (!row) {
+            const node = document.createElement("button");
+            node.type = "button";
+            node.className = "site-row";
+            node.dataset.destinationId = id;
+            const name = document.createElement("strong"), category = document.createElement("span"), badge = document.createElement("span");
+            category.className = "note";
+            badge.className = "pill";
+            const mark = options.siteMark?.(entry.hostname);
+            if (mark) node.append(mark);
+            node.append(name, category, badge);
+            node.addEventListener("click", () => inspect(id));
+            row = { node, name, category, badge, mark };
+            siteRows.set(id, row);
+          }
+          setProperty(row.name, "textContent", entry.label);
+          setProperty(row.category, "textContent", `${entry.hostname} \xB7 ${entry.category}`);
+          if (row.mark && row.mark.dataset.hostname !== entry.hostname) options.siteMark(entry.hostname, row.mark);
+          const kind = classification2(entry);
+          setProperty(row.badge, "textContent", `${kind === "WHITELIST" ? "Allowed" : kind === "BLACKLIST" ? "Blocked" : "Mixed rules"}${marked.has(id) ? " \xB7 Draft" : ""}`);
+          setProperty(row.node, "title", entry.hostnames.join(", "));
+          return row.node;
+        });
+        const liveIds = new Set(all.map(destinationId));
+        for (const id of siteRows.keys()) if (!liveIds.has(id)) siteRows.delete(id);
+        reconcileChildren(list, nodes);
         list.scrollTop = scroll;
         if (focusId) [...list.querySelectorAll(".site-row")].find((r) => r.dataset.destinationId === focusId)?.focus({ preventScroll: true });
       }
@@ -4335,9 +7924,11 @@
         element("sites-list").scrollTop = position.scroll;
         restoredList = true;
       }
-      setProperty(element("sites-empty"), "hidden", visible.length !== 0 || phase.phase === "LOADING" || phase.phase === "UNAVAILABLE");
+      setProperty(element("sites-empty"), "hidden", (directory === null ? categories.length : visible.length) !== 0 || phase.phase === "LOADING" || phase.phase === "UNAVAILABLE");
       const selected2 = all.find((entry) => destinationId(entry) === selection);
-      setProperty(element("site-detail"), "hidden", !selected2);
+      setProperty(element("sites-back"), "hidden", !selected2 && !session?.value.draft?.editor);
+      setProperty(element("site-selection-empty"), "hidden", !!selected2 || !!session?.value.draft?.editor);
+      setProperty(element("site-detail"), "hidden", !selected2 || !!session?.value.draft?.editor);
       const detail = json([selected2, display?.policy, options.pins()]);
       if (selected2 && detail !== detailKey) {
         detailKey = detail;
@@ -4345,7 +7936,8 @@
         text("site-detail-category", `${selected2.category} \xB7 ${pinnedDestinations([selected2], options.pins()).length ? "Pinned" : "Not pinned"}`);
         element("site-detail-hosts").replaceChildren(...selected2.hostnames.map((hostname2) => {
           const row = document.createElement("li"), result = evaluate({ hostname: hostname2 }, display.policy);
-          setProperty(row, "textContent", `${hostname2}${hostname2 === selected2.hostname ? " \xB7 primary" : ""} \xB7 ${result.outcome === "DENY" ? "Blacklisted" : "Whitelisted"}${display.policy.blacklist.includes(hostname2) && display.policy.whitelist.includes(hostname2) ? " (Blacklist overrides Whitelist)" : ""}`);
+          const subtree = display.policy.whitelistSubdomains?.includes(hostname2) ? " \xB7 Also all current/future subdomains; manual and managed blocking still apply to additional hosts." : "";
+          setProperty(row, "textContent", `${hostname2}${hostname2 === selected2.hostname ? " \xB7 primary" : ""} \xB7 ${result.outcome === "DENY" ? "Blocked" : "Allowed"}${display.policy.blacklist.includes(hostname2) && display.policy.whitelist.includes(hostname2) ? " (Blocked sites overrides Allowed sites)" : ""}${subtree}`);
           return row;
         }));
       }
@@ -4353,15 +7945,13 @@
       for (const id of ["add-site", "edit-site", "remove-site", "propose-site", "save-site-display"]) setProperty(element(id), "disabled", locked);
       setProperty(element("cancel-site-draft"), "disabled", submitting || !!activeReceipt());
       const editorLocked = submitting || !!activeReceipt() || !!session?.conflict;
-      for (const field of element("site-form").querySelectorAll("input, select"))
-        if (field.id !== "site-www" && field.id !== "site-pin") setProperty(field, "disabled", editorLocked);
-      if (session?.value.draft?.editor) scope(editorLocked);
+      editorControls.lock(editorLocked);
       for (const row of element("sites-list").querySelectorAll(".site-row")) setAttribute(row, "aria-pressed", String(row.dataset.destinationId === selection));
       const suggestions = categorySuggestions([...all.map((e) => e.category), ...preferences.destinations.map((e) => e.category)], session?.value.draft?.changes.flatMap((c) => c.after ? [c.after.metadata.category] : []) ?? []);
-      const categories = element("site-categories"), categoriesKey = json(suggestions);
-      if (categories.dataset.categories !== categoriesKey) {
-        setProperty(categories.dataset, "categories", categoriesKey);
-        categories.replaceChildren(...suggestions.map((label) => {
+      const categoryOptions = element("site-categories"), categoriesKey = json(suggestions);
+      if (categoryOptions.dataset.categories !== categoriesKey) {
+        setProperty(categoryOptions.dataset, "categories", categoriesKey);
+        categoryOptions.replaceChildren(...suggestions.map((label) => {
           const option = document.createElement("option");
           setProperty(option, "value", label);
           return option;
@@ -4382,18 +7972,46 @@
         void session.setDraft({ ...session.value.draft, editor: null }).then((saved) => {
           restoreEditor();
           if (saved) {
+            showView("browse");
+            syncDialog();
             notice("Editor closed. Staged changes preserved.");
             queueMicrotask(focusSelection);
           }
         });
       }
     });
-    for (const id of ["site-name", "site-hostname", "site-category", "site-access", "site-www", "site-extra", "site-pin"]) element(id).addEventListener("input", persistEditor);
+    for (const id of ["site-name", "site-hostname", "site-category", "site-access", "site-www", "site-extra", "site-pin", "site-subdomains"]) element(id).addEventListener("input", persistEditor);
     element("review-destination-draft").addEventListener("click", () => {
-      reviewOpen = true;
-      options.changed();
-      notice("Review the complete local batch below. Nothing has been submitted.");
+      showView(reviewOpen ? session?.value.draft?.editor || selection ? "detail" : "browse" : "review");
+      notice("");
+      queueMicrotask(() => {
+        if (reviewOpen) {
+          element("draft-review-title").focus({ preventScroll: true });
+          element("destination-draft-items").scrollTop = 0;
+          element("main-content").scrollTop = 0;
+          window.scrollTo?.({ top: 0, behavior: "instant" });
+        } else focusSelection();
+      });
     });
+    element("sites-back").addEventListener("click", closeDetails);
+    dialog.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      closeDetails();
+    });
+    dialog.addEventListener("click", (event) => {
+      if (event.target !== dialog) return;
+      const r = dialog.getBoundingClientRect();
+      if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) closeDetails();
+    });
+    element("continue-destination-editing").addEventListener("click", () => {
+      showView(session?.value.draft?.editor || selection ? "detail" : "browse");
+      queueMicrotask(() => session?.value.draft?.editor ? input("site-name").focus() : focusSelection());
+    });
+    element("resume-destination-editor").addEventListener("click", () => {
+      showView("detail");
+      input("site-name").focus();
+    });
+    element("discard-destination-summary").addEventListener("click", () => element("discard-destination-draft").click());
     element("submit-destination-draft").addEventListener("click", () => void submit());
     element("discard-destination-draft").addEventListener("click", () => {
       if (!session || activeReceipt() || submitting || !window.confirm("Discard this editable draft and entered values? Saved policy and display details will remain.")) return;
@@ -4406,7 +8024,12 @@
     element("retry-destination-draft").addEventListener("click", () => void (async () => {
       if (!session) {
         try {
-          session = new DestinationWorkspaceSession(await openDraftRepository(), options.changed);
+          const repository = await openDraftRepository();
+          if (disposed2) {
+            repository.close();
+            return;
+          }
+          session = new DestinationWorkspaceSession(repository, options.changed);
         } catch {
           notice("Draft storage still cannot be opened. No policy command was sent.", "error");
           return;
@@ -4416,6 +8039,7 @@
       else await session.retry();
       restoreEditor();
       options.changed();
+      if (!loadFailure && !session.failure && !session.unsaved && !session.conflict) notice("Local draft saved.", "success");
     })());
     element("discard-damaged-draft").addEventListener("click", () => void (async () => {
       if (!session || session.loadReason !== "INVALID" || !window.confirm("Discard damaged local draft and display receipt data? These unsaved cosmetic terms will be lost. Active policy, pending Vault proposals and committed display details will remain.")) return;
@@ -4481,8 +8105,55 @@
     element("keep-current-display").addEventListener("click", () => void keepCurrentDisplay());
     element("sites-review-pending").addEventListener("click", options.vault);
     for (const id of ["sites-search", "sites-filter"]) element(id).addEventListener("input", () => {
+      searchFocused = true;
       render2(options.canEdit());
       remember();
+    });
+    element("sites-search").addEventListener("focus", () => {
+      searchFocused = true;
+      render2(options.canEdit());
+    });
+    element("sites-categories-back").addEventListener("click", () => {
+      chooseDirectory(null);
+    });
+    element("sites-show-all").addEventListener("click", () => {
+      chooseDirectory("all");
+    });
+    const searchKey2 = (event) => {
+      const panel = element("sites-search-results");
+      if (event.key === "Escape") {
+        event.preventDefault();
+        searchFocused = false;
+        panel.hidden = true;
+        input("sites-search").focus();
+        searchFocused = false;
+        panel.hidden = true;
+        setAttribute(input("sites-search"), "aria-expanded", "false");
+        return;
+      }
+      if (panel.hidden || !["ArrowDown", "ArrowUp", "Enter"].includes(event.key)) return;
+      const buttons = [...panel.querySelectorAll("button:not(:disabled)")];
+      if (!buttons.length) return;
+      if (event.key === "Enter" && document.activeElement === input("sites-search")) {
+        event.preventDefault();
+        buttons[0].click();
+        return;
+      }
+      if (event.key !== "Enter") {
+        event.preventDefault();
+        const index = buttons.indexOf(document.activeElement);
+        buttons[(index + (event.key === "ArrowDown" ? 1 : buttons.length - 1)) % buttons.length].focus();
+      }
+    };
+    input("sites-search").addEventListener("keydown", searchKey2);
+    element("sites-search-results").addEventListener("keydown", searchKey2);
+    window.addEventListener("pointerdown", (event) => {
+      const target = event.target;
+      if (target !== input("sites-search") && !element("sites-search-results").contains(target)) {
+        searchFocused = false;
+        element("sites-search-results").hidden = true;
+        setAttribute(input("sites-search"), "aria-expanded", "false");
+      }
     });
     element("sites-list").addEventListener("scroll", remember, { passive: true });
     window.addEventListener("storage", (event) => {
@@ -4493,241 +8164,57 @@
     });
     window.addEventListener("pagehide", () => {
       disposed2 = true;
+      void initialized.then(() => session?.idle()).finally(() => session?.repository.close());
+      draftRows.clear();
+      siteRows.clear();
     });
-    return { render: render2, refresh, metadata: () => preferences.destinations, initialized, idle: async () => {
-      await initialized;
-      await refreshing;
-      await displaying;
-      await session?.idle();
-    }, session: () => session, renderFrozenReview, navigation: navigation2, focusSelection };
-  }
-
-  // src/ui/website-icons.ts
-  var maxBytes = 1024 * 1024;
-  function publicImageUrl(value, base) {
-    try {
-      const url = new URL(value, base);
-      return ["https:", "http:"].includes(url.protocol) && !url.username && !url.password ? url.href : null;
-    } catch {
-      return null;
-    }
-  }
-  function declaredIconUrls(html, base) {
-    const icons = [];
-    const head = html.split(/<\/head\s*>/i)[0];
-    for (const tag of head.matchAll(/<link\b(?:"[^"]*"|'[^']*'|[^'">])*>/gi)) {
-      const attributes = /* @__PURE__ */ new Map();
-      for (const attribute of tag[0].matchAll(/([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/g))
-        attributes.set(attribute[1].toLowerCase(), (attribute[2] ?? attribute[3] ?? attribute[4] ?? "").replaceAll("&amp;", "&"));
-      if (!attributes.get("rel")?.toLowerCase().split(/\s+/).some((rel) => ["icon", "apple-touch-icon"].includes(rel))) continue;
-      const href = attributes.get("href");
-      const url = href ? publicImageUrl(href, base) : null;
-      if (url === null) continue;
-      const size = Number.parseInt(attributes.get("sizes") ?? "", 10);
-      icons.push({ url, size: Number.isFinite(size) ? Math.min(size, 256) : 48 });
-    }
-    return [...new Set(icons.sort((a, b) => b.size - a.size).map((icon2) => icon2.url))];
-  }
-  async function limitedBytes(response) {
-    if (!response.ok || Number(response.headers.get("content-length") ?? 0) > maxBytes || !response.body) return null;
-    const reader = response.body.getReader();
-    const chunks = [];
-    let length = 0;
-    try {
-      while (true) {
-        const next = await reader.read();
-        if (next.done) break;
-        length += next.value.length;
-        if (length > maxBytes) {
-          await reader.cancel();
-          return null;
+    return {
+      render: render2,
+      refresh,
+      metadata: () => preferences.destinations,
+      initialized,
+      idle: async () => {
+        await initialized;
+        await refreshing;
+        await displaying;
+        await session?.idle();
+      },
+      session: () => session,
+      renderFrozenReview,
+      navigation: navigation2,
+      focusSelection,
+      directory: () => directory,
+      chooseCategory: (key2) => chooseDirectory(`category:${key2}`),
+      restoreDirectory: (value) => {
+        directory = directoryView(value);
+      },
+      leave() {
+        searchFocused = false;
+        if (dialog.open) dialog.close();
+      },
+      view: () => reviewOpen ? "review" : detailVisible ? "detail" : "browse",
+      restoreView(value, id) {
+        if (typeof id === "string") {
+          selection = id;
+          detailKey = "";
         }
-        chunks.push(next.value);
-      }
-    } finally {
-      reader.releaseLock();
-    }
-    const bytes = new Uint8Array(length);
-    let offset = 0;
-    for (const chunk of chunks) {
-      bytes.set(chunk, offset);
-      offset += chunk.length;
-    }
-    return bytes;
-  }
-  function imageType(bytes) {
-    const prefix = [...bytes.slice(0, 12)].map((byte) => String.fromCharCode(byte)).join("");
-    if (prefix.startsWith("\x89PNG\r\n\n")) return "image/png";
-    if (prefix.startsWith("\0\0\0")) return "image/x-icon";
-    if (prefix.startsWith("GIF87a") || prefix.startsWith("GIF89a")) return "image/gif";
-    if (bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255) return "image/jpeg";
-    if (prefix.startsWith("RIFF") && prefix.slice(8) === "WEBP") return "image/webp";
-    if (/^\s*(?:<\?xml[^>]*>\s*)?<svg[\s>]/i.test(new TextDecoder().decode(bytes.slice(0, 512)))) return "image/svg+xml";
-    return null;
-  }
-  async function decodesImage(blob) {
-    if (typeof Image === "undefined") return true;
-    const url = URL.createObjectURL(blob);
-    try {
-      const image = new Image();
-      image.src = url;
-      await image.decode();
-      return image.naturalWidth > 0 && image.naturalHeight > 0;
-    } catch {
-      return false;
-    } finally {
-      URL.revokeObjectURL(url);
-    }
-  }
-  async function loadWebsiteIcon(hostname2, observedIcon, fetcher = fetch) {
-    if (!/^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/.test(hostname2)) return null;
-    const root = `https://${hostname2}/`;
-    let controller = new AbortController();
-    let timer = setTimeout(() => {
-      controller.abort();
-    }, 5e3);
-    const options = { credentials: "omit", referrerPolicy: "no-referrer", signal: controller.signal };
-    const image = async (url) => {
-      try {
-        const bytes = await limitedBytes(await fetcher(url, options));
-        const type = bytes ? imageType(bytes) : null;
-        if (!bytes || !type) return null;
-        const blob = new Blob([bytes.buffer], { type });
-        return await decodesImage(blob) ? blob : null;
-      } catch {
-        return null;
+        showView(value === "review" || value === "detail" ? value : "browse", false);
       }
     };
-    let conventional = null;
-    try {
-      if (observedIcon) {
-        const observed = /^data:image\/(?:png|x-icon|vnd\.microsoft\.icon|gif|jpeg|webp|svg\+xml)[;,]/i.test(observedIcon) ? observedIcon : publicImageUrl(observedIcon, root);
-        if (observed) {
-          const icon2 = await image(observed);
-          if (icon2) return icon2;
-        }
-      }
-      try {
-        const page2 = await fetcher(root, options);
-        const bytes = await limitedBytes(page2);
-        if (bytes) for (const url of declaredIconUrls(new TextDecoder().decode(bytes), page2.url || root).slice(0, 4)) {
-          const icon2 = await image(url);
-          if (icon2) return icon2;
-        }
-      } catch {
-      }
-      conventional = await image(new URL("favicon.ico", root).href);
-    } finally {
-      clearTimeout(timer);
-    }
-    if (conventional) return conventional;
-    if (!hostname2.includes(".") || /^\d+(?:\.\d+){3}$/.test(hostname2) || /\.(?:localhost|local|internal|lan|home|corp|test|example|invalid)$/.test(hostname2)) return null;
-    const cached = new URL("https://www.google.com/s2/favicons");
-    cached.searchParams.set("domain", hostname2);
-    cached.searchParams.set("sz", "64");
-    controller = new AbortController();
-    options.signal = controller.signal;
-    timer = setTimeout(() => {
-      controller.abort();
-    }, 4e3);
-    try {
-      return await image(cached.href);
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-
-  // src/ui/presentation.ts
-  function storageFailureCopy(storage) {
-    const failure = storage?.lastFailure;
-    if (!failure) return "";
-    const code = `Last storage issue: ${failure.operation} \xB7 ${failure.stage} \xB7 ${failure.cause}.`;
-    if (failure.cause === "QUOTA_EXCEEDED") return `${code} Firefox reported insufficient storage. Free disk space, then reload and reconcile state. Do not clear Atlas data.`;
-    return `${code} If access remains paused, reload and reconcile state. Your saved policy is retained.`;
-  }
-  function storageDiagnosticsCopy(storage) {
-    return storage ? `Storage this background session: ${storage.readTransactions} read transactions, ${storage.writeTransactions} write transactions, ${storage.committedWrites} committed snapshots, ${storage.failedCommits} failed commits. ${storageFailureCopy(storage)}` : "";
-  }
-  function startupCopy(startup) {
-    if (startup?.status !== "FAILED") return "";
-    if (startup.stage === "MANAGED_BLACKLIST") return "Atlas could not verify its bundled safety list. Retry startup in Settings. If this continues, obtain a verified signed Atlas update; keep the extension installed to preserve saved state.";
-    if (startup.stage === "STORAGE") return "Atlas could not open its saved state. Retry startup in Settings. If this continues, check Firefox storage availability.";
-    return "Atlas could not finish startup. Retry startup in Settings. Your saved policy is preserved.";
-  }
-  function journeyEndCopy(reason) {
-    switch (reason) {
-      case "UNRELATED_NAVIGATION":
-        return "The next navigation could not be linked to your active Journey.";
-      case "EXPIRED":
-        return "Your Journey reached its fixed time limit.";
-      case "HOP_LIMIT":
-        return "Your Journey reached its navigation limit.";
-      case "CANCELLED":
-        return "You ended this Journey.";
-      case "POLICY_CHANGED":
-      case "INVALID_POLICY":
-      case "ROOT_NOT_WHITELISTED":
-        return "The policy changed or could no longer authorize this Journey.";
-      case "CONTEXT_CLOSED":
-        return "The browsing context closed.";
-      case "REACHED":
-      case "RETURNED":
-        return "You reached your destination.";
-      case "DESTINATION_CHANGED":
-        return "You reached another Whitelisted destination.";
-      default:
-        return "Your Journey ended.";
-    }
-  }
-  function canQueueOperation(view2) {
-    return view2?.status === "READY" || view2?.snapshot != null && (view2.status === "LOADING" || view2.status === "COMMITTING");
-  }
-  function accessOutcomeLabel(decision) {
-    if (!decision) return "No decision";
-    return {
-      ALLOW: "Allowed",
-      DENY: decision.reason === "BLACKLISTED" || decision.reason === "MANAGED_BLACKLISTED" ? "Blocked" : "Unavailable",
-      GREYLIST: "Greylist",
-      WAIT: "Waiting",
-      REQUIRE_CONFIRMATION: "Confirm access"
-    }[decision.outcome];
-  }
-  function accessCopy(decision) {
-    if (decision === null) return { title: "Choose a tab", description: "Select a website to see its access status.", tone: "neutral" };
-    switch (decision.outcome) {
-      case "GREYLIST":
-        return { title: "Take a moment before continuing", description: "This site is outside your Pure Whitelist. Start a request, then return to confirm temporary access.", tone: "wait" };
-      case "WAIT":
-        return { title: "Your waiting period is running", description: "You can leave this page and come back. When the wait ends, you still need to confirm.", tone: "wait" };
-      case "REQUIRE_CONFIRMATION":
-        return { title: "Ready when you are", description: "Confirm to open the site home with temporary access. Your policy stays the same.", tone: "ready" };
-      case "DENY":
-        return { title: decision.reason === "BLACKLISTED" || decision.reason === "MANAGED_BLACKLISTED" ? "This site is blocked" : "Access is unavailable", description: decision.reason === "BLACKLISTED" ? "Your Blacklist prevents access to this destination." : decision.reason === "MANAGED_BLACKLISTED" ? "The managed StevenBlack list blocks this destination. Temporary access and Journey cannot override it." : "Atlas could not authorize this navigation. Check the decision details below.", tone: decision.reason === "BLACKLISTED" || decision.reason === "MANAGED_BLACKLISTED" ? "blocked" : "unavailable" };
-      case "ALLOW":
-        return { title: "You can continue", description: decision.reason === "WHITELISTED" ? "This destination is in your Pure Whitelist." : decision.reason === "ACTIVE_JOURNEY" ? "This navigation is covered by your current Journey. Its original deadline still applies." : "Temporary access is active. This site remains Greylist.", tone: "ready" };
-    }
-  }
-  function countdown(deadline, now) {
-    const seconds2 = Math.max(0, Math.ceil((deadline - now) / 1e3));
-    return `${Math.floor(seconds2 / 60)}:${String(seconds2 % 60).padStart(2, "0")}`;
-  }
-  function selectedContext(contexts, selected2) {
-    return contexts.find((context) => String(context.tabId) === selected2);
-  }
-  function selectedAccessRecord(decision, state, hostname2) {
-    let pending;
-    let grant;
-    if (state != null && hostname2 != null && decision != null) {
-      if ((decision.outcome === "WAIT" || decision.outcome === "REQUIRE_CONFIRMATION") && decision.target.hostname === hostname2) {
-        pending = state.pendingRequests.find((request) => request.id === decision.requestId && (request.scopeHostnames ?? [request.hostname]).includes(hostname2));
-      } else if (decision.outcome === "ALLOW" && decision.reason === "ACTIVE_GRANT" && decision.target.hostname === hostname2) {
-        grant = state.grants.find((entry) => entry.requestId === decision.requestId && (entry.scopeHostnames ?? [entry.hostname]).includes(hostname2));
-      }
-    }
-    return { pending, grant };
   }
 
   // src/ui/settings-model.ts
+  function createPresetCoverage(hostnames) {
+    const terms = Object.freeze([...hostnames]);
+    let key2, missing = terms;
+    return (policy) => {
+      const nextKey = JSON.stringify(policy);
+      if (nextKey === key2) return missing;
+      key2 = nextKey;
+      missing = Object.freeze(terms.filter((hostname2) => !policy || evaluate({ hostname: hostname2 }, policy).outcome !== "ALLOW"));
+      return missing;
+    };
+  }
   function seconds(milliseconds) {
     const digits = String(milliseconds);
     const whole = digits.length > 3 ? digits.slice(0, -3) : "0";
@@ -4735,8 +8222,8 @@
     return fraction === "" ? whole : `${whole}.${fraction}`;
   }
   var timingFields = [
-    { id: "access-wait", label: "Greylist wait", unit: "seconds", value: (config) => seconds(config.accessTiming.waitMs) },
-    { id: "access-window", label: "Greylist confirmation", unit: "seconds", value: (config) => seconds(config.accessTiming.confirmationWindowMs) },
+    { id: "access-wait", label: "access request wait", unit: "seconds", value: (config) => seconds(config.accessTiming.waitMs) },
+    { id: "access-window", label: "access request confirmation", unit: "seconds", value: (config) => seconds(config.accessTiming.confirmationWindowMs) },
     { id: "grant-duration", label: "Temporary access", unit: "seconds", value: (config) => seconds(config.accessTiming.grantDurationMs) },
     { id: "vault-wait", label: "Vault wait", unit: "seconds", value: (config) => seconds(config.vaultTiming.waitMs) },
     { id: "vault-window", label: "Vault confirmation", unit: "seconds", value: (config) => seconds(config.vaultTiming.confirmationWindowMs) },
@@ -4840,79 +8327,69 @@
     const node = element2(id);
     if (node.textContent !== value) setProperty(node, "textContent", value);
   };
-  var select = element2("context");
   var params = new URL(location.href).searchParams;
-  var navigation = navigationMemory({ getItem: (key) => sessionStorage.getItem(key), setItem: (key, value) => sessionStorage.setItem(key, value) });
-  var selected = params.get("tab") ?? navigation.value().tab;
+  var navigation = navigationMemory({ getItem: (key2) => sessionStorage.getItem(key2), setItem: (key2, value) => sessionStorage.setItem(key2, value) });
+  var selected = (!location.hash && params.get("view") === "access" || location.hash === "#access" ? params.get("tab") : null) ?? "";
   var view = null;
   var lastVerifiedPolicy;
   var queryAttempted = false;
   var busy = false;
   var disposed = false;
+  var renderQueued = false;
+  function requestRender() {
+    if (disposed || renderQueued) return;
+    renderQueued = true;
+    queueMicrotask(() => {
+      if (renderQueued && !disposed) {
+        renderQueued = false;
+        render();
+      }
+    });
+  }
   var epoch = 0;
   var preparingScopes = /* @__PURE__ */ new Set();
-  var optionsKey = "";
   var destinationsKey = "";
-  var diagnosticKey = "";
-  var diagnosticEpoch = 0;
-  var diagnosticRequest = null;
   var policyReview = null;
   var policyReviewError = "";
   var page = atlasPage(location.hash.slice(1)) ?? (params.get("view") === "access" ? "access" : "home");
   var section = page === "vault" ? "settings" : page === "access" ? "home" : page;
-  var accessFocused = page === "access";
+  if (page === "access") page = "home";
   var settingsKey = "";
-  var displayedProposalId = null;
   var entries = [];
   var matches = [];
   var searchKey = "";
   var searchInputsKey = "";
   var highlighted = -1;
+  var searchOpen = false;
+  var searchActions = [];
   var pinsStorageKey = "atlas-home-pins-v1";
   var pins = [];
   var pinsLoaded = false;
   var savingPins = false;
-  var pinnedKey = "";
   var reviewKey = "";
-  var temporaryRows = /* @__PURE__ */ new Map();
+  var homeGreylist = initializeHomeGreylist({ send, prepare: prepareScope, label: serviceLabel, dismiss: dismissGreylist });
   var homeCatalog = [];
-  var layoutDirty = true;
-  var usage = {};
-  var expandedCategories = /* @__PURE__ */ new Set();
-  var homeGroups = /* @__PURE__ */ new Map();
   var searchInput = element2("destination-search");
-  var websiteIcons = /* @__PURE__ */ new Map();
-  var observedIcons = /* @__PURE__ */ new Map();
-  var iconSnapshot = browser.tabs.query({}).then((tabs) => {
-    for (const tab of tabs) if (tab.url && tab.favIconUrl) {
-      try {
-        const hostname2 = new URL(tab.url).hostname;
-        if (!observedIcons.has(hostname2)) observedIcons.set(hostname2, tab.favIconUrl);
-      } catch {
-      }
-    }
-  }).catch(() => {
+  var destinationCards = initializeDestinationCards({ open: (url) => send({ kind: "OPEN_DESTINATION", url }), togglePin });
+  var homePins = initializeHomePins({
+    siteMark: destinationCards.siteMark,
+    open: (url) => send({ kind: "OPEN_DESTINATION", url }),
+    togglePin,
+    changed: requestRender,
+    status: (url) => pinAccessStatus(view, url, Date.now())
   });
-  var iconObserver = new IntersectionObserver((changes) => {
-    for (const change of changes) if (change.isIntersecting) {
-      iconObserver.unobserve(change.target);
-      const image = change.target;
-      void displayWebsiteIcon(image, image.dataset.hostname);
+  var bookmarkSync = initializeBookmarkSync(requestRender);
+  var diagnosticPanel = initializeDiagnosticsPanel({ visible: () => page === "settings" && !element2("diagnostics").hidden, selected: () => selected, feedback });
+  var settingsNavigation = initializeSettingsNavigation({
+    initial: history.state?.atlasSettings,
+    remember: () => {
+      if (page === "settings") history.pushState(historyData(), "", "#settings");
+      requestRender();
     }
-  }, { rootMargin: "160px" });
+  });
   var presetHostnames = compileCuratedWhitelist().whitelist;
-  var buildVersion = document.createElement("p");
-  buildVersion.id = "build-version";
-  buildVersion.className = "note";
-  setProperty(buildVersion, "textContent", `Atlas extension ${browser.runtime.getManifest().version}`);
-  element2("diagnostics").append(buildVersion);
-  var storageDiagnostic = document.createElement("p");
-  storageDiagnostic.id = "storage-diagnostic";
-  storageDiagnostic.className = "note";
-  element2("diagnostics").append(storageDiagnostic);
-  element2("diagnostics").append(element2("startup-diagnostic"));
-  element2("diagnostics").append(element2("action-diagnostic"));
-  setProperty(document.body.dataset, "mode", params.get("view") === "access" ? "access" : "control");
+  var presetCoverage = createPresetCoverage(presetHostnames);
+  setProperty(document.body.dataset, "mode", "control");
   element2("preset-preview").replaceChildren(...curatedWhitelist.map((group) => {
     const detail = document.createElement("details");
     detail.className = "preset-group";
@@ -4923,17 +8400,14 @@
     detail.append(summary, content);
     return detail;
   }));
-  if (document.body.dataset.mode === "access") {
-    setProperty(element2("page-title"), "textContent", "A moment for your next step.");
-    setProperty(element2("page-description"), "textContent", "Your destination is waiting. You decide whether to continue.");
-  }
   function feedback(message, tone = "status") {
     renderFeedback(element2("feedback"), { message, tone });
+    element2("feedback").dataset.source = "";
     syncSiteFeedback();
   }
   function syncSiteFeedback() {
     const local = element2("site-save-feedback"), global = element2("feedback");
-    setProperty(local, "hidden", !local.textContent || section !== "sites" || !global.hidden && local.textContent === global.textContent);
+    setProperty(local, "hidden", !local.textContent || section !== "sites" || !element2("sites-editor").open && !global.hidden && local.textContent === global.textContent);
   }
   async function send(command) {
     if (busy) return;
@@ -4945,7 +8419,6 @@
       if (response?.view) view = response.view;
       policyReview = matchingReview(view?.controller, policyReview);
       policyReviewError = "";
-      if (response?.tabId !== void 0 && (response?.result?.type === "COMMITTED" || response?.opened === true)) selected = String(response.tabId);
       const result = actionFeedback(command.kind, response);
       renderFeedback(element2("feedback"), result);
       text2("action-diagnostic", result.detail ? `Last action: ${result.detail}` : "");
@@ -4962,30 +8435,60 @@
     }
   }
   function prepareScope(context) {
-    const key = `${context.contextId}:${context.navigationId}:${view?.controller?.snapshot?.policyRevision}`;
-    if (preparingScopes.has(key)) return;
-    preparingScopes.add(key);
+    const key2 = `${context.contextId}:${context.navigationId}:${view?.controller?.snapshot?.policyRevision}`;
+    if (preparingScopes.has(key2)) return;
+    preparingScopes.add(key2);
     const ticket = epoch;
     void browser.runtime.sendMessage({ kind: "PREPARE_ACCESS", tabId: context.tabId }).then((response) => {
-      const current = selectedContext(view?.contexts ?? [], selected);
-      if (ticket === epoch && current?.contextId === context.contextId && current.navigationId === context.navigationId && response?.view) {
+      const current2 = selectedContext(view?.contexts ?? [], selected);
+      if (ticket === epoch && current2?.contextId === context.contextId && current2.navigationId === context.navigationId && response?.view) {
         view = response.view;
         render();
       }
     }).catch(() => {
     }).finally(() => {
-      preparingScopes.delete(key);
+      preparingScopes.delete(key2);
     });
   }
+  function dismissGreylist(contextId, navigationId) {
+    const context = view?.contexts.find((c) => String(c.tabId) === selected);
+    if (context?.contextId !== contextId || context.navigationId !== navigationId) return;
+    selected = "";
+    const url = new URL(location.href);
+    url.searchParams.delete("tab");
+    url.searchParams.delete("view");
+    history.replaceState(history.state, "", url);
+    requestRender();
+  }
   var sites = initializeSites({
+    initialView: history.state?.atlasSitesView,
+    initialDirectory: history.state?.atlasSitesDirectory,
+    directoryChanged: () => {
+      if (page === "sites") history.pushState(historyData(), "", "#sites");
+    },
+    categoryIcon: (key2, label) => homeOrganization.icon(key2, label),
+    categoryOrder: () => homeOrganization.orderKeys(),
+    categoryOrderMode: () => homeOrganization.orderMode(),
+    renderCategories: (groups) => renderDirectoryCategories(groups, null, homeOrganization.canMove()),
+    initialSelection: history.state?.atlasSitesSelection,
+    viewChanged: () => {
+      if (page === "sites") history.pushState(historyData(), "", "#sites");
+    },
+    siteMark: destinationCards.siteMark,
     controller: () => view?.controller,
-    pins: () => pins,
+    pins: () => presentationView()?.pins ?? pins,
     propose: send,
     vault: () => navigate2("vault", true),
-    feedback,
+    feedback: (message, tone = "status") => {
+      if (tone === "error" || tone === "uncertain") {
+        feedback(message, tone);
+        element2("feedback").dataset.source = "sites";
+      } else if (element2("feedback").dataset.source === "sites") feedback("");
+      else syncSiteFeedback();
+    },
     canEdit: () => !busy && canQueueOperation(view?.controller),
-    attempted: () => queryAttempted,
-    changed: () => queueMicrotask(render),
+    attempted: () => queryAttempted && view?.startup?.status !== "LOADING",
+    changed: requestRender,
     position: navigation.value().sites,
     positionChanged: (position) => navigation.save({ ...navigation.value(), sites: position }),
     verify: () => readVerifiedController(async () => {
@@ -4996,50 +8499,46 @@
       ++epoch;
       return view.controller;
     }),
-    pin: (id, pinned, hosts) => {
-      try {
-        pins = readPins(JSON.parse(localStorage.getItem(pinsStorageKey) ?? "null"));
-      } catch {
-        return "UNCERTAIN";
-      }
-      const next = updateDestinationPin(pins, id, pinned, hosts);
-      if (next.length > 200) {
-        feedback("You can pin up to 200 destinations.", "error");
-        return "FAILED";
-      }
-      const saved = savePresentation(() => localStorage, pinsStorageKey, JSON.stringify(next));
-      if (saved === "SAVED") {
-        pins = next;
-        return saved;
-      }
-      feedback(saved === "UNCERTAIN" ? "The pin save outcome could not be verified. Saved policy is unaffected." : "Your pin could not be saved. Saved policy is unaffected.", saved === "UNCERTAIN" ? "uncertain" : "error");
-      return saved;
+    pin: async (id, pinned, hosts) => {
+      const result = await setPin(id, pinned, hosts);
+      if (result === "SAVED") pins = presentationView().pins;
+      else feedback("Your pin could not be verified as saved. Retry the pin change; access rules are unchanged.", "error");
+      return result;
     }
   });
-  var homeOrganization = initializeHomeOrganization(() => queueMicrotask(render));
+  var homeOrganization = initializeHomeOrganization(requestRender);
+  var renderDirectoryCategories = initializeHomeShortcuts(
+    element2("sites-categories"),
+    (key2) => sites.chooseCategory(key2),
+    (key2, target) => homeOrganization.reorder(key2, target, [...element2("sites-categories").children].map((n) => n.dataset.categoryKey)),
+    "sites-list"
+  );
   var restoredPage = false;
   function render() {
     if (disposed) return;
+    renderQueued = false;
     const focused = document.activeElement;
-    text2("page-title", section === "settings" ? "Settings" : section === "sites" ? "Sites & Access" : accessFocused ? "Destination access" : "Atlas");
-    text2("page-eyebrow", section === "settings" ? "YOUR SAVED COMMITMENTS" : section === "sites" ? "YOUR COMMITTED DESTINATIONS" : accessFocused ? "A DELIBERATE NEXT STEP" : "YOUR INTERNET, WITH INTENTION");
-    text2("page-description", section === "settings" ? "Intentional friction and the timing of your commitments." : section === "sites" ? "Prepare destination changes together. Review freely; confirm protected changes in Vault." : accessFocused ? "Review the selected destination and its current access." : "A place for the things you choose.");
+    text2("page-title", page === "vault" ? "Vault" : section === "settings" ? "Settings" : section === "sites" ? "All sites" : "Atlas");
+    text2("page-eyebrow", section === "settings" ? "YOUR SAVED COMMITMENTS" : section === "sites" ? "YOUR COMMITTED DESTINATIONS" : "YOUR INTERNET, WITH INTENTION");
+    text2("page-description", page === "vault" ? "Review your commitments. Active rules stay in place until a change is confirmed and saved." : section === "settings" ? "Intentional friction and the timing of your commitments." : section === "sites" ? "Your complete collection. Select a site to review or edit its access." : "A place for the things you choose.");
     setProperty(document.body.dataset, "section", section);
-    setProperty(document.body.dataset, "mode", accessFocused ? "access" : "control");
+    setProperty(document.body.dataset, "page", page);
+    text2("vault-section-title", page === "vault" ? "Proposal review" : "Vault");
+    setProperty(document.body.dataset, "mode", "control");
     const controller = view?.controller;
     const ready = canQueueOperation(controller);
     const status = controller?.status;
     const startupMessage = startupCopy(view?.startup);
     text2("startup-warning", startupMessage);
     setProperty(element2("startup-warning"), "hidden", startupMessage === "");
-    text2("status", busy ? status === "COMMITTING" ? "Saving\u2026" : "Working\u2026" : ready ? "Atlas is ready" : status === "UNINITIALIZED" ? "Setup needed" : status === "RECONCILING" ? "Recovery needed" : status === "UNAVAILABLE" ? "State unavailable" : view?.startup.status === "FAILED" ? "Startup failed" : queryAttempted && view === null ? "Atlas is unavailable" : "Connecting\u2026");
-    setProperty(element2("status"), "title", element2("status").textContent ?? "");
-    if (element2("status").dataset.ready !== String(ready)) setProperty(element2("status").dataset, "ready", String(ready));
     setProperty(element2("setup"), "hidden", status !== "UNINITIALIZED");
     setProperty(element2("workspace"), "hidden", status === "UNINITIALIZED" || section !== "home");
     setProperty(element2("settings"), "hidden", section !== "settings");
+    settingsNavigation.render(section === "settings", page === "vault" ? "vault-section" : void 0);
+    setAttribute(element2("show-vault"), "aria-current", page === "vault" ? "page" : "false");
+    setAttribute(element2("show-vault"), "aria-pressed", String(page === "vault"));
     setProperty(element2("sites-section"), "hidden", section !== "sites");
-    setProperty(element2("destinations"), "hidden", accessFocused);
+    setProperty(element2("destinations"), "hidden", false);
     for (const name of ["home", "sites", "settings"]) {
       const button = element2(`show-${name}`);
       setAttribute(button, "aria-pressed", String(section === name));
@@ -5047,193 +8546,23 @@
       else setAttribute(button, "aria-current", null);
     }
     setProperty(element2("save-setup"), "disabled", busy || status !== "UNINITIALIZED");
-    const contexts = view?.contexts.filter((context2) => context2.hostname !== null) ?? [];
-    if (selected === "" && contexts.length > 0) selected = String(contexts[0].tabId);
-    const context = selectedContext(contexts, selected);
-    const choices = contexts.map((item) => ({ value: String(item.tabId), text: `Tab ${item.tabId} \xB7 ${item.hostname}` }));
-    if (context === void 0) choices.unshift({ value: selected, text: selected === "" ? "No websites yet" : `Tab ${selected} is closed or unavailable` });
-    const key = JSON.stringify(choices);
-    if (optionsKey !== key) {
-      optionsKey = key;
-      select.replaceChildren(...choices.map(({ value, text: text3 }) => new Option(text3, value)));
-    }
-    setProperty(select, "value", selected);
-    const result = context?.latest;
-    const decision = result?.type === "ASSESSMENT" ? result.decision : null;
-    const copy = accessCopy(decision);
-    const tone = !ready && context !== void 0 ? "unavailable" : copy.tone;
-    if (element2("access-panel").dataset.tone !== tone) setProperty(element2("access-panel").dataset, "tone", tone);
-    text2("hostname", context?.hostname ?? (selected === "" ? "Your next destination" : "Tab unavailable"));
-    text2("access-title", !ready && context !== void 0 ? "Waiting for verified state" : copy.title);
-    text2("access-description", !ready && context !== void 0 ? "Access stays paused until Atlas can verify its saved state." : copy.description);
-    text2("outcome", !ready && context !== void 0 ? "Unverified" : accessOutcomeLabel(decision));
-    text2("decision", decision ? `${decision.outcome} \xB7 ${decision.reason}` : result ? `${result.type}${"reason" in result ? ` \xB7 ${result.reason}` : ""}` : "No current assessment.");
-    text2("context-detail", context ? `Context: ${context.contextId}
-Navigation: ${context.navigationId}
-Content: ${context.effect}${context.journey?.phase === "ENDED" ? `
-Journey ${context.journey.id}: ${context.journey.endReason}` : ""}` : "");
     const now = Date.now();
-    text2("deadline", decision?.outcome === "WAIT" ? `Wait ${countdown(decision.readyAt, now)}` : decision?.outcome === "REQUIRE_CONFIRMATION" ? `Confirm within ${countdown(decision.confirmBy, now)}` : decision && "expiresAt" in decision ? `Access remaining ${countdown(decision.expiresAt, now)}` : "");
-    const failedRemoval = context?.effect === "FAILED";
-    setProperty(element2("effect-warning"), "hidden", !failedRemoval);
-    text2("effect-warning", failedRemoval ? "Firefox could not remove the document. Close the affected tab." : "");
-    const { pending, grant } = selectedAccessRecord(decision, controller?.snapshot?.accessState, context?.hostname);
-    const record = pending ?? grant;
-    const preparedScope = context?.accessScope;
-    const scope = record === void 0 ? preparedScope?.status === "READY" ? preparedScope.hostnames : [] : record.scopeHostnames ?? [record.hostname];
-    const showScope = scope.length > 0 && (decision?.outcome === "GREYLIST" || decision?.outcome === "WAIT" || decision?.outcome === "REQUIRE_CONFIRMATION" || decision?.reason === "ACTIVE_GRANT");
-    setProperty(element2("access-scope"), "hidden", !showScope);
-    text2("access-scope", showScope ? `Temporary access covers exactly: ${scope.join(", ")}` : "");
-    const preparing = decision?.outcome === "GREYLIST" && preparedScope?.status !== "READY";
-    setProperty(element2("access-scope-note"), "hidden", decision?.outcome !== "GREYLIST");
-    text2("access-scope-note", preparing ? "Checking the public site address before preparing your request\u2026" : preparedScope?.source === "CANONICAL_REDIRECT" ? "The site redirects between these addresses. Both will share one wait and one access deadline." : "Only the exact hostnames shown are covered. Other addresses may need a separate request.");
-    if (preparing && ready && context !== void 0 && accessFocused && section === "home") prepareScope(context);
-    const journey = context?.journey;
-    const activeJourney = ready && journey != null && journey.phase !== "ENDED" && now < journey.expiresAt;
-    setProperty(element2("access-panel"), "hidden", !accessFocused);
-    setProperty(element2("home-journey"), "hidden", section !== "home" || accessFocused || !activeJourney);
-    text2("home-journey-label", activeJourney ? `${serviceLabel(journey.rootHostname)} \xB7 Tab ${context.tabId} \xB7 ${countdown(journey.expiresAt, now)} remaining` : "");
-    setProperty(element2("show-access"), "hidden", section !== "home" || accessFocused || context === void 0 || activeJourney);
-    const action = (id, show) => {
-      setProperty(element2(id), "hidden", !show);
-      const button = element2(id);
-      const disabled = busy || !ready || context === void 0;
-      if (button.disabled !== disabled) setProperty(button, "disabled", disabled);
-    };
-    action("start-access", decision?.outcome === "GREYLIST");
-    if (preparing) setProperty(element2("start-access"), "disabled", true);
-    text2("start-access", preparing ? "Checking address\u2026" : "Request temporary access");
-    action("confirm-access", decision?.outcome === "REQUIRE_CONFIRMATION");
-    action("cancel-access", pending !== void 0);
-    action("open-home", decision?.outcome === "ALLOW");
-    action("start-journey", decision?.reason === "WHITELISTED" && !activeJourney);
-    action("cancel-journey", activeJourney);
-    const retry = context?.retry;
-    const showRetry = retry != null && decision?.outcome !== "ALLOW" && ready;
-    setProperty(element2("ended-journey"), "hidden", !showRetry);
-    text2("ended-journey-copy", showRetry ? context?.effect === "REMOVING" ? `Atlas is closing the previous page. You can restart your journey to ${retry.destinationLabel} in a moment.` : `${journeyEndCopy(retry.endReason)} Start again from ${retry.rootHostname}.` : "");
-    action("restart-journey", showRetry);
-    if (context?.effect === "REMOVING") setProperty(element2("restart-journey"), "disabled", true);
-    setProperty(element2("home-note"), "hidden", decision?.outcome !== "REQUIRE_CONFIRMATION" && decision?.outcome !== "ALLOW");
-    setProperty(element2("journey-panel"), "hidden", !activeJourney);
-    text2("journey-phase", activeJourney ? "Active" : "Ended");
-    text2("journey", journey ? `Journey \u2192 ${serviceLabel(journey.rootHostname)}` : "Pure Whitelist navigation automatically starts a bounded redirect Journey.");
-    text2("journey-time", journey ? activeJourney ? `${countdown(journey.expiresAt, now)} left \xB7 fixed deadline ${new Date(journey.expiresAt).toLocaleTimeString()}` : `Ended \xB7 ${journey.endReason?.replaceAll("_", " ").toLowerCase() ?? "complete"}` : "");
-    const progress = element2("journey-progress");
-    setProperty(progress, "hidden", !activeJourney);
-    if (activeJourney) setProperty(progress, "value", Math.max(0, (journey.expiresAt - now) / (journey.expiresAt - journey.startedAt)));
     renderSettings(controller, ready, now);
+    renderHome(controller?.snapshot?.policy, ready);
     sites.render(ready && !busy);
     syncSiteFeedback();
-    renderHome(controller?.snapshot?.policy, ready);
-    renderTemporaryAccess(now);
+    homeGreylist.render(view, now, busy, selected);
     if (!restoredPage && ready && sites.session()?.loaded && homeOrganization.session()?.saved) {
       restoredPage = true;
-      if (page === "vault") element2("vault-section").open = true;
       const position = navigation.value().pages[page], initialPage = page;
       if (position) requestAnimationFrame(() => {
         if (page !== initialPage) return;
-        window.scrollTo({ top: position.scroll, behavior: "instant" });
+        viewportScrollSurface(page, sites.view()).scrollTop = position.scroll;
         if (page === "sites") sites.focusSelection();
         else document.getElementById(position.focus)?.focus({ preventScroll: true });
       });
     }
-    if (focused instanceof HTMLButtonElement && focused.closest("#access-panel") && (focused.disabled || focused.closest("[hidden]")) && accessFocused && section === "home") element2("access-title").focus({ preventScroll: true });
     if (focused instanceof HTMLButtonElement && focused.closest("#vault-section") && (focused.disabled || focused.closest("[hidden]")) && section === "settings") element2("vault-heading").focus({ preventScroll: true });
-  }
-  function renderTemporaryAccess(now) {
-    const summary = homeAccessSummary(view, now);
-    const others = summary.journeys.filter((c) => String(c.tabId) !== selected);
-    const retained = /* @__PURE__ */ new Set();
-    const row = (id, name, hostnames, label, deadline, action, link) => {
-      retained.add(id);
-      let record = temporaryRows.get(id);
-      if (!record) {
-        const node = document.createElement("li");
-        node.className = "temporary-row";
-        const copy = document.createElement("span");
-        copy.className = "temporary-copy";
-        const heading = document.createElement("strong");
-        heading.className = "temporary-name";
-        const scope = document.createElement("span");
-        scope.className = "temporary-scope";
-        copy.append(heading, scope);
-        const time2 = document.createElement("span");
-        time2.className = "temporary-time";
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "text-button";
-        record = { node, link };
-        const current = record;
-        button.addEventListener("click", () => void followAccessLink(current.link));
-        node.append(copy, time2, button);
-        temporaryRows.set(id, record);
-      }
-      record.link = link;
-      setProperty(record.node.querySelector(".temporary-name"), "textContent", name);
-      setProperty(record.node.querySelector(".temporary-scope"), "textContent", `${label} \xB7 ${hostnames.join(", ")}`);
-      const time = record.node.querySelector(".temporary-time");
-      setProperty(time.dataset, "expiresAt", String(deadline));
-      setProperty(time, "title", `Deadline ${new Date(deadline).toLocaleTimeString()}`);
-      setProperty(record.node.querySelector("button"), "textContent", action);
-      return record.node;
-    };
-    reconcileChildren(element2("temporary-list"), summary.grants.map((g) => row(
-      `grant:${g.requestId}`,
-      serviceLabel(g.hostnames[0]),
-      g.hostnames,
-      "Temporary permission",
-      g.expiresAt,
-      g.link.kind === "CONTEXT" ? "Access details" : "Open site",
-      g.link
-    )));
-    reconcileChildren(element2("pending-access-list"), summary.pending.map((p) => row(
-      `request:${p.requestId}`,
-      serviceLabel(p.hostnames[0]),
-      p.hostnames,
-      p.outcome === "WAIT" ? "Waiting" : "Confirmation available",
-      p.outcome === "WAIT" ? p.readyAt : p.confirmBy,
-      p.link.kind === "CONTEXT" ? "Review request" : "Return to request",
-      p.link
-    )));
-    reconcileChildren(element2("other-journeys"), others.map((c) => row(
-      `journey:${c.contextId}:${c.journey.id}`,
-      serviceLabel(c.journey.rootHostname),
-      [c.journey.rootHostname],
-      `Journey active \xB7 Tab ${c.tabId}`,
-      c.journey.expiresAt,
-      "View Journey",
-      { kind: "CONTEXT", tabId: c.tabId, contextId: c.contextId }
-    )));
-    for (const id of temporaryRows.keys()) if (!retained.has(id)) temporaryRows.delete(id);
-    for (const time of element2("temporary-section").querySelectorAll(".temporary-time")) {
-      const label = `${countdown(Number(time.dataset.expiresAt), now)} remaining`;
-      if (time.textContent !== label) setProperty(time, "textContent", label);
-    }
-    const count = summary.pending.length + summary.grants.length + summary.journeys.length;
-    setProperty(element2("temporary-section"), "hidden", summary.available && count === 0);
-    setProperty(element2("temporary-list"), "hidden", summary.grants.length === 0);
-    setProperty(element2("pending-access-list"), "hidden", summary.pending.length === 0);
-    setProperty(element2("other-journeys"), "hidden", others.length === 0);
-    setProperty(element2("temporary-empty"), "hidden", true);
-    setProperty(element2("temporary-unavailable"), "hidden", summary.available);
-    text2("temporary-count", summary.available && count > 0 ? `${count} current` : "");
-    for (const button of element2("temporary-section").querySelectorAll("button")) setProperty(button, "disabled", busy || !summary.available || !canQueueOperation(view?.controller));
-  }
-  async function followAccessLink(link) {
-    if (busy || !canQueueOperation(view?.controller)) return;
-    if (link.kind === "CONTEXT") {
-      const context = view?.contexts.find((c) => c.tabId === link.tabId && c.contextId === link.contextId);
-      if (!context) {
-        feedback("The owning tab is no longer available. Refresh the access summary.", "error");
-        return;
-      }
-      selected = String(context.tabId);
-      navigate2("access");
-    } else {
-      const response = await send({ kind: "OPEN_DESTINATION", url: link.url });
-      if (response?.opened === true) navigate2("access", true);
-    }
   }
   function renderSettings(controller, ready, now) {
     const status = controller?.status;
@@ -5244,31 +8573,34 @@ Journey ${context.journey.id}: ${context.journey.endReason}` : ""}` : "");
     const settingsLabel = proposal == null ? "Settings" : "Settings, pending change";
     setAttribute(element2("show-settings"), "aria-label", settingsLabel);
     setProperty(element2("show-settings"), "title", settingsLabel);
-    const proposalId = proposal?.id ?? null;
-    if (controller?.snapshot && proposalId !== displayedProposalId) {
-      displayedProposalId = proposalId;
-      if (proposalId !== null) element2("vault-section").open = true;
-    }
     setProperty(element2("vault-empty"), "hidden", proposal != null);
-    text2("vault-empty", hasCommittedCollection(controller) ? "No proposal is waiting. Propose timing changes here or destination changes in Sites & Access." : "Vault status cannot currently be verified. Retry or recover saved state before confirmation.");
-    const missingDefaults = presetHostnames.filter((hostname2) => !policy?.whitelist.includes(hostname2));
-    setProperty(element2("preset-update"), "hidden", !policy || missingDefaults.length === 0);
-    text2("preset-update-status", policy ? missingDefaults.length > 0 ? `${missingDefaults.length} curated hostnames are missing from your saved Whitelist.` : "Your saved Whitelist includes all current curated hostnames." : "");
-    setProperty(element2("propose-defaults"), "hidden", !policy || missingDefaults.length === 0);
+    text2("vault-empty", hasCommittedCollection(controller) ? "No proposal is waiting. Prepare site changes in All sites or timing changes in Settings." : "Vault status cannot currently be verified. Retry or recover saved state before confirmation.");
+    const showCoverage = page === "settings" && settingsNavigation.value() === "recovery-section";
+    const missingDefaults = showCoverage ? presetCoverage(policy) : null;
+    setProperty(element2("preset-update"), "hidden", false);
+    if (missingDefaults) text2("preset-update-status", policy ? missingDefaults.length > 0 ? `${missingDefaults.length} curated hostnames are missing from your saved Allowed sites.` : "Your saved Allowed sites includes all current curated hostnames." : "Saved policy is unavailable. Curated coverage cannot be verified.");
+    setProperty(element2("propose-defaults"), "hidden", !policy || missingDefaults === null || missingDefaults.length === 0);
     setProperty(element2("propose-defaults"), "disabled", busy || !ready || proposal != null);
     setProperty(element2("vault-panel"), "hidden", proposal == null);
+    const vaultReturn = element2("return-to-sites"), vaultActions = element2(proposal ? "vault-protection-actions" : "vault-empty-actions");
+    if (vaultReturn.parentElement !== vaultActions) vaultActions.append(vaultReturn);
+    setProperty(element2("vault-empty-actions"), "hidden", proposal != null);
     const review = matchingReview(controller, policyReview);
     renderReview(review, proposal != null);
     text2("vault-review", review ? `Proposal ${review.proposalId} \xB7 policy revision ${review.basePolicyRevision}
-Whitelist additions: ${review.whitelist.added.join(", ") || "(none)"}
-Whitelist removals: ${review.whitelist.removed.join(", ") || "(none)"}
-Blacklist additions: ${review.blacklist.added.join(", ") || "(none)"}
-Blacklist removals: ${review.blacklist.removed.join(", ") || "(none)"}
+Allowed sites additions: ${review.whitelist.added.join(", ") || "(none)"}
+Allowed sites removals: ${review.whitelist.removed.join(", ") || "(none)"}
+Blocked sites additions: ${review.blacklist.added.join(", ") || "(none)"}
+Blocked sites removals: ${review.blacklist.removed.join(", ") || "(none)"}${review.whitelistSubdomains ? `
+All-subdomain bases added: ${review.whitelistSubdomains.added.join(", ") || "(none)"}
+All-subdomain bases removed: ${review.whitelistSubdomains.removed.join(", ") || "(none)"}` : ""}
 Classification changes:
 ${review.classifications.map((change) => `${change.hostname}: ${change.before} \u2192 ${change.after}`).join("\n") || "(none)"}${review.candidateConfiguration ? `
 Current settings: ${settingsCopy(review.currentConfiguration)}
 Candidate settings: ${settingsCopy(review.candidateConfiguration)}` : ""}` : policyReviewError ? `Core review unavailable: ${policyReviewError}. Cancel or recover before proceeding.` : "Loading the frozen Core review\u2026");
     text2("vault-deadline", review?.phase === "WAITING" ? `Vault wait ${countdown(review.readyAt, now)}` : review?.phase === "READY" ? `Confirm within ${countdown(review.confirmBy, now)}` : review?.phase === "EXPIRED" ? "This proposal expired. Cancel it before starting a new proposal." : "");
+    text2("vault-ready-at", review?.phase === "WAITING" ? `Ready at ${new Date(review.readyAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : review?.phase === "READY" ? `Confirm by ${new Date(review.confirmBy).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : review?.phase === "EXPIRED" ? "Confirmation expired" : proposal ? "Review unavailable" : "");
+    setProperty(element2("vault-ready-at"), "title", review ? `Ready at ${new Date(review.readyAt).toLocaleString()}. Confirm by ${new Date(review.confirmBy).toLocaleString()}.` : "");
     setProperty(element2("confirm-policy"), "hidden", review?.phase !== "READY");
     setProperty(element2("confirm-policy"), "disabled", busy || !ready || review?.phase !== "READY" || now >= review.confirmBy);
     setProperty(element2("cancel-policy"), "disabled", busy || !ready);
@@ -5281,7 +8613,7 @@ Last attempt: ${managed.lastAttemptAt === null ? "none" : new Date(managed.lastA
 Source: ${managed.sourceUrl}
 Version: ${managed.upstreamVersion ?? "unknown"}
 Unsupported names skipped: ${managed.ignoredNames}` : "");
-    text2("managed-conflicts", managed ? `Whitelist exceptions in managed data (${managed.conflicts.length}): ${managed.conflicts.join(", ") || "none"}.` : "");
+    text2("managed-conflicts", managed ? `Allowed sites exceptions in managed data (${managed.conflicts.length}): ${managed.conflicts.join(", ") || "none"}.` : "");
     const activeConfiguration = controller?.snapshot?.configuration;
     if (activeConfiguration) {
       const configKey = JSON.stringify(activeConfiguration);
@@ -5294,263 +8626,80 @@ Unsupported names skipped: ${managed.ignoredNames}` : "");
       timingFields.forEach((field) => {
         text2(`active-${field.id}`, `Active: ${field.value(activeConfiguration)} ${field.unit}`);
       });
+      renderTimingEdits();
     }
     setProperty(element2("propose-settings"), "disabled", busy || !ready || proposal != null);
     text2("vault-impact", !review ? "Saved authority remains active. A verified Core review is required before confirmation." : review.invalidatesAccess ? "Policy changes invalidate current requests, grants and Journeys." : "Settings changes preserve existing waits, grants and Journey terms. New activity uses the committed settings.");
     setProperty(element2("recover"), "disabled", busy || ready || status === "UNINITIALIZED" || status === "COMMITTING");
     text2("recover", view?.startup.status === "FAILED" ? "Retry startup" : "Reload and reconcile state");
     text2("startup-diagnostic", view?.startup.status === "FAILED" ? `Startup: ${view.startup.stage} \xB7 ${view.startup.reason}` : "");
-    text2("storage-diagnostic", storageDiagnosticsCopy(view?.storage));
-    text2("policy", controller?.snapshot ? `Exact Whitelist hosts: ${policy.whitelist.length}
-Manual Blacklist hosts: ${policy.blacklist.length}
+    diagnosticPanel.render(view);
+    const interruption = authorityInterruptionCopy(view?.authorityInterruption);
+    const curated = view?.curatedUpgrade;
+    text2("policy", controller?.snapshot ? `Exact Allowed sites hosts: ${policy.whitelist.length}
+Manual Blocked sites hosts: ${policy.blacklist.length}
 Policy revision: ${controller.snapshot.policyRevision}
 State: ${status}${controller.reason ? ` \xB7 ${controller.reason}` : ""}${status === "UNAVAILABLE" && view?.storage?.lastFailure ? `
-${storageFailureCopy(view.storage)}` : ""}` : startupCopy(view?.startup) || "No verified policy loaded.");
+${storageFailureCopy(view.storage)}` : ""}` + (policy.whitelistSubdomains?.length ? `
+Subdomain scope bases: ${policy.whitelistSubdomains.join(", ")}` : "") + (curated ? `
+Curated expansion: ${curated.added.length} added, ${curated.alreadyPresent.length} already present, ${curated.skippedBlacklisted.length + curated.skippedManaged.length} skipped. Exact results are in the diagnostics export.` : "") + (interruption ? `
+${interruption}` : "") : startupCopy(view?.startup) || "No verified policy loaded.");
   }
   function renderHome(policy, ready) {
+    const savedPins = presentationView();
+    if (savedPins) {
+      pins = savedPins.pins;
+      pinsLoaded = true;
+    }
     const verified = view?.controller?.status === "READY" && policy !== void 0;
     if (verified) lastVerifiedPolicy = policy;
     const displayPolicy = verified ? policy : lastVerifiedPolicy ?? policy;
-    const destinationKey = JSON.stringify([displayPolicy ?? null, sites.metadata()]);
+    const destinationKey = JSON.stringify([displayPolicy ?? null, sites.metadata(), pins]);
     if (destinationsKey !== destinationKey) {
       destinationsKey = destinationKey;
-      entries = displayPolicy ? destinationIndex(displayPolicy, sites.metadata()) : [];
-      homeCatalog = homeCategories(entries, displayPolicy ? policyDestinationIndex(displayPolicy, sites.metadata()) : [], sites.metadata().map((d) => d.category));
+      entries = displayPolicy ? destinationIndex(displayPolicy, sites.metadata(), pins) : [];
+      homeCatalog = homeCategories(entries, displayPolicy ? policyDestinationIndex(displayPolicy, sites.metadata(), pins) : [], sites.metadata().map((d) => d.category));
     }
     const catalog = homeCatalog;
     homeOrganization.observe(catalog, verified);
-    const layout = homeOrganization.layout();
-    const groups = displayedHomeCategories(layout, catalog).map((category) => {
-      let group = homeGroups.get(category.key);
-      if (!group) {
-        group = document.createElement("section");
-        group.className = "service-group destination-section";
-        setProperty(group.dataset, "categoryKey", category.key);
-        const heading = document.createElement("div");
-        heading.className = "section-heading";
-        const title = document.createElement("h2");
-        const collapse2 = document.createElement("button");
-        collapse2.type = "button";
-        collapse2.className = "category-heading";
-        collapse2.addEventListener("click", () => void homeOrganization.change(category.key, "COLLAPSE"));
-        title.append(collapse2);
-        const count = document.createElement("span");
-        count.className = "section-meta";
-        heading.append(title, count);
-        const grid2 = document.createElement("div");
-        grid2.className = "destination-grid";
-        grid2.id = `destination-category-${homeGroups.size}`;
-        setAttribute(collapse2, "aria-controls", grid2.id);
-        const toggle = document.createElement("button");
-        toggle.type = "button";
-        toggle.className = "category-toggle text-button";
-        setAttribute(toggle, "aria-controls", grid2.id);
-        toggle.addEventListener("click", () => {
-          if (expandedCategories.has(category.key)) expandedCategories.delete(category.key);
-          else expandedCategories.add(category.key);
-          updateDestinationLayout();
-        });
-        heading.append(toggle);
-        group.append(heading, grid2);
-        homeGroups.set(category.key, group);
-      }
-      if (group.dataset.category !== category.label || group.dataset.collapsed !== String(category.collapsed)) layoutDirty = true;
-      setProperty(group.dataset, "category", category.label);
-      setProperty(group.dataset, "collapsed", String(category.collapsed));
-      const collapse = group.querySelector(".category-heading");
-      setProperty(collapse, "textContent", category.label);
-      setAttribute(collapse, "aria-expanded", String(!category.collapsed));
-      setAttribute(collapse, "aria-label", `${category.collapsed ? "Expand" : "Collapse"} ${category.label} category`);
-      const available = rankDestinations(entries.filter((e) => categoryKey(e.category) === category.key), usage, Date.now());
-      const grid = group.querySelector(".destination-grid"), key = JSON.stringify(available);
-      if (grid.dataset.entries !== key) {
-        const focused = document.activeElement;
-        const existing = new Map([...grid.children].map((node) => [node.dataset.destinationId, node]));
-        const cards = available.map((entry) => {
-          const saved = existing.get(destinationId(entry)), content = JSON.stringify(entry);
-          if (saved?.dataset.entry === content) return saved;
-          const card = makeDestinationCard(entry);
-          setProperty(card.dataset, "entry", content);
-          return card;
-        });
-        setProperty(grid.dataset, "entries", key);
-        reconcileChildren(grid, cards);
-        layoutDirty = true;
-        if (focused?.isConnected && document.activeElement === document.body) focused.focus({ preventScroll: true });
-      }
-      setProperty(group.querySelector(".section-meta"), "textContent", `${available.length} destination${available.length === 1 ? "" : "s"}`);
-      return group;
-    });
-    const list = element2("destination-list");
-    if (JSON.stringify([...list.children].map((c) => c.dataset.categoryKey)) !== JSON.stringify(groups.map((c) => c.dataset.categoryKey))) {
-      const focused = document.activeElement, key = focused?.closest("[data-category-key]")?.dataset.categoryKey;
-      reconcileChildren(list, groups);
-      layoutDirty = true;
-      if (focused && !focused.isConnected && key) homeGroups.get(key)?.querySelector(".category-heading")?.focus({ preventScroll: true });
-    }
-    setProperty(element2("home-categories-empty"), "hidden", entries.length === 0 || groups.length > 0);
     renderPins();
-    if (layoutDirty) {
-      updateDestinationLayout();
-      layoutDirty = false;
-    }
     homeOrganization.render();
     renderSearch();
-    const state = collectionPresentation(view?.controller, entries.length, queryAttempted, displayPolicy !== void 0);
+    const state = collectionPresentation(view?.controller, entries.length, queryAttempted && view?.startup?.status !== "LOADING", displayPolicy !== void 0);
+    setAttribute(element2("destinations"), "aria-busy", String(state.phase === "LOADING"));
     setProperty(element2("destinations").dataset, "phase", state.phase);
     text2("destination-state-message", state.message);
-    setProperty(element2("destination-state"), "hidden", state.phase === "READY" || state.phase === "EMPTY");
+    setProperty(element2("destination-state"), "hidden", state.phase !== "UNAVAILABLE");
     setProperty(element2("retry-destinations"), "hidden", state.phase !== "UNAVAILABLE");
     setProperty(element2("open-destination-recovery"), "hidden", state.phase !== "UNAVAILABLE");
     setProperty(element2("empty-destinations"), "hidden", state.phase !== "EMPTY");
-    setProperty(element2("pinned-empty"), "hidden", state.phase !== "READY" && state.phase !== "EMPTY" || pinnedDestinations(entries, pins).length > 0);
-    for (const button of document.querySelectorAll(".destination-open, #open-journey")) {
+    setProperty(element2("pinned-empty"), "hidden", state.phase !== "READY" && state.phase !== "EMPTY" || pinnedDestinations(pinEntries(), pins).length > 0);
+    for (const button of document.querySelectorAll(".destination-open")) {
       setProperty(button, "disabled", busy || !ready || !hasCommittedCollection(view?.controller));
     }
   }
-  function updateDestinationLayout() {
-    const destinations = element2("destinations");
-    const width = destinations.getBoundingClientRect().width;
-    if (width <= 0) return;
-    const styles = getComputedStyle(destinations);
-    const minimum = parseFloat(styles.getPropertyValue("--destination-min-width"));
-    const gap = parseFloat(styles.getPropertyValue("--destination-gap"));
-    const columns = Math.max(1, Math.min(5, Math.floor((width + gap) / (minimum + gap))));
-    if (destinations.dataset.columns !== String(columns)) {
-      setProperty(destinations.dataset, "columns", String(columns));
-      destinations.style.setProperty("--destination-columns", String(columns));
+  function pinEntries() {
+    const v = presentationView();
+    const combined = entries.map((e) => v?.sync.labels[destinationId(e)] ? { ...e, label: v.sync.labels[destinationId(e)] } : e);
+    for (const g of v?.sync.groups ?? []) {
+      const index = combined.findIndex((e) => destinationId(e) === g.id);
+      const entry = { id: g.id, label: v?.sync.labels[g.id] ?? g.label, hostname: g.hostname, hostnames: [g.hostname], category: "Bookmarks" };
+      if (index < 0) combined.push(entry);
+      else combined[index] = { ...combined[index], label: entry.label };
     }
-    for (const group of element2("destination-list").querySelectorAll("[data-category]")) {
-      const grid = group.querySelector(".destination-grid");
-      const toggle = group.querySelector(".category-toggle");
-      const count = group.querySelector(".section-meta");
-      const category = group.dataset.category, collapsed = group.dataset.collapsed === "true";
-      setProperty(grid, "hidden", collapsed);
-      const expanded = expandedCategories.has(group.dataset.categoryKey);
-      const overflow = grid.children.length > columns;
-      if (toggle.hidden !== (!overflow || collapsed)) setProperty(toggle, "hidden", !overflow || collapsed);
-      if (count.hidden !== (overflow && !collapsed)) setProperty(count, "hidden", overflow && !collapsed);
-      const label = expanded ? "Show fewer" : `Show all ${grid.children.length} \u2192`;
-      if (toggle.textContent !== label) setProperty(toggle, "textContent", label);
-      if (toggle.getAttribute("aria-expanded") !== String(expanded)) setAttribute(toggle, "aria-expanded", String(expanded));
-      const accessibleLabel = `${expanded ? "Show fewer" : "Show all"} ${category} destinations`;
-      if (toggle.getAttribute("aria-label") !== accessibleLabel) setAttribute(toggle, "aria-label", accessibleLabel);
-      for (const [index, child] of [...grid.children].entries()) {
-        const card = child;
-        const hidden = collapsed || !expanded && index >= columns;
-        if (hidden && card.contains(document.activeElement)) toggle.focus({ preventScroll: true });
-        if (card.hidden !== hidden) setProperty(card, "hidden", hidden);
-      }
-    }
-  }
-  var layoutObserver = new ResizeObserver(updateDestinationLayout);
-  layoutObserver.observe(element2("destinations"));
-  function icon(name) {
-    const node = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    node.classList.add("icon");
-    setAttribute(node, "aria-hidden", "true");
-    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-    setAttribute(use, "href", `#icon-${name}`);
-    node.append(use);
-    return node;
-  }
-  async function displayWebsiteIcon(image, hostname2) {
-    setProperty(image.dataset, "hostname", hostname2);
-    if (!websiteIcons.has(hostname2)) websiteIcons.set(hostname2, iconSnapshot.then(() => loadWebsiteIcon(hostname2, observedIcons.get(hostname2))).then((blob) => blob ? URL.createObjectURL(blob) : null).catch(() => null));
-    const loading = websiteIcons.get(hostname2);
-    const url = await loading;
-    if (!image.isConnected || image.dataset.hostname !== hostname2 || websiteIcons.get(hostname2) !== loading) return;
-    image.src = url ?? "site.svg";
-  }
-  function makeDestinationCard(entry) {
-    const card = document.createElement("div");
-    card.className = "destination-card";
-    setProperty(card.dataset, "destinationId", destinationId(entry));
-    const points = destinationEntryPoints(entry);
-    const addresses = document.createElement("select");
-    addresses.className = "service-addresses";
-    setAttribute(addresses, "aria-label", `${entry.label} entry point`);
-    points.forEach((hostname2) => addresses.append(new Option(hostname2, hostname2)));
-    setProperty(addresses, "hidden", points.length < 2);
-    const open = document.createElement("button");
-    open.className = "destination-open";
-    open.type = "button";
-    setAttribute(open, "aria-label", `Open ${entry.label}`);
-    setProperty(open.dataset, "destinationId", destinationId(entry));
-    setProperty(open, "title", entry.hostnames.join(", "));
-    const mark = document.createElement("span");
-    mark.className = "service-mark";
-    setAttribute(mark, "aria-hidden", "true");
-    const image = document.createElement("img");
-    image.className = "site-icon";
-    image.width = 32;
-    image.height = 32;
-    image.alt = "";
-    image.src = "site.svg";
-    image.loading = "lazy";
-    setProperty(image.dataset, "hostname", addresses.value);
-    image.addEventListener("error", () => {
-      if (!image.src.endsWith("/site.svg")) image.src = "site.svg";
-    });
-    mark.append(image);
-    iconObserver.observe(image);
-    const copy = document.createElement("span");
-    copy.className = "destination-copy";
-    const name = document.createElement("span");
-    name.className = "destination-name";
-    setProperty(name, "textContent", entry.label);
-    const host2 = document.createElement("span");
-    host2.className = "destination-host";
-    setProperty(host2, "textContent", addresses.value);
-    addresses.addEventListener("change", () => {
-      setProperty(host2, "textContent", addresses.value);
-      setProperty(open, "title", addresses.value);
-      void displayWebsiteIcon(image, addresses.value);
-    });
-    copy.append(name, host2);
-    open.append(mark, copy);
-    open.addEventListener("click", () => {
-      void send({ kind: "OPEN_DESTINATION", url: `https://${addresses.value}/` });
-    });
-    const pin = document.createElement("button");
-    pin.type = "button";
-    pin.className = "pin-button";
-    setProperty(pin.dataset, "pinId", destinationId(entry));
-    setProperty(pin.dataset, "label", entry.label);
-    pin.append(icon("pin"));
-    pin.addEventListener("click", () => {
-      void togglePin(destinationId(entry));
-    });
-    card.append(open, pin);
-    if (points.length > 1) {
-      const details = document.createElement("details");
-      details.className = "entry-points";
-      const summary = document.createElement("summary");
-      setProperty(summary, "title", `Choose ${entry.label} entry point`);
-      setAttribute(summary, "aria-label", summary.title);
-      summary.append(icon("chevron"));
-      details.append(summary, addresses);
-      card.append(details);
-    }
-    return card;
+    return combined;
   }
   function renderPins() {
-    const active = pinnedDestinations(entries, pins);
-    const key = JSON.stringify(active);
-    if (key !== pinnedKey) {
-      pinnedKey = key;
-      const list = element2("pinned-list"), focused = document.activeElement;
-      const existing = new Map([...list.children].map((node) => [node.dataset.destinationId, node]));
-      reconcileChildren(list, active.map((entry) => {
-        const saved = existing.get(destinationId(entry)), content = JSON.stringify(entry);
-        if (saved?.dataset.entry === content) return saved;
-        const card = makeDestinationCard(entry);
-        setProperty(card.dataset, "entry", content);
-        return card;
-      }));
-      if (focused?.isConnected && document.activeElement === document.body) focused.focus({ preventScroll: true });
+    bookmarkSync.render();
+    const saved = presentationView();
+    if (saved) {
+      pins = saved.pins;
+      pinsLoaded = true;
     }
-    setProperty(element2("pinned-empty"), "hidden", active.length > 0);
+    const all = pinEntries();
+    const active = pinnedDestinations(all, pins);
+    setAttribute(element2("pinned-section"), "data-action-pending", busy && hasCommittedCollection(view?.controller) && canQueueOperation(view?.controller) ? "true" : null);
+    homePins.render(all, pins, !busy && hasCommittedCollection(view?.controller) && canQueueOperation(view?.controller), pinsLoaded && !savingPins && canQueueOperation(view?.controller));
     for (const button of document.querySelectorAll(".pin-button")) {
       const pinned = active.some((entry) => destinationId(entry) === button.dataset.pinId);
       const label = `${pinned ? "Unpin" : "Pin"} ${button.dataset.label}`;
@@ -5561,31 +8710,30 @@ ${storageFailureCopy(view.storage)}` : ""}` : startupCopy(view?.startup) || "No 
       if (button.disabled !== disabled) setProperty(button, "disabled", disabled);
     }
   }
-  function togglePin(id) {
+  async function togglePin(id) {
     if (!pinsLoaded || savingPins) return;
     const focused = document.activeElement;
     const pinnedFocus = focused instanceof HTMLButtonElement && focused.closest("#pinned-list") !== null;
-    const entry = entries.find((item) => destinationId(item) === id);
-    const pinned = pinnedDestinations(entries, pins).some((item) => destinationId(item) === id);
+    const entry = pinEntries().find((item) => destinationId(item) === id);
+    const pinned = pins.includes(id);
     const next = updateDestinationPin(pins, id, !pinned, entry?.hostnames);
     if (next.length > 200) {
-      feedback("Your pinned list is full. Unpin a destination first.", "error");
+      feedback("Your pinned list is full. Unpin a site first.", "error");
       return;
     }
     savingPins = true;
     renderPins();
     try {
-      const saved = savePresentation(() => localStorage, pinsStorageKey, JSON.stringify(next));
+      const saved = await setPin(id, !pinned, entry?.hostnames);
       if (saved === "SAVED") {
-        pins = next;
-        feedback("Pin preference saved. Access and policy are unchanged.", "success");
+        pins = presentationView().pins;
+        feedback("");
       } else feedback(saved === "FAILED" ? "Your pin could not be saved. Access and policy are unchanged." : "The pin save outcome could not be verified. Access and policy are unchanged.", saved === "FAILED" ? "error" : "uncertain");
     } finally {
       savingPins = false;
       render();
       if (pinnedFocus && !focused.isConnected) {
-        const counterpart = [...element2("destination-list").querySelectorAll(".pin-button")].find((button) => button.dataset.pinId === id && button.closest("[hidden]") === null && !button.disabled);
-        (counterpart ?? searchInput).focus();
+        searchInput.focus({ preventScroll: true });
       }
     }
   }
@@ -5593,14 +8741,18 @@ ${storageFailureCopy(view.storage)}` : ""}` : startupCopy(view?.startup) || "No 
     const tone = review?.phase === "WAITING" ? "wait" : review?.phase === "READY" ? "ready" : review?.phase === "EXPIRED" ? "expired" : "unavailable";
     if (element2("vault-phase").dataset.tone !== tone) setProperty(element2("vault-phase").dataset, "tone", tone);
     text2("vault-phase", review?.phase === "WAITING" ? "Waiting" : review?.phase === "READY" ? "Ready to confirm" : review?.phase === "EXPIRED" ? "Expired" : "");
-    text2("vault-summary", review ? `${review.phase === "WAITING" ? "Saved proposal; waiting period is running." : review.phase === "READY" ? "Confirmation is available. Review the frozen contents before confirming." : "The confirmation window has expired."} Your active policy and settings stay in place until explicit confirmation and a successful save.` : hasProposal ? "Waiting for a verified Core review. Confirmation is unavailable." : "");
-    const key = JSON.stringify(review ? [review.proposalId, review.whitelist, review.blacklist, review.currentConfiguration, review.candidateConfiguration] : null);
-    if (key === reviewKey) return;
-    reviewKey = key;
+    text2("vault-summary", review ? `${review.phase === "WAITING" ? "Saved proposal; waiting period is running." : review.phase === "READY" ? "Confirmation is available. Review the frozen contents before confirming." : "The confirmation window has expired."} Your active policy and settings stay in place until explicit confirmation and a successful save.` : hasProposal ? "Waiting to verify this proposal. Confirmation is unavailable." : "");
+    const key2 = JSON.stringify(review ? [review.proposalId, review.whitelist, review.blacklist, review.whitelistSubdomains, review.currentConfiguration, review.candidateConfiguration] : null);
+    if (key2 === reviewKey) return;
+    reviewKey = key2;
     const changes = [];
-    if (review) for (const [label, diff] of [["Whitelist", review.whitelist], ["Blacklist", review.blacklist]]) {
+    if (review) for (const [label, diff] of [["Allowed sites", review.whitelist], ["Blocked sites", review.blacklist]]) {
       if (diff.added.length > 0) changes.push(`${label} \xB7 add: ${diff.added.join(", ")}`);
       if (diff.removed.length > 0) changes.push(`${label} \xB7 remove: ${diff.removed.join(", ")}`);
+    }
+    if (review?.whitelistSubdomains) {
+      if (review.whitelistSubdomains.added.length) changes.push(`Also allow all current/future subdomains at any depth \xB7 add bases: ${review.whitelistSubdomains.added.join(", ")}. Managed and manual blocking still apply to these additional descendants.`);
+      if (review.whitelistSubdomains.removed.length) changes.push(`All-subdomain access \xB7 remove bases: ${review.whitelistSubdomains.removed.join(", ")}`);
     }
     element2("vault-changes").replaceChildren(...changes.map((value) => {
       const li = document.createElement("li");
@@ -5609,11 +8761,11 @@ ${storageFailureCopy(view.storage)}` : ""}` : startupCopy(view?.startup) || "No 
     }));
     setProperty(element2("vault-changes"), "hidden", changes.length === 0);
     const rows = review?.currentConfiguration && review.candidateConfiguration ? timingFields.flatMap((field) => {
-      const current = field.value(review.currentConfiguration);
+      const current2 = field.value(review.currentConfiguration);
       const proposed = field.value(review.candidateConfiguration);
-      if (current === proposed) return [];
+      if (current2 === proposed) return [];
       const row = document.createElement("tr");
-      for (const cell of [field.label, `${current} ${field.unit}`, `${proposed} ${field.unit}`]) {
+      for (const cell of [field.label, `${current2} ${field.unit}`, `${proposed} ${field.unit}`]) {
         const td = document.createElement("td");
         setProperty(td, "textContent", cell);
         row.append(td);
@@ -5624,16 +8776,20 @@ ${storageFailureCopy(view.storage)}` : ""}` : startupCopy(view?.startup) || "No 
     setProperty(element2("vault-settings-comparison"), "hidden", rows.length === 0);
   }
   function renderSearch() {
+    const searching = searchInput.value.trim().length > 0;
+    setProperty(element2("home-search-panel"), "hidden", !searching || !searchOpen);
     const inputsKey = `${destinationsKey}
+${JSON.stringify(presentationView()?.sync.groups)}
 ${searchInput.value}`;
     if (inputsKey !== searchInputsKey) {
       searchInputsKey = inputsKey;
-      const next = searchDestinationTargets(entries, searchInput.value);
-      const key = JSON.stringify([searchInput.value, next]);
-      if (key !== searchKey) {
-        searchKey = key;
+      const next = searchDestinationTargets(pinEntries(), searchInput.value);
+      const key2 = JSON.stringify([searchInput.value, next, homeCatalog]);
+      if (key2 !== searchKey) {
+        searchKey = key2;
         matches = next;
         highlighted = next.length === 1 ? 0 : -1;
+        searchActions = [];
         element2("search-results").replaceChildren(...matches.map(({ entry, hostname: hostname2 }, index) => {
           const button = document.createElement("button");
           button.type = "button";
@@ -5651,17 +8807,43 @@ ${searchInput.value}`;
           setProperty(host2, "textContent", hostname2);
           copy.append(label, host2);
           button.append(copy, icon("arrow"));
+          const action = () => {
+            searchOpen = false;
+            renderSearch();
+            void send({ kind: "OPEN_DESTINATION", url: `https://${hostname2}/` });
+          };
+          searchActions.push(action);
           button.addEventListener("click", () => {
-            if (!button.disabled) void send({ kind: "OPEN_DESTINATION", url: `https://${hostname2}/` });
+            if (!button.disabled) action();
           });
           return button;
         }));
+        if (searching) for (const category of homeCatalog.filter((c) => c.members.length && searchInput.value.toLowerCase().trim().split(/\s+/).every((w) => c.label.toLowerCase().includes(w)))) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.id = `search-result-${searchActions.length}`;
+          button.tabIndex = -1;
+          button.className = "search-category";
+          button.setAttribute("role", "option");
+          button.textContent = `${category.label} ? Category`;
+          const action = () => {
+            searchOpen = false;
+            sites.chooseCategory(category.key);
+            navigate2("sites");
+          };
+          searchActions.push(action);
+          button.addEventListener("mousedown", (e) => e.preventDefault());
+          button.addEventListener("click", () => {
+            if (!button.disabled) action();
+          });
+          element2("search-results").append(button);
+        }
       }
     }
-    setProperty(element2("search-results"), "hidden", matches.length === 0);
-    setProperty(element2("search-empty"), "hidden", !hasCommittedCollection(view?.controller) || searchInput.value.trim() === "" || matches.length > 0);
-    setAttribute(searchInput, "aria-expanded", String(matches.length > 0));
-    if (highlighted >= 0) setAttribute(searchInput, "aria-activedescendant", `search-result-${highlighted}`);
+    setProperty(element2("search-results"), "hidden", searchActions.length === 0);
+    setProperty(element2("search-empty"), "hidden", !hasCommittedCollection(view?.controller) || searchInput.value.trim() === "" || searchActions.length > 0);
+    setAttribute(searchInput, "aria-expanded", String(searchOpen && searching));
+    if (searchOpen && highlighted >= 0) setAttribute(searchInput, "aria-activedescendant", `search-result-${highlighted}`);
     else setAttribute(searchInput, "aria-activedescendant", null);
     for (const [index, button] of [...element2("search-results").children].entries()) {
       setAttribute(button, "aria-selected", String(index === highlighted));
@@ -5669,24 +8851,36 @@ ${searchInput.value}`;
     }
   }
   searchInput.addEventListener("input", () => {
+    searchOpen = true;
     renderSearch();
+  });
+  searchInput.addEventListener("focus", () => {
+    searchOpen = true;
+    renderSearch();
+  });
+  window.addEventListener("pointerdown", (event) => {
+    if (!element2("search-form").contains(event.target)) {
+      searchOpen = false;
+      renderSearch();
+    }
   });
   searchInput.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
-      setProperty(searchInput, "value", "");
+      searchOpen = false;
       renderSearch();
     }
-    if (matches.length > 0 && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
+    if (searchActions.length > 0 && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
       event.preventDefault();
-      highlighted = (highlighted + (event.key === "ArrowDown" ? 1 : highlighted < 0 ? 0 : -1) + matches.length) % matches.length;
+      searchOpen = true;
+      highlighted = (highlighted + (event.key === "ArrowDown" ? 1 : highlighted < 0 ? 0 : -1) + searchActions.length) % searchActions.length;
       renderSearch();
       element2(`search-result-${highlighted}`).scrollIntoView({ block: "nearest" });
     }
   });
   element2("search-form").addEventListener("submit", (event) => {
     event.preventDefault();
-    const entry = matches[highlighted] ?? (matches.length === 1 ? matches[0] : void 0);
-    if (entry && !busy && hasCommittedCollection(view?.controller)) void send({ kind: "OPEN_DESTINATION", url: `https://${entry.hostname}/` });
+    const action = searchActions[highlighted] ?? (searchActions.length === 1 ? searchActions[0] : void 0);
+    if (action && searchOpen && !busy && hasCommittedCollection(view?.controller)) action();
   });
   function rememberPage() {
     const focus = document.activeElement;
@@ -5694,26 +8888,38 @@ ${searchInput.value}`;
       ...navigation.value(),
       tab: selected,
       sites: sites.navigation(),
-      pages: { ...navigation.value().pages, [page]: { scroll: window.scrollY, focus: focus?.id ?? "" } }
+      pages: { ...navigation.value().pages, [page]: { scroll: viewportScrollSurface(page, sites.view()).scrollTop, focus: focus?.id ?? "" } }
     });
   }
+  function historyData() {
+    return { atlasSitesDirectory: sites.directory(), atlasSettings: settingsNavigation.value(), atlasSitesView: sites.view(), atlasSitesSelection: sites.navigation().selection };
+  }
   function navigate2(name, preserveFeedback = false, fromHistory = false) {
+    const accessLink2 = name === "access";
+    if (accessLink2) name = "home";
+    else if (name === "home" && !fromHistory) selected = "";
     rememberPage();
+    homePins.leave();
+    sites.leave();
+    searchOpen = false;
     if (!preserveFeedback) feedback("");
-    if (!fromHistory && page !== name) history.pushState(null, "", `#${name}`);
+    if (!fromHistory && page !== name) history.pushState(historyData(), "", `#${name}`);
+    if (fromHistory) {
+      sites.restoreDirectory(history.state?.atlasSitesDirectory);
+      settingsNavigation.restore(history.state?.atlasSettings);
+      sites.restoreView(history.state?.atlasSitesView, history.state?.atlasSitesSelection);
+    }
     page = name;
     section = name === "vault" ? "settings" : name === "access" ? "home" : name;
-    accessFocused = name === "access";
     render();
-    const target = name === "vault" ? element2("vault-section") : name === "access" ? element2("access-panel") : element2("main-content");
-    if (target instanceof HTMLDetailsElement) target.open = true;
+    const target = name === "vault" ? element2("vault-section") : accessLink2 ? element2("temporary-title") : element2("main-content");
     if (name === "sites") sites.focusSelection();
-    else (target.id === "main-content" ? target : target.querySelector("summary, h2") ?? target).focus({ preventScroll: true });
+    else (name === "vault" ? element2("vault-heading") : target.id === "main-content" ? target : target.querySelector("summary, h2") ?? target).focus({ preventScroll: true });
     const initialFocus = document.activeElement;
     const saved = navigation.value().pages[name];
     requestAnimationFrame(() => {
       if (page !== name) return;
-      if (saved) window.scrollTo({ top: saved.scroll, behavior: "instant" });
+      if (saved) viewportScrollSurface(page, sites.view()).scrollTop = saved.scroll;
       else target.scrollIntoView({ block: "start" });
       if (saved?.focus && document.activeElement === initialFocus && fromHistory) {
         const remembered = document.getElementById(saved.focus);
@@ -5721,15 +8927,32 @@ ${searchInput.value}`;
       }
     });
   }
-  history.replaceState(null, "", `#${page}`);
+  history.replaceState(historyData(), "", `#${page}`);
   history.scrollRestoration = "manual";
+  var controlTabId;
+  void browser.tabs.getCurrent().then((tab) => {
+    controlTabId = tab?.id;
+  }).catch(() => void 0);
+  var controlNavigation = (message, sender) => {
+    if (sender.id !== browser.runtime.id || sender.tab || sender.url !== browser.runtime.getURL("_generated_background_page.html") || disposed || controlTabId === void 0 || message?.controlTabId !== controlTabId || message.kind !== "CONTROL_NAVIGATE" || !atlasPage(message.page ?? "") || !Number.isSafeInteger(message.tabId)) return false;
+    const target = atlasPage(message.page);
+    if (target === "access") selected = String(message.tabId);
+    navigate2(target);
+    void poll();
+    return Promise.resolve({ navigated: true });
+  };
+  browser.runtime.onMessage.addListener(controlNavigation);
+  addEventListener("pagehide", () => browser.runtime.onMessage.removeListener(controlNavigation));
   window.addEventListener("popstate", () => {
     navigate2(atlasPage(location.hash.slice(1)) ?? "home", true, true);
   });
   window.addEventListener("pagehide", rememberPage);
   element2("return-to-sites").addEventListener("click", () => navigate2("sites", true));
-  for (const name of ["home", "sites", "settings"]) element2(`show-${name}`).addEventListener("click", () => {
+  for (const name of ["home", "sites", "vault", "settings"]) element2(`show-${name}`).addEventListener("click", () => {
     navigate2(name);
+  });
+  for (const button of document.querySelectorAll("[data-settings-panel]")) button.addEventListener("click", () => {
+    if (page === "vault") navigate2("settings", true);
   });
   element2("brand-home").addEventListener("click", (event) => {
     event.preventDefault();
@@ -5743,18 +8966,27 @@ ${searchInput.value}`;
   });
   for (const id of ["open-destination-recovery", "sites-recovery"]) element2(id).addEventListener("click", () => {
     navigate2("settings");
-    element2("recovery-section").open = true;
+    settingsNavigation.choose("recovery-section");
     element2("recover").focus();
   });
-  for (const id of ["home-journey", "show-access"]) element2(id).addEventListener("click", () => {
-    navigate2("access");
-  });
   document.addEventListener("keydown", (event) => {
+    if (document.querySelector("dialog[open]")) return;
     if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey || event.target instanceof HTMLElement && (event.target.closest("input, textarea, select") || event.target.isContentEditable)) return;
     event.preventDefault();
     navigate2("home");
     searchInput.focus();
   });
+  function renderTimingEdits() {
+    const config = view?.controller?.snapshot?.configuration;
+    let count = 0;
+    for (const field of timingFields) {
+      const input2 = element2(field.id), edited = config != null && input2.value !== field.value(config);
+      setProperty(input2.dataset, "edited", String(edited));
+      if (edited) count++;
+    }
+    text2("timing-edited-count", count ? `${count} ${count === 1 ? "edited value" : "edited values"} \xB7 active settings unchanged` : "Active settings remain in effect until confirmation in Vault.");
+  }
+  element2("settings-form").addEventListener("input", renderTimingEdits);
   element2("settings-form").addEventListener("submit", (event) => {
     event.preventDefault();
     const draft = Object.fromEntries(timingFields.map((field) => [field.id, element2(field.id).value]));
@@ -5763,95 +8995,21 @@ ${searchInput.value}`;
       feedback("Use positive values in whole milliseconds and a whole hop limit.", "error");
       return;
     }
-    element2("propose-defaults").closest("details").open = true;
     void send({ kind: "PROPOSE_SETTINGS", candidateConfiguration }).then((response) => {
       if (response?.result?.type === "COMMITTED") navigate2("vault", true);
     });
   });
-  function diagnostics() {
-    if (disposed || document.hidden || section !== "settings" || !element2("diagnostics").open) {
-      ++diagnosticEpoch;
-      diagnosticRequest = null;
-      return Promise.resolve();
-    }
-    const tabId = element2("diagnostic-scope").value === "all" ? null : Number(selected || -1);
-    if (diagnosticRequest?.scope === tabId) return diagnosticRequest.pending;
-    const ticket = ++diagnosticEpoch;
-    const pending = loadDiagnostics(tabId, ticket).finally(() => {
-      if (diagnosticRequest?.pending === pending) diagnosticRequest = null;
-    });
-    diagnosticRequest = { scope: tabId, pending };
-    return pending;
-  }
-  async function loadDiagnostics(tabId, ticket) {
-    try {
-      const response = await browser.runtime.sendMessage({ kind: "GET_DIAGNOSTICS", tabId });
-      if (ticket !== diagnosticEpoch || disposed || section !== "settings" || !element2("diagnostics").open) return;
-      if (!Array.isArray(response?.entries)) throw new Error("DIAGNOSTICS_UNAVAILABLE");
-      const entries2 = response.entries;
-      const key = JSON.stringify(entries2);
-      if (key === diagnosticKey) return;
-      diagnosticKey = key;
-      element2("diagnostic-rows").replaceChildren(...[...entries2].reverse().map((entry) => {
-        const row = document.createElement("tr");
-        const request = entry.method ? `
-${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7 no source origin"}${entry.continuationKind ? ` \xB7 ${entry.continuationKind}` : ""}` : "";
-        for (const value of [
-          String(entry.sequence),
-          `${entry.event}${request}`,
-          `${entry.tabId} / ${entry.navigationId}`,
-          entry.hostname ?? "\u2014",
-          `${entry.outcome ?? "\u2014"}${entry.reason ? ` \xB7 ${entry.reason}` : ""}`,
-          entry.journey ? `${entry.journey.id} \xB7 ${entry.journey.phase} \xB7 ${entry.journey.hopCount}/${entry.journey.maxHops}${entry.journey.endReason ? ` \xB7 ${entry.journey.endReason}` : ""}` : "\u2014"
-        ]) {
-          const cell = document.createElement("td");
-          setProperty(cell, "textContent", value);
-          row.append(cell);
-        }
-        return row;
-      }));
-      setProperty(element2("diagnostic-empty"), "hidden", entries2.length > 0);
-    } catch {
-      if (ticket === diagnosticEpoch) feedback("Diagnostics are temporarily unavailable.", "error");
-    }
-  }
-  select.addEventListener("change", () => {
-    selected = select.value;
-    rememberPage();
-    render();
-    void diagnostics();
-  });
   element2("setup-form").addEventListener("submit", (event) => {
     event.preventDefault();
     const hosts = (id) => element2(id).value.split(/\r?\n/).map((value) => value.trim()).filter(Boolean);
-    const defaults = element2("use-defaults").checked ? compileCuratedWhitelist().whitelist : [];
-    void send({ kind: "SETUP", policy: { whitelist: [.../* @__PURE__ */ new Set([...defaults, ...hosts("whitelist")])], blacklist: hosts("blacklist") } });
+    const defaults = element2("use-defaults").checked ? compileCuratedWhitelist() : null;
+    const blacklist = hosts("blacklist");
+    void send({ kind: "SETUP", policy: {
+      whitelist: [.../* @__PURE__ */ new Set([...defaults?.whitelist ?? [], ...hosts("whitelist")])],
+      blacklist,
+      ...defaults ? { whitelistSubdomains: defaults.whitelistSubdomains?.filter((host2) => !blacklist.includes(host2)) } : {}
+    } });
   });
-  element2("journey-form").addEventListener("submit", (event) => {
-    event.preventDefault();
-    void send({ kind: "OPEN_DESTINATION", url: element2("destination").value.trim() });
-  });
-  element2("start-access").addEventListener("click", () => {
-    const context = selectedContext(view?.contexts ?? [], selected);
-    if (context?.accessScope?.status === "READY")
-      void send({ kind: "START_ACCESS", tabId: context.tabId, scopeId: context.accessScope.id });
-  });
-  for (const [id, kind] of Object.entries({
-    "open-home": "OPEN_HOME",
-    "start-journey": "START_JOURNEY",
-    "cancel-journey": "CANCEL_JOURNEY"
-  }))
-    element2(id).addEventListener("click", () => {
-      if (selected !== "") void send({ kind, tabId: Number(selected) });
-    });
-  for (const [id, kind] of Object.entries({ "confirm-access": "CONFIRM_ACCESS_AND_OPEN", "cancel-access": "CANCEL_ACCESS" })) {
-    element2(id).addEventListener("click", () => {
-      const context = selectedContext(view?.contexts ?? [], selected);
-      const decision = context?.latest?.type === "ASSESSMENT" ? context.latest.decision : null;
-      const { pending } = selectedAccessRecord(decision, view?.controller?.snapshot?.accessState, context?.hostname);
-      if (pending && context) void send({ kind, requestId: pending.id, ...kind === "CONFIRM_ACCESS_AND_OPEN" ? { tabId: context.tabId } : {} });
-    });
-  }
   element2("recover").addEventListener("click", () => {
     void send({ kind: "RECOVER" });
   });
@@ -5865,29 +9023,6 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
       if (proposalId !== void 0) void send({ kind, proposalId });
     });
   }
-  element2("diagnostics").addEventListener("toggle", () => {
-    void diagnostics();
-  });
-  element2("diagnostic-scope").addEventListener("change", () => {
-    void diagnostics();
-  });
-  element2("clear-diagnostics").addEventListener("click", () => {
-    ++diagnosticEpoch;
-    diagnosticRequest = null;
-    void browser.runtime.sendMessage({ kind: "CLEAR_DIAGNOSTICS" }).then(() => diagnostics()).catch(() => feedback("Could not clear diagnostics.", "error"));
-  });
-  element2("export-diagnostics").addEventListener("click", () => {
-    const tabId = element2("diagnostic-scope").value === "all" ? null : Number(selected || -1);
-    void browser.runtime.sendMessage({ kind: "GET_DIAGNOSTICS", tabId }).then((response) => {
-      if (!Array.isArray(response?.entries)) throw new Error("Unavailable");
-      const url = URL.createObjectURL(new Blob([JSON.stringify({ format: "atlas-diagnostics-v1", entries: response.entries, storage: response.storage ?? null }, null, 2)], { type: "application/json" }));
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "atlas-diagnostics.json";
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1e3);
-    }).catch(() => feedback("Could not export diagnostics.", "error"));
-  });
   async function refreshView() {
     const ticket = epoch;
     try {
@@ -5910,9 +9045,15 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
         }
         if (ticket === epoch) render();
         if (ticket === epoch) void homeOrganization.refresh();
+        if (ticket === epoch) {
+          const before = presentationView();
+          void Promise.resolve(homePins.refresh()).then(() => {
+            const after = presentationView();
+            if (before?.sync.revision !== after?.sync.revision || before?.bookmarks.revision !== after?.bookmarks.revision || JSON.stringify(before?.pins) !== JSON.stringify(after?.pins) || JSON.stringify(before?.sync.warnings) !== JSON.stringify(after?.sync.warnings)) requestRender();
+          });
+        }
         if (ticket === epoch) void sites.refresh();
       }
-      await diagnostics();
     } catch {
       if (ticket === epoch) {
         queryAttempted = true;
@@ -5920,6 +9061,8 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
         policyReview = null;
         render();
       }
+    } finally {
+      await diagnosticPanel.refresh();
     }
   }
   var refreshLoop = new RefreshLoop(refreshView, { delay: () => view?.controller?.status === "COMMITTING" || view?.controller?.status === "LOADING" ? 100 : 1e3 });
@@ -5928,66 +9071,34 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
   }
   document.addEventListener("visibilitychange", () => {
     ++epoch;
-    ++diagnosticEpoch;
-    diagnosticRequest = null;
+    diagnosticPanel.invalidate();
     refreshLoop.setActive(!document.hidden);
     if (!document.hidden) render();
   });
   window.addEventListener("pagehide", () => {
     disposed = true;
     ++epoch;
+    diagnosticPanel.dispose();
     refreshLoop.dispose();
-    iconObserver.disconnect();
-    layoutObserver.disconnect();
-    browser.tabs.onUpdated.removeListener(observeWebsiteIcon);
-    for (const promise of websiteIcons.values()) void promise.then((url) => {
-      if (url) URL.revokeObjectURL(url);
-    });
-    websiteIcons.clear();
-    observedIcons.clear();
+    homePins.dispose();
+    destinationCards.dispose();
   });
   window.addEventListener("storage", (event) => {
-    if (event.key !== pinsStorageKey && event.key !== usagePreferencesKey && event.key !== null) return;
-    const before = JSON.stringify([pins, usage]);
+    if (event.key !== pinsStorageKey && event.key !== null) return;
+    if (event.key === pinsStorageKey || event.key === null) void Promise.resolve(homePins.refresh()).then(requestRender);
+    const before = JSON.stringify(pins);
     try {
       if (event.key === pinsStorageKey || event.key === null) pins = readPins(JSON.parse(localStorage.getItem(pinsStorageKey) ?? "null"));
-      if (event.key === usagePreferencesKey || event.key === null) usage = readDestinationUsage(JSON.parse(localStorage.getItem(usagePreferencesKey) ?? "null"));
     } catch {
     }
-    if (before !== JSON.stringify([pins, usage])) render();
+    if (before !== JSON.stringify(pins)) render();
   });
-  element2("restart-journey").addEventListener("click", () => {
-    const context = selectedContext(view?.contexts ?? [], selected);
-    if (context?.retry) void send({ kind: "RESTART_JOURNEY", tabId: context.tabId, journeyId: context.retry.journeyId });
-  });
-  function observeWebsiteIcon(_tabId, changes, tab) {
-    if (!changes.favIconUrl && !changes.url || !tab.url || !tab.favIconUrl) return;
-    try {
-      const hostname2 = new URL(tab.url).hostname;
-      if (observedIcons.get(hostname2) === tab.favIconUrl) return;
-      observedIcons.set(hostname2, tab.favIconUrl);
-      const previous = websiteIcons.get(hostname2);
-      websiteIcons.delete(hostname2);
-      if (previous) void previous.then((url) => {
-        if (url) URL.revokeObjectURL(url);
-      });
-      for (const image of document.querySelectorAll(".site-icon")) if (image.dataset.hostname === hostname2)
-        void displayWebsiteIcon(image, hostname2);
-    } catch {
-    }
-  }
-  browser.tabs.onUpdated.addListener(observeWebsiteIcon);
   try {
     pins = readPins(JSON.parse(localStorage.getItem(pinsStorageKey) ?? "null"));
   } catch {
-    feedback("Pinned destinations are unavailable. Your saved policy is unaffected.", "error");
+    feedback("Pinned sites are unavailable. Your saved policy is unaffected.", "error");
   }
   pinsLoaded = true;
-  try {
-    usage = readDestinationUsage(JSON.parse(localStorage.getItem(usagePreferencesKey) ?? "null"));
-  } catch {
-    usage = {};
-  }
   render();
   refreshLoop.setActive(!document.hidden);
 })();

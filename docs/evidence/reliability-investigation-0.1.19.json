@@ -1,0 +1,988 @@
+{
+  "date": "2026-10-30",
+  "version": "0.1.19 development",
+  "originalIntermittentTriggerEstablished": false,
+  "verification": {
+    "coreTests": 241,
+    "extensionTests": 511,
+    "newFocusedTests": 6,
+    "bothTypechecksPassed": true,
+    "developmentBuildPassed": true,
+    "gitDiffCheckPassed": true
+  },
+  "nativeSoak": {
+    "firefox": "159.0",
+    "suite": "long-reliability",
+    "idleSeconds": 301.0,
+    "samples": [
+      {
+        "seconds": 5.0,
+        "completed": 164,
+        "queued": 0,
+        "reads": 329,
+        "writes": 164
+      },
+      {
+        "seconds": 10.0,
+        "completed": 174,
+        "queued": 0,
+        "reads": 349,
+        "writes": 174
+      },
+      {
+        "seconds": 15.0,
+        "completed": 184,
+        "queued": 0,
+        "reads": 369,
+        "writes": 184
+      },
+      {
+        "seconds": 20.0,
+        "completed": 194,
+        "queued": 0,
+        "reads": 389,
+        "writes": 194
+      },
+      {
+        "seconds": 25.1,
+        "completed": 204,
+        "queued": 0,
+        "reads": 409,
+        "writes": 204
+      },
+      {
+        "seconds": 30.1,
+        "completed": 214,
+        "queued": 0,
+        "reads": 429,
+        "writes": 214
+      },
+      {
+        "seconds": 35.1,
+        "completed": 224,
+        "queued": 0,
+        "reads": 449,
+        "writes": 224
+      },
+      {
+        "seconds": 40.1,
+        "completed": 234,
+        "queued": 0,
+        "reads": 469,
+        "writes": 234
+      },
+      {
+        "seconds": 45.2,
+        "completed": 244,
+        "queued": 0,
+        "reads": 489,
+        "writes": 244
+      },
+      {
+        "seconds": 50.2,
+        "completed": 254,
+        "queued": 0,
+        "reads": 509,
+        "writes": 254
+      },
+      {
+        "seconds": 55.2,
+        "completed": 264,
+        "queued": 0,
+        "reads": 529,
+        "writes": 264
+      },
+      {
+        "seconds": 60.2,
+        "completed": 274,
+        "queued": 0,
+        "reads": 549,
+        "writes": 274
+      },
+      {
+        "seconds": 65.2,
+        "completed": 284,
+        "queued": 0,
+        "reads": 569,
+        "writes": 284
+      },
+      {
+        "seconds": 70.3,
+        "completed": 294,
+        "queued": 0,
+        "reads": 589,
+        "writes": 294
+      },
+      {
+        "seconds": 75.3,
+        "completed": 304,
+        "queued": 0,
+        "reads": 609,
+        "writes": 304
+      },
+      {
+        "seconds": 80.3,
+        "completed": 314,
+        "queued": 0,
+        "reads": 629,
+        "writes": 314
+      },
+      {
+        "seconds": 85.3,
+        "completed": 324,
+        "queued": 0,
+        "reads": 649,
+        "writes": 324
+      },
+      {
+        "seconds": 90.3,
+        "completed": 334,
+        "queued": 0,
+        "reads": 669,
+        "writes": 334
+      },
+      {
+        "seconds": 95.3,
+        "completed": 344,
+        "queued": 0,
+        "reads": 689,
+        "writes": 344
+      },
+      {
+        "seconds": 100.3,
+        "completed": 354,
+        "queued": 0,
+        "reads": 709,
+        "writes": 354
+      },
+      {
+        "seconds": 105.4,
+        "completed": 364,
+        "queued": 0,
+        "reads": 729,
+        "writes": 364
+      },
+      {
+        "seconds": 110.4,
+        "completed": 374,
+        "queued": 0,
+        "reads": 749,
+        "writes": 374
+      },
+      {
+        "seconds": 115.4,
+        "completed": 384,
+        "queued": 0,
+        "reads": 769,
+        "writes": 384
+      },
+      {
+        "seconds": 120.4,
+        "completed": 394,
+        "queued": 0,
+        "reads": 789,
+        "writes": 394
+      },
+      {
+        "seconds": 125.4,
+        "completed": 404,
+        "queued": 0,
+        "reads": 809,
+        "writes": 404
+      },
+      {
+        "seconds": 130.4,
+        "completed": 414,
+        "queued": 0,
+        "reads": 829,
+        "writes": 414
+      },
+      {
+        "seconds": 135.4,
+        "completed": 424,
+        "queued": 0,
+        "reads": 849,
+        "writes": 424
+      },
+      {
+        "seconds": 140.5,
+        "completed": 434,
+        "queued": 0,
+        "reads": 869,
+        "writes": 434
+      },
+      {
+        "seconds": 145.5,
+        "completed": 444,
+        "queued": 0,
+        "reads": 889,
+        "writes": 444
+      },
+      {
+        "seconds": 150.5,
+        "completed": 454,
+        "queued": 0,
+        "reads": 909,
+        "writes": 454
+      },
+      {
+        "seconds": 155.5,
+        "completed": 464,
+        "queued": 0,
+        "reads": 929,
+        "writes": 464
+      },
+      {
+        "seconds": 160.5,
+        "completed": 474,
+        "queued": 0,
+        "reads": 949,
+        "writes": 474
+      },
+      {
+        "seconds": 165.6,
+        "completed": 484,
+        "queued": 0,
+        "reads": 969,
+        "writes": 484
+      },
+      {
+        "seconds": 170.6,
+        "completed": 494,
+        "queued": 0,
+        "reads": 989,
+        "writes": 494
+      },
+      {
+        "seconds": 175.6,
+        "completed": 504,
+        "queued": 0,
+        "reads": 1009,
+        "writes": 504
+      },
+      {
+        "seconds": 180.6,
+        "completed": 514,
+        "queued": 0,
+        "reads": 1029,
+        "writes": 514
+      },
+      {
+        "seconds": 185.6,
+        "completed": 524,
+        "queued": 0,
+        "reads": 1049,
+        "writes": 524
+      },
+      {
+        "seconds": 190.6,
+        "completed": 534,
+        "queued": 0,
+        "reads": 1069,
+        "writes": 534
+      },
+      {
+        "seconds": 195.7,
+        "completed": 544,
+        "queued": 0,
+        "reads": 1089,
+        "writes": 544
+      },
+      {
+        "seconds": 200.7,
+        "completed": 554,
+        "queued": 0,
+        "reads": 1109,
+        "writes": 554
+      },
+      {
+        "seconds": 205.7,
+        "completed": 564,
+        "queued": 0,
+        "reads": 1129,
+        "writes": 564
+      },
+      {
+        "seconds": 210.7,
+        "completed": 574,
+        "queued": 0,
+        "reads": 1149,
+        "writes": 574
+      },
+      {
+        "seconds": 215.7,
+        "completed": 584,
+        "queued": 0,
+        "reads": 1169,
+        "writes": 584
+      },
+      {
+        "seconds": 220.7,
+        "completed": 594,
+        "queued": 0,
+        "reads": 1189,
+        "writes": 594
+      },
+      {
+        "seconds": 225.7,
+        "completed": 604,
+        "queued": 0,
+        "reads": 1209,
+        "writes": 604
+      },
+      {
+        "seconds": 230.8,
+        "completed": 614,
+        "queued": 0,
+        "reads": 1229,
+        "writes": 614
+      },
+      {
+        "seconds": 235.8,
+        "completed": 624,
+        "queued": 0,
+        "reads": 1249,
+        "writes": 624
+      },
+      {
+        "seconds": 240.8,
+        "completed": 634,
+        "queued": 0,
+        "reads": 1269,
+        "writes": 634
+      },
+      {
+        "seconds": 245.8,
+        "completed": 644,
+        "queued": 0,
+        "reads": 1289,
+        "writes": 644
+      },
+      {
+        "seconds": 250.8,
+        "completed": 654,
+        "queued": 0,
+        "reads": 1309,
+        "writes": 654
+      },
+      {
+        "seconds": 255.8,
+        "completed": 664,
+        "queued": 0,
+        "reads": 1329,
+        "writes": 664
+      },
+      {
+        "seconds": 260.9,
+        "completed": 674,
+        "queued": 0,
+        "reads": 1349,
+        "writes": 674
+      },
+      {
+        "seconds": 265.9,
+        "completed": 684,
+        "queued": 0,
+        "reads": 1369,
+        "writes": 684
+      },
+      {
+        "seconds": 270.9,
+        "completed": 694,
+        "queued": 0,
+        "reads": 1389,
+        "writes": 694
+      },
+      {
+        "seconds": 275.9,
+        "completed": 704,
+        "queued": 0,
+        "reads": 1409,
+        "writes": 704
+      },
+      {
+        "seconds": 281.0,
+        "completed": 714,
+        "queued": 0,
+        "reads": 1429,
+        "writes": 714
+      },
+      {
+        "seconds": 286.0,
+        "completed": 724,
+        "queued": 0,
+        "reads": 1449,
+        "writes": 724
+      },
+      {
+        "seconds": 291.0,
+        "completed": 734,
+        "queued": 0,
+        "reads": 1469,
+        "writes": 734
+      },
+      {
+        "seconds": 296.0,
+        "completed": 744,
+        "queued": 0,
+        "reads": 1489,
+        "writes": 744
+      },
+      {
+        "seconds": 301.0,
+        "completed": 754,
+        "queued": 0,
+        "reads": 1509,
+        "writes": 754
+      }
+    ],
+    "history": {
+      "journeys": 2500,
+      "expiredGrants": 300,
+      "expiredOrStaleRequests": 100
+    },
+    "heldStorage": {
+      "startedAt": 1793388980145,
+      "faults": [],
+      "adapter": {
+        "queued": 0,
+        "activeSince": 1793389012157,
+        "completed": 41,
+        "contexts": 2,
+        "refreshPending": true
+      },
+      "controller": {
+        "status": "LOADING",
+        "reason": null,
+        "policyRevision": 2,
+        "configurationRevision": 0,
+        "pendingCommit": false,
+        "activity": {
+          "operation": "OBSERVE_TIME",
+          "stage": "LOAD",
+          "active": true,
+          "queued": 0,
+          "completed": 43
+        }
+      }
+    },
+    "beforeIdle": {
+      "runtime": {
+        "startedAt": 1793388980145,
+        "faults": [],
+        "adapter": {
+          "queued": 0,
+          "activeSince": null,
+          "completed": 220,
+          "contexts": 2,
+          "refreshPending": false
+        },
+        "controller": {
+          "status": "READY",
+          "reason": null,
+          "policyRevision": 2,
+          "configurationRevision": 0,
+          "pendingCommit": false,
+          "activity": {
+            "operation": "OBSERVE_TIME",
+            "stage": "PUBLISH",
+            "active": false,
+            "queued": 0,
+            "completed": 151
+          }
+        }
+      },
+      "storage": {
+        "readTransactions": 303,
+        "writeTransactions": 151,
+        "committedWrites": 150,
+        "failedCommits": 0,
+        "lastFailure": null
+      },
+      "authorityInterruption": null
+    },
+    "afterIdle": {
+      "runtime": {
+        "startedAt": 1793388980145,
+        "faults": [],
+        "adapter": {
+          "queued": 0,
+          "activeSince": null,
+          "completed": 522,
+          "contexts": 2,
+          "refreshPending": false
+        },
+        "controller": {
+          "status": "READY",
+          "reason": null,
+          "policyRevision": 2,
+          "configurationRevision": 0,
+          "pendingCommit": false,
+          "activity": {
+            "operation": "CHECK_NAVIGATION",
+            "stage": "PUBLISH",
+            "active": false,
+            "queued": 0,
+            "completed": 754
+          }
+        }
+      },
+      "storage": {
+        "readTransactions": 1509,
+        "writeTransactions": 754,
+        "committedWrites": 753,
+        "failedCommits": 0,
+        "lastFailure": null
+      },
+      "authorityInterruption": null
+    },
+    "processBeforeIdle": {
+      "cpuSeconds": 42.7188,
+      "workingMiB": 2006.46,
+      "privateMiB": 1766.09,
+      "processes": 13
+    },
+    "processAfterIdle": {
+      "cpuSeconds": 116.0312,
+      "workingMiB": 1395.3,
+      "privateMiB": 1140.79,
+      "processes": 12
+    },
+    "navigationMs": {
+      "median": 578.0000000013388,
+      "max": 781.9999999992433,
+      "count": 30
+    },
+    "uiOpenCloseCycles": 8,
+    "backgroundReload": true,
+    "consoleLocations": [],
+    "minidumpFiles": 0,
+    "originalIncidentReproduced": false,
+    "normalProfileAccessed": false,
+    "idleAndRestartSeconds": 303.8
+  },
+  "nativeFaults": {
+    "firefox": "159.0",
+    "suite": "internal-fault",
+    "baseline": false,
+    "checks": [
+      "actual Greylist wait/confirmation creates one fixed grant; a separate policy proposal remains frozen and inactive",
+      "PLAN: idle runtime exception reproduces the closed global latch with no failed storage commits; explicit Recovery preserves policy, original grant and frozen proposal",
+      "VERIFY_AUTHORITY: idle runtime exception reproduces the closed global latch with no failed storage commits; explicit Recovery preserves policy, original grant and frozen proposal",
+      "recovered authority still enforces manual Blacklist; no permission or new deadline comes from diagnostics",
+      "actual background unhandled rejections are separately classified and deduplicated; they do not invent a controller INTERNAL_ERROR"
+    ],
+    "observations": [
+      {
+        "case": "PLAN",
+        "reason": "INTERNAL_ERROR",
+        "failedCommits": 0,
+        "fault": {
+          "sequence": 1,
+          "operation": "OBSERVE_TIME",
+          "stage": "PLAN",
+          "error": "TYPE_ERROR",
+          "pendingCommitId": null,
+          "stateCounts": {
+            "journeys": 3,
+            "requests": 0,
+            "grants": 1
+          }
+        },
+        "retainedAcrossRecovery": true,
+        "policyAndDeadlinesPreserved": true,
+        "exceptionTextExported": false,
+        "runtime": {
+          "startedAt": 1793388976513,
+          "faults": [
+            {
+              "sequence": 1,
+              "subsystem": "CONTROLLER",
+              "error": "TYPE_ERROR",
+              "frames": [
+                {
+                  "asset": "BACKGROUND",
+                  "line": 686,
+                  "column": 34
+                },
+                {
+                  "asset": "BACKGROUND",
+                  "line": 1358,
+                  "column": 12
+                },
+                {
+                  "asset": "BACKGROUND",
+                  "line": 1655,
+                  "column": 16
+                },
+                {
+                  "asset": "BACKGROUND",
+                  "line": 2128,
+                  "column": 38
+                }
+              ],
+              "controller": {
+                "operation": "OBSERVE_TIME",
+                "stage": "PLAN",
+                "sequence": 1
+              },
+              "count": 1,
+              "firstAt": 1793389018666,
+              "lastAt": 1793389018666
+            }
+          ],
+          "adapter": {
+            "queued": 0,
+            "activeSince": null,
+            "completed": 86,
+            "contexts": 5,
+            "refreshPending": false
+          },
+          "controller": {
+            "status": "UNAVAILABLE",
+            "reason": "INTERNAL_ERROR",
+            "policyRevision": 1,
+            "configurationRevision": 0,
+            "pendingCommit": false,
+            "activity": {
+              "operation": "CHECK_NAVIGATION",
+              "stage": "START",
+              "active": false,
+              "queued": 0,
+              "completed": 173
+            }
+          }
+        }
+      },
+      {
+        "case": "VERIFY_AUTHORITY",
+        "reason": "INTERNAL_ERROR",
+        "failedCommits": 0,
+        "fault": {
+          "sequence": 2,
+          "operation": "OBSERVE_TIME",
+          "stage": "VERIFY_AUTHORITY",
+          "error": "RANGE_ERROR",
+          "pendingCommitId": null,
+          "stateCounts": {
+            "journeys": 4,
+            "requests": 0,
+            "grants": 1
+          }
+        },
+        "retainedAcrossRecovery": true,
+        "policyAndDeadlinesPreserved": true,
+        "exceptionTextExported": false,
+        "runtime": {
+          "startedAt": 1793388976513,
+          "faults": [
+            {
+              "sequence": 1,
+              "subsystem": "CONTROLLER",
+              "error": "TYPE_ERROR",
+              "frames": [
+                {
+                  "asset": "BACKGROUND",
+                  "line": 686,
+                  "column": 34
+                },
+                {
+                  "asset": "BACKGROUND",
+                  "line": 1358,
+                  "column": 12
+                },
+                {
+                  "asset": "BACKGROUND",
+                  "line": 1655,
+                  "column": 16
+                },
+                {
+                  "asset": "BACKGROUND",
+                  "line": 2128,
+                  "column": 38
+                }
+              ],
+              "controller": {
+                "operation": "OBSERVE_TIME",
+                "stage": "PLAN",
+                "sequence": 1
+              },
+              "count": 1,
+              "firstAt": 1793389018666,
+              "lastAt": 1793389018666
+            },
+            {
+              "sequence": 2,
+              "subsystem": "CONTROLLER",
+              "error": "RANGE_ERROR",
+              "frames": [
+                {
+                  "asset": "BACKGROUND",
+                  "line": 1754,
+                  "column": 17
+                },
+                {
+                  "asset": "BACKGROUND",
+                  "line": 1757,
+                  "column": 104
+                },
+                {
+                  "asset": "BACKGROUND",
+                  "line": 1969,
+                  "column": 70
+                }
+              ],
+              "controller": {
+                "operation": "OBSERVE_TIME",
+                "stage": "VERIFY_AUTHORITY",
+                "sequence": 2
+              },
+              "count": 1,
+              "firstAt": 1793389022666,
+              "lastAt": 1793389022666
+            }
+          ],
+          "adapter": {
+            "queued": 0,
+            "activeSince": null,
+            "completed": 98,
+            "contexts": 6,
+            "refreshPending": false
+          },
+          "controller": {
+            "status": "UNAVAILABLE",
+            "reason": "INTERNAL_ERROR",
+            "policyRevision": 1,
+            "configurationRevision": 0,
+            "pendingCommit": false,
+            "activity": {
+              "operation": "CHECK_NAVIGATION",
+              "stage": "START",
+              "active": false,
+              "queued": 0,
+              "completed": 223
+            }
+          }
+        }
+      }
+    ],
+    "causeOfUserIncidentEstablished": false,
+    "normalProfileAccessed": false,
+    "releaseArtifactsModified": false
+  },
+  "nativeStorage": {
+    "firefox": "159.0",
+    "suite": "storage-reliability",
+    "baseline": false,
+    "checks": [
+      "steady browsing uses real persisted checkpoints; ordinary loads use readonly transactions",
+      "one real readonly LOAD abort recovers before three Whitelist tabs are replaced; diagnostics retains the read failure",
+      "one native abort recovers through verified Core open before any Whitelist tab is replaced",
+      "real Greylist grant and frozen Vault proposal keep exact timestamps and policy across abort recovery",
+      "readonly LOAD recovery preserves exact grant/proposal terms and does not replay confirmation",
+      "persistent abort performs at most one automatic recovery and then withholds browsing without a retry loop",
+      "explicit Recovery remains usable after the bounded automatic attempt fails",
+      "persistent readonly abort receives one recovery load and remains closed without a retry loop",
+      "explicit Recovery restores verified authority after a persistent readonly failure clears",
+      "quota failure stays closed, reports a safe cause and retains saved authority without resetting or automatic retry",
+      "recovered authority still enforces the existing explicit Blacklist",
+      "clock rollback stays closed and its retained reason survives explicit Recovery, UI rendering and diagnostics export"
+    ],
+    "observations": [
+      {
+        "case": "five-second-steady-browsing",
+        "reads": 40,
+        "writes": 20
+      },
+      {
+        "case": "native-readonly-abort-after-fix",
+        "status": "READY",
+        "storage": {
+          "readTransactions": 186,
+          "writeTransactions": 92,
+          "committedWrites": 91,
+          "failedCommits": 0,
+          "lastFailure": {
+            "sequence": 1,
+            "operation": "LOAD",
+            "stage": "TRANSACTION_ABORT",
+            "cause": "ABORTED"
+          }
+        }
+      },
+      {
+        "case": "native-abort-after-fix",
+        "status": "READY",
+        "storage": {
+          "readTransactions": 237,
+          "writeTransactions": 118,
+          "committedWrites": 116,
+          "failedCommits": 1,
+          "lastFailure": {
+            "sequence": 2,
+            "operation": "COMMIT",
+            "stage": "TRANSACTION_ABORT",
+            "cause": "ABORTED"
+          }
+        }
+      },
+      {
+        "case": "persistent-readonly-abort",
+        "status": "UNAVAILABLE",
+        "reason": "STORAGE_UNAVAILABLE",
+        "storage": {
+          "readTransactions": 518,
+          "writeTransactions": 258,
+          "committedWrites": 253,
+          "failedCommits": 4,
+          "lastFailure": {
+            "sequence": 8,
+            "operation": "LOAD",
+            "stage": "TRANSACTION_ABORT",
+            "cause": "ABORTED"
+          }
+        }
+      },
+      {
+        "case": "quota-failure",
+        "storage": {
+          "readTransactions": 551,
+          "writeTransactions": 275,
+          "committedWrites": 269,
+          "failedCommits": 5,
+          "lastFailure": {
+            "sequence": 9,
+            "operation": "COMMIT",
+            "stage": "TRANSACTION_ABORT",
+            "cause": "QUOTA_EXCEEDED"
+          }
+        },
+        "status": "UNAVAILABLE"
+      },
+      {
+        "case": "clock-rollback-observability",
+        "status": "UNAVAILABLE",
+        "reason": "CLOCK_ROLLBACK",
+        "authorityInterruption": {
+          "status": "UNAVAILABLE",
+          "reason": "CLOCK_ROLLBACK",
+          "observedAt": 1793389059996,
+          "checkpointAt": 1793389064036,
+          "latestStorageFailure": {
+            "sequence": 9,
+            "operation": "COMMIT",
+            "stage": "TRANSACTION_ABORT",
+            "cause": "QUOTA_EXCEEDED"
+          }
+        }
+      }
+    ]
+  },
+  "resolvedDiagnosticFrames": [
+    {
+      "stage": "PLAN",
+      "frames": [
+        {
+          "generatedLine": 686,
+          "generatedColumn": 34,
+          "source": "../../packages/core/dist/vault-state.js",
+          "line": 13,
+          "column": 35
+        },
+        {
+          "generatedLine": 1358,
+          "generatedColumn": 12,
+          "source": "../../packages/core/dist/atlas-planner.js",
+          "line": 16,
+          "column": 11
+        },
+        {
+          "generatedLine": 1655,
+          "generatedColumn": 16,
+          "source": "../../packages/core/dist/atlas-planner.js",
+          "line": 325,
+          "column": 19
+        },
+        {
+          "generatedLine": 2128,
+          "generatedColumn": 38,
+          "source": "../../packages/core/dist/atlas-controller.js",
+          "line": 382,
+          "column": 21
+        }
+      ]
+    },
+    {
+      "stage": "VERIFY_AUTHORITY",
+      "frames": [
+        {
+          "generatedLine": 1754,
+          "generatedColumn": 17,
+          "source": "../../packages/core/dist/atlas-controller.js",
+          "line": 37,
+          "column": 16
+        },
+        {
+          "generatedLine": 1757,
+          "generatedColumn": 104,
+          "source": "../../packages/core/dist/atlas-controller.js",
+          "line": 41,
+          "column": 11
+        },
+        {
+          "generatedLine": 1969,
+          "generatedColumn": 70,
+          "source": "../../packages/core/dist/atlas-controller.js",
+          "line": 229,
+          "column": 73
+        }
+      ]
+    }
+  ],
+  "preliminaryRun": {
+    "fiveMinuteIdlePassed": true,
+    "completeScenarioPassed": false,
+    "failure": "Harness assumed controller existed during expected background startup. Readiness predicate corrected; complete scenario rerun."
+  },
+  "comparisons": {
+    "baseline": "Previous paired 0.1.18/0.1.19 injected-fault evidence is historical, not a new matched original-incident reproduction.",
+    "authorizationOutcomes": "Unexpected exceptions still close authority; no new retry or permissive cache.",
+    "observability": "Native injected faults now resolve to own source locations; original private messages absent.",
+    "idleUnexpectedFaults": 0
+  },
+  "limits": [
+    "Five minutes of idle per run is not days of daily use.",
+    "Synthetic history, local pages and injected failures; no actual user snapshot inspected.",
+    "No original Firefox crash or Node/web-ext assertion reproduced; no causal link established.",
+    "Background document reload is not an OS crash or physical power-loss durability test.",
+    "Fault and storage scenarios ran in separate profiles while final soak setup began; process samples are observations, not a controlled performance benchmark.",
+    "No heap snapshot, memory-pressure test, disk/quota exhaustion, macOS or multiday run.",
+    "Runtime diagnosis is memory-only and lost on background termination; no event-loop response is possible while the JS process is hung."
+  ],
+  "boundaries": {
+    "preservedReleaseFiles": 114,
+    "allPreservedHashesMatch": true,
+    "normalProfileAccessed": false,
+    "signedOrDeployed": false,
+    "committedOrPushed": false,
+    "authorizationSemanticsChanged": false,
+    "dependenciesAdded": false
+  },
+  "sourceHashes": {
+    "packages/core/src/atlas-controller.ts": "392c226bae957267ef19d4561383c0ffe5a6c9df3af9363fc1d6a913afbdf619",
+    "packages/core/src/atlas-controller-models.ts": "e03fdcbc9994803994cdd16afa5671d27d54d89c075f70d23f6bf609f02e8df9",
+    "packages/core/src/index.ts": "a0eb73a2bf1a48c1e4b915f9328fc63ab7973448f4336670c18bc14d4b43328f",
+    "extension/src/adapter/runtime-diagnostics.ts": "95db9990c1b274b97541e349ef89cebe048ead5e19d10152676008e0619716c2",
+    "extension/src/adapter/firefox-adapter.ts": "3d0def372c208d030b2ba90295eb2c98c4830fa31241ed1fa24e072b9a6851a0",
+    "extension/src/background/main.ts": "947c49f92283e2add1fd95fe125ddc97070ac1d7d1477c8b51b6fe102eddd4ed",
+    "extension/src/ui/main.ts": "3393452e453e3e2d4ba1d0d2158d7c5beba606c01aa06b3ab376e4fe7467c512",
+    "extension/dist/background.js": "7b01ce043b65dbe9ba7fa9553d22bd5e139e02200d8583942ef58439677116bf",
+    "extension/dist/background.js.map": "5466bc111b64ae924c664de33ea3ad495397cc889ce8d143458d81760bafabb7",
+    "extension/dist/ui/main.js": "a99e047360c4dd57a56da60fef1808c52b14bc34fc0c8658359bae570384face"
+  },
+  "cleanup": {
+    "disposableProfilesRemoved": 4,
+    "bytesReclaimed": 566205429,
+    "otherToolsWorkRemoved": false
+  }
+}
