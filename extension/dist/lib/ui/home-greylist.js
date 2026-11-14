@@ -135,9 +135,9 @@ export function initializeHomeGreylist(options) {
                 el('temporary-title').focus({ preventScroll: true });
             setProperty(el('temporary-count'), 'textContent', items.length ? `(${items.length})` : '');
             setProperty(el('home-journeys-count'), 'textContent', journeys.length ? `(${journeys.length})` : '');
-            setProperty(el('home-journeys-section'), 'hidden', !journeys.length);
+            setProperty(el('journeys-empty'), 'hidden', !summary.available || !!journeys.length);
+            setProperty(el('journeys-unavailable'), 'hidden', summary.available);
             setProperty(el('temporary-empty'), 'hidden', !summary.available || !!items.length);
             setProperty(el('temporary-unavailable'), 'hidden', summary.available);
-            setProperty(el('temporary-section'), 'hidden', summary.available && items.length === 0);
         } };
 }

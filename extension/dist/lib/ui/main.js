@@ -53,9 +53,7 @@ let destinationsKey = '';
 let policyReview = null;
 let policyReviewError = '';
 let page = atlasPage(location.hash.slice(1)) ?? (params.get('view') === 'access' ? 'access' : 'home');
-let section = page === 'vault' ? 'settings' : page === 'access' ? 'home' : page;
-if (page === 'access')
-    page = 'home';
+let section = page === 'vault' ? 'settings' : page;
 let settingsKey = '';
 let entries = [];
 let matches = [];
@@ -217,7 +215,7 @@ function render() {
         return;
     renderQueued = false;
     const focused = document.activeElement;
-    text('page-title', page === 'vault' ? 'Vault' : section === 'settings' ? 'Settings' : section === 'sites' ? 'All sites' : 'Atlas');
+    text('page-title', page === 'vault' ? 'Vault' : section === 'settings' ? 'Settings' : section === 'sites' ? 'All sites' : section === 'access' ? 'Greylist & Journeys' : 'Atlas');
     text('page-eyebrow', section === 'settings' ? 'YOUR SAVED COMMITMENTS' : section === 'sites' ? 'YOUR COMMITTED DESTINATIONS' : 'YOUR INTERNET, WITH INTENTION');
     text('page-description', page === 'vault' ? 'Review your commitments. Active rules stay in place until a change is confirmed and saved.' : section === 'settings' ? 'Intentional friction and the timing of your commitments.' : section === 'sites' ? 'Your complete collection. Select a site to review or edit its access.'
         : 'A place for the things you choose.');
@@ -238,8 +236,9 @@ function render() {
     setAttribute(element('show-vault'), 'aria-current', page === 'vault' ? 'page' : 'false');
     setAttribute(element('show-vault'), 'aria-pressed', String(page === 'vault'));
     setProperty(element('sites-section'), 'hidden', section !== 'sites');
+    setProperty(element('access-section'), 'hidden', section !== 'access');
     setProperty(element('destinations'), 'hidden', false);
-    for (const name of ['home', 'sites', 'settings']) {
+    for (const name of ['home', 'sites', 'access', 'settings']) {
         const button = element(`show-${name}`);
         setAttribute(button, 'aria-pressed', String(section === name));
         if (section === name)
@@ -597,9 +596,7 @@ function historyData() {
 }
 function navigate(name, preserveFeedback = false, fromHistory = false) {
     const accessLink = name === 'access';
-    if (accessLink)
-        name = 'home';
-    else if (name === 'home' && !fromHistory)
+    if (name === 'home' && !fromHistory)
         selected = '';
     rememberPage();
     homePins.leave();
@@ -615,7 +612,7 @@ function navigate(name, preserveFeedback = false, fromHistory = false) {
         sites.restoreView(history.state?.atlasSitesView, history.state?.atlasSitesSelection);
     }
     page = name;
-    section = name === 'vault' ? 'settings' : name === 'access' ? 'home' : name;
+    section = name === 'vault' ? 'settings' : name;
     render();
     const target = name === 'vault' ? element('vault-section') : accessLink ? element('temporary-title') : element('main-content');
     if (name === 'sites')
@@ -659,7 +656,7 @@ addEventListener('pagehide', () => browser.runtime.onMessage.removeListener(cont
 window.addEventListener('popstate', () => { navigate(atlasPage(location.hash.slice(1)) ?? 'home', true, true); });
 window.addEventListener('pagehide', rememberPage);
 element('return-to-sites').addEventListener('click', () => navigate('sites', true));
-for (const name of ['home', 'sites', 'vault', 'settings'])
+for (const name of ['home', 'sites', 'access', 'vault', 'settings'])
     element(`show-${name}`).addEventListener('click', () => { navigate(name); });
 for (const button of document.querySelectorAll('[data-settings-panel]'))
     button.addEventListener('click', () => { if (page === 'vault')

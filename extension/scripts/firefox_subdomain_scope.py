@@ -8,6 +8,54 @@ import json
 import time
 
 
+def verify_add_site_checkbox(client, harness, shot):
+    """Actual pointer activation, suffix explanation and local-draft reload."""
+    js = client.script
+    def wait(code, label):
+        return harness.wait_for(lambda: js(code), label, 25)
+    def fill(identity, value):
+        js('const e=document.getElementById(arguments[0]);e.value=arguments[1];e.dispatchEvent(new Event("input",{bubbles:true}));', identity, value)
+    def click_scope():
+        x, y = js('const e=document.getElementById("site-subdomains");e.scrollIntoView({block:"center"});const r=e.getBoundingClientRect();return [r.x+r.width/2,r.y+r.height/2];')
+        client.call('WebDriver:PerformActions', actions=[{'type':'pointer','id':'scope-click','parameters':{'pointerType':'mouse'},'actions':[
+            {'type':'pointerMove','origin':'viewport','x':round(x),'y':round(y),'duration':0},
+            {'type':'pointerDown','button':0},{'type':'pointerUp','button':0}]}])
+    def policy():
+        state=client.message({'kind':'GET_VIEW'})['view']['controller']['snapshot']
+        return {key:state[key] for key in ['policy','policyRevision','configuration','configurationRevision']}
+    before=policy()
+    js('document.getElementById("show-sites").click();')
+    wait('return !document.getElementById("add-site").disabled;', 'editable Sites')
+    js('document.getElementById("add-site").click();')
+    wait('return document.getElementById("sites-editor").open;', 'native editor dialog')
+    fill('site-name','Scope checkbox fixture')
+    fill('site-hostname','github.io')
+    assert js('return document.getElementById("site-subdomains").disabled;')
+    assert js('return !document.getElementById("site-subdomains-help").hidden && document.getElementById("site-subdomains-help").textContent.includes("github.io is a shared hosting suffix");')
+    click_scope()
+    assert not js('return document.getElementById("site-subdomains").checked;')
+    shot('shared-hosting-explanation')
+    fill('site-hostname','research.github.io')
+    wait('return !document.getElementById("site-subdomains").disabled;', 'eligible tenant')
+    click_scope()
+    wait('return document.getElementById("site-subdomains").checked;', 'pointer scope selection')
+    time.sleep(1.2)
+    assert js('return document.getElementById("site-subdomains").checked;')
+    shot('tenant-scope-selected')
+    js('document.getElementById("site-form").requestSubmit();')
+    wait('return document.getElementById("site-draft").hidden && document.getElementById("destination-draft-status").textContent.startsWith("Saved");', 'acknowledged local batch')
+    assert policy()==before
+    client.call('WebDriver:Refresh')
+    wait('return document.getElementById("destinations")?.dataset.phase==="READY";', 'reloaded UI')
+    js('document.getElementById("show-sites").click();')
+    wait('return !document.getElementById("review-destination-draft").disabled;', 'saved draft review')
+    js('document.getElementById("review-destination-draft").click();')
+    wait('return document.getElementById("destination-draft-items").textContent.includes("Domain + all subdomains: (none) → research.github.io.");', 'persisted explicit scope')
+    assert policy()==before
+    return {'publicSuffixExplainedAndBlocked':True,'tenantPointerSelection':True,
+            'selectionSurvivesRefresh':True,'stagedScopeSurvivesReload':True,'authorityUnchanged':True}
+
+
 def run_subdomain_scope(client, ui_handle, ui_url, port, wait_for, hits, artifacts):
     try:
         return _run_subdomain_scope(client, ui_handle, ui_url, port, wait_for, hits)

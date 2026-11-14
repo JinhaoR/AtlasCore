@@ -4,7 +4,7 @@
 
 Each service occurs once with explicit aliases and distinct entry points. These default terms are exact hostnames: there is no wildcard, parent-domain or global apex/www equivalence. The optional [subdomain scope](whitelist-scopes.md) is a separate explicit Vault choice.
 
-Existing custom Whitelist entries and saved Wikipedia permissions are preserved. Frozen v2 receipts prevent an existing 0.1.18 installation from receiving the expansion again; fresh or unmigrated installations use the 294-host v3 set. Legacy Wikipedia display metadata exists only to preserve saved grouping, pins and frozen drafts. See [0.1.19 behavior](release-0.1.19.md).
+Existing custom Whitelist entries and saved Wikipedia permissions are preserved. Frozen v2 receipts prevent an existing 0.1.18 installation from receiving the expansion again; fresh or unmigrated installations use the 294-host v3 set. Legacy Wikipedia display metadata exists only to preserve saved grouping, pins and frozen drafts. See [0.1.19 behavior](version-history.md#v0-1-19).
 
 The [public host evidence](evidence/curated-hosts-2026-10.json) is the unchanged historical 0.1.18 record, which also contains the now-omitted Wikipedia entries. This correction adds no new hosts and makes no new live-verification claim. Signed 0.1.18 retains its original 298-host catalog in its frozen source archive.
 

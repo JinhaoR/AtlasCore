@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "runtimeFiles": 39,
+  "sourceFiles": 281,
+  "runtimeHashesMatch": true,
+  "sourceHashesMatch": true,
+  "unsignedArchiveMatches": true,
+  "sourceArchiveMatches": true,
+  "offlineLockedInstall": true
+}

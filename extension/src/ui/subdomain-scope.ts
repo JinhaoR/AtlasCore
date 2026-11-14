@@ -13,6 +13,12 @@ export function canUseSubdomainScope(hostname: string): boolean {
 
 export function subdomainScopeDescription(hostname: string): string {
   const target = normalizeTarget({ hostname: hostname.trim() });
-  if (!target || !canUseSubdomainScope(hostname)) return 'Choose a registered hostname before including all subdomains.';
+  if (!target) return 'Enter a hostname such as example.com, without https:// or a path, before including its subdomains.';
+  const parsed = parse(target.hostname, { allowPrivateDomains: true });
+  if (parsed.publicSuffix === target.hostname && (parsed.isPrivate || parsed.isIcann)) {
+    const kind = parsed.isPrivate ? 'a shared hosting suffix' : 'a public suffix';
+    return `${target.hostname} is ${kind}, not one site's domain. Allowing all its subdomains would include unrelated sites. Enter your site's hostname, such as your-site.${target.hostname}. You can still add ${target.hostname} as an exact hostname with this option off.`;
+  }
+  if (!canUseSubdomainScope(hostname)) return 'Choose a registered hostname before including all subdomains.';
   return `Includes ${target.hostname} and every current or future subdomain at any depth. This is broad permission; enable it only when you deliberately trust the whole scope. Manual and managed blocking rules still apply to this scope.`;
 }

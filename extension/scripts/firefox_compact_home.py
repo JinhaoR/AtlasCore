@@ -13,8 +13,8 @@ PINS = ['service:webmail.kth.se','service:chatgpt.com','service:github.com','ser
 
 def main():
     baseline = '--baseline' in sys.argv
-    signed_version = sys.argv[sys.argv.index('--signed-baseline')+1] if '--signed-baseline' in sys.argv else '0.2.1'
-    if signed_version not in ('0.2.1', '0.2.2', '0.2.3', '0.2.4', '0.2.5', '0.2.6', '0.2.7', '0.2.8'): raise ValueError('Unsupported frozen signed baseline')
+    signed_version = sys.argv[sys.argv.index('--signed-baseline')+1] if '--signed-baseline' in sys.argv else '0.2.8'
+    if signed_version not in ('0.2.1', '0.2.2', '0.2.3', '0.2.4', '0.2.5', '0.2.6', '0.2.7', '0.2.8', '0.3.0', '0.3.1'): raise ValueError('Unsupported frozen signed baseline')
     run = Path(tempfile.mkdtemp(prefix='compact-home-native-', dir=ROOT/'.tools'))
     print('RUN', run, flush=True)
     runtime=run/'runtime'; profile=run/'profile'; profile.mkdir()
@@ -114,7 +114,17 @@ def main():
                 assert client.script('return browser.runtime.getManifest().version;')==signed_version
                 result['curatedScopes']['signedRollbackPreservesMigratedPolicy']=True
             result['status']='PASS';print('PASS signed upgrade and scope restart',flush=True);return
+        if '--friendly-sites-only' in sys.argv:
+            from firefox_friendly_sites import verify
+            is_baseline='--friendly-sites-baseline' in sys.argv
+            start(True,overlay=not is_baseline)
+            result['friendlySites']=verify(client,h,shot,pins,is_baseline)
+            result['status']='PASS';print('PASS friendly sites'+(' baseline' if is_baseline else ''),flush=True);return
         start(True);pins(6)
+        if '--site-checkbox-only' in sys.argv:
+            from firefox_subdomain_scope import verify_add_site_checkbox
+            result['addSiteCheckbox']=verify_add_site_checkbox(client,h,shot)
+            result['status']='PASS';print('PASS Add Site checkbox',flush=True);return
         if '--greylist-layout-only' in sys.argv:
             from firefox_greylist_layout import verify
             result['greylistLayout']=verify(client,h,shot,'--layout-baseline' in sys.argv)

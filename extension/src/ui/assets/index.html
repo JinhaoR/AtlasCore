@@ -61,6 +61,7 @@
       <nav aria-label="Atlas" class="sidebar-nav">
         <button id="show-home" type="button" aria-label="Home" title="Home" aria-pressed="true" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#icon-home"/></svg><span class="nav-label">{{home}}</span></button>
         <button id="show-sites" type="button" aria-label="All sites (Sites &amp; Access)" title="All sites (Sites &amp; Access)" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-sites"/></svg><span class="nav-label">{{allSites}}</span></button>
+        <button id="show-access" type="button" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-arrow"/></svg><span class="nav-label">{{greylistAndJourneys}}</span></button>
         <button id="show-settings" type="button" aria-label="Settings" title="Settings" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-settings"/></svg><span class="nav-label">{{settings}}</span><span id="settings-nav-status" class="nav-dot" hidden aria-hidden="true"></span></button>
       </nav>
     </header>
@@ -105,24 +106,28 @@
               <p id="bookmark-warning" class="note" role="status" hidden>{{pinnedPagesCannotBeVerifiedOther}} <button id="retry-bookmarks" type="button" class="text-button">{{retryLoadingPins}}</button></p>
             </section>
           </div>
-          <div class="home-access-slot"><section id="temporary-section" class="home-access-box" aria-labelledby="temporary-title">
-            <h2 id="temporary-title" tabindex="-1">{{greylist}} <span id="temporary-count" class="access-count"></span></h2>
-            <div class="home-access-rows" role="region" aria-label="Greylist requests and temporary access" tabindex="0">
-            <ul id="pending-access-list" class="temporary-list"></ul>
-            <p id="temporary-empty" class="note" hidden>{{noTemporaryAccessIsActive}}</p>
-            <p id="temporary-unavailable" class="note" hidden>{{currentAccessCannotBeVerifiedRight}}</p>
-            </div>
-          </section>
-          <section id="home-journeys-section" class="home-access-box" aria-labelledby="home-journeys-title" hidden>
-            <h2 id="home-journeys-title">{{journeys}} <span id="home-journeys-count" class="access-count"></span></h2>
-            <div class="home-access-rows" role="region" aria-label="Active Journeys" tabindex="0"><ul id="other-journeys" class="temporary-list"></ul></div>
-          </section>
-          </div><p id="bookmark-sync-warning" class="note" hidden><span id="bookmark-sync-warning-text"></span> <button id="open-bookmark-sync" class="text-button" type="button">{{reviewBookmarkSync}}</button></p><p id="home-layout-warning" class="note" role="status" hidden></p>
+          <p id="bookmark-sync-warning" class="note" hidden><span id="bookmark-sync-warning-text"></span> <button id="open-bookmark-sync" class="text-button" type="button">{{reviewBookmarkSync}}</button></p><p id="home-layout-warning" class="note" role="status" hidden></p>
           <p id="empty-destinations" class="note" hidden>{{yourVerifiedSiteListIsEmpty}}</p>
 
         </section>
 
       </div>
+      <section id="access-section" hidden aria-labelledby="access-title">
+        <header class="directory-intro"><h1 id="access-title" tabindex="-1">{{greylistAndJourneys}}</h1><p class="page-subtitle">{{accessSubtitle}}</p></header>
+        <div class="access-grid"><section id="temporary-section" class="access-box" aria-labelledby="temporary-title">
+            <h2 id="temporary-title" tabindex="-1">{{greylist}} <span id="temporary-count" class="access-count"></span></h2>
+            <div class="access-rows" role="region" aria-label="Greylist requests and temporary access" tabindex="0">
+            <ul id="pending-access-list" class="temporary-list"></ul>
+            <p id="temporary-empty" class="note" hidden>{{noTemporaryAccessIsActive}}</p>
+            <p id="temporary-unavailable" class="note" hidden>{{currentAccessCannotBeVerifiedRight}}</p>
+            </div>
+          </section>
+          <section id="home-journeys-section" class="access-box" aria-labelledby="home-journeys-title">
+            <h2 id="home-journeys-title">{{journeys}} <span id="home-journeys-count" class="access-count"></span></h2>
+            <div class="access-rows" role="region" aria-label="Active Journeys" tabindex="0"><ul id="other-journeys" class="temporary-list"></ul><p id="journeys-empty" class="note" hidden>{{noJourneysActive}}</p><p id="journeys-unavailable" class="note" hidden>{{currentJourneysUnavailable}}</p></div>
+          </section>
+          </div>
+      </section>
       <section id="sites-section" hidden aria-label="Sites and access" data-view="browse">
         <p id="sites-pending" class="pending-notice" hidden>{{aFrozenProposalIsWaitingIn}} <button id="sites-review-pending" class="text-button">{{reviewExistingProposal}}</button></p>
 
@@ -137,7 +142,7 @@
           <div id="sites-list" class="sites-list" tabindex="0" aria-label="Site results"></div><p id="sites-empty" class="note" hidden>{{noMatchingSites}}</p>
         </section><dialog id="sites-editor" class="sites-editor" aria-label="Site details and editor"><p id="site-save-feedback" class="feedback" role="status" hidden></p><button id="retry-site-save" class="secondary compact" type="button" hidden>{{retryDisplaySave}}</button><button id="sites-back" class="text-button" type="button">{{close}}</button>
           <div id="site-selection-empty"><h2>{{aPlaceForEverySite}}</h2><p class="note">{{selectASiteToInspectIts}}</p></div>
-<section id="site-detail" class="site-detail" hidden tabindex="-1" aria-labelledby="site-detail-title"><p class="eyebrow">{{currentSite}}</p><h2 id="site-detail-title"></h2><p id="site-detail-category" class="note"></p><ul id="site-detail-hosts" class="site-hosts"></ul><p class="note">{{theseSavedRulesAreActiveReview}}</p><div class="actions"><button id="edit-site" type="button" class="secondary">{{editSite}}</button><button id="remove-site" type="button" class="text-button destructive">{{stageRemoval}}</button></div></section>
+<section id="site-detail" class="site-detail" hidden tabindex="-1" aria-labelledby="site-detail-title"><h2 id="site-detail-title"></h2><p id="site-detail-category" class="note"></p><ul id="site-detail-hosts" class="site-hosts"></ul><div class="actions"><button id="open-site" type="button">{{openSite}}</button><button id="pin-site" type="button" class="secondary">{{pinToHome}}</button><button id="edit-site" type="button" class="secondary">{{editSite}}</button><button id="remove-site" type="button" class="text-button destructive">{{stageRemoval}}</button></div><details class="site-help"><summary>{{howSiteChangesWork}}</summary><p class="note">{{theseSavedRulesAreActiveReview}}</p></details></section>
         <section id="site-draft" class="site-draft" hidden aria-label="Site draft"><p class="eyebrow">{{draftEdit}}</p><div class="section-heading"><h2 id="site-draft-title">{{addASite}}</h2><button id="cancel-site-draft" type="button" class="text-button">{{closeEditor}}</button></div><p class="note">{{yourActiveAccessRulesHaveNot}}</p>
           <p id="site-field-error" class="feedback" role="alert" hidden></p><form id="site-form">
             <fieldset><legend>{{display}}</legend><div class="columns"><label>{{name}}<input id="site-name" aria-describedby="site-field-error" maxlength="100" required autocomplete="off"></label><label>{{category}}<input id="site-category" aria-describedby="site-field-error" maxlength="64" list="site-categories" required autocomplete="off"></label></div><datalist id="site-categories"></datalist><p class="note">{{chooseAnExistingCategoryOrEnter}}</p><label id="site-pin-field" class="checkbox-label"><input id="site-pin" type="checkbox">{{pinOnHomeWhenApplied}}</label></fieldset>
@@ -159,7 +164,7 @@
       </section>
       <section id="settings" hidden aria-label="Atlas settings">
         <aside class="settings-navigation"><h1>{{settings}}</h1><p class="page-subtitle">{{settingsSubtitle}}</p><nav aria-label="Settings sections">
-          <button type="button" data-settings-panel="timing-settings">{{timingFriction}}</button><button type="button" data-settings-panel="home-settings">{{homeCategories}}</button><button id="show-vault" type="button" aria-label="Vault" title="Vault" aria-pressed="false"><span class="nav-label">{{vault}}</span></button><button type="button" data-settings-panel="managed-section">{{managedBlocking}}</button><button type="button" data-settings-panel="recovery-section">{{policyRecovery}}</button><button type="button" data-settings-panel="diagnostics">{{diagnostics}}</button>
+          <button type="button" data-settings-panel="timing-settings">{{timingFriction}}</button><button type="button" data-settings-panel="appearance-settings">{{appearance}}</button><button type="button" data-settings-panel="home-settings">{{homeCategories}}</button><button id="show-vault" type="button" aria-label="Vault" title="Vault" aria-pressed="false"><span class="nav-label">{{vault}}</span></button><button type="button" data-settings-panel="managed-section">{{managedBlocking}}</button><button type="button" data-settings-panel="recovery-section">{{policyRecovery}}</button><button type="button" data-settings-panel="diagnostics">{{diagnostics}}</button>
         </nav></aside><div id="settings-workspace" class="settings-workspace" tabindex="0" aria-label="Settings section content">
         <p id="settings-pending" class="pending-notice" hidden>{{aFrozenChangeIsWaitingIn}} <button id="review-pending" class="text-button">{{reviewProposal}} <span aria-hidden="true">{{text}}</span></button></p>
         <details id="timing-settings" class="card settings-card" open><summary>{{timingFriction}} <span class="pill">{{protected}}</span></summary><p class="note">{{changesWaitUnderYourCurrentVault}}</p>
@@ -168,8 +173,12 @@
             <fieldset><legend>{{journeyBounds}}</legend><div class="columns"><label>{{lifetime}} <span class="unit">{{seconds}}</span><input id="journey-lifetime" type="number" min="0.001" step="0.001" required><span id="active-journey-lifetime" class="field-current"></span></label><label>{{maximumHops}}<input id="journey-hops" type="number" min="1" step="1" required><span id="active-journey-hops" class="field-current"></span></label></div></fieldset><div class="timing-actions"><span id="timing-edited-count" class="note" role="status"></span><button id="propose-settings" type="submit">{{reviewTimingChange}}</button></div>
           </form>
         </details>
+        <details id="appearance-settings" class="card settings-card"><summary>{{appearance}}</summary><p class="page-subtitle">{{appearanceSubtitle}}</p>
+          <div class="theme-setting"><label for="atlas-theme">{{theme}}</label><select id="atlas-theme"><option value="celestial">{{celestialTheme}}</option><option value="parchment">{{parchmentTheme}}</option><option value="default">{{defaultTheme}}</option><option value="light-test">{{lightTestTheme}}</option></select><p id="theme-save-status" class="note" role="status"></p><button id="theme-retry" type="button" class="secondary compact" hidden>{{retryThemeSave}}</button></div>
+          <div class="theme-descriptions"><section><h2>{{celestialTheme}}</h2><p>{{celestialDescription}}</p></section><section><h2>{{parchmentTheme}}</h2><p>{{parchmentDescription}}</p></section></div><p class="note">{{themePreferenceNote}}</p>
+        </details>
         <details id="home-settings" class="settings-card"><summary>{{homeCategories}}</summary>
-          <div class="theme-setting"><label for="atlas-theme">{{appearance}}</label><select id="atlas-theme"><option value="default">{{defaultTheme}}</option><option value="light-test">{{lightTestTheme}}</option><option value="celestial">{{celestialTheme}}</option><option value="parchment">{{parchmentTheme}}</option></select><p id="theme-save-status" class="note" role="status"></p><button id="theme-retry" type="button" class="secondary compact" hidden>{{retryThemeSave}}</button></div>
+
           <div class="bookmark-connection-setting"><h2>{{firefoxBookmarks}}</h2><p class="note">{{connectYourToolbarBookmarksAndAtlas}}</p><button id="settings-connect-bookmarks" type="button" class="secondary compact">{{connectFirefoxBookmarks}}</button></div><details id="advanced-pin-settings"><summary>{{advancedPinEditing}}</summary><p class="note">{{manageIndividualShortcutPagesHere}}</p><button id="edit-pins" class="secondary compact" type="button" disabled>{{editAtlasShortcuts}}</button></details>
 
           <div class="home-preferences-heading"><h2>{{categories2}}</h2></div>

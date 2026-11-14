@@ -250,7 +250,7 @@ files and a disposable synthetic profile. The optional permission prompt is
 accepted only inside that fixture. It does not use an everyday profile.
 
 The subsequent signing-preparation request promotes this work into unsigned
-[0.2.4](release-candidate-0.2.4.md), preserving signed 0.2.3. Its versioned release
+[0.2.4](version-history.md#v0-2-4), preserving signed 0.2.3. Its versioned release
 inventory adds `ui/popup.html`, `ui/popup.js`, `ui/popup.css` and the later polish's
 `ui/startup.js`. Old release inventories remain unchanged. Packaging does not
 sign, submit, deploy or change the everyday Firefox installation.

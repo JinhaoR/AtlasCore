@@ -1,10 +1,10 @@
-/* Parchment: Oliva's chart, Aguiar-derived rose and warm vellum. ARTWORK.md. */
+/* Parchment: warm ivory and the Aguiar-derived compass. See README.md. */
 :root[data-theme="parchment"] {
   --color-scheme: light;
   --page: #efe1c4;
-  --page-background: #f3e8ce;
-  --page-home-background: url("themes/parchment/historical-home.webp") center / cover no-repeat, #f1e4c8;
-  --page-workspace-background: url("themes/parchment/historical-workspace.webp") center / cover no-repeat, #f1e4c8;
+  --page-background: #f7eed7;
+  --page-home-background: var(--page-background);
+  --page-workspace-background: var(--page-background);
   --page-attachment: fixed;
   --surface: #fcf3e0; --surface-disabled: #e5d7ba; --surface-quiet: linear-gradient(110deg, #fbf2df, #efe0c2);
   --ink: #342d24; --muted: #6a5b45; --accent: #74402e; --accent-muted: #876847; --link: #2f5860;

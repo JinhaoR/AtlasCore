@@ -131,7 +131,7 @@ def main():
     parser.add_argument("--startup-layout-only", action="store_true", help="Measure control-page startup/icons and viewport scroll regions in isolation")
     parser.add_argument("--startup-layout-baseline", action="store_true", help="Record old startup/layout without asserting repaired geometry")
     parser.add_argument("--release-upgrade-only", action="store_true", help="Signed baseline upgrade and rollback in this isolated profile")
-    parser.add_argument("--release-baseline-version", choices=['0.1.19', '0.2.0', '0.2.1', '0.2.2', '0.2.3', '0.2.4', '0.2.5', '0.2.6', '0.2.7', '0.2.8'], default='0.1.19', help="Frozen signed upgrade/rollback baseline")
+    parser.add_argument("--release-baseline-version", choices=['0.1.19', '0.2.0', '0.2.1', '0.2.2', '0.2.3', '0.2.4', '0.2.5', '0.2.6', '0.2.7', '0.2.8', '0.3.1'], default='0.2.8', help="Signed upgrade/rollback baseline (older versions require externally retained artifacts)")
     parser.add_argument("--visual-redesign-only", action="store_true", help="0.2.0 presentation screenshots, stable pins and responsive native checks")
     parser.add_argument("--management-ux-only", action="store_true", help="0.2.0 directory, draft review, Vault and Settings presentation workflows")
     parser.add_argument("--visual-redesign-baseline", action="store_true", help="Run matched checks against the preserved prior UI")

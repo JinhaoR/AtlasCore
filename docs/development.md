@@ -4,6 +4,9 @@ Use Node 24, the locked dependencies and the existing two packages. No new test
 framework is needed. `extension/dist` and `packages/core/dist` are generated and
 tracked; do not edit them by hand. Never use a signed release directory as output.
 
+See the [repository ownership and cleanup audit](repository-cleanup.md).
+Theme source lives at repository root; the build preserves Firefox runtime URLs.
+
 ## Find the change
 
 | Task | Start here | Test families |
@@ -11,11 +14,11 @@ tracked; do not edit them by hand. Never use a signed release directory as outpu
 | Permission or state transition | `packages/core/src/{evaluate,access,vault,journey,download,atlas-planner}.ts` | matching domain tests; `atlas`, `controller`, failure tests |
 | Persistence/upgrade/recovery | Core controller; `extension/src/storage/indexeddb-repository.ts`, `background/startup.ts`, `presets/curated-upgrade.ts` | repository, curated-upgrade, startup/storage-reliability; matching native upgrade/recovery |
 | Firefox navigation | `extension/src/adapter/firefox-adapter.ts`; Journey/download contracts | adapter, journey*, root-departure, download, authorization failure tests; matching native flows |
-| Access summaries | `adapter/temporary-access.ts`, `ui/home-access.ts`, `ui/presentation.ts` | temporary-access, home-organization, productization |
+| Greylist & Journeys page | `adapter/temporary-access.ts`, `ui/home-greylist.ts`, `ui/home-access.ts`, `ui/presentation.ts`; existing `access` route in `ui/main.ts` | temporary-access, home-greylist, home-organization, startup-shell |
 | Destination editing | `ui/sites.ts` coordinates; `destination-editor.ts` owns form DOM/caret/scope copy; `destination-draft.ts` derives candidates; `destination-workspace.ts` owns local save/reconciliation; `draft-storage.ts` owns IndexedDB | destination-batch, editor*, whitelist-removal, subdomain* |
 | Home/layout/search | `ui/main.ts`, `home-model.ts`, `home-organization.ts`, `home-layout*.ts`, `destinations.ts`; `destination-cards.ts` owns launcher/icon lifecycle | home*, navigation*, ui-stability, ui-performance, website-icons |
 | Diagnostic evidence | `adapter/runtime-diagnostics.ts` owns bounded faults; `storage/runtime-journal.ts` retains sanitized incident data; `ui/diagnostics-panel.ts` owns refresh/export | runtime-diagnostics, runtime-journal, diagnostics-panel, controller-fault; native internal-fault |
-| Shared UI appearance | [theme contract](themes.md), `ui/assets/themes/`, `ui/assets/style.css`, `dom.ts`, `feedback.ts` | affected interaction tests and native screenshots/width checks |
+| Shared UI appearance | [theme contract](themes.md), root `themes/`, `ui/assets/style.css`, `dom.ts`, `feedback.ts` | affected interaction tests and native screenshots/width checks |
 | Packaging | `scripts/release.mjs`, release guide | release, distribution; separate authorized release validation |
 
 The [everyday controls](everyday-controls.md) add a small read-only toolbar popup.
@@ -74,6 +77,20 @@ are developer conveniences, not substitutes for release source reproduction,
 archive/hash checks or required native release tests.
 
 ## Native work and measurement
+
+Current native theme and Add Site checks use the retained signed 0.2.8:
+
+```text
+python extension/scripts/firefox_compact_home.py --theme-prototypes-only
+python extension/scripts/firefox_compact_home.py --site-checkbox-only
+python extension/scripts/firefox-e2e.py --release-upgrade-only --release-baseline-version 0.2.8 --addon-dir extension/dist
+```
+
+Older release-specific examples below are historical. Their original signed
+baselines were removed by the user-authorized retention cleanup; restore the
+matching external artifacts to reproduce those scenarios. Do not replace their
+baseline with 0.2.8 and claim the same migration test. Current Node migration,
+recovery and release-verification tests remain available without old packages.
 
 `python extension/scripts/firefox_compact_home.py --curated-scopes-only
 --signed-baseline 0.2.7` verifies the bundled-scope upgrade in an isolated Firefox

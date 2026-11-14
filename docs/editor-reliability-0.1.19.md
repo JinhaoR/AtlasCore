@@ -86,7 +86,7 @@ copy. Instrumentation adds numeric counters solely to a disposable copy and neve
 rewrites release assets. Native profiles and instrumented copies can be deleted
 after sanitized evidence is retained. Process samples are not retained JS heaps.
 
-The [development notes](release-0.1.19.md) and final evidence record passing counts,
+The [development notes](version-history.md#v0-1-19) and final evidence record passing counts,
 native results and limits. The earlier recovered idle interruption remains
 unattributed; this editor report does not claim to resolve that unknown trigger.
 

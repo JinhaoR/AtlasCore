@@ -1,0 +1,14 @@
+{
+  "core": {
+    "passed": 253,
+    "failed": 0
+  },
+  "extension": {
+    "passed": 690,
+    "failed": 0
+  },
+  "deployment": {
+    "passed": 35,
+    "failed": 0
+  }
+}

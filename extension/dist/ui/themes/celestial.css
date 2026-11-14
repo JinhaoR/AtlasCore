@@ -1,11 +1,11 @@
-/* Celestial: enamel, engraved brass and the northern sky. Sources: ARTWORK.md. */
+/* Celestial: midnight blue and the brass compass. See README.md. */
 :root[data-theme="celestial"] {
   --color-scheme: dark;
   --brand-artwork: url("themes/celestial/mark.svg");
   --page: #081824;
   --page-background: #081824;
-  --page-home-background: url("themes/celestial/historical-home.webp") center / cover no-repeat, #081824;
-  --page-workspace-background: url("themes/celestial/historical-workspace.webp") center / cover no-repeat, #081824;
+  --page-home-background: var(--page-background);
+  --page-workspace-background: var(--page-background);
   --page-attachment: fixed;
   --surface: #102735; --surface-disabled: #192a38; --surface-quiet: linear-gradient(120deg, #15313e, #0c222f);
   --ink: #f4ead3; --muted: #b3bfc7; --accent: #d7ba7e; --accent-muted: #b3955c; --link: #bacfe0;

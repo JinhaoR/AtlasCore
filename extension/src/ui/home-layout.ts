@@ -92,9 +92,3 @@ export function changeHomeLayout(layout: HomeLayout, key: string, action: HomeLa
   }
   return { version: 1, categories };
 }
-
-export function displayedHomeCategories(layout: HomeLayout, catalog: readonly HomeCategory[]): readonly (CategoryLayout & { count: number })[] {
-  const current = new Map(catalog.map(c => [c.key, c]));
-  return layout.categories.flatMap(c => c.visible && (current.get(c.key)?.count ?? 0) > 0
-    ? [{ ...c, count: current.get(c.key)!.count }] : []);
-}

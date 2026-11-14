@@ -51,8 +51,7 @@ let policyReview: PolicyReview | null = null;
 let policyReviewError = '';
 type NavigationTarget = AtlasPage;
 let page: AtlasPage = atlasPage(location.hash.slice(1)) ?? (params.get('view') === 'access' ? 'access' : 'home');
-let section: 'home' | 'sites' | 'settings' = page === 'vault' ? 'settings' : page === 'access' ? 'home' : page;
-if(page === 'access')page='home';
+let section: 'home' | 'sites' | 'access' | 'settings' = page === 'vault' ? 'settings' : page;
 let settingsKey = '';
 let entries: readonly DestinationEntry[] = [];
 let matches: readonly DestinationSearchResult[] = [];
@@ -189,7 +188,7 @@ function render(): void {
   if (disposed) return;
   renderQueued = false;
   const focused = document.activeElement;
-  text('page-title', page === 'vault' ? 'Vault' : section === 'settings' ? 'Settings' : section === 'sites' ? 'All sites' : 'Atlas');
+  text('page-title', page === 'vault' ? 'Vault' : section === 'settings' ? 'Settings' : section === 'sites' ? 'All sites' : section === 'access' ? 'Greylist & Journeys' : 'Atlas');
   text('page-eyebrow', section === 'settings' ? 'YOUR SAVED COMMITMENTS' : section === 'sites' ? 'YOUR COMMITTED DESTINATIONS' : 'YOUR INTERNET, WITH INTENTION');
   text('page-description', page === 'vault' ? 'Review your commitments. Active rules stay in place until a change is confirmed and saved.' : section === 'settings' ? 'Intentional friction and the timing of your commitments.' : section === 'sites' ? 'Your complete collection. Select a site to review or edit its access.'
     : 'A place for the things you choose.');
@@ -210,8 +209,9 @@ function render(): void {
   setAttribute(element('show-vault'), 'aria-current', page === 'vault' ? 'page' : 'false');
   setAttribute(element('show-vault'), 'aria-pressed', String(page === 'vault'));
   setProperty(element('sites-section'), 'hidden', section !== 'sites');
+  setProperty(element('access-section'), 'hidden', section !== 'access');
   setProperty(element('destinations'), 'hidden', false);
-  for (const name of ['home', 'sites', 'settings'] as const) {
+  for (const name of ['home', 'sites', 'access', 'settings'] as const) {
     const button = element(`show-${name}`);
     setAttribute(button, 'aria-pressed', String(section === name));
     if (section === name) setAttribute(button, 'aria-current', 'page');
@@ -498,13 +498,13 @@ function historyData(): object {
 }
 function navigate(name: NavigationTarget, preserveFeedback = false, fromHistory = false): void {
   const accessLink=name==='access';
-  if(accessLink)name='home';else if(name==='home'&&!fromHistory)selected='';
+  if(name==='home'&&!fromHistory)selected='';
   rememberPage();
   homePins.leave(); sites.leave(); searchOpen = false;
   if (!preserveFeedback) feedback('');
   if (!fromHistory && page !== name) history.pushState(historyData(), '', `#${name}`);
   if (fromHistory) { sites.restoreDirectory(history.state?.atlasSitesDirectory); settingsNavigation.restore(history.state?.atlasSettings); sites.restoreView(history.state?.atlasSitesView, history.state?.atlasSitesSelection); }
-  page = name; section = name === 'vault' ? 'settings' : name === 'access' ? 'home' : name;
+  page = name; section = name === 'vault' ? 'settings' : name;
   render();
   const target = name === 'vault' ? element('vault-section') : accessLink ? element('temporary-title') : element('main-content');
   if (name === 'sites') sites.focusSelection();
@@ -537,7 +537,7 @@ addEventListener('pagehide',()=>browser.runtime.onMessage.removeListener(control
 window.addEventListener('popstate', () => { navigate(atlasPage(location.hash.slice(1)) ?? 'home', true, true); });
 window.addEventListener('pagehide', rememberPage);
 element('return-to-sites').addEventListener('click', () => navigate('sites', true));
-for (const name of ['home', 'sites', 'vault', 'settings'] as const) element(`show-${name}`).addEventListener('click', () => { navigate(name); });
+for (const name of ['home', 'sites', 'access', 'vault', 'settings'] as const) element(`show-${name}`).addEventListener('click', () => { navigate(name); });
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-settings-panel]')) button.addEventListener('click', () => { if (page === 'vault') navigate('settings', true); });
 element('brand-home').addEventListener('click', (event) => { event.preventDefault(); navigate('home'); });
 element('review-pending').addEventListener('click', () => { navigate('vault'); });

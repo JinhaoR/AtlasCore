@@ -17,6 +17,37 @@ function fixture(t) {
   const view={controller:{status:'READY'},contexts:[],pendingAccess:[],temporaryAccess:[]};
   return {owner,el,view,commands,prepared,dismissed,response:value=>{response=value;},signal:()=>el('pending-access-list').children[0]?.querySelector('.access-signal'),cancel:()=>el('pending-access-list').children[0]?.querySelector('.access-cancel')};
 }
+
+test('the access page distinguishes empty lists from unavailable authority',t=>{
+  const f=fixture(t);
+  f.owner.render(f.view,50,false,'');
+  assert.equal(f.el('temporary-empty').hidden,false);
+  assert.equal(f.el('journeys-empty').hidden,false);
+  assert.equal(f.el('temporary-unavailable').hidden,true);
+  assert.equal(f.el('journeys-unavailable').hidden,true);
+  f.view.controller.status='UNAVAILABLE';f.owner.render(f.view,50,false,'');
+  assert.equal(f.el('temporary-empty').hidden,true);
+  assert.equal(f.el('journeys-empty').hidden,true);
+  assert.equal(f.el('temporary-unavailable').hidden,false);
+  assert.equal(f.el('journeys-unavailable').hidden,false);
+});
+
+test('Journey controls retain context fencing, explicit end and renewal commands',t=>{
+  const f=fixture(t),context={tabId:3,contextId:'journey-tab',navigationId:4,hostname:'root.example',
+    journey:{id:9,rootHostname:'root.example',phase:'ACTIVE',expiresAt:200}};
+  f.view.contexts=[context];f.owner.render(f.view,50,false,'3');
+  const end=f.el('other-journeys').children[0].querySelector('.access-signal');
+  assert.equal(f.el('journeys-empty').hidden,true);
+  end.click();assert.deepEqual(f.commands.pop(),{kind:'CANCEL_JOURNEY',tabId:3});
+  f.owner.render(f.view,60,true,'3');assert.equal(end.disabled,true);
+  f.owner.render(f.view,70,false,'3');assert.equal(end,f.el('other-journeys').children[0].querySelector('.access-signal'));
+  f.view.contexts=[];f.owner.render(f.view,80,false,'3');end.click();assert.equal(f.commands.length,0);
+  context.journey.phase='ENDED';context.retry={destinationLabel:'Research',journeyId:9};
+  f.view.contexts=[context];f.owner.render(f.view,90,false,'3');
+  const retry=f.el('other-journeys').children[0].querySelector('.access-signal');
+  assert.equal(retry.textContent,'Start again');assert.equal(f.commands.length,0);
+  retry.click();assert.deepEqual(f.commands.pop(),{kind:'RESTART_JOURNEY',tabId:3,journeyId:9});
+});
 test('waiting is status only and the same separate Cancel control remains available when ready',t=>{
   const f=fixture(t),p={requestId:7,hostnames:['example.org','www.example.org'],readyAt:100,confirmBy:200};
   f.view.pendingAccess=[p];const before=structuredClone(f.view);

@@ -1,0 +1,13 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.2.8",
+  "firefox": "160.0",
+  "addSiteCheckbox": {
+    "publicSuffixExplainedAndBlocked": true,
+    "tenantPointerSelection": true,
+    "selectionSurvivesRefresh": true,
+    "stagedScopeSurvivesReload": true,
+    "authorityUnchanged": true
+  },
+  "status": "PASS"
+}

@@ -19,6 +19,9 @@ def capture(c,h,shot,prefix):
     c.script('document.querySelector("#sites-editor").close();')
     click('#show-settings');click('[data-settings-panel="timing-settings"]');time.sleep(.3)
     result['settings']=sample('#timing-settings input, #timing-settings button');shot(prefix+'-settings')
+    click('[data-settings-panel="appearance-settings"]');time.sleep(.2)
+    assert c.script('return !document.querySelector("#appearance-settings").hidden && document.querySelector("#atlas-theme").getBoundingClientRect().height>0;')
+    result['appearance']=sample('#appearance-settings');shot(prefix+'-appearance')
     click('#show-home');time.sleep(.2)
     return result
 

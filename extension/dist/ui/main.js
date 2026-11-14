@@ -4237,7 +4237,25 @@
 
   // src/ui/ui-text.ts
   var uiText = {
+    openSite: "Open site",
+    pinToHome: "Pin to Home",
+    unpinFromHome: "Unpin from Home",
+    howSiteChangesWork: "How changes work",
+    includedSubdomains: "Includes all current and future subdomains. Your block list and Atlas\u2019s block list still apply to them.",
+    pinSaveFailed: "Couldn't confirm this pin was saved. Please try again.",
+    discardDraftQuestion: "Discard your unfinished changes? Your saved sites will stay as they are.",
+    draftDiscarded: "Draft discarded. Your saved sites haven't changed.",
+    draftDiscardUncertain: "Couldn't confirm that your draft was discarded. Please retry saving before closing this page.",
     appearance: "Appearance",
+    theme: "Theme",
+    appearanceSubtitle: "Choose the look that feels like home.",
+    celestialDescription: "Deep navy, warm gold, and a celestial compass.",
+    parchmentDescription: "Soft cream, earthy colors, and a cartographic compass.",
+    themePreferenceNote: "Your choice is saved in this Firefox profile and used across Atlas. It does not change your sites or access rules.",
+    greylistAndJourneys: "Greylist & Journeys",
+    accessSubtitle: "Temporary access and the Journeys you have open.",
+    noJourneysActive: "No Journeys are active.",
+    currentJourneysUnavailable: "Current Journeys cannot be verified right now.",
     defaultTheme: "Default",
     lightTestTheme: "Light (test)",
     celestialTheme: "Celestial",
@@ -4268,7 +4286,7 @@
     "blockedSites": "Blocked sites",
     "saveMyInitialPolicy": "Save my initial policy",
     "thisSetupIsAvailableOnceLater": "This setup is available once. Later additions use Vault; Allowed sites removals apply after review without waiting.",
-    "loadingVerifiedSites": "Loading verified sites.",
+    "loadingVerifiedSites": "Loading your sites\u2026",
     "retryLoading": "Retry loading",
     "policyRecovery": "Policy & recovery",
     "homeTitle": "Choose your direction.",
@@ -4280,7 +4298,7 @@
     "pinned": "Pinned",
     "firefoxBookmarks": "Firefox bookmarks",
     "morePinnedSites": "More pinned sites",
-    "pinSitesFromACategoryOr": "Pin sites from a category or All sites to keep them close.",
+    "pinSitesFromACategoryOr": "Your compass is ready. Open All Sites, choose a site, then select Pin to Home.",
     "pinnedPagesCannotBeVerifiedOther": "Pinned pages cannot be verified. Other sites and policy are unchanged.",
     "retryLoadingPins": "Retry loading pins",
     "greylist": "Greylist",
@@ -4320,7 +4338,7 @@
     "technicalDetails": "Technical details",
     "sitesTitle": "Your sites",
     "sitesSubtitle": "Find a place. Decide how it belongs.",
-    "searchCommittedSites": "Search committed sites",
+    "searchCommittedSites": "Search your sites",
     "filterAccess": "Filter access",
     "allAccess": "All access",
     "allowed": "Allowed",
@@ -4330,15 +4348,15 @@
     "noMatchingSites": "No matching sites.",
     "backToSites": "\u2190 Back to sites",
     "aPlaceForEverySite": "A place for every site.",
-    "selectASiteToInspectIts": "Select a site to inspect its current access or prepare changes.",
+    "selectASiteToInspectIts": "Choose a site to open it, pin it to Home, or make changes.",
     "currentSite": "CURRENT SITE",
-    "theseSavedRulesAreActiveReview": "These saved rules are active. Review staged edits before applying: additions wait in Vault; Removing allowed sites have no cooldown.",
+    "theseSavedRulesAreActiveReview": "Changes that allow more sites need a wait and confirmation in Vault. Removing allowed sites needs a review, with no wait. Names, categories and pins save without waiting.",
     "editSite": "Edit site",
-    "stageRemoval": "Stage removal",
+    "stageRemoval": "Remove site\u2026",
     "draftEdit": "DRAFT EDIT",
     "addASite": "Add a site",
     "closeEditor": "Close editor",
-    "yourActiveAccessRulesHaveNot": "Your active access rules have not changed.",
+    "yourActiveAccessRulesHaveNot": "Your changes will be reviewed before they take effect.",
     "display": "Display",
     "name": "Name",
     "category": "Category",
@@ -4347,23 +4365,23 @@
     "access": "Access",
     "keepCurrentAccessRules": "Keep current access rules",
     "allowedSites": "Allowed sites",
-    "primaryHostname": "Primary hostname",
+    "primaryHostname": "Site address",
     "includeCommonWwwCounterpart": "Include common www counterpart",
     "alsoAllowAllSubdomainsOfThis": "Also allow all subdomains of this hostname",
-    "otherExplicitHostnames": "Other explicit hostnames",
-    "additionalHostsSeparatedByCommas": "Additional hosts, separated by commas",
+    "otherExplicitHostnames": "Additional addresses",
+    "additionalHostsSeparatedByCommas": "Addresses, separated by commas",
     "theseAreExactRulesTheSeparate": "These are exact rules. The separate subdomain option applies only to the primary hostname; wildcard strings are unsupported.",
-    "addingAccessWaitsInVaultAllowed": "Adding access waits in Vault. Allowed sites removals apply after review without waiting; display-only edits save directly.",
+    "addingAccessWaitsInVaultAllowed": "Allowing more sites needs a wait in Vault. Removing allowed sites needs a review, with no wait. Names, categories and pins save without waiting.",
     "addToDraft": "Add to draft",
-    "saveDisplayDetails": "Save display details",
+    "saveDisplayDetails": "Save details",
     "yourDraft": "Your draft",
     "loadingSavedDraft": "Loading saved draft\u2026",
     "loading": "Loading",
     "reviewChanges": "Review changes",
     "reviewStaleDraft": "Review stale draft",
     "reviewYourChanges": "Review your changes",
-    "theseEditsArePreparedYourActive": "These edits are prepared. Your active access rules have not changed.",
-    "submitToVault": "Submit to Vault",
+    "theseEditsArePreparedYourActive": "These are your planned changes. Nothing has taken effect yet.",
+    "submitToVault": "Send to Vault",
     "continueEditing": "Continue editing",
     "discardDraft": "Discard draft",
     "returnToEditor": "Return to editor",
@@ -4381,7 +4399,7 @@
     "vault": "Vault",
     "managedBlocking": "Managed blocking",
     "diagnostics": "Diagnostics",
-    "aFrozenChangeIsWaitingIn": "A frozen change is waiting in Vault.",
+    "aFrozenChangeIsWaitingIn": "A change is waiting in Vault.",
     "reviewProposal": "Review proposal",
     "text": "\u2192",
     "protected": "Protected",
@@ -5314,7 +5332,7 @@ ${p.url}`).join("\n\n") : "No page override is saved for this site." : "";
   }
 
   // src/ui/settings-navigation.ts
-  var settingsSections = ["timing-settings", "home-settings", "vault-section", "managed-section", "recovery-section", "diagnostics"];
+  var settingsSections = ["timing-settings", "appearance-settings", "home-settings", "vault-section", "managed-section", "recovery-section", "diagnostics"];
   function settingsSection(value) {
     return settingsSections.includes(value) ? value : "timing-settings";
   }
@@ -6376,10 +6394,10 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
       if (focused && !focused.isConnected) el5("temporary-title").focus({ preventScroll: true });
       setProperty(el5("temporary-count"), "textContent", items.length ? `(${items.length})` : "");
       setProperty(el5("home-journeys-count"), "textContent", journeys.length ? `(${journeys.length})` : "");
-      setProperty(el5("home-journeys-section"), "hidden", !journeys.length);
+      setProperty(el5("journeys-empty"), "hidden", !summary.available || !!journeys.length);
+      setProperty(el5("journeys-unavailable"), "hidden", summary.available);
       setProperty(el5("temporary-empty"), "hidden", !summary.available || !!items.length);
       setProperty(el5("temporary-unavailable"), "hidden", summary.available);
-      setProperty(el5("temporary-section"), "hidden", summary.available && items.length === 0);
     } };
   }
 
@@ -6497,7 +6515,13 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
   }
   function subdomainScopeDescription(hostname2) {
     const target = normalizeTarget({ hostname: hostname2.trim() });
-    if (!target || !canUseSubdomainScope(hostname2)) return "Choose a registered hostname before including all subdomains.";
+    if (!target) return "Enter a hostname such as example.com, without https:// or a path, before including its subdomains.";
+    const parsed = parse(target.hostname, { allowPrivateDomains: true });
+    if (parsed.publicSuffix === target.hostname && (parsed.isPrivate || parsed.isIcann)) {
+      const kind = parsed.isPrivate ? "a shared hosting suffix" : "a public suffix";
+      return `${target.hostname} is ${kind}, not one site's domain. Allowing all its subdomains would include unrelated sites. Enter your site's hostname, such as your-site.${target.hostname}. You can still add ${target.hostname} as an exact hostname with this option off.`;
+    }
+    if (!canUseSubdomainScope(hostname2)) return "Choose a registered hostname before including all subdomains.";
     return `Includes ${target.hostname} and every current or future subdomain at any depth. This is broad permission; enable it only when you deliberately trust the whole scope. Manual and managed blocking rules still apply to this scope.`;
   }
 
@@ -7117,6 +7141,7 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
     let preferences = emptyDestinationPreferences(), preferencesAvailable = true, session = null;
     preferences = readPreferences();
     let loadFailure = false, submitting = false, displayFailed = false, legacyFailed = false, disposed2 = false;
+    let pinSaving = false;
     let refreshing = null;
     let displaying = null;
     let entriesKey = "", savedEntries = [];
@@ -7348,7 +7373,7 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
       showView("browse");
       syncDialog();
       queueMicrotask(focusSelection);
-      notice("Change added to saved local draft. No Vault wait has started and active policy is unchanged.", "success");
+      notice("Change saved to your draft. Review your changes when you\u2019re ready.", "success");
       if (immediateDisplay) {
         reviewOpen = true;
         await submit();
@@ -7358,13 +7383,13 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
       const state = options.controller()?.snapshot;
       if (!state || !session?.loaded || submitting || activeReceipt() || session.conflict) return;
       if (session.value.draft?.editor) {
-        notice("Add or close the current editor before staging a removal.");
+        notice("Finish or close your current edit before removing a site.");
         return;
       }
       const draft = session.value.draft ?? newDestinationDraft(newId(), baseline(state));
       await session.setDraft(stageDestination(draft, id, null));
       options.changed();
-      notice("Removal staged in local draft. Managed Blocked sites rules are unchanged.");
+      notice("Removal added to your draft. Review your changes to finish removing this site.");
     }
     async function submit() {
       if (submitting || !session?.loaded) return;
@@ -7787,6 +7812,8 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
       return refreshing;
     }
     function inspect(id) {
+      const tone = element("site-save-feedback").dataset.tone;
+      if (tone !== "error" && tone !== "uncertain") notice("");
       selection = id;
       detailKey = "";
       searchFocused = false;
@@ -7929,18 +7956,33 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
       setProperty(element("sites-back"), "hidden", !selected2 && !session?.value.draft?.editor);
       setProperty(element("site-selection-empty"), "hidden", !!selected2 || !!session?.value.draft?.editor);
       setProperty(element("site-detail"), "hidden", !selected2 || !!session?.value.draft?.editor);
-      const detail = json([selected2, display?.policy, options.pins()]);
+      const detail = json([selected2, display?.policy]);
       if (selected2 && detail !== detailKey) {
         detailKey = detail;
         text("site-detail-title", selected2.label);
-        text("site-detail-category", `${selected2.category} \xB7 ${pinnedDestinations([selected2], options.pins()).length ? "Pinned" : "Not pinned"}`);
+        text("site-detail-category", selected2.category);
         element("site-detail-hosts").replaceChildren(...selected2.hostnames.map((hostname2) => {
           const row = document.createElement("li"), result = evaluate({ hostname: hostname2 }, display.policy);
-          const subtree = display.policy.whitelistSubdomains?.includes(hostname2) ? " \xB7 Also all current/future subdomains; manual and managed blocking still apply to additional hosts." : "";
-          setProperty(row, "textContent", `${hostname2}${hostname2 === selected2.hostname ? " \xB7 primary" : ""} \xB7 ${result.outcome === "DENY" ? "Blocked" : "Allowed"}${display.policy.blacklist.includes(hostname2) && display.policy.whitelist.includes(hostname2) ? " (Blocked sites overrides Allowed sites)" : ""}${subtree}`);
+          const heading = document.createElement("div");
+          heading.className = "site-host-heading";
+          const address = document.createElement("strong"), status = document.createElement("span");
+          status.className = "pill";
+          address.textContent = hostname2;
+          status.textContent = result.outcome === "DENY" ? uiText.blocked : result.outcome === "ALLOW" ? uiText.allowed : uiText.greylist;
+          heading.append(address, status);
+          row.append(heading);
+          if (display.policy.whitelistSubdomains?.includes(hostname2)) {
+            const scope2 = document.createElement("p");
+            scope2.className = "note";
+            scope2.textContent = uiText.includedSubdomains;
+            row.append(scope2);
+          }
           return row;
         }));
       }
+      text("pin-site", selected2 && pinnedDestinations([selected2], options.pins()).length ? uiText.unpinFromHome : uiText.pinToHome);
+      setProperty(element("open-site"), "disabled", !ready || !selected2);
+      setProperty(element("pin-site"), "disabled", !ready || !selected2 || pinSaving);
       const locked = !ready || submitting || !session?.loaded || !!session?.conflict || !!activeReceipt();
       for (const id of ["add-site", "edit-site", "remove-site", "propose-site", "save-site-display"]) setProperty(element(id), "disabled", locked);
       setProperty(element("cancel-site-draft"), "disabled", submitting || !!activeReceipt());
@@ -7961,6 +8003,27 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
     }
     element("add-site").addEventListener("click", () => begin());
     element("edit-site").addEventListener("click", () => begin(selection));
+    element("open-site").addEventListener("click", () => {
+      if (disposed2 || !options.canEdit() || !snapshot()) return;
+      const selected2 = entries2().find((entry) => destinationId(entry) === selection);
+      if (selected2) void options.propose({ kind: "OPEN_DESTINATION", url: `https://${selected2.hostname}/` });
+    });
+    element("pin-site").addEventListener("click", () => void (async () => {
+      if (disposed2 || pinSaving || !options.canEdit() || !snapshot()) return;
+      const selected2 = entries2().find((entry) => destinationId(entry) === selection);
+      if (!selected2) return;
+      pinSaving = true;
+      options.changed();
+      try {
+        const result = await options.pin(destinationId(selected2), !pinnedDestinations([selected2], options.pins()).length, selected2.hostnames);
+        notice(result === "SAVED" ? "" : uiText.pinSaveFailed, result === "SAVED" ? "status" : result === "UNCERTAIN" ? "uncertain" : "error");
+      } catch {
+        notice(uiText.pinSaveFailed, "uncertain");
+      } finally {
+        pinSaving = false;
+        options.changed();
+      }
+    })());
     element("remove-site").addEventListener("click", () => void stageRemoval(selection));
     element("site-form").addEventListener("submit", (event) => {
       event.preventDefault();
@@ -7974,7 +8037,7 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
           if (saved) {
             showView("browse");
             syncDialog();
-            notice("Editor closed. Staged changes preserved.");
+            notice("Editor closed. Your draft is kept.");
             queueMicrotask(focusSelection);
           }
         });
@@ -8014,12 +8077,13 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
     element("discard-destination-summary").addEventListener("click", () => element("discard-destination-draft").click());
     element("submit-destination-draft").addEventListener("click", () => void submit());
     element("discard-destination-draft").addEventListener("click", () => {
-      if (!session || activeReceipt() || submitting || !window.confirm("Discard this editable draft and entered values? Saved policy and display details will remain.")) return;
-      void session.setDraft(null);
-      reconciliation = null;
-      reviewOpen = false;
-      restoreEditor();
-      notice("Local draft discarded. Saved policy and display details unchanged.");
+      if (!session || activeReceipt() || submitting || !window.confirm(uiText.discardDraftQuestion)) return;
+      void session.setDraft(null).then((saved) => {
+        reconciliation = null;
+        reviewOpen = false;
+        restoreEditor();
+        notice(saved ? uiText.draftDiscarded : uiText.draftDiscardUncertain, saved ? "status" : "uncertain");
+      });
     });
     element("retry-destination-draft").addEventListener("click", () => void (async () => {
       if (!session) {
@@ -8352,8 +8416,7 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
   var policyReview = null;
   var policyReviewError = "";
   var page = atlasPage(location.hash.slice(1)) ?? (params.get("view") === "access" ? "access" : "home");
-  var section = page === "vault" ? "settings" : page === "access" ? "home" : page;
-  if (page === "access") page = "home";
+  var section = page === "vault" ? "settings" : page;
   var settingsKey = "";
   var entries = [];
   var matches = [];
@@ -8518,7 +8581,7 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
     if (disposed) return;
     renderQueued = false;
     const focused = document.activeElement;
-    text2("page-title", page === "vault" ? "Vault" : section === "settings" ? "Settings" : section === "sites" ? "All sites" : "Atlas");
+    text2("page-title", page === "vault" ? "Vault" : section === "settings" ? "Settings" : section === "sites" ? "All sites" : section === "access" ? "Greylist & Journeys" : "Atlas");
     text2("page-eyebrow", section === "settings" ? "YOUR SAVED COMMITMENTS" : section === "sites" ? "YOUR COMMITTED DESTINATIONS" : "YOUR INTERNET, WITH INTENTION");
     text2("page-description", page === "vault" ? "Review your commitments. Active rules stay in place until a change is confirmed and saved." : section === "settings" ? "Intentional friction and the timing of your commitments." : section === "sites" ? "Your complete collection. Select a site to review or edit its access." : "A place for the things you choose.");
     setProperty(document.body.dataset, "section", section);
@@ -8538,8 +8601,9 @@ ${entry.method}${entry.sourceHostname ? ` from ${entry.sourceHostname}` : " \xB7
     setAttribute(element2("show-vault"), "aria-current", page === "vault" ? "page" : "false");
     setAttribute(element2("show-vault"), "aria-pressed", String(page === "vault"));
     setProperty(element2("sites-section"), "hidden", section !== "sites");
+    setProperty(element2("access-section"), "hidden", section !== "access");
     setProperty(element2("destinations"), "hidden", false);
-    for (const name of ["home", "sites", "settings"]) {
+    for (const name of ["home", "sites", "access", "settings"]) {
       const button = element2(`show-${name}`);
       setAttribute(button, "aria-pressed", String(section === name));
       if (section === name) setAttribute(button, "aria-current", "page");
@@ -8896,8 +8960,7 @@ ${searchInput.value}`;
   }
   function navigate2(name, preserveFeedback = false, fromHistory = false) {
     const accessLink2 = name === "access";
-    if (accessLink2) name = "home";
-    else if (name === "home" && !fromHistory) selected = "";
+    if (name === "home" && !fromHistory) selected = "";
     rememberPage();
     homePins.leave();
     sites.leave();
@@ -8910,7 +8973,7 @@ ${searchInput.value}`;
       sites.restoreView(history.state?.atlasSitesView, history.state?.atlasSitesSelection);
     }
     page = name;
-    section = name === "vault" ? "settings" : name === "access" ? "home" : name;
+    section = name === "vault" ? "settings" : name;
     render();
     const target = name === "vault" ? element2("vault-section") : accessLink2 ? element2("temporary-title") : element2("main-content");
     if (name === "sites") sites.focusSelection();
@@ -8948,7 +9011,7 @@ ${searchInput.value}`;
   });
   window.addEventListener("pagehide", rememberPage);
   element2("return-to-sites").addEventListener("click", () => navigate2("sites", true));
-  for (const name of ["home", "sites", "vault", "settings"]) element2(`show-${name}`).addEventListener("click", () => {
+  for (const name of ["home", "sites", "access", "vault", "settings"]) element2(`show-${name}`).addEventListener("click", () => {
     navigate2(name);
   });
   for (const button of document.querySelectorAll("[data-settings-panel]")) button.addEventListener("click", () => {

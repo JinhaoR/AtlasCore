@@ -1,12 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { IDBFactory } from 'fake-indexeddb';
-import { homeCategories, reconcileHomeLayout, changeHomeLayout, displayedHomeCategories, readHomeLayout } from '../dist/lib/ui/home-layout.js';
+import { homeCategories, reconcileHomeLayout, changeHomeLayout, readHomeLayout } from '../dist/lib/ui/home-layout.js';
 import { HomeLayoutSession } from '../dist/lib/ui/home-layout-session.js';
 import { openHomeLayoutRepository } from '../dist/lib/ui/home-layout-storage.js';
 import { destinationIndex, policyDestinationIndex, searchDestinationTargets } from '../dist/lib/ui/destinations.js';
 import { pinnedDestinations, destinationId } from '../dist/lib/ui/home-model.js';
-import { rankDestinations } from '../dist/lib/ui/destination-usage.js';
 import { homeAccessSummary } from '../dist/lib/ui/home-access.js';
 import { accessOverview } from '../dist/lib/adapter/temporary-access.js';
 const pendingAccessView = (...args) => accessOverview(...args).pendingAccess;
@@ -65,11 +64,11 @@ test('initial migration preserves legacy visible ordering and custom insertion o
   assert.deepEqual(keys(value), ['university', 'mail', 'tools', 'books']);
   assert.ok(value.categories.every(c => c.visible && !c.collapsed)); assert.deepEqual(entries, before);
 });
-test('explicit ordering is stable through destination rename, movement, insertions and usage rerenders', () => {
+test('explicit ordering is stable through destination rename, movement, insertions and reordered catalog reads', () => {
   let value = changed(initial(), 'tools', 'UP'); const order = keys(value);
   const entries = [entry('Tools', 2), entry('Research', 4), entry('Books', 1), entry('University'), entry('Mail', 3)];
   entries[0].label = 'A renamed destination';
-  for (let i = 0; i < 50; i++) value = reconcileHomeLayout(value, homeCategories(rankDestinations(entries, { 'host:site-2.example': { count: i + 1, score: i + 1, lastOpenedAt: 1000 } }, 1000 + i)));
+  for (let i = 0; i < 50; i++) value = reconcileHomeLayout(value, homeCategories(i % 2 ? [...entries].reverse() : entries));
   assert.deepEqual(keys(value), order);
   assert.deepEqual(keys(reconcileHomeLayout(value, homeCategories([...entries, entry('Books', 9)]))), order);
 });
@@ -78,7 +77,7 @@ test('hidden categories remain searchable, manageable and pinned in their explic
   const metadata = [original, { ...original, id: 'host:other.example', label: 'Other', primaryHostname: 'other.example', hostnames: ['other.example'] }];
   const entries = destinationIndex(policy, metadata), cats = homeCategories(entries);
   const value = changed(reconcileHomeLayout(null, cats), 'your destinations', 'VISIBILITY');
-  assert.deepEqual(displayedHomeCategories(value, cats), []);
+  assert.ok(value.categories.every(c => !c.visible));
   assert.equal(searchDestinationTargets(entries, 'root.example')[0].hostname, 'root.example');
   assert.equal(policyDestinationIndex(policy, metadata).length, 2);
   const pins = ['host:other.example', 'host:root.example'];
@@ -86,18 +85,19 @@ test('hidden categories remain searchable, manageable and pinned in their explic
 });
 test('collapse is independent of visibility and order; restoring visibility retains collapse', () => {
   let value = changed(initial(), 'books', 'COLLAPSE'), order = keys(value);
-  assert.equal(displayedHomeCategories(value, catalog).find(c => c.key === 'books').collapsed, true);
-  value = changed(value, 'books', 'VISIBILITY'); assert.ok(!displayedHomeCategories(value, catalog).some(c => c.key === 'books'));
+  assert.equal(value.categories.find(c => c.key === 'books').collapsed, true);
+  value = changed(value, 'books', 'VISIBILITY'); assert.equal(value.categories.find(c => c.key === 'books').visible, false);
   value = changed(value, 'books', 'VISIBILITY'); assert.equal(value.categories.find(c => c.key === 'books').collapsed, true);
   assert.deepEqual(keys(value), order);
 });
-test('empty categories retain layout and identity without rendering empty Home rows', () => {
+test('empty categories retain layout and identity when their membership becomes empty', () => {
   const value = changed(initial(), 'books', 'COLLAPSE');
   const cats = homeCategories([entry('University')], [entry('University')], ['Books', 'Empty']);
   const next = reconcileHomeLayout(value, cats);
   assert.ok(next.categories.find(c => c.key === 'books').collapsed);
   assert.ok(next.categories.some(c => c.key === 'empty'));
-  assert.deepEqual(displayedHomeCategories(next, cats).map(c => c.key), ['university']);
+  assert.deepEqual(next.categories.find(c => c.key === 'books').members, []);
+  assert.equal(cats.find(c => c.key === 'books').count, 0);
 });
 test('a complete unambiguous category rename retains position, visibility and collapse', () => {
   let value = changed(changed(initial(), 'books', 'UP'), 'books', 'VISIBILITY'); value = changed(value, 'books', 'COLLAPSE');
@@ -126,7 +126,7 @@ for (const count of [5, 15, 30]) test(`${count} crowded categories and long labe
   const entries = Array.from({ length: count * 20 }, (_, i) => ({ ...entry(`Category ${String(i % count).padStart(2, '0')} ${'x'.repeat(45)}`, i), label: 'Long destination '.repeat(6) }));
   const cats = homeCategories(entries); let value = changed(reconcileHomeLayout(null, cats), cats.at(-1).key, 'UP'), order = keys(value);
   for (let i = 0; i < 20; i++) value = reconcileHomeLayout(value, homeCategories([...entries].reverse()));
-  assert.deepEqual(keys(value), order); assert.equal(displayedHomeCategories(value, cats).length, count); assert.ok(readHomeLayout(value));
+  assert.deepEqual(keys(value), order); assert.equal(value.categories.length, count); assert.ok(readHomeLayout(value));
 });
 test('strict preference validation rejects damaged records without accepting authority fields', () => {
   for (const bad of [null, [], { ...initial(), policy: {} }, { ...initial(), version: 2 }, { version: 1, categories: [{ ...initial().categories[0], visible: 'false' }] },
@@ -293,11 +293,11 @@ test('a user layout action waits for an in-flight background read rather than di
 
 test('drag reorder moves only participating slots and preserves hidden, empty and collapsed preferences',()=>{
   const before=changed(changed(initial(),'books','VISIBILITY'),'research','COLLAPSE');
-  const available=displayedHomeCategories(before,catalog).map(c=>c.key);
+  const available=['university','mail','tools','research'];
   const moved=changeHomeLayout(before,available.at(-1),{moveTo:available[0]},available);
   assert.equal(moved.categories.findIndex(c=>c.key==='books'),before.categories.findIndex(c=>c.key==='books'));
   assert.equal(moved.categories.find(c=>c.key==='research').collapsed,true);
-  assert.deepEqual(displayedHomeCategories(moved,catalog).map(c=>c.key),[available.at(-1),...available.slice(0,-1)]);
+  assert.deepEqual(keys(moved).filter(key=>available.includes(key)),[available.at(-1),...available.slice(0,-1)]);
   assert.deepEqual(changeHomeLayout(before,'missing',{moveTo:available[0]},available),before);
 });
 test('a dropped category publishes only after successful CAS and survives restart',async t=>{

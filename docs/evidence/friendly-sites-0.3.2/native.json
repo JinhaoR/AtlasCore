@@ -1,0 +1,213 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.3.1",
+  "firefox": "160.0",
+  "friendlySites": {
+    "baseline": false,
+    "freshProfile": {
+      "viewport": [
+        1488,
+        1058
+      ],
+      "pins": 0,
+      "visible": true,
+      "compass": [
+        455.20001220703125,
+        349.33331298828125,
+        577.5999755859375,
+        577.5999755859375
+      ],
+      "overflow": false
+    },
+    "geometry": [
+      {
+        "viewport": [
+          1488,
+          1058
+        ],
+        "pins": 0,
+        "visible": true,
+        "compass": [
+          455.20001220703125,
+          349.33331298828125,
+          577.5999755859375,
+          577.5999755859375
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          980,
+          815
+        ],
+        "pins": 0,
+        "visible": true,
+        "compass": [
+          338,
+          334.3999938964844,
+          304,
+          304
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          540,
+          815
+        ],
+        "pins": 0,
+        "visible": true,
+        "compass": [
+          118,
+          377,
+          304,
+          304
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          360,
+          458
+        ],
+        "pins": 0,
+        "visible": true,
+        "compass": [
+          44,
+          377,
+          272,
+          272
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          1488,
+          1058
+        ],
+        "pins": 1,
+        "visible": true,
+        "compass": [
+          455.20001220703125,
+          366.3999938964844,
+          577.5999755859375,
+          577.5999755859375
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          980,
+          815
+        ],
+        "pins": 1,
+        "visible": true,
+        "compass": [
+          338,
+          334.3999938964844,
+          304,
+          304
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          540,
+          815
+        ],
+        "pins": 1,
+        "visible": true,
+        "compass": [
+          118,
+          377,
+          304,
+          304
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          360,
+          458
+        ],
+        "pins": 1,
+        "visible": true,
+        "compass": [
+          44,
+          377,
+          272,
+          272
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          1488,
+          1058
+        ],
+        "pins": 6,
+        "visible": true,
+        "compass": [
+          455.20001220703125,
+          366.3999938964844,
+          577.5999755859375,
+          577.5999755859375
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          980,
+          815
+        ],
+        "pins": 6,
+        "visible": true,
+        "compass": [
+          338,
+          334.3999938964844,
+          304,
+          304
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          540,
+          815
+        ],
+        "pins": 6,
+        "visible": true,
+        "compass": [
+          118,
+          377,
+          304,
+          304
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          360,
+          458
+        ],
+        "pins": 6,
+        "visible": true,
+        "compass": [
+          44,
+          377,
+          272,
+          272
+        ],
+        "overflow": false
+      }
+    ],
+    "ordinaryGatedLaunch": {
+      "url": "https://chatgpt.com/",
+      "opened": true,
+      "tabId": 2
+    },
+    "pinSurvivesReload": true,
+    "authorityUnchanged": true
+  },
+  "status": "PASS"
+}

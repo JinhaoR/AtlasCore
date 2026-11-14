@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { themeId, themeIds, themeKey, readTheme, saveTheme, initializeTheme } from '../dist/lib/ui/theme.js';
 
 function fixture() {
@@ -65,6 +65,7 @@ test('bundled themes contain only visual variables; application styles contain n
   for(const file of ['index.html','popup.html']){
     const html=readFileSync(new URL(file,base),'utf8');
     assert.ok(html.indexOf('src="theme-startup.js"')<html.indexOf('rel="stylesheet"'));
+    for (const id of themeIds) assert.ok(html.includes(`href="themes/${id}.css"`), `${file}: ${id}`);
   }
 });
 
@@ -76,32 +77,27 @@ test('both design prototypes use the same acknowledged preference and restart pa
  }
 });
 
-test('prototype artwork is small, static, bundled and resolves from the consuming UI stylesheet',()=>{
+test('compass artwork is small, static, bundled and resolves from the consuming UI stylesheet',()=>{
   const base=new URL('../dist/ui/',import.meta.url);
-  let bytes=0, paintedBytes=0;
+  let paintedBytes=0;
   const visited=new Set();
   for(const id of ['celestial','parchment']){
     const css=readFileSync(new URL(`themes/${id}.css`,base),'utf8');
     const paths=[...css.matchAll(/url\("([^"]+)"\)/g)].map(m=>m[1]);
-    assert.ok(paths.length>=3);
-    const sources=id==='celestial'?['doppelmayr-1730.jpg','doppelmayr-1730-detail.jpg','de-wit-1680.jpg']:['aguiar-1492.jpg','oliva-17c.jpg'];
-    for(const path of [...paths, ...sources.map(name=>`themes/${id}/${name}`)]){
+    assert.ok(paths.length>=2);
+    assert.deepEqual(readdirSync(new URL(`themes/${id}/`,base)).sort(), paths.map(path=>path.split('/').at(-1)).sort());
+    for(const path of paths){
       assert.ok(path.startsWith(`themes/${id}/`) && /\.(svg|jpg|webp)$/.test(path));
       assert.ok(!path.includes('..'));
       if(visited.has(path))continue;
       visited.add(path);
-      const data=readFileSync(new URL(path,base));bytes+=data.length;
+      const data=readFileSync(new URL(path,base));
+      assert.deepEqual(data,readFileSync(new URL(`../../themes/${id}/assets/${path.split('/').at(-1)}`,import.meta.url)));
       if(paths.includes(path))paintedBytes+=data.length;
-      if(path.endsWith('.jpg')){
-        assert.equal(data.readUInt16BE(0),0xffd8);
-        assert.ok(data.length<750_000,'Bounded historical source copy');
-        continue;
-      }
       if(path.endsWith('.webp')){
         assert.equal(data.toString('ascii',0,4),'RIFF');
         assert.equal(data.toString('ascii',8,12),'WEBP');
-        const wholeBackground=/\/historical-(home|workspace)\.webp$/.test(path);
-        assert.ok(data.length<(wholeBackground?550_000:300_000),'Bounded whole background or ink fragment');
+        assert.ok(data.length<550_000,'Bounded background asset');
         continue;
       }
       const svg=data.toString('utf8');
@@ -110,11 +106,9 @@ test('prototype artwork is small, static, bundled and resolves from the consumin
     }
     for(const page of ['index.html','popup.html'])assert.ok(readFileSync(new URL(page,base),'utf8').includes(`themes/${id}.css`));
   }
-  // Four complete viewport images replace small fragments. Keep a separate
-  // tighter budget for painted artwork; provenance JPEGs are not runtime loads.
+  // Keep the existing bounded budget available for future user-supplied backgrounds.
   assert.ok(paintedBytes<1_500_000,`Painted backgrounds and compass artwork: ${paintedBytes} bytes`);
-  assert.ok(bytes<3_500_000,`Artwork plus retained historical source copies: ${bytes} bytes`);
   const provenance=readFileSync(new URL('themes/ARTWORK.md',base),'utf8');
   assert.match(provenance,/Public Domain Mark/);
-  for(const file of ['aguiar-1492.jpg','doppelmayr-1730.jpg','de-wit-1680.jpg','oliva-17c.jpg'])assert.ok(provenance.includes(file));
+  for(const file of ['rose.svg','instrument.svg'])assert.ok(provenance.includes(file));
 });

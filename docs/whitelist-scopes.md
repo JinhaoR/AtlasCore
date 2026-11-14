@@ -67,6 +67,9 @@ No scope is introduced by a preset, category, alias, migration or usage ranking.
 ## Selection and review
 
 Sites & Access offers an explicit all-subdomains option for a Whitelist change.
+The Add Site form explains why bare public/shared hosting suffixes such as
+`github.io` cannot enable it, and gives a tenant example (`your-site.github.io`).
+The suffix itself can still be added as an exact hostname with the option off.
 The selected primary hostname is the scope root. Other explicitly listed aliases
 and entry points remain exact terms; selecting one root does not make unrelated
 listed hosts into additional broad roots.

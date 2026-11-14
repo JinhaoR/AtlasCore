@@ -25,15 +25,23 @@ export const fontFiles = [
 ].map(name => `ui/fonts/${name}`).sort();
 const typographyRuntimeFiles = [...legacyRuntimeFiles, ...fontFiles].sort();
 export const everydayRuntimeFiles = ['ui/popup.html', 'ui/popup.js', 'ui/popup.css', 'ui/startup.js'];
-export const runtimeFiles = [...typographyRuntimeFiles, ...everydayRuntimeFiles].sort();
+const everydayFiles = [...typographyRuntimeFiles, ...everydayRuntimeFiles].sort();
+export const themeRuntimeFiles = ['ui/theme-startup.js', 'ui/fonts.css', 'ui/themes/ARTWORK.md',
+  'ui/themes/default.css', 'ui/themes/light-test.css', 'ui/themes/celestial.css', 'ui/themes/parchment.css',
+  'ui/themes/celestial/instrument.svg', 'ui/themes/celestial/orbit.svg', 'ui/themes/celestial/mark.svg',
+  'ui/themes/parchment/rose.svg', 'ui/themes/parchment/mark.svg'];
+export const runtimeFiles = [...everydayFiles, ...themeRuntimeFiles].sort();
 export function runtimeFilesFor(version) {
   if (!validVersion(version)) fail('INVALID_RELEASE_VERSION');
   const [major, minor, patch] = version.split('.').map(Number);
-  if (major > 0 || minor > 2 || minor === 2 && patch >= 4) return runtimeFiles;
+  if (major > 0 || minor > 3 || minor === 3 && patch >= 1) return runtimeFiles;
+  if (minor > 2 || minor === 2 && patch >= 4) return everydayFiles;
   return minor === 2 ? typographyRuntimeFiles : legacyRuntimeFiles;
 }
-const sourceDirectories = ['packages/core/src', 'packages/core/tests', 'extension/src', 'extension/tests'];
+const sourceDirectories = ['packages/core/src', 'packages/core/tests', 'extension/src', 'extension/tests',
+  'themes/shared', 'themes/celestial/assets', 'themes/parchment/assets'];
 const sourceFiles = [
+  'themes/celestial/theme.css', 'themes/parchment/theme.css', 'themes/ARTWORK.md', 'themes/README.md', 'docs/themes.md',
   'packages/core/package.json', 'packages/core/package-lock.json', 'packages/core/tsconfig.json',
   'extension/package.json', 'extension/package-lock.json', 'extension/tsconfig.json',
   'extension/manifest.json', 'extension/build.mjs', 'extension/THIRD-PARTY-NOTICES.txt',
@@ -43,24 +51,20 @@ const sourceFiles = [
   'extension/REVIEWER-BUILD.md', 'docs/firefox-private-release.md', 'docs/firefox-privacy.md', 'docs/firefox-backup.md',
   'docs/firefox-downloads.md', 'docs/home-organization.md', 'docs/visual-polish.md', 'docs/ui-stability.md',
   'docs/firefox-storage-reliability.md',
-  'docs/release-candidate-0.1.19.md', 'docs/release-0.1.19.md',
-  'docs/release-candidate-0.2.0.md', 'docs/visual-redesign-0.2.0.md',
+  'docs/visual-redesign-0.2.0.md',
   'docs/visual-refinement-0.2.0.md', 'docs/management-ux-0.2.0.md',
-  'docs/startup-layout-0.2.1.md', 'docs/release-candidate-0.2.1.md',
-  'docs/ui-engineering-review.md', 'docs/release-candidate-0.2.2.md',
-  'docs/compact-home.md', 'docs/release-candidate-0.2.3.md',
-  'docs/everyday-controls.md', 'docs/release-candidate-0.2.4.md',
-  'docs/release-candidate-0.2.5.md',
-  'docs/release-candidate-0.2.6.md',
-  'docs/release-candidate-0.2.7.md',
-  'docs/release-candidate-0.2.8.md', 'docs/curated-subdomains.md',
-  'docs/release-candidate-0.3.0.md',
+  'docs/startup-layout-0.2.1.md',
+  'docs/ui-engineering-review.md',
+  'docs/compact-home.md',
+  'docs/everyday-controls.md',
+
+  'docs/curated-subdomains.md', 'docs/version-history.md',
   'docs/firefox-home-newtab-poc.md',
   'docs/whitelist-scopes.md', 'docs/whitelist-removal.md', 'docs/destination-polish.md',
   'docs/editor-reliability-0.1.19.md', 'docs/engineering-review-0.1.19.md',
   'docs/quality-pass-0.1.19.md', 'docs/development.md', 'docs/architecture.md', 'docs/foundation.md',
   'docs/curated-expansion.md', 'docs/curated-destinations.md',
-  'docs/release-0.1.18.md', 'docs/performance-audit-0.1.18.md',
+  'docs/performance-audit-0.1.18.md',
   'docs/evidence/curated-expansion-2026-10.json', 'docs/evidence/curated-hosts-2026-10.json',
   'docs/evidence/performance-audit-0.1.18.json', 'docs/evidence/firefox-idle-recurrence-0.1.18.json',
   ...runtimeFiles.filter(name => name.startsWith('data/')).map(name => `extension/${name}`),
@@ -208,7 +212,8 @@ async function collectSource() {
   if (names.some(name => /(^|\/)(\.env[^/]*|node_modules|dist|release|profiles?|credentials?|secrets?)(\/|$)/i.test(name)
     || !/\.(ts|mjs|json|md|txt|html|css|svg)$/.test(name) && !name.endsWith('/hosts')
       && name !== 'extension/scripts/auth-evidence-observer.js'
-      && !fontFiles.map(file => `extension/src/ui/assets/${file.slice(3)}`).includes(name))) fail('UNEXPECTED_SOURCE_FILE');
+      && !/^themes\/(celestial|parchment)\/assets\/[a-z-]+\.webp$/.test(name)
+      && !fontFiles.map(file => `themes/shared/${file.slice(3)}`).includes(name))) fail('UNEXPECTED_SOURCE_FILE');
   return fileMap(root, names);
 }
 export function cleanEnvironment(environment, signing = false) {
@@ -282,7 +287,7 @@ function releasePaths(version) {
     unsigned: resolve(directory, `atlas-${version}-unsigned.zip`), source: resolve(directory, `atlas-${version}-source.zip`),
     receipt: resolve(directory, 'release.json') };
 }
-export function checkRuntimeFiles(names, { afterSigning = false, version = '0.2.4' } = {}) {
+export function checkRuntimeFiles(names, { afterSigning = false, version = '0.3.1' } = {}) {
   // web-ext saves this upload receipt locally after submitting. Never admit it
   // to unsigned/signed archives or pre-sign staging; it carries no runtime authority.
   const runtimeNames = afterSigning ? names.filter(name => name !== '.amo-upload-uuid') : names;

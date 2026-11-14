@@ -29,23 +29,6 @@ export function startupCopy(startup) {
         return 'Atlas could not open its saved state. Retry startup in Settings. If this continues, check Firefox storage availability.';
     return 'Atlas could not finish startup. Retry startup in Settings. Your saved policy is preserved.';
 }
-/** Explain saved termination; this copy never changes the authorization decision. */
-export function journeyEndCopy(reason) {
-    switch (reason) {
-        case 'UNRELATED_NAVIGATION': return 'The next navigation could not be linked to your active Journey.';
-        case 'EXPIRED': return 'Your Journey reached its fixed time limit.';
-        case 'HOP_LIMIT': return 'Your Journey reached its navigation limit.';
-        case 'CANCELLED': return 'You ended this Journey.';
-        case 'POLICY_CHANGED':
-        case 'INVALID_POLICY':
-        case 'ROOT_NOT_WHITELISTED': return 'The policy changed or could no longer authorize this Journey.';
-        case 'CONTEXT_CLOSED': return 'The browsing context closed.';
-        case 'REACHED':
-        case 'RETURNED': return 'You reached your site.';
-        case 'DESTINATION_CHANGED': return 'You reached another Allowed site.';
-        default: return 'Your Journey ended.';
-    }
-}
 /** UI can queue an intent during housekeeping; only a fresh controller result authorizes effects. */
 export function canQueueOperation(view) {
     return view?.status === 'READY' || view?.snapshot != null
@@ -96,22 +79,4 @@ export function countdown(deadline, now) {
 export function selectedContext(contexts, selected) {
     // A missing selected tab is missing. Never silently act on a different one.
     return contexts.find((context) => String(context.tabId) === selected);
-}
-/** Display only the record named by the current decision; Core owns validity and time. */
-export function selectedAccessRecord(decision, state, hostname) {
-    let pending;
-    let grant;
-    if (state != null && hostname != null && decision != null) {
-        if ((decision.outcome === 'WAIT' || decision.outcome === 'REQUIRE_CONFIRMATION')
-            && decision.target.hostname === hostname) {
-            pending = state.pendingRequests.find((request) => request.id === decision.requestId
-                && (request.scopeHostnames ?? [request.hostname]).includes(hostname));
-        }
-        else if (decision.outcome === 'ALLOW' && decision.reason === 'ACTIVE_GRANT'
-            && decision.target.hostname === hostname) {
-            grant = state.grants.find((entry) => entry.requestId === decision.requestId
-                && (entry.scopeHostnames ?? [entry.hostname]).includes(hostname));
-        }
-    }
-    return { pending, grant };
 }

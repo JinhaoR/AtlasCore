@@ -1,0 +1,20 @@
+{
+  "differences": [],
+  "before": "PASS",
+  "after": "PASS",
+  "homeScreenshots": [
+    {
+      "theme": "celestial",
+      "sha256": "cfc435189accbd2873c754a4219e3728c46bbee8210db5283fd0d19715d447a1",
+      "existingScreenshot": "design/historical-final/native-final/celestial-home.png",
+      "beforeAndAfterByteIdentical": true
+    },
+    {
+      "theme": "parchment",
+      "sha256": "a8267727d41d1a81907f8a3dfbb1e017b639917ab664c081738750f888204ed8",
+      "existingScreenshot": "design/historical-final/native-final/parchment-home.png",
+      "beforeAndAfterByteIdentical": true
+    }
+  ],
+  "nativeResultSha256": "a12d0dd9c7cbf5a9eab9491648e0b19e5da009a3908c4d46d318166b1723f53f"
+}

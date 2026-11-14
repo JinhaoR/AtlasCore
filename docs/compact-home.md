@@ -9,7 +9,7 @@ preferences below remain. The following records the original 0.2.3 layout.
 This approved presentation change replaces the large hero with a compact launcher.
 The development implementation left version 0.2.2, Core, adapter commands,
 manifest, installed profiles and every release artifact unchanged. It is now
-promoted to the unsigned [0.2.3 candidate](release-candidate-0.2.3.md); signed
+promoted to the unsigned [0.2.3 candidate](version-history.md#v0-2-3); signed
 0.2.2 remains frozen. The earlier bounded category workspace is superseded.
 
 ## Composition and categories

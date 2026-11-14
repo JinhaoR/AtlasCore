@@ -7,7 +7,7 @@
 
   // src/ui/startup.ts
   var requested = atlasPage(location.hash.slice(1)) ?? (new URL(location.href).searchParams.get("view") === "access" ? "access" : "home");
-  var page = requested === "access" ? "home" : requested;
+  var page = requested;
   document.body.dataset.page = page;
   document.body.dataset.section = page === "vault" ? "settings" : page;
   document.body.dataset.mode = "control";

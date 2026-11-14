@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-14",
+  "releaseFilesUnchanged": 438,
+  "protectedSourceManifestAndLockFilesUnchanged": 75,
+  "movedVisualFilesByteIdentical": {
+    "celestial/theme.css": "3ef1617bdc93cff11660290f2305385242a6f3914f34f96bd6c69a49ee729d88",
+    "parchment/theme.css": "bb95297486d062e7fb602d3b496b49669b46fefed34e7a9c4d6263302d2d6009",
+    "shared/default.css": "eb321a4cec0313bc036ec812e8edd59dc3112bb65476545dba929378a76aa350",
+    "shared/fonts.css": "4255a7a9b0a8f276118937edc98ec71448d5eae567562700db9479250ad0ce50",
+    "shared/light-test.css": "3f6a0ae88b75e4a2ddbde23da1099b88b51f51edd2f8c6b2c5447163e3905cc0",
+    "celestial/assets/historical-home.webp": "10f649799c6da94a51406c150df78e6fe1c6a1cbe760c8d2520de8c0ec150d71",
+    "celestial/assets/historical-workspace.webp": "7b37b186e25afacd4537fd1c9bc3eaa1eb3be2943cd547171e1cd240eb271f19",
+    "celestial/assets/instrument.svg": "3344bfe4e8363e551200e3930eb3cd6bb114d98dcaec049cb10c29d3206b03f3",
+    "celestial/assets/mark.svg": "f440b03ee7d790b73bb90775787dacc475d6a36c488391af1a8549415304b1fb",
+    "celestial/assets/orbit.svg": "c4331fe400e5b41842dfb2e6ed8733904a06ea895eac5d1396a79f237b728bfc",
+    "celestial/reference/chart.svg": "cf202b870ae1b3ca4ee13388f9c0984e46a620f5270e88b031443667deba7784",
+    "celestial/reference/de-wit-1680.jpg": "d7f53a094da6a6fa7789c15b2646ed26455c4e378f739e4a7a35432c3677bb0b",
+    "celestial/reference/directory.svg": "1ebe283110392fc126023832e5da283ecc75ff3b3d3dc20a358022fe5790e30c",
+    "celestial/reference/doppelmayr-1730-detail.jpg": "e9f687054071cf98d26d17f6e3a7375657608abb850e9c266d93483efe775dc5",
+    "celestial/reference/doppelmayr-1730.jpg": "129658b4e95a637f7fa0f44f320863c2448a0406126f7a5c17217e7b7afb8d1d",
+    "celestial/reference/eastern-figures.webp": "b97e25208caf37091f482c5ebbf7110c8cf40761fefa1ed9fcd94489af7f3049",
+    "celestial/reference/hemisphere-ink.webp": "269d66dab779f116d6db59f4d8a2b5bf6da227fbb6bc62be3b459f61e2ae7246",
+    "celestial/reference/western-figures.webp": "e7a81ff22bdc5500a072addd3119b4d3a70ea16351d26fbe1119cef540eedab0",
+    "parchment/assets/historical-home.webp": "3d2a04345960e2633e79da3e201d1e97303ef79ca79ee62b76ec3d2558bdd5aa",
+    "parchment/assets/historical-workspace.webp": "e48a478f44323aac852ddf463b82de043e0a4dcc73e8a91da9907654a5bcb385",
+    "parchment/assets/mark.svg": "0e8cbb985345b29736dfc8c79ec9ce7b98e35bca910837ddb3ab662f92841cdd",
+    "parchment/assets/rose.svg": "bdfbbaf9c0a87353cdd8b6ac48513de465e83778d93dd223c3f3447718948efe",
+    "parchment/reference/aguiar-1492.jpg": "aa0fa870fc8519d94ec9dbee1a7c0055f10f2fca533a2bcee40a993ce7dc59cf",
+    "parchment/reference/atlantic-ink.webp": "d531bb7d9c8084119413eec65f864dd0e1ceb0b21e052f169ffcf6d63da5d199",
+    "parchment/reference/bearings.svg": "a8465607d894b6d436692f3b08218576a714cb0cb2b68a38beb6f0fbb2753670",
+    "parchment/reference/directory.svg": "e87d51d2f3535279f1d9adc082d00401d3f04a46a9f6fb2567b1679e38c51e92",
+    "parchment/reference/mediterranean-ink.webp": "2e116950012f7ad05b1558c22191cc9f1c377530b5b6243da60cbb772a0035bd",
+    "parchment/reference/oliva-17c.jpg": "c8a028b206a26cf71679aad734b9cef7df7005e308f7c5b6e51f6c37431335d2",
+    "parchment/reference/paper.svg": "99d6b060a5f1f915033a7f391f5f6363d2247a2c980ac99bf17bea6a7b23a7ee",
+    "shared/fonts/cormorant-garamond-italic-latin-ext.woff2": "cd5bf126b2c84ab41b254a6a9a1ffb5c326a0f9f82c22fb4704daa31c9aaa415",
+    "shared/fonts/cormorant-garamond-italic-latin.woff2": "6f2f5c3b1abc3d0bb035a927f66a90ca873f94fc31c4966c8d024142c2036e55",
+    "shared/fonts/cormorant-garamond-normal-latin-ext.woff2": "cfa9a397d86f66c5c51775a2500a712d5f632a04f0c5eca6930dfaf612d4566d",
+    "shared/fonts/cormorant-garamond-normal-latin.woff2": "d80df8ff5aecd299a61549f9e29ab1ed0b9b05f4ea71d50fe978e07d5240b235",
+    "shared/fonts/Cormorant-Garamond-OFL.txt": "60700d351cac4650c51f3f9db318d2a420f8b45052dba2715eb5fec41f0f6956",
+    "shared/fonts/source-sans-3-normal-latin-ext.woff2": "a85a7459bdb3cdc1136751e151a506bae653fc29ada3ca86237477df6f1b59e6",
+    "shared/fonts/source-sans-3-normal-latin.woff2": "19143dca075972bc84e3fd9eab7416dd40cc565dccb2435a044bdfabe060c7d5",
+    "shared/fonts/Source-Sans-3-OFL.txt": "09746787287a289323b0ec3cff4d1a4a801331b82b7207c1e186f5d26619a392",
+    "shared/fonts/sources.json": "27d5be4a319bfa1d1710d3369d5b59c3a0db314c3d432e3eb9294b0e2246d8eb"
+  },
+  "runtimeFilesByteIdentical": [
+    "background.js",
+    "journey-indicator.js",
+    "ui/main.js",
+    "ui/popup.js",
+    "ui/startup.js",
+    "ui/theme-startup.js",
+    "ui/index.html",
+    "ui/popup.html",
+    "ui/style.css",
+    "ui/popup.css",
+    "ui/fonts.css",
+    "manifest.json"
+  ],
+  "runtimeFilesOnlyLineEndingsChanged": [],
+  "removedRuntimeFiles": [
+    {
+      "file": "ui/themes/celestial/chart.svg",
+      "bytes": 10491
+    },
+    {
+      "file": "ui/themes/celestial/de-wit-1680.jpg",
+      "bytes": 189691
+    },
+    {
+      "file": "ui/themes/celestial/directory.svg",
+      "bytes": 7204
+    },
+    {
+      "file": "ui/themes/celestial/doppelmayr-1730-detail.jpg",
+      "bytes": 697268
+    },
+    {
+      "file": "ui/themes/celestial/doppelmayr-1730.jpg",
+      "bytes": 398124
+    },
+    {
+      "file": "ui/themes/celestial/eastern-figures.webp",
+      "bytes": 55826
+    },
+    {
+      "file": "ui/themes/celestial/hemisphere-ink.webp",
+      "bytes": 134056
+    },
+    {
+      "file": "ui/themes/celestial/western-figures.webp",
+      "bytes": 40356
+    },
+    {
+      "file": "ui/themes/parchment/aguiar-1492.jpg",
+      "bytes": 447643
+    },
+    {
+      "file": "ui/themes/parchment/atlantic-ink.webp",
+      "bytes": 208718
+    },
+    {
+      "file": "ui/themes/parchment/bearings.svg",
+      "bytes": 4711
+    },
+    {
+      "file": "ui/themes/parchment/directory.svg",
+      "bytes": 1659
+    },
+    {
+      "file": "ui/themes/parchment/mediterranean-ink.webp",
+      "bytes": 213916
+    },
+    {
+      "file": "ui/themes/parchment/oliva-17c.jpg",
+      "bytes": 207590
+    },
+    {
+      "file": "ui/themes/parchment/paper.svg",
+      "bytes": 578
+    }
+  ],
+  "removedRuntimeBytes": 2617831,
+  "coreTests": 253,
+  "extensionTests": 686,
+  "frozenStagedDistributionsVerified": 17,
+  "removedExports": [
+    "destinationPolicyCandidate",
+    "rankDestinations",
+    "displayedHomeCategories",
+    "journeyEndCopy",
+    "selectedAccessRecord"
+  ]
+}

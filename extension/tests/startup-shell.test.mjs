@@ -8,8 +8,9 @@ test('first-paint shell follows the same explicit URL route without browser or s
   for (const [suffix, page, section, mode] of [
     ['', 'home', 'home', 'control'], ['#sites', 'sites', 'sites', 'control'],
     ['#vault', 'vault', 'settings', 'control'], ['#settings', 'settings', 'settings', 'control'],
-    ['?view=access&tab=4', 'home', 'home', 'control'], ['?view=access#home', 'home', 'home', 'control'],
+    ['?view=access&tab=4', 'access', 'access', 'control'], ['?view=access#home', 'home', 'home', 'control'],
     ['#unknown', 'home', 'home', 'control'],
+    ['#access', 'access', 'access', 'control'],
   ]) {
     const document = { body: { dataset: {} } }, location = new URL(`https://extension.example/ui/index.html${suffix}`);
     // No Firefox, clock, storage or command surface is present in this context.

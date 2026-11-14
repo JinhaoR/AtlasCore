@@ -4,7 +4,7 @@ Status: the 2026-11-03 proof of concept was verified separately, then the user
 requested signing preparation. Its two manifest overrides are now included in
 the unsigned 0.2.1 candidate. No extension identity, permissions, Core, adapter,
 UI handler or persistence changes. The evidence below distinguishes the original
-experiment from subsequent [release verification](release-candidate-0.2.1.md).
+experiment from subsequent [release verification](version-history.md#v0-2-1).
 
 ## Implementation
 

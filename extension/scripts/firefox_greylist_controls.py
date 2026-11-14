@@ -14,8 +14,12 @@ def verify(c,h,shot,baseline=False):
         c.call('WebDriver:Navigate',url=h.UI_URL+f'?view=access&tab={tab}')
         h.wait_for(lambda:js('return document.querySelector("#pending-access-list .access-signal")?.textContent==="Request access"&&!document.querySelector("#pending-access-list .access-signal").disabled;'),'request row')
         h.wait_for(lambda:js('return !!document.querySelector(".compass-pin:not(:disabled)");'),'pins')
+        if not baseline:
+            assert js('return document.body.dataset.page==="access" && !document.querySelector("#access-section").hidden && document.querySelector("#workspace").hidden && document.querySelector("#show-access").getAttribute("aria-current")==="page";')
     open_request()
     if not baseline:
+        click('#show-sites');js('history.back();')
+        h.wait_for(lambda:js('return document.body.dataset.page==="access" && document.querySelector("#pending-access-list .access-signal")?.textContent==="Request access";'),'access route restored by Back')
         assert js('return !!document.querySelector(".access-cancel");')
         click('.access-cancel')
         h.wait_for(lambda:js('return !document.querySelector("#pending-access-list li");'),'dismiss unstarted')

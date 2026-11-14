@@ -1,5 +1,5 @@
 import { setAttribute, setProperty } from './dom.js';
-export const settingsSections = ['timing-settings', 'home-settings', 'vault-section', 'managed-section', 'recovery-section', 'diagnostics'];
+export const settingsSections = ['timing-settings', 'appearance-settings', 'home-settings', 'vault-section', 'managed-section', 'recovery-section', 'diagnostics'];
 export function settingsSection(value) {
     return settingsSections.includes(value) ? value : 'timing-settings';
 }

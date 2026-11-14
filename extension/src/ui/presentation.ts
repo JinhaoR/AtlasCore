@@ -1,6 +1,5 @@
 import type {
-  AccessGrant, AccessState, AtlasControllerView, AtlasNavigationDecision, JourneyEndReason,
-  PendingAccessRequest,
+  AtlasControllerView, AtlasNavigationDecision,
 } from '@atlas/core';
 import type { StartupStatus } from '../adapter/startup-status.js';
 import type { RepositoryDiagnostics } from '../storage/indexeddb-repository.js';
@@ -34,21 +33,6 @@ export function startupCopy(startup: StartupStatus | undefined): string {
   if (startup.stage === 'MANAGED_BLACKLIST') return 'Atlas could not verify its bundled safety list. Retry startup in Settings. If this continues, obtain a verified signed Atlas update; keep the extension installed to preserve saved state.';
   if (startup.stage === 'STORAGE') return 'Atlas could not open its saved state. Retry startup in Settings. If this continues, check Firefox storage availability.';
   return 'Atlas could not finish startup. Retry startup in Settings. Your saved policy is preserved.';
-}
-
-/** Explain saved termination; this copy never changes the authorization decision. */
-export function journeyEndCopy(reason: JourneyEndReason | null): string {
-  switch (reason) {
-    case 'UNRELATED_NAVIGATION': return 'The next navigation could not be linked to your active Journey.';
-    case 'EXPIRED': return 'Your Journey reached its fixed time limit.';
-    case 'HOP_LIMIT': return 'Your Journey reached its navigation limit.';
-    case 'CANCELLED': return 'You ended this Journey.';
-    case 'POLICY_CHANGED': case 'INVALID_POLICY': case 'ROOT_NOT_WHITELISTED': return 'The policy changed or could no longer authorize this Journey.';
-    case 'CONTEXT_CLOSED': return 'The browsing context closed.';
-    case 'REACHED': case 'RETURNED': return 'You reached your site.';
-    case 'DESTINATION_CHANGED': return 'You reached another Allowed site.';
-    default: return 'Your Journey ended.';
-  }
 }
 
 /** UI can queue an intent during housekeeping; only a fresh controller result authorizes effects. */
@@ -102,26 +86,4 @@ export function countdown(deadline: number, now: number): string {
 export function selectedContext<T extends { tabId: number }>(contexts: readonly T[], selected: string): T | undefined {
   // A missing selected tab is missing. Never silently act on a different one.
   return contexts.find((context) => String(context.tabId) === selected);
-}
-
-/** Display only the record named by the current decision; Core owns validity and time. */
-export function selectedAccessRecord(
-  decision: AtlasNavigationDecision | null | undefined,
-  state: AccessState | null | undefined,
-  hostname: string | null | undefined,
-): { pending: PendingAccessRequest | undefined; grant: AccessGrant | undefined } {
-  let pending: PendingAccessRequest | undefined;
-  let grant: AccessGrant | undefined;
-  if (state != null && hostname != null && decision != null) {
-    if ((decision.outcome === 'WAIT' || decision.outcome === 'REQUIRE_CONFIRMATION')
-      && decision.target.hostname === hostname) {
-      pending = state.pendingRequests.find((request) => request.id === decision.requestId
-        && (request.scopeHostnames ?? [request.hostname]).includes(hostname));
-    } else if (decision.outcome === 'ALLOW' && decision.reason === 'ACTIVE_GRANT'
-      && decision.target.hostname === hostname) {
-      grant = state.grants.find((entry) => entry.requestId === decision.requestId
-        && (entry.scopeHostnames ?? [entry.hostname]).includes(hostname));
-    }
-  }
-  return { pending, grant };
 }

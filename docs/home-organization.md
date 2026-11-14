@@ -1,8 +1,54 @@
 # Milestone C — Home organization and navigation
 
-## Home balance and category ordering (development after prepared 0.3.0)
+## Fresh profiles and site actions (0.3.2)
 
-Home moves its Atlas logo/wordmark into the centered content, replacing the slogan.
+The compass stays visible with zero or one pin. An empty Home explains how to
+choose a site and use **Pin to Home** in All Sites. The interactive ring remains
+available above 600 CSS pixels; smaller windows retain the compass above labelled
+shortcuts. This replaces the 0.3.1 rule that removed the wheel below 1000 pixels.
+No pins or permissions are silently added to a new installation. Existing theme
+artwork, color values and pin identities are unchanged.
+
+Site details offer **Open site**, **Pin to Home / Unpin from Home**, **Edit site**
+and **Remove site…**. Opening uses the same `OPEN_DESTINATION` adapter command as
+Home/search, with current Core authorization; a saved display entry cannot grant
+access. Pins save through the existing serialized presentation owner and become
+visible only after acknowledgement. Failed saves retain a usable retry.
+
+Address and Allowed/Blocked labels replace the old monospaced rule description.
+Subdomain scope remains explicit; the wait/review explanation is under **How
+changes work**. Routine old feedback clears when another site is inspected, while
+errors and uncertain saves remain visible. Draft discard reports success only
+after storage acknowledgement. Core, migrations and policy timing are unchanged.
+
+## Home and the access page (0.3.1)
+
+Home contains the Atlas wordmark, search and a larger responsive compass. The
+reference image guides their proportions only; existing compass assets, colors,
+pin interactions and narrow-screen list fallback remain. Backgrounds are plain.
+Shared application CSS owns geometry; theme CSS still contains visual values only.
+
+**Greylist & Journeys**, beside All Sites, owns temporary requests, active grants,
+Journey cancellation and explicit renewal. It uses the existing `#access` route
+and `?view=access&tab=…` context links from Firefox controls. Empty lists and
+unavailable authority have separate messages. Lists use the page's scrolling
+surface, with no two-row limit or reserved Home footprint. Changing access state
+cannot move Home's search or compass because the pages have separate containers.
+
+The existing `ui/home-greylist.ts` presenter and `ui/home-access.ts` display model
+remain the single owners of these controls; their historical filenames do not
+imply that Home owns authorization. Core still decides every operation. The same
+visible-page refresh loop, row identity, context fencing, explicit confirmation,
+failure feedback and cancellation acknowledgement rules remain.
+
+Settings has a separate **Appearance** section using the existing acknowledged
+theme preference owner. Celestial and Parchment retain their compass and colors;
+Default and Light remain available for saved-preference compatibility. Theme
+selection does not reload the page or reconstruct the compass.
+
+## Previous Home balance and current category ordering
+
+Before 0.3.1, Home moved its Atlas logo/wordmark into the centered content, replacing the slogan.
 Desktop content is centered in the space below the navigation header, with an
 accessible scrolling fallback on shorter/narrower windows. The verified-empty
 Greylist stays hidden; one row grows to two before the region scrolls. On centered
@@ -10,7 +56,7 @@ desktop Home, its wrapper always reserves the two-row footprint (146px including
 padding/border), with visible boxes aligned to the top. Appearing, growing or
 disappearing requests therefore cannot recenter the logo, search or compass.
 Narrow/short layouts keep normal document flow and hide the empty wrapper.
-Journey and unavailable-state messages keep their existing meanings. See
+This reserved-footprint layout is superseded by the separate access page above. See
 [Greylist layout measurements](evidence/greylist-layout/README.md).
 
 All Sites offers **Alphabetical**, **Most used**, and **Custom order**. Existing

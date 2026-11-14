@@ -54,7 +54,7 @@ Cormorant Garamond provides display headings and the italic introduction; Source
 Sans 3 supplies controls and secondary text. Latin and Latin Extended WOFF2
 subsets are bundled locally (245,430 bytes including licences and provenance).
 Both are distributed under the SIL Open Font License. Original notices, immutable
-download URLs and SHA-256 hashes are in `extension/src/ui/assets/fonts/`, and
+download URLs and SHA-256 hashes are in `themes/shared/fonts/`, and
 `extension/THIRD-PARTY-NOTICES.txt` identifies the upstream projects. Runtime CSS
 loads no remote font service. Other scripts use the configured system fallbacks.
 Existing website favicon lookup remains enabled, with the original neutral local

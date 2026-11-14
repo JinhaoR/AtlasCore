@@ -1,5 +1,3 @@
-import type { DestinationEntry } from './destinations.js';
-import { destinationId } from './home-model.js';
 import { validDestinationId } from './destination-metadata.js';
 
 export interface UsageRecord { readonly count: number; readonly score: number; readonly lastOpenedAt: number }
@@ -27,8 +25,4 @@ export function recordDestinationLaunch(usage: DestinationUsage, id: string, now
   const previous = usage[id];
   return { ...usage, [id]: { count: Math.min(Number.MAX_SAFE_INTEGER, (previous?.count ?? 0) + 1),
     score: Math.min(1000000, usageScore(previous, now) + 1), lastOpenedAt: now } };
-}
-export function rankDestinations(entries: readonly DestinationEntry[], usage: DestinationUsage, now: number): readonly DestinationEntry[] {
-  return entries.map((entry, index) => ({ entry, index })).sort((a, b) =>
-    usageScore(usage[destinationId(b.entry)], now) - usageScore(usage[destinationId(a.entry)], now) || a.index - b.index).map(item => item.entry);
 }

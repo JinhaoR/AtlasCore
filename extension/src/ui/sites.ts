@@ -21,6 +21,7 @@ import { renderDestinationChange } from './destination-change-view.js';
 import { directoryCategories, directoryView, matchesSite } from './site-directory.js';
 import { orderCategories, type CategoryOrderMode } from './category-order.js';
 import { readDestinationUsage, usagePreferencesKey } from './destination-usage.js';
+import { uiText } from './ui-text.js';
 
 export interface SitesCommandResponse { readonly result?: AtlasControllerResponse; readonly view?: AdapterView; readonly error?: string; readonly opened?: boolean }
 interface SitesOptions {
@@ -53,6 +54,7 @@ export function initializeSites(options: SitesOptions) {
   let preferences = emptyDestinationPreferences(), preferencesAvailable = true, session: DestinationWorkspaceSession | null = null;
   preferences = readPreferences();
   let loadFailure = false, submitting = false, displayFailed = false, legacyFailed = false, disposed = false;
+  let pinSaving = false;
   let refreshing: Promise<void> | null = null;
   let displaying: Promise<void> | null = null;
   let entriesKey = '', savedEntries: readonly DestinationEntry[] = [];
@@ -230,14 +232,14 @@ export function initializeSites(options: SitesOptions) {
       notice('Draft could not be verified as saved. Your work is retained in this page; retry saving before closing it or submitting.', session.conflict ? 'error' : 'uncertain'); options.changed(); return;
     }
     restoreEditor(); showView('browse'); syncDialog(); queueMicrotask(focusSelection);
-    notice('Change added to saved local draft. No Vault wait has started and active policy is unchanged.', 'success');
+    notice('Change saved to your draft. Review your changes when you’re ready.', 'success');
     if (immediateDisplay) { reviewOpen = true; await submit(); }
   }
   async function stageRemoval(id: string): Promise<void> {
     const state = options.controller()?.snapshot; if (!state || !session?.loaded || submitting || activeReceipt() || session.conflict) return;
-    if (session.value.draft?.editor) { notice('Add or close the current editor before staging a removal.'); return; }
+    if (session.value.draft?.editor) { notice('Finish or close your current edit before removing a site.'); return; }
     const draft = session.value.draft ?? newDestinationDraft(newId(), baseline(state));
-    await session.setDraft(stageDestination(draft, id, null)); options.changed(); notice('Removal staged in local draft. Managed Blocked sites rules are unchanged.');
+    await session.setDraft(stageDestination(draft, id, null)); options.changed(); notice('Removal added to your draft. Review your changes to finish removing this site.');
   }
   async function submit(): Promise<void> {
     if (submitting || !session?.loaded) return;
@@ -562,6 +564,8 @@ export function initializeSites(options: SitesOptions) {
     return refreshing;
   }
   function inspect(id: string): void {
+    const tone = element('site-save-feedback').dataset.tone;
+    if (tone !== 'error' && tone !== 'uncertain') notice('');
     selection = id; detailKey = ''; searchFocused = false; remember(); showView('detail');
     const expectedFocus = document.activeElement;
     queueMicrotask(() => {
@@ -665,16 +669,26 @@ export function initializeSites(options: SitesOptions) {
     setProperty(element('sites-back'), 'hidden', !selected && !session?.value.draft?.editor);
     setProperty(element('site-selection-empty'), 'hidden', !!selected || !!session?.value.draft?.editor);
     setProperty(element('site-detail'), 'hidden', !selected || !!session?.value.draft?.editor);
-    const detail = json([selected, display?.policy, options.pins()]);
+    const detail = json([selected, display?.policy]);
     if (selected && detail !== detailKey) {
-      detailKey = detail; text('site-detail-title', selected.label); text('site-detail-category', `${selected.category} · ${pinnedDestinations([selected], options.pins()).length ? 'Pinned' : 'Not pinned'}`);
+      detailKey = detail; text('site-detail-title', selected.label); text('site-detail-category', selected.category);
       element('site-detail-hosts').replaceChildren(...selected.hostnames.map(hostname => {
         const row = document.createElement('li'), result = evaluate({ hostname }, display!.policy);
-        const subtree = display!.policy.whitelistSubdomains?.includes(hostname)
-          ? ' · Also all current/future subdomains; manual and managed blocking still apply to additional hosts.' : '';
-        setProperty(row, 'textContent', `${hostname}${hostname === selected.hostname ? ' · primary' : ''} · ${result.outcome === 'DENY' ? 'Blocked' : 'Allowed'}${display!.policy.blacklist.includes(hostname) && display!.policy.whitelist.includes(hostname) ? ' (Blocked sites overrides Allowed sites)' : ''}${subtree}`); return row;
+        const heading = document.createElement('div'); heading.className = 'site-host-heading';
+        const address = document.createElement('strong'), status = document.createElement('span'); status.className = 'pill';
+        address.textContent = hostname;
+        status.textContent = result.outcome === 'DENY' ? uiText.blocked : result.outcome === 'ALLOW' ? uiText.allowed : uiText.greylist;
+        heading.append(address, status); row.append(heading);
+        if (display!.policy.whitelistSubdomains?.includes(hostname)) {
+          const scope = document.createElement('p'); scope.className = 'note'; scope.textContent = uiText.includedSubdomains;
+          row.append(scope);
+        }
+        return row;
       }));
     }
+    text('pin-site', selected && pinnedDestinations([selected], options.pins()).length ? uiText.unpinFromHome : uiText.pinToHome);
+    setProperty(element<HTMLButtonElement>('open-site'), 'disabled', !ready || !selected);
+    setProperty(element<HTMLButtonElement>('pin-site'), 'disabled', !ready || !selected || pinSaving);
     const locked = !ready || submitting || !session?.loaded || !!session?.conflict || !!activeReceipt();
     for (const id of ['add-site', 'edit-site', 'remove-site', 'propose-site', 'save-site-display']) setProperty(element<HTMLButtonElement>(id), 'disabled', locked);
     setProperty(element<HTMLButtonElement>('cancel-site-draft'), 'disabled', submitting || !!activeReceipt());
@@ -687,11 +701,28 @@ export function initializeSites(options: SitesOptions) {
     renderBatch(presentationState ?? null);
   }
   element('add-site').addEventListener('click', () => begin()); element('edit-site').addEventListener('click', () => begin(selection));
+  element('open-site').addEventListener('click', () => {
+    if (disposed || !options.canEdit() || !snapshot()) return;
+    const selected = entries().find(entry => destinationId(entry) === selection);
+    // A directory entry is a destination, never permission. Use the same
+    // command/gate as search and Home, including blocked and temporary sites.
+    if (selected) void options.propose({ kind: 'OPEN_DESTINATION', url: `https://${selected.hostname}/` });
+  });
+  element('pin-site').addEventListener('click', () => void (async () => {
+    if (disposed || pinSaving || !options.canEdit() || !snapshot()) return;
+    const selected = entries().find(entry => destinationId(entry) === selection); if (!selected) return;
+    pinSaving = true; options.changed();
+    try {
+      const result = await options.pin(destinationId(selected), !pinnedDestinations([selected], options.pins()).length, selected.hostnames);
+      notice(result === 'SAVED' ? '' : uiText.pinSaveFailed, result === 'SAVED' ? 'status' : result === 'UNCERTAIN' ? 'uncertain' : 'error');
+    } catch { notice(uiText.pinSaveFailed, 'uncertain'); }
+    finally { pinSaving = false; options.changed(); }
+  })());
   element('remove-site').addEventListener('click', () => void stageRemoval(selection));
   element('site-form').addEventListener('submit', event => { event.preventDefault(); void stage(); }); element('save-site-display').addEventListener('click', () => void stage(true));
   element('cancel-site-draft').addEventListener('click', () => { if (session?.value.draft && !activeReceipt() && !submitting) {
     void session.setDraft({ ...session.value.draft, editor: null }).then(saved => {
-      restoreEditor(); if (saved) { showView('browse'); syncDialog(); notice('Editor closed. Staged changes preserved.'); queueMicrotask(focusSelection); }
+      restoreEditor(); if (saved) { showView('browse'); syncDialog(); notice('Editor closed. Your draft is kept.'); queueMicrotask(focusSelection); }
     });
   } });
   for (const id of ['site-name', 'site-hostname', 'site-category', 'site-access', 'site-www', 'site-extra', 'site-pin', 'site-subdomains']) element(id).addEventListener('input', persistEditor);
@@ -712,8 +743,11 @@ export function initializeSites(options: SitesOptions) {
   element('discard-destination-summary').addEventListener('click', () => element('discard-destination-draft').click());
   element('submit-destination-draft').addEventListener('click', () => void submit());
   element('discard-destination-draft').addEventListener('click', () => {
-    if (!session || activeReceipt() || submitting || !window.confirm('Discard this editable draft and entered values? Saved policy and display details will remain.')) return;
-    void session.setDraft(null); reconciliation = null; reviewOpen = false; restoreEditor(); notice('Local draft discarded. Saved policy and display details unchanged.');
+    if (!session || activeReceipt() || submitting || !window.confirm(uiText.discardDraftQuestion)) return;
+    void session.setDraft(null).then(saved => {
+      reconciliation = null; reviewOpen = false; restoreEditor();
+      notice(saved ? uiText.draftDiscarded : uiText.draftDiscardUncertain, saved ? 'status' : 'uncertain');
+    });
   });
   element('retry-destination-draft').addEventListener('click', () => void (async () => {
     if (!session) {

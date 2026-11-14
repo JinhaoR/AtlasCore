@@ -1,0 +1,207 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.3.1",
+  "firefox": "160.0",
+  "friendlySites": {
+    "baseline": true,
+    "freshProfile": {
+      "viewport": [
+        1488,
+        1058
+      ],
+      "pins": 0,
+      "visible": false,
+      "compass": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "overflow": false
+    },
+    "geometry": [
+      {
+        "viewport": [
+          1488,
+          1058
+        ],
+        "pins": 0,
+        "visible": false,
+        "compass": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          980,
+          815
+        ],
+        "pins": 0,
+        "visible": false,
+        "compass": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          540,
+          815
+        ],
+        "pins": 0,
+        "visible": false,
+        "compass": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          360,
+          458
+        ],
+        "pins": 0,
+        "visible": false,
+        "compass": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          1488,
+          1058
+        ],
+        "pins": 1,
+        "visible": false,
+        "compass": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          980,
+          815
+        ],
+        "pins": 1,
+        "visible": false,
+        "compass": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          540,
+          815
+        ],
+        "pins": 1,
+        "visible": false,
+        "compass": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          360,
+          458
+        ],
+        "pins": 1,
+        "visible": false,
+        "compass": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          1488,
+          1058
+        ],
+        "pins": 6,
+        "visible": true,
+        "compass": [
+          455.20001220703125,
+          366.3999938964844,
+          577.5999755859375,
+          577.5999755859375
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          980,
+          815
+        ],
+        "pins": 6,
+        "visible": false,
+        "compass": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          540,
+          815
+        ],
+        "pins": 6,
+        "visible": false,
+        "compass": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "overflow": false
+      },
+      {
+        "viewport": [
+          360,
+          458
+        ],
+        "pins": 6,
+        "visible": false,
+        "compass": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "overflow": false
+      }
+    ],
+    "missingOpenAction": true
+  },
+  "status": "PASS"
+}

@@ -1,4 +1,3 @@
-import { destinationId } from './home-model.js';
 import { validDestinationId } from './destination-metadata.js';
 export const usagePreferencesKey = 'atlas-destination-usage-v1';
 export const usageHalfLifeMs = 7 * 24 * 60 * 60 * 1000;
@@ -26,7 +25,4 @@ export function recordDestinationLaunch(usage, id, now) {
     const previous = usage[id];
     return { ...usage, [id]: { count: Math.min(Number.MAX_SAFE_INTEGER, (previous?.count ?? 0) + 1),
             score: Math.min(1000000, usageScore(previous, now) + 1), lastOpenedAt: now } };
-}
-export function rankDestinations(entries, usage, now) {
-    return entries.map((entry, index) => ({ entry, index })).sort((a, b) => usageScore(usage[destinationId(b.entry)], now) - usageScore(usage[destinationId(a.entry)], now) || a.index - b.index).map(item => item.entry);
 }

@@ -22,17 +22,3 @@ export function explicitDestinationHosts(hostname, includeWww, extra) {
     const unique = [...new Set(hosts)];
     return unique.length <= 100 ? unique : null;
 }
-/** Complete proposed policy; current policy is left untouched until the existing Vault commits it. */
-export function destinationPolicyCandidate(policy, previousHosts, nextHosts, access) {
-    if (access !== 'WHITELIST' && access !== 'BLACKLIST' && access !== 'PRESERVE')
-        return null;
-    if (access === 'PRESERVE')
-        return JSON.stringify([...previousHosts].sort()) === JSON.stringify([...nextHosts].sort()) ? policy : null;
-    const removed = new Set([...previousHosts, ...nextHosts]);
-    const whitelist = policy.whitelist.filter(host => !removed.has(host));
-    const blacklist = policy.blacklist.filter(host => !removed.has(host));
-    const scopes = policy.whitelistSubdomains?.filter(host => !removed.has(host) || access === 'WHITELIST' && nextHosts.includes(host));
-    return { whitelist: access === 'WHITELIST' ? [...whitelist, ...nextHosts] : whitelist,
-        blacklist: access === 'BLACKLIST' ? [...blacklist, ...nextHosts] : blacklist,
-        ...(scopes !== undefined ? { whitelistSubdomains: [...scopes] } : {}) };
-}

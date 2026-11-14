@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readFile, access } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { resolve, dirname, relative, isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 /** Check the upstream bytes, before copying and again in the shipped folder. */
@@ -23,25 +23,36 @@ export async function verifyDistribution(directory) {
   const manifest = JSON.parse(await readFile(resolve(directory, 'manifest.json'), 'utf8'));
   const files = [...manifest.background.scripts, ...manifest.content_scripts.flatMap(entry => entry.js),
     manifest.options_ui.page, ...Object.values(manifest.icons), 'ui/main.js', 'ui/style.css'];
-  // Older frozen releases predate the parser-time presentation shell.
-  const ui = await readFile(resolve(directory, manifest.options_ui.page), 'utf8');
-  if (ui.includes('src="startup.js"')) files.push('ui/startup.js');
-  // Keep frozen releases verifiable without requiring newer presentation assets.
-  if (ui.includes('src="theme-startup.js"')) files.push('ui/theme-startup.js', 'ui/fonts.css', 'ui/themes/default.css', 'ui/themes/light-test.css');
-  if (ui.includes('themes/celestial.css')) files.push('ui/themes/celestial.css', 'ui/themes/celestial/chart.svg', 'ui/themes/celestial/orbit.svg', 'ui/themes/celestial/mark.svg');
-  if (ui.includes('themes/celestial.css') && (await readFile(resolve(directory, 'ui/themes/celestial.css'), 'utf8')).includes('instrument.svg')) files.push('ui/themes/celestial/instrument.svg', 'ui/themes/celestial/doppelmayr-1730.jpg', 'ui/themes/parchment/aguiar-1492.jpg', 'ui/themes/ARTWORK.md');
-  if (ui.includes('themes/parchment.css')) files.push('ui/themes/parchment.css', 'ui/themes/parchment/paper.svg', 'ui/themes/parchment/rose.svg', 'ui/themes/parchment/mark.svg');
-  if (ui.includes('themes/celestial.css') && (await readFile(resolve(directory, 'ui/themes/celestial.css'), 'utf8')).includes('hemisphere-ink.webp')) files.push('ui/themes/celestial/hemisphere-ink.webp', 'ui/themes/celestial/directory.svg', 'ui/themes/parchment/atlantic-ink.webp', 'ui/themes/parchment/mediterranean-ink.webp', 'ui/themes/parchment/directory.svg');
-    if (ui.includes('themes/parchment.css') && (await readFile(resolve(directory, 'ui/themes/parchment.css'), 'utf8')).includes('bearings.svg')) files.push('ui/themes/parchment/bearings.svg', 'ui/themes/celestial/western-figures.webp', 'ui/themes/celestial/eastern-figures.webp', 'ui/themes/celestial/doppelmayr-1730-detail.jpg');
-  for (const [theme, source] of [['celestial', 'de-wit-1680.jpg'], ['parchment', 'oliva-17c.jpg']]) {
-    if (ui.includes(`themes/${theme}.css`) && (await readFile(resolve(directory, `ui/themes/${theme}.css`), 'utf8')).includes('historical-home.webp')) {
-      files.push(`ui/themes/${theme}/historical-home.webp`, `ui/themes/${theme}/historical-workspace.webp`, `ui/themes/${theme}/${source}`, 'ui/themes/ARTWORK.md');
-    }
-  }
   if (manifest.browser_action?.default_popup) {
     files.push(manifest.browser_action.default_popup, 'ui/popup.js', 'ui/popup.css');
   }
   await Promise.all(files.map(file => access(resolve(directory, file))));
+  // Follow the resources actually declared by each page, including parser-time
+  // scripts, font preloads and every linked theme. Frozen releases only require
+  // their own declarations; signed runtime inventories remain independently exact.
+  const base = resolve(directory);
+  function localFile(parent, url) {
+    if (/^(?:[a-z][\w+.-]*:|[\\/])/i.test(url)) throw new Error('NONLOCAL_UI_RESOURCE');
+    const path = resolve(parent, url), name = relative(base, path);
+    if (name.startsWith('..') || isAbsolute(name)) throw new Error('NONLOCAL_UI_RESOURCE');
+    return path;
+  }
+  for (const page of new Set([manifest.options_ui.page, manifest.browser_action?.default_popup].filter(Boolean))) {
+    const parent = dirname(resolve(base, page));
+    const html = await readFile(resolve(base, page), 'utf8');
+    for (const [, url] of html.matchAll(/<(?:script|link|img)\b[^>]*\b(?:src|href)="([^"]+)"/g)) {
+      const path = localFile(parent, url);
+      await access(path);
+      if (!url.endsWith('.css')) continue;
+      const css = (await readFile(path, 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+      // Theme URL tokens resolve at their consuming style.css/popup.css, not
+      // at ui/themes/*.css. All application styles consume them at the page root.
+      for (const [, resource] of css.matchAll(/url\(\s*["']?([^\s"')]+)["']?\s*\)/g)) {
+        if (!resource.startsWith('#')) await access(localFile(parent, resource));
+      }
+    }
+    if (html.includes('src="theme-startup.js"')) await access(resolve(parent, 'themes/ARTWORK.md'));
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

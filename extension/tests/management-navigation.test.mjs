@@ -5,6 +5,52 @@ import { initializeSettingsNavigation, settingsSection, settingsSections } from 
 import { destinationChangeView } from '../dist/lib/ui/destination-change-view.js';
 import { initializeSites } from '../dist/lib/ui/sites.js';
 
+test('All Sites opens through the ordinary Firefox gate and cannot bypass blocked or unavailable authority', async t => {
+  const f=await sitesFixture(t),before=structuredClone(f.controller.getView().snapshot),launches=[];
+  const send=f.settings.propose;
+  f.settings.propose=async command=>{const response=await send(command);launches.push({command,response});return response;};
+  const select=id=>{f.el('sites-list').children.find(n=>n.dataset.destinationId===id).click();f.sites.render(true);};
+  select(original.id);f.el('open-site').click();await f.flush();
+  assert.deepEqual(launches[0].command,{kind:'OPEN_DESTINATION',url:'https://root.example/'});
+  assert.equal(launches[0].response.opened,true);
+  assert.deepEqual(await f.firefox.request(launches[0].response.tabId,'https://root.example/'),{});
+  select('host:blocked.example');f.el('open-site').click();await f.flush();
+  assert.equal((await f.firefox.visit(launches[1].response.tabId,'https://blocked.example/')).cancel,true);
+  f.available(false);f.sites.render(false);assert.equal(f.el('open-site').disabled,true);
+  f.el('open-site').fire('click');await f.flush();assert.equal(launches.length,2);
+  assert.deepEqual(f.controller.getView().snapshot.policy,before.policy);
+  assert.deepEqual(f.controller.getView().snapshot.accessState.grants,[]);assert.equal(f.proposals(),0);
+});
+
+test('Pin to Home is an acknowledged presentation save; failure keeps the previous choice and retry', async t => {
+  const f=await sitesFixture(t),before=structuredClone(f.controller.getView().snapshot.policy);
+  f.el('sites-list').children.find(n=>n.dataset.destinationId===original.id).click();f.sites.render(true);
+  const hostRow=f.el('site-detail-hosts').children[0];
+  f.failPin(true);f.el('pin-site').click();await f.flush();f.sites.render(true);
+  assert.deepEqual(f.settings.pins(),[]);assert.equal(f.el('pin-site').textContent,'Pin to Home');
+  assert.equal(f.el('site-save-feedback').dataset.tone,'error');
+  f.failPin(false);f.el('pin-site').click();await f.flush();f.sites.render(true);
+  assert.deepEqual(f.settings.pins(),[original.id]);assert.equal(f.el('pin-site').textContent,'Unpin from Home');
+  assert.equal(f.el('site-detail-hosts').children[0],hostRow,'pin saves retain the existing address row');
+  assert.equal(f.el('site-save-feedback').hidden,true);
+  f.el('pin-site').click();await f.flush();f.sites.render(true);assert.deepEqual(f.settings.pins(),[]);
+  assert.deepEqual(f.controller.getView().snapshot.policy,before);assert.equal(f.proposals(),0);
+});
+
+test('discard feedback waits for acknowledgement and opening details retains save failures', async t => {
+  const f=await sitesFixture(t);f.edit();f.el('site-name').value='Unsaved draft';f.el('site-name').fire('input');await f.flush();f.sites.render(true);
+  const saved=structuredClone((await f.raw.load()).value);
+  f.draftMode('FAILED');f.el('discard-destination-draft').click();await f.flush();f.sites.render(true);
+  assert.deepEqual((await f.raw.load()).value,saved);
+  assert.equal(f.el('site-save-feedback').dataset.tone,'uncertain');
+  assert.doesNotMatch(f.el('site-save-feedback').textContent,/^Draft discarded/);
+  f.el('sites-list').children[0].click();assert.equal(f.el('site-save-feedback').hidden,false);
+  f.draftMode('OK');f.el('retry-destination-draft').click();await f.flush();f.sites.render(true);
+  assert.equal((await f.raw.load()).value.draft,null);
+  assert.notEqual(f.el('site-save-feedback').dataset.tone,'uncertain');
+  f.el('sites-list').children[0].click();assert.equal(f.el('site-save-feedback').hidden,true);
+});
+
 test('Home startup defers hidden directory rows while retaining draft ownership and later selection', async t => {
   const f = await sitesFixture(t), before = structuredClone(f.controller.getView().snapshot), writes = f.writes(), count = f.el('sites-list').children.length;
   f.el('sites-section').hidden = true; f.el('vault-section').hidden = true;

@@ -143,7 +143,7 @@ Unit/adapter regressions cover bounded/expired/corrupt/unavailable icon caching,
 readonly asset reuse, navigation scroll ownership and hidden directory deferral.
 Full suites, type checks, staged-runtime verification, isolated upgrade/rollback
 and reviewer reproduction are recorded in
-[release evidence](evidence/firefox-release-0.2.1.json). This report never substitutes
+[release evidence](version-history.md#v0-2-1). This report never substitutes
 development results for the packaged-runtime checks.
 
 Limits: native evidence is Windows Firefox 159 with synthetic data, not physical

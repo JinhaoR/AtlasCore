@@ -16,9 +16,11 @@ def verify(c,h,shot):
         home_art=js('return getComputedStyle(document.body).backgroundImage;')
         click('#show-sites')
         directory_art=js('return getComputedStyle(document.body).backgroundImage;')
-        assert home_art!=directory_art and 'historical-home.webp' in home_art and 'historical-workspace.webp' in directory_art
+        # Both surfaces deliberately use the plain theme color until the owner
+        # supplies a background. Keep checking the actual rendered surfaces.
+        assert home_art == 'none' and directory_art == 'none'
         click('#show-home')
-        result[theme]['pageSpecificArtwork']=True
+        result[theme]['plainPageBackgrounds']=True
         result[theme]['crops']=[]
         for width,height in [(1366,900),(2560,1440)]:
             c.call('WebDriver:SetWindowRect',width=width,height=height);time.sleep(.2)
@@ -56,7 +58,7 @@ def verify(c,h,shot):
         click('#show-sites');click('.site-row');wait('return document.querySelector("#sites-editor").open;','dialog');click('#edit-site');shot(theme+'-editor')
         click('#cancel-site-draft');wait('return !document.querySelector("#sites-editor").open;','closed editor')
         js('window.__confirm=window.confirm;window.confirm=()=>true;document.querySelector("#discard-destination-draft").click();window.confirm=window.__confirm;')
-        click('#show-settings');click('#show-vault');shot(theme+'-vault');click('#show-home')
+        click('#show-settings');click('#show-vault');shot(theme+'-vault');click('#show-access')
         # Paint-only state samples use actual app classes, no fake permission transitions.
         # Pause the existing visible-page refresh while synthetic DOM samples are
         # photographed; otherwise an unrelated authoritative read can erase them.
@@ -72,6 +74,7 @@ def verify(c,h,shot):
         c.call('WebDriver:SetWindowRect',width=1752,height=1202)
         c.call('Marionette:SetContext',value='chrome');c.script('gBrowser.selectedBrowser.fullZoom=2;');c.call('Marionette:SetContext',value='content');time.sleep(.3)
         assert js('return document.documentElement.scrollWidth<=innerWidth+1;');shot(theme+'-zoom-200')
+        click('#show-home');shot(theme+'-home-zoom-200')
         c.call('Marionette:SetContext',value='chrome');c.script('gBrowser.selectedBrowser.fullZoom=1;');c.call('Marionette:SetContext',value='content')
         c.call('WebDriver:Refresh');wait('return !!document.querySelector(".compass-pin:not(:disabled)");','reload pins')
         assert js('return document.documentElement.dataset.theme;')==theme

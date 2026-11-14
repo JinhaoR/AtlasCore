@@ -43,6 +43,8 @@ def run_release_upgrade(client, ui_handle, ui_url, port, wait_for, restart_brows
         return client.script('''const done=arguments[0],o=indexedDB.open('atlas-destination-drafts-v1');o.onsuccess=()=>{const db=o.result,t=db.transaction('workspace','readonly'),r=t.objectStore('workspace').get('current');t.oncomplete=()=>{done(r.result);db.close()};};''', asynchronous=True)
     def layout():
         return client.script('''const done=arguments[0],o=indexedDB.open('atlas-home-layout-v1');o.onsuccess=()=>{const db=o.result,t=db.transaction('layout','readonly'),r=t.objectStore('layout').get('current');t.oncomplete=()=>{done(r.result);db.close()};};''', asynchronous=True)
+    def directory_order():
+        return client.script('''const done=arguments[0],o=indexedDB.open('atlas-home-layout-v1');o.onsuccess=()=>{const db=o.result,t=db.transaction('layout','readonly'),r=t.objectStore('layout').get('category-order-v1');t.oncomplete=()=>{done(r.result ?? null);db.close()};};''', asynchronous=True)
     def presentation():
         return client.script('return Object.fromEntries(["atlas-home-pins-v1","atlas-destinations-v1"].map(k=>[k,localStorage.getItem(k)]));')
     def bookmarks():
@@ -72,57 +74,63 @@ def run_release_upgrade(client, ui_handle, ui_url, port, wait_for, restart_brows
     client.script('document.getElementById("site-pin").checked=true;document.getElementById("site-pin").dispatchEvent(new Event("input",{bubbles:true}));')
     saved();client.script('document.getElementById("save-site-display").click();')
     wait_for(lambda: workspace() and (workspace()['value'].get('receipt') or {}).get('phase') == 'DONE', 'signed display save')
-    if baseline_version in ('0.2.5', '0.2.6', '0.2.7', '0.2.8'):
+    if baseline_version in ('0.2.5', '0.2.6', '0.2.7', '0.2.8', '0.3.1'):
         client.script('document.getElementById("show-settings").click();document.querySelector("[data-settings-panel=home-settings]").click();')
     else:
         client.script('document.getElementById("show-home").click();document.getElementById("customize-home").click();')
     wait_for(lambda: client.script('return [...document.querySelectorAll("[data-layout-category]")].some(r=>r.dataset.layoutCategory==="release fixtures");'), 'custom category control')
-    seed_layout = layout()
-    if baseline_version in ('0.2.6', '0.2.7', '0.2.8'):
+    seed_layout = layout(); seed_order = directory_order() if baseline_version == '0.3.1' else None
+    if baseline_version == '0.3.1':
+        client.script('document.getElementById("show-sites").click();document.getElementById("sites-categories-back").click();')
+        wait_for(lambda: client.script('const b=[...document.querySelectorAll("#sites-categories .category-shortcut")].find(b=>b.dataset.categoryKey==="release fixtures");if(!b)return false;b.focus();b.dispatchEvent(new KeyboardEvent("keydown",{key:"ArrowUp",altKey:true,bubbles:true}));return true;'), 'All Sites keyboard category reorder')
+        wait_for(lambda: (v:=directory_order()) and v!=seed_order, 'acknowledged directory order save')
+        client.script('document.getElementById("show-settings").click();document.querySelector("[data-settings-panel=home-settings]").click();')
+    elif baseline_version in ('0.2.6', '0.2.7', '0.2.8'):
         client.script('document.getElementById("show-home").click();')
         wait_for(lambda: client.script('const b=[...document.querySelectorAll(".category-shortcut")].find(b=>b.dataset.categoryKey==="release fixtures");if(!b)return false;b.focus();b.dispatchEvent(new KeyboardEvent("keydown",{key:"ArrowUp",altKey:true,bubbles:true}));return true;'), 'Home keyboard category reorder')
         client.script('document.getElementById("show-settings").click();document.querySelector("[data-settings-panel=home-settings]").click();')
     else:
         wait_for(lambda: client.script('const r=[...document.querySelectorAll("[data-layout-category]")].find(r=>r.dataset.layoutCategory==="release fixtures");const b=r?.querySelector("[data-layout-action]:not(:disabled)");if(!b)return false;b.click();return true;'), 'enabled category reorder')
-    wait_for(lambda: (v:=layout()) and v['revision']>seed_layout['revision'] and v['value']!=seed_layout['value'], 'acknowledged layout save')
-    if baseline_version in ('0.2.5', '0.2.6', '0.2.7', '0.2.8'):
-        if baseline_version in ('0.2.6', '0.2.7', '0.2.8'):
+    if baseline_version != '0.3.1':
+        wait_for(lambda: (v:=layout()) and v['revision']>seed_layout['revision'] and v['value']!=seed_layout['value'], 'acknowledged layout save')
+    if baseline_version in ('0.2.5', '0.2.6', '0.2.7', '0.2.8', '0.3.1'):
+        if baseline_version in ('0.2.6', '0.2.7', '0.2.8', '0.3.1'):
             client.script('document.querySelector("[data-layout-category=\\"release fixtures\\"] .category-icon-choice").click();document.querySelector(".category-icon-picker:popover-open [data-icon=feather]").click();document.getElementById("advanced-pin-settings").open=true;')
         else:
             client.script('const s=document.querySelector("[data-layout-category=\\"release fixtures\\"] select");s.value="feather";s.dispatchEvent(new Event("change",{bubbles:true}));document.getElementById("advanced-pin-settings").open=true;')
         wait_for(lambda: (v:=category_icons()) and any(e['key']=='release fixtures' and e['icon']=='feather' for e in v['value']['entries']), 'signed category icon save')
     else:
         client.script('document.getElementById("close-home-customization").click();')
-    if baseline_version in ('0.2.3', '0.2.4', '0.2.5', '0.2.6', '0.2.7', '0.2.8'):
+    if baseline_version in ('0.2.3', '0.2.4', '0.2.5', '0.2.6', '0.2.7', '0.2.8', '0.3.1'):
         wait_for(lambda: client.script('return !document.getElementById("edit-pins").disabled;'), 'signed bookmark editor')
         client.script('document.getElementById("edit-pins").click();')
         wait_for(lambda: client.script('return !!document.querySelector("#bookmark-pages [data-field=url]");'), 'signed bookmark fields')
         client.script('''for(const [field,value] of [['label','Release saved page'],['url','https://root.localhost/release?fixture=page#chapter']]){const e=document.querySelector('#bookmark-pages [data-field='+field+']');e.value=value;e.dispatchEvent(new Event('input',{bubbles:true}));}document.getElementById('save-bookmarks').click();''')
         wait_for(lambda: client.script('return !document.getElementById("bookmark-editor").open;') and bookmarks(), 'signed bookmark save')
-    if baseline_version == '0.2.8':
+    if baseline_version in ('0.2.8','0.3.1'):
         wait_for(lambda: (v:=bookmark_sync()) and v['value']['enabled'] and v['value']['issue']=='NONE' and not v['value']['pending'], 'signed automatic toolbar connection')
         assert bookmark_sync()['value']['scope'] == 'toolbar'
     elif baseline_version in ('0.2.4', '0.2.5', '0.2.6', '0.2.7'):
         # Connect on the actual signed baseline, accepting the native optional
         # permission only in this disposable profile. Both versions support it.
         client.script('document.getElementById("show-settings").click();document.querySelector("[data-settings-panel=home-settings]").click();')
-        if baseline_version not in ('0.2.6', '0.2.7', '0.2.8'):
+        if baseline_version not in ('0.2.6', '0.2.7', '0.2.8', '0.3.1'):
             client.script('document.getElementById("settings-connect-bookmarks").click();')
             wait_for(lambda: client.script('const b=document.getElementById("grant-bookmark-permission");return !b.hidden&&!b.disabled;'), 'signed bookmark permission action')
-        button=client.call('WebDriver:FindElement',using='css selector',value='#settings-connect-bookmarks' if baseline_version in ('0.2.6', '0.2.7', '0.2.8') else '#grant-bookmark-permission')
+        button=client.call('WebDriver:FindElement',using='css selector',value='#settings-connect-bookmarks' if baseline_version in ('0.2.6', '0.2.7', '0.2.8', '0.3.1') else '#grant-bookmark-permission')
         client.call('WebDriver:ElementClick',id=button['element-6066-11e4-a52e-4f735466cecf'])
         client.call('Marionette:SetContext',value='chrome')
         try:
             wait_for(lambda: client.script('return !!document.getElementById("addon-webext-permissions-notification")?.button;'), 'signed native optional permission prompt')
             client.script('document.getElementById("addon-webext-permissions-notification").button.click();')
         finally: client.call('Marionette:SetContext',value='content')
-        if baseline_version not in ('0.2.6', '0.2.7', '0.2.8'):
+        if baseline_version not in ('0.2.6', '0.2.7', '0.2.8', '0.3.1'):
             wait_for(lambda: client.script('return !document.getElementById("sync-setup").hidden;'), 'signed bookmark setup')
             client.script('document.getElementById("preview-bookmark-sync").click();')
             wait_for(lambda: client.script('return !document.getElementById("apply-bookmark-sync").disabled;'), 'signed merge preview')
             client.script('document.getElementById("apply-bookmark-sync").click();')
         wait_for(lambda: (v:=bookmark_sync()) and v['value']['enabled'] and v['value']['issue']=='NONE' and not v['value']['pending'], 'signed bookmark connection')
-        if baseline_version in ('0.2.6', '0.2.7', '0.2.8'):
+        if baseline_version in ('0.2.6', '0.2.7', '0.2.8', '0.3.1'):
             assert bookmark_sync()['value']['scope'] == 'toolbar'
         else:
             wait_for(lambda: client.script('return !document.getElementById("close-bookmark-sync").disabled;'), 'signed connection acknowledged')
@@ -151,7 +159,9 @@ def run_release_upgrade(client, ui_handle, ui_url, port, wait_for, restart_brows
     assert before['policy']['blacklist'] and before_workspace['value']['draft']['changes']
     assert before_workspace['value']['draft']['editor']['name'] == 'Unfinished fields retained'
     assert before['accessState']['grants'] and before['accessState']['pendingRequests']
-    observations = []; expected_icons = category_icons()
+    before_order = directory_order() if baseline_version == '0.3.1' else None
+    observations = []; expected_icons = category_icons(); expected_theme = None
+    themed_candidate = tuple(map(int, candidate_version.split('.'))) >= (0, 3, 1)
     # A full restart removes the temporary overlay and restores the actual signed
     # baseline. Never uninstall: its stable extension origin keeps the real data.
     for label, overlay in [('upgrade', True), ('candidate-restart', True), ('rollback', False)]:
@@ -169,6 +179,18 @@ def run_release_upgrade(client, ui_handle, ui_url, port, wait_for, restart_brows
         assert bookmarks() == before_bookmarks, label
         assert bookmark_sync() == before_sync, label
         assert category_icons() == expected_icons, label
+        if baseline_version == '0.3.1': assert directory_order() == before_order, label
+        if themed_candidate:
+            if label == 'upgrade':
+                client.script('document.getElementById("show-settings").click();document.querySelector("[data-settings-panel=appearance-settings]").click();const e=document.getElementById("atlas-theme");e.value="parchment";e.dispatchEvent(new Event("change",{bubbles:true}));')
+                wait_for(lambda: client.script('return document.documentElement.dataset.theme==="parchment";'), 'acknowledged candidate appearance')
+                expected_theme = client.script('return localStorage.getItem("atlas-theme-v1");')
+                assert expected_theme is not None
+            assert client.script('return localStorage.getItem("atlas-theme-v1");') == expected_theme, label
+            if overlay:
+                assert client.script('return document.documentElement.dataset.theme;') == 'parchment', label
+                client.script('document.getElementById("show-access").click();')
+                wait_for(lambda: client.script('return document.body.dataset.page==="access" && !document.querySelector("#access-section").hidden && document.querySelectorAll("#pending-access-list li").length>=2;'), 'pending request and active grant on access page')
         if label == 'upgrade' and baseline_version == '0.2.4':
             # Save the new independent presentation record through the actual UI.
             # Restart and rollback must retain it without touching the older layout.
@@ -180,5 +202,5 @@ def run_release_upgrade(client, ui_handle, ui_url, port, wait_for, restart_brows
             assert layout() == before_layout and bookmarks() == before_bookmarks
         client.script('document.getElementById("show-sites").click();')
         wait_for(lambda: client.script('return document.getElementById("site-name").value==="Unfinished fields retained";'), 'restored unfinished editor')
-        observations.append({'step': label, 'version': expected_version, 'policySettingsPinsCategoriesDraftsPreserved': True, 'namedPagesPreserved': True, 'pendingProposalRequestGrantDeadlinesPreserved': True, 'categoryIconsPreserved': category_icons() == expected_icons, 'bookmarkConnectionPreserved': bookmark_sync() == before_sync})
+        observations.append({'step': label, 'version': expected_version, 'policySettingsPinsCategoriesDraftsPreserved': True, 'namedPagesPreserved': True, 'pendingProposalRequestGrantDeadlinesPreserved': True, 'categoryIconsPreserved': category_icons() == expected_icons, 'bookmarkConnectionPreserved': bookmark_sync() == before_sync, 'themePreferencePreserved': themed_candidate and client.script('return localStorage.getItem("atlas-theme-v1");') == expected_theme})
     return {'suite': 'release-upgrade-rollback', 'baseline': 'signed '+baseline_version, 'steps': observations, 'fullFirefoxRestarts': 3, 'normalProfileAccessed': False, 'signedArtifactsModified': False, 'mechanism': 'signed baseline plus temporary candidate overlay; restart without overlay restores the original signed baseline, without uninstalling'}

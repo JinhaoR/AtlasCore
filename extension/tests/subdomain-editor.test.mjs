@@ -142,7 +142,7 @@ test('UI opt-in is off by default and reaches authority only through the existin
     context: { contextId: 'scope-check', journeyId: null } })).decision.reason, 'MANAGED_BLACKLISTED');
   assert.equal(f.sites.metadata().some(item => Object.hasOwn(item, 'includeSubdomains')), false);
   f.edit('host:su.se'); f.sites.render(true);
-  assert.match(f.el('site-detail-hosts').children.map(node => node.textContent).join('\n'), /all current\/future subdomains/);
+  assert.match(f.el('site-detail-hosts').children.map(node => node.textContent).join('\n'), /all current and future subdomains/);
   assert.equal(f.proposals(), 1);
 });
 
@@ -158,6 +158,27 @@ test('changing a checked scope to a public suffix gives a field error without st
   assert.equal(f.sites.session().value.draft.changes.length, 0);
   assert.equal(f.sites.session().value.draft.editor.hostname, 'co.uk', 'raw input is preserved');
   assert.deepEqual(f.controller.getView().snapshot, before); assert.equal(f.proposals(), 0);
+});
+
+test('Add Site explains shared hosting suffixes and allows a specific tenant scope', async t => {
+  const f = await sitesFixture(t), before = structuredClone(f.controller.getView().snapshot);
+  f.el('add-site').fire('click');
+  f.el('site-name').value = 'Research'; f.el('site-name').fire('input');
+  f.el('site-hostname').value = 'github.io'; f.el('site-hostname').fire('input');
+  assert.equal(f.el('site-subdomains').disabled, true);
+  assert.equal(f.el('site-subdomains-help').hidden, false);
+  assert.match(f.el('site-subdomains-help').textContent, /github\.io is a shared hosting suffix/);
+  assert.match(f.el('site-subdomains-help').textContent, /your-site\.github\.io/);
+  f.el('site-hostname').value = 'research.github.io'; f.el('site-hostname').fire('input');
+  assert.equal(f.el('site-subdomains').disabled, false);
+  f.el('site-subdomains').checked = true; f.el('site-subdomains').fire('input');
+  await f.sites.idle();
+  await f.sites.session().load(); f.sites.render(true);
+  assert.equal(f.el('site-subdomains').checked, true);
+  await f.stage();
+  assert.equal(f.sites.session().value.draft.changes[0].after.includeSubdomains, true);
+  assert.deepEqual(f.controller.getView().snapshot, before);
+  assert.equal(f.proposals(), 0);
 });
 
 test('selecting Blacklist does not advertise the previously checked broad allow scope', async t => {

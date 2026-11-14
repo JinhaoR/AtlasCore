@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { evaluate } from '@atlas/core';
-import { commonWwwCounterpart, explicitDestinationHosts, destinationPolicyCandidate } from '../dist/lib/ui/destination-policy.js';
+import { commonWwwCounterpart, explicitDestinationHosts } from '../dist/lib/ui/destination-policy.js';
 import { readDestinationPreferences, reconcileDestinationPreferences, replaceDestinationMetadata } from '../dist/lib/ui/destination-metadata.js';
 import { destinationIndex, policyDestinationIndex } from '../dist/lib/ui/destinations.js';
 import { destinationId, pinnedDestinations, updateDestinationPin } from '../dist/lib/ui/home-model.js';
-import { rankDestinations, recordDestinationLaunch, readDestinationUsage, usageHalfLifeMs } from '../dist/lib/ui/destination-usage.js';
+import { usageScore, recordDestinationLaunch, readDestinationUsage, usageHalfLifeMs } from '../dist/lib/ui/destination-usage.js';
 import { saveDestinationLaunch } from '../dist/lib/background/destination-usage.js';
 
 test('PSL-aware optional www scope names exact terms without parent or wildcard inference', () => {
@@ -20,21 +20,6 @@ test('PSL-aware optional www scope names exact terms without parent or wildcard 
   assert.equal(explicitDestinationHosts('google.com', false, '*.google.com'), null);
   const policy = { whitelist: explicitDestinationHosts('google.com', true, ''), blacklist: [] };
   assert.equal(evaluate('mail.google.com', policy).outcome, 'GREYLIST');
-});
-
-test('destination proposals change only explicitly selected terms and never mutate active policy', () => {
-  const policy = { whitelist: ['old.example', 'retained.example'], blacklist: ['blocked.example'] };
-  const before = structuredClone(policy);
-  const candidate = destinationPolicyCandidate(policy, ['old.example'], ['example.com', 'www.example.com'], 'WHITELIST');
-  assert.deepEqual(policy, before);
-  assert.deepEqual(candidate, { whitelist: ['retained.example', 'example.com', 'www.example.com'], blacklist: ['blocked.example'] });
-  assert.equal(evaluate('example.com', policy).outcome, 'GREYLIST');
-  const removal = destinationPolicyCandidate(policy, ['old.example'], [], 'WHITELIST');
-  assert.deepEqual(removal.whitelist, ['retained.example']);
-  const mixed = { whitelist: ['example.com', 'www.example.com'], blacklist: ['www.example.com'] };
-  assert.equal(destinationPolicyCandidate(mixed, mixed.whitelist, [...mixed.whitelist].reverse(), 'PRESERVE'), mixed);
-  assert.equal(destinationPolicyCandidate(mixed, ['example.com'], ['example.com', 'www.example.com'], 'PRESERVE'), null);
-  assert.equal(destinationPolicyCandidate(mixed, ['example.com'], ['example.com'], 'UNSUPPORTED'), null);
 });
 
 const custom = { id: 'host:example.com', label: 'Example research', category: 'Scholar / Research',
@@ -90,17 +75,17 @@ test('malformed metadata remains presentation-only and existing exact policy ent
 
 test('usage decays deterministically, aliases share an identity, and explicit pins keep their order', () => {
   const entries = destinationIndex({ whitelist: ['github.com', 'www.github.com', 'arxiv.org', 'example.com', 'www.example.com'], blacklist: [] }, [custom]);
-  assert.deepEqual(rankDestinations(entries, {}, 0), entries);
+  assert.equal(usageScore(undefined, 0), 0);
   const customEntry = entries.find(entry => entry.id === custom.id);
   let usage = recordDestinationLaunch({}, destinationId(customEntry), 0);
-  assert.equal(rankDestinations(entries, usage, 0)[0].id, custom.id);
+  assert.equal(usageScore(usage[custom.id], 0), 1);
   assert.equal(destinationId(destinationIndex({ whitelist: ['www.example.com'], blacklist: [] }, [custom])[0]), custom.id);
   usage = recordDestinationLaunch(usage, 'service:github.com', usageHalfLifeMs * 4);
-  assert.equal(rankDestinations(entries, usage, usageHalfLifeMs * 4)[0].label, 'GitHub');
+  assert.equal(usageScore(usage[custom.id], usageHalfLifeMs * 4), 1 / 16);
+  assert.equal(usageScore(usage['service:github.com'], usageHalfLifeMs * 4), 1);
   const pins = ['service:arxiv.org', custom.id, 'service:github.com'];
-  assert.deepEqual(pinnedDestinations(rankDestinations(entries, usage, usageHalfLifeMs * 4), pins).map(destinationId), pins);
+  assert.deepEqual(pinnedDestinations([...entries].reverse(), pins).map(destinationId), pins);
   assert.deepEqual(readDestinationUsage({ [custom.id]: { count: -1, score: 1, lastOpenedAt: 0 } }), {});
-  assert.deepEqual(rankDestinations(entries, usage, usageHalfLifeMs * 4), rankDestinations(entries, usage, usageHalfLifeMs * 4));
 });
 
 test('local usage persistence groups reviewed aliases and ignores unknown and denied terms', () => {

@@ -1,5 +1,11 @@
 # Destination and Firefox polishing (D30)
 
+The 0.3.2 [site-controls refinement](home-organization.md#fresh-profiles-and-site-actions-032)
+adds ordinary gated opening and acknowledged pin toggling to the read-only site
+dialog. Plain-language address/status rows and a collapsed change explanation
+replace implementation-oriented prose. Editing, review, Vault and receipts keep
+their existing semantics; opening or pinning does not submit a draft.
+
 The final [0.1.19 quality pass](quality-pass-0.1.19.md) keeps one active editor
 instead of simultaneous committed detail/editor panes, makes staged review and
 completed receipts disclosures, and keeps routine editing feedback local. The

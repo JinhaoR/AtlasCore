@@ -13,10 +13,17 @@ const { unzipSync, zipSync } = createRequire(new URL('../../extension/package.js
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const powershell = process.env.ATLAS_TEST_POWERSHELL || 'powershell.exe';
 const fixtures = await mkdtemp(join(root, '.tools/deployment-tests-'));
-const oldName = (await readdir(join(root, 'extension/release/0.1.14/signed'))).find(n => n.endsWith('.xpi'));
-const newName = (await readdir(join(root, 'extension/release/0.1.15/signed'))).find(n => n.endsWith('.xpi'));
-const oldBytes = await readFile(join(root, 'extension/release/0.1.14/signed', oldName));
-const newBytes = await readFile(join(root, 'extension/release/0.1.15/signed', newName));
+const newName = (await readdir(join(root, 'extension/release/0.2.8/signed'))).find(n => n.endsWith('.xpi'));
+const newBytes = await readFile(join(root, 'extension/release/0.2.8/signed', newName));
+// Only the retained signed release is verified as a deployment source. Installed
+// older/newer packages below are synthetic file-operation fixtures, never loaded
+// in Firefox or presented as signed releases.
+function installedFixture(version) {
+  const manifest = JSON.parse(Buffer.from(unzipSync(newBytes)['manifest.json']).toString());
+  manifest.version = version;
+  return zipSync({ 'manifest.json': Buffer.from(JSON.stringify(manifest)), 'background.js': Buffer.from('synthetic installed-package fixture') });
+}
+const oldBytes = installedFixture('0.2.7');
 const oldHash = digest(oldBytes), newHash = digest(newBytes);
 
 async function fixture({ isolatedSource = false, current = oldBytes } = {}) {
@@ -40,13 +47,13 @@ async function fixture({ isolatedSource = false, current = oldBytes } = {}) {
     for (const name of ['release.mjs', 'verify-bundle.mjs']) await cp(join(root, 'extension/scripts', name), join(source, 'extension/scripts', name));
     await cp(join(root, 'extension/package.json'), join(source, 'extension/package.json'));
     await cp(join(root, 'extension/node_modules/fflate'), join(source, 'extension/node_modules/fflate'), { recursive: true });
-    await cp(join(root, 'extension/release/0.1.15'), join(source, 'extension/release/0.1.15'), { recursive: true });
+    await cp(join(root, 'extension/release/0.2.8'), join(source, 'extension/release/0.2.8'), { recursive: true });
   }
   return { directory, distribution, target, policyPath, policy, source,
-    backup: join(distribution, 'atlas-backups/atlas-0.1.14-backup.xpi') };
+    backup: join(distribution, 'atlas-backups/atlas-0.2.7-backup.xpi') };
 }
 
-function ps(f, body, { mocked = true, version = '0.1.15' } = {}) {
+function ps(f, body, { mocked = true, version = '0.2.8' } = {}) {
   const data = Buffer.from(JSON.stringify({ ...f, node: process.execPath, version })).toString('base64');
   const code = `
 $ErrorActionPreference = 'Stop'
@@ -69,14 +76,14 @@ async function unchanged(f) { assert.equal(await hashFile(f.target), oldHash); a
 function succeeds(result) { assert.equal(result.status, 0, result.output); }
 function rejects(result, reason) { assert.equal(result.status, 1, result.output); assert.match(result.output, reason); }
 
-test('existing offline verifier validates the real signed 0.1.15 without credentials', async () => {
-  const result = await verifiedRelease('0.1.15');
+test('existing offline verifier validates the real signed 0.2.8 without credentials', async () => {
+  const result = await verifiedRelease('0.2.8');
   assert.equal(result.sha256, newHash); assert.equal(result.addonId, 'atlas-development@atlas.invalid');
-  assert.equal(result.verified, true); assert.equal(result.runtimeFileCount, 14);
+  assert.equal(result.verified, true); assert.equal(result.runtimeFileCount, 27);
 });
 test('invalid versions fail before paths or UAC are used', async () => {
   const f = await fixture();
-  for (const version of ['../0.1.15', '00.1.15', '0.1', '0.1.65536']) rejects(ps(f, plan, { version }), /VERSION_INVALID/);
+  for (const version of ['../0.2.8', '00.2.8', '0.1', '0.1.65536']) rejects(ps(f, plan, { version }), /VERSION_INVALID/);
   await unchanged(f);
 });
 test('missing release fails without creating it', async () => {
@@ -85,7 +92,7 @@ test('missing release fails without creating it', async () => {
 test('missing and ambiguous signed packages fail closed', async () => {
   for (const count of [0, 2]) {
     const f = await fixture({ isolatedSource: true });
-    const signed = join(f.source, 'extension/release/0.1.15/signed');
+    const signed = join(f.source, 'extension/release/0.2.8/signed');
     // Fixtures only. Rename the original out of selection; never edit repository artifacts.
     const { rename } = await import('node:fs/promises');
     await rename(join(signed, newName), join(signed, 'preserved.fixture'));
@@ -96,7 +103,7 @@ test('missing and ambiguous signed packages fail closed', async () => {
 test('uppercase extra XPI and XPI directories cannot hide ambiguity', async () => {
   for (const kind of ['uppercase', 'directory']) {
     const f = await fixture({ isolatedSource: true });
-    const extra = join(f.source, 'extension/release/0.1.15/signed', kind === 'uppercase' ? 'extra.XPI' : 'extra.xpi');
+    const extra = join(f.source, 'extension/release/0.2.8/signed', kind === 'uppercase' ? 'extra.XPI' : 'extra.xpi');
     if (kind === 'uppercase') await writeFile(extra, newBytes); else await mkdir(extra);
     rejects(ps(f, plan), /SIGNED_XPI_AMBIGUOUS/); await unchanged(f);
   }
@@ -113,7 +120,7 @@ test('signed runtime modification, wrong embedded ID and version fail verificati
       else manifest.version = '0.1.16';
       files['manifest.json'] = Buffer.from(JSON.stringify(manifest));
     }
-    await writeFile(join(f.source, 'extension/release/0.1.15/signed', newName), zipSync(files));
+    await writeFile(join(f.source, 'extension/release/0.2.8/signed', newName), zipSync(files));
     rejects(ps(f, plan), /PACKAGE_VERIFICATION_FAILED|ARCHIVE_CONTENT_MISMATCH|SIGNED_METADATA_MISSING/); await unchanged(f);
   }
 });
@@ -164,7 +171,7 @@ test('UAC cancellation and elevation failure leave target untouched', async () =
   }
 });
 test('version comparison rejects downgrade and changed bytes at the same version', async () => {
-  const f = await fixture({ current: newBytes }); rejects(ps(f, plan, { version: '0.1.14' }), /DOWNGRADE_REJECTED/);
+  const f = await fixture({ current: installedFixture('0.2.9') }); rejects(ps(f, plan), /DOWNGRADE_REJECTED/);
   const files = unzipSync(newBytes); files['background.js'] = Buffer.from('same version different bytes');
   await writeFile(f.target, zipSync(files)); rejects(ps(f, plan), /SAME_VERSION_DIFFERENT_PACKAGE/);
 });
@@ -178,7 +185,7 @@ test('valid signed update with spaces uses verified backup and exact replacement
   assert.equal(await hashFile(f.target), newHash); assert.equal(await hashFile(f.backup), oldHash);
   assert.equal(await readFile(f.policyPath, 'utf8'), JSON.stringify(f.policy));
   succeeds(ps(f, `${plan}; if (-not $plan.AlreadyDeployed) { throw 'not idempotent' }`));
-  assert.deepEqual(await readdir(join(f.distribution, 'atlas-backups')), ['atlas-0.1.14-backup.xpi']);
+  assert.deepEqual(await readdir(join(f.distribution, 'atlas-backups')), ['atlas-0.2.7-backup.xpi']);
 });
 test('missing managed XPI can be deployed only with an existing compatible policy', async () => {
   const f = await fixture({ current: null }); succeeds(ps(f, install)); assert.equal(await hashFile(f.target), newHash);
@@ -284,7 +291,7 @@ test('public WhatIf verifies a signed release but creates no files or UAC', asyn
 });
 test('ordinary inspector reports manifest identity rather than filename', async () => {
   const f = await fixture(); const misleading = join(f.directory, 'atlas-99.99.99.xpi'); await writeFile(misleading, oldBytes);
-  assert.equal((await inspectPackage(misleading)).version, '0.1.14');
+  assert.equal((await inspectPackage(misleading)).version, '0.2.7');
 });
 test('a forged writer plan cannot change identity, verification hash or backup location', async () => {
   const f = await fixture();

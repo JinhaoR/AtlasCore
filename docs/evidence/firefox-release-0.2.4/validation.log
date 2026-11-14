@@ -1,7 +1,0 @@
-
-> @atlas/firefox@0.2.4 release:validate
-> node scripts/release.mjs validate
-
-web-ext lint: 0 errors, 1 warnings, 0 notices
-KEY_FIREFOX_ANDROID_UNSUPPORTED_BY_MIN_VERSION: Manifest key not supported by the specified minimum Firefox for Android version
-Verified release 0.2.4: identity, source, runtime and archives agree.

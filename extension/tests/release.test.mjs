@@ -59,6 +59,21 @@ test('runtime allowlist contains all required assets and excludes development ar
   assert.equal(runtimeFiles.some(name => /node_modules|\.map$|tests|dist\/lib|\.env/.test(name)), false);
 });
 
+test('0.3.1 includes both themes without widening frozen 0.2.8 or 0.3.0 inventories', () => {
+  for (const version of ['0.2.8', '0.3.0']) {
+    const files = runtimeFilesFor(version);
+    assert.equal(files.length, 27);
+    checkRuntimeFiles(files, { version });
+    assert.throws(() => checkRuntimeFiles([...files, 'ui/theme-startup.js'], { version }), /UNEXPECTED_RUNTIME_FILES/);
+  }
+  const files = runtimeFilesFor('0.3.1');
+  assert.equal(files.length, 39);
+  for (const name of ['ui/theme-startup.js', 'ui/themes/celestial.css', 'ui/themes/parchment.css', 'ui/themes/celestial/instrument.svg', 'ui/themes/parchment/rose.svg']) {
+    assert.ok(files.includes(name));
+    assert.throws(() => checkRuntimeFiles(files.filter(f => f !== name), { version: '0.3.1' }), /UNEXPECTED_RUNTIME_FILES/);
+  }
+});
+
 test('release typography is explicit and older signed runtime allowlists stay frozen', () => {
   assert.equal(fontFiles.length, 9);
   assert.ok(fontFiles.every(file => runtimeFilesFor('0.2.0').includes(file)));

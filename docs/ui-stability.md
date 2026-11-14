@@ -1,5 +1,10 @@
 # UI stability and rendering
 
+In 0.3.1, Greylist and Journey rows live on the separate `access` page. The Home
+reserved strip is removed. Both pages retain the same refresh owner and stable
+row/pin nodes; moving between pages only changes visibility. Access changes no
+longer participate in Home layout. See [Home ownership](home-organization.md).
+
 The [theme contract](themes.md) adds one parser-time local preference read and
 native storage-event listeners, without a refresh loop or component rendering.
 Switching themes changes the root attribute only; fonts/assets are already local.

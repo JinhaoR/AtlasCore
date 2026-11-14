@@ -353,8 +353,8 @@ UI/Journey interaction groups. All 76 preserved release files across signed
 All four older signed XPIs verify offline. No exceptional Whitelist migration,
 Mozilla submission, normal-profile or enterprise-policy change is included.
 
-[Release notes](release-0.1.17.md) explain the outage and implemented solution;
-[package evidence](evidence/firefox-release-0.1.17.json) records exact checks and
+[Release notes](version-history.md#v0-1-17) explain the outage and implemented solution;
+[package evidence](version-history.md#v0-1-17) records exact checks and
 hashes. This is isolated synthetic evidence, not a week-long production test or
 proof of recovery from every storage failure. Original failure-code uncertainty
 and receipt-retention limits remain documented in the storage report.
@@ -385,7 +385,7 @@ XPIs verify offline. No installed profile, signing or deployment change occurred
 ## Release candidate evidence (0.1.16)
 
 Prepared 2026-10-13 following user authorization. The
-[release notes](release-0.1.16.md) and [package evidence](evidence/firefox-release-0.1.16.json)
+[release notes](version-history.md#v0-1-16) and [package evidence](version-history.md#v0-1-16)
 record the final artifacts, exact-source reproduction and staged-runtime checks.
 Core **204/204** and extension **374/374** tests pass without skips, including
 23 release regressions and the UI stability tests. Both TypeScript checks and
@@ -425,7 +425,7 @@ activation are separate checks; no live deployment was performed.
 ## Release candidate evidence (0.1.15)
 
 Prepared 2026-10-12 following user authorization to package the completed work.
-The [release notes](release-0.1.15.md) and [package evidence](evidence/firefox-release-0.1.15.json)
+The [release notes](version-history.md#v0-1-15) and [package evidence](version-history.md#v0-1-15)
 record the unsigned/runtime/source hashes and supported limits. Core 204 and
 extension 352 tests pass, including 23 packaging/signing-verifier regressions;
 both TypeScript checks and build/integrity validation pass. The 14-file runtime
@@ -1034,4 +1034,4 @@ challenge scripts/frames remain resources; top-level denial still applies.
 - Switching retains search, dirty editor/caret and pin nodes without fetching
   icons, issuing background commands or adding a refresh loop.
 - Local fonts/licences, tested text/focus contrast, narrow windows and zoom remain
-  verified. See [contract](themes.md) and [evidence](evidence/themes/README.md).
+  verified. See [contract](themes.md) and [evidence](repository-cleanup.md#themes).

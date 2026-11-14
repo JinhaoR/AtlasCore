@@ -1,6 +1,6 @@
 import { setAttribute, setProperty } from './dom.js';
 
-export const settingsSections = ['timing-settings', 'home-settings', 'vault-section', 'managed-section', 'recovery-section', 'diagnostics'] as const;
+export const settingsSections = ['timing-settings', 'appearance-settings', 'home-settings', 'vault-section', 'managed-section', 'recovery-section', 'diagnostics'] as const;
 export type SettingsSection = typeof settingsSections[number];
 export function settingsSection(value: unknown): SettingsSection {
   return settingsSections.includes(value as SettingsSection) ? value as SettingsSection : 'timing-settings';

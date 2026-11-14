@@ -53,3 +53,26 @@ test('distribution gate rejects converted bytes and incomplete folders rather th
   await verifyBundledFeed(directory);
   await assert.rejects(verifyDistribution(directory), /ENOENT/);
 });
+
+test('distribution checks resources actually used by themes, fonts and parser-time startup', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'atlas-theme-distribution-'));
+  t.after(() => {
+    assert.equal(dirname(resolve(directory)), resolve(tmpdir()), 'delete only the isolated fixture');
+    return rm(directory, { recursive: true, force: true });
+  });
+  await cp(join(extension, 'dist'), directory, { recursive: true });
+  for (const name of ['ui/themes/celestial/instrument.svg', 'ui/themes/parchment/rose.svg',
+    'ui/fonts/source-sans-3-normal-latin-ext.woff2', 'ui/theme-startup.js']) {
+    const path = join(directory, name), bytes = await readFile(path);
+    await rm(path);
+    await assert.rejects(verifyDistribution(directory), /ENOENT/, name);
+    await writeFile(path, bytes);
+  }
+  const popup = join(directory, 'ui/popup.html'), html = await readFile(popup, 'utf8');
+  await writeFile(popup, html.replace('href="popup.css"', 'href="missing-popup.css"'));
+  await assert.rejects(verifyDistribution(directory), /ENOENT/);
+  await writeFile(popup, html.replace('href="popup.css"', 'href="https://example.invalid/theme.css"'));
+  await assert.rejects(verifyDistribution(directory), /NONLOCAL_UI_RESOURCE/);
+  await writeFile(popup, html);
+  await verifyDistribution(directory);
+});

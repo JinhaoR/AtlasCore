@@ -19,7 +19,10 @@ test('scope description discloses every current/future child without creating a 
   const copy = subdomainScopeDescription('SU.SE');
   assert.match(copy, /su\.se/); assert.match(copy, /every current or future subdomain at any depth/);
   assert.match(copy, /Manual and managed blocking/);
-  assert.match(subdomainScopeDescription('co.uk'), /Choose a registered hostname/);
+  assert.match(subdomainScopeDescription('co.uk'), /co\.uk is a public suffix/);
+  assert.match(subdomainScopeDescription('github.io'), /github\.io is a shared hosting suffix/);
+  assert.match(subdomainScopeDescription('github.io'), /your-site\.github\.io/);
+  assert.match(subdomainScopeDescription('https://su.se'), /without https:\/\/ or a path/);
   assert.equal(evaluate('child.su.se', { whitelist: [], blacklist: [] }).outcome, 'GREYLIST');
 });
 
