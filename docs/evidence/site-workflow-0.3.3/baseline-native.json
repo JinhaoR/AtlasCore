@@ -1,0 +1,19 @@
+{
+  "firefox": "160.0",
+  "suite": "site-workflow",
+  "baseline": true,
+  "afterStage": "browse",
+  "vaultLocation": {
+    "section": "settings",
+    "settingsHidden": false
+  },
+  "idle": {
+    "frames": 366,
+    "retained": true,
+    "maxMovement": 0
+  },
+  "waitedForRealDeadline": true,
+  "explicitConfirmation": true,
+  "candidateChecks": [],
+  "normalProfileAccessed": false
+}

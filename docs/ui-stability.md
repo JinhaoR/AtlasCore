@@ -1,5 +1,13 @@
 # UI stability and rendering
 
+The 0.3.3 [site/Vault simplification](destination-polish.md#compact-site-review-and-vault-033)
+keeps site changes in All Sites and timing changes in Settings. One shared Vault
+node moves only when its presentation context changes; no extra polling owner or
+duplicated renderer is introduced. Parser-time routing honors the same history
+context. Review rows and disclosure nodes retain identity during ordinary ticks;
+the disabled waiting button reserves its eventual confirmation position. Explicit
+editor saves open review at the top, while idle reads do not reset scroll/focus.
+
 In 0.3.1, Greylist and Journey rows live on the separate `access` page. The Home
 reserved strip is removed. Both pages retain the same refresh owner and stable
 row/pin nodes; moving between pages only changes visibility. Access changes no
@@ -9,6 +17,14 @@ The [theme contract](themes.md) adds one parser-time local preference read and
 native storage-event listeners, without a refresh loop or component rendering.
 Switching themes changes the root attribute only; fonts/assets are already local.
 Theme load/save failures remain presentation failures, independent of authority.
+
+Compass hover and drag feedback now stay visually steady. Native Firefox sampling
+reproduced a background transition from a gradient to a partly transparent color,
+with the pin and image nodes retained. Pins keep their opaque theme surface on
+hover and animate only border/text colors. Dragging changes the cursor without
+adding an outline; keyboard focus remains visible. No rendering owner, icon
+loader, rotation scheduling or authorization behavior changed. See the
+[compass feedback evidence](evidence/compass-feedback/README.md).
 
 
 The current [Home/All Sites separation](home-organization.md) uses floating search

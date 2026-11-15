@@ -1,5 +1,36 @@
 # Destination and Firefox polishing (D30)
 
+## Compact site review and Vault (0.3.3)
+
+The user requests less navigation, repeated explanation and movement when adding
+sites. An acknowledged editor save now opens review directly in All Sites; it
+does not bounce through the directory. Submission opens the same shared Vault
+node in All Sites. Timing proposals retain their Settings context. History stores
+only this presentation origin; parser-time startup uses it to avoid a section
+flash on reload. Direct `#vault` links default to All Sites. Back, forward and the
+return button preserve the existing directory/editor state.
+
+Review and Vault use a compact single column with the existing theme colors and
+typography. The main summary retains exact addresses, planned access, category,
+pin status and scope warnings. The complete before/after comparison is a closed
+disclosure; duplicate prose is removed. The global Core review stays available
+under Technical details. A known, durably saved waiting batch uses the directory's
+Vault link instead of a second submission receipt panel. Unsaved, conflicting,
+unknown and failed display saves remain visible with their recovery controls.
+
+Vault shows one waiting/ready status, a dated deadline and a readable duration.
+The confirmation button occupies the same space while disabled during waiting;
+time alone never enables authority. A matching Core review, live current state
+and explicit acknowledged confirmation are still required. Cancellation and
+completion stay in place, with an explicit return action. Programmatic heading
+focus has no decorative outline; interactive keyboard focus remains visible.
+Polling retains the same review nodes, details state and scroll ownership.
+
+No Core, policy, permission, schema, migration, proposal, receipt or display-save
+contract changes in this UI pass. The release also includes the separately
+documented compass and reliability fixes. Evidence lives in
+[0.3.3 workflow verification](evidence/site-workflow-0.3.3/README.md).
+
 The 0.3.2 [site-controls refinement](home-organization.md#fresh-profiles-and-site-actions-032)
 adds ordinary gated opening and acknowledged pin toggling to the read-only site
 dialog. Plain-language address/status rows and a collapsed change explanation

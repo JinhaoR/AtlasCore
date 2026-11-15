@@ -1,0 +1,186 @@
+{
+  "firefox": "160.0",
+  "source": "Original 0.3.2 Core and background; synthetic counts only",
+  "validation": {
+    "fixture": {
+      "valid": true,
+      "counts": [
+        1596,
+        8,
+        49
+      ]
+    },
+    "batches": [
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1059
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1027
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1026
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1001
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1017
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1086
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1136
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1103
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1152
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1169
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1117
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1082
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1141
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1108
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1126
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1097
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1286
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1113
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1110
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1160
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1136
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1117
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1226
+      },
+      {
+        "hostnameChecks": 100000,
+        "snapshotChecks": 100,
+        "milliseconds": 1175
+      }
+    ],
+    "note": "Synthetic collection sizes only; no user policy or browsing history.",
+    "oversizedInputs": [
+      {
+        "length": 254,
+        "rejected": true
+      },
+      {
+        "length": 10000,
+        "rejected": true
+      },
+      {
+        "length": 1000000,
+        "rejected": true
+      }
+    ],
+    "elapsedSeconds": 76.51599999999962,
+    "runtime": {
+      "startedAt": 1794754385311,
+      "faults": [],
+      "retention": "READY",
+      "previousSession": null,
+      "adapter": {
+        "queued": 0,
+        "activeSince": null,
+        "completed": 68,
+        "contexts": 1,
+        "refreshPending": false
+      },
+      "controller": {
+        "status": "READY",
+        "reason": null,
+        "policyRevision": 0,
+        "configurationRevision": 0,
+        "pendingCommit": false,
+        "activity": {
+          "operation": "OBSERVE_TIME",
+          "stage": "PUBLISH",
+          "active": false,
+          "queued": 0,
+          "completed": 66
+        }
+      }
+    },
+    "storage": {
+      "readTransactions": 135,
+      "writeTransactions": 67,
+      "committedWrites": 66,
+      "failedCommits": 0,
+      "lastFailure": null
+    }
+  }
+}

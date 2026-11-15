@@ -39,7 +39,7 @@ across themes and retain their original bytes/licences.
 | Semantic state | `--success*`, `--warning*`, `--error*`, `--unavailable*`; `--access-wait-*`, `--access-active-*`, `--cancel-*` |
 | Type | `--font-title`, `--font-body`, `--font-mono`, `--font-search`, `--search-font-style`, `--search-font-weight`, `--text-*`, `--weight-*`, `--heading-*`, `--subtitle-size`, `--wordmark-spacing` |
 | Shape/elevation | `--radius`, `--radius-card`, `--radius-dialog`, `--radius-panel`, `--radius-search`, `--backdrop`, `--popover-shadow`, `--floating-shadow`, `--category-shadow`, `--search-shadow`, `--search-surface` |
-| Icons and pins | `--icon-surface`, `--icon-border`, `--pin-surface`, `--pin-hover`, `--pin-ink`, `--pin-border`, `--pin-border-width`, `--pin-shadow` |
+| Icons and pins | `--icon-surface`, `--icon-border`, `--pin-surface`, `--pin-ink`, `--pin-border`, `--pin-border-width`, `--pin-shadow` |
 | Compass | `--compass-ring`, `--compass-ring-width`, `--compass-ring-dash`, `--compass-tick`, `--compass-tick-length`, `--compass-tick-dash`, `--compass-rose`, `--compass-rose-secondary`, `--compass-rose-outline`, `--compass-cardinal`, `--compass-font`, `--compass-weight`, `--compass-text-size`, `--compass-opacity` |
 | Decoration | `--page-background` accepts a static background, with `--page-attachment` controlling its scroll treatment. Optional `--page-home-background` and `--page-workspace-background` use the existing body page identity for separate artwork composition. Narrow Home uses the quieter workspace treatment. `--compass-decoration` accepts a local static image/gradient behind the existing compass; `--compass-artwork` paints inside the existing rotating SVG box; `--brand-artwork` optionally replaces the brand image's visual content. None changes hit targets or layout. |
 
@@ -57,6 +57,10 @@ Preserve semantic words/icons as well as status colors. Verify contrast after an
 palette/font change; the current tests are not accessibility certification.
 
 Website favicons retain their provider colors and existing fetching lifecycle.
+Compass pin faces keep the same opaque `--pin-surface` when hovered. Shared CSS
+uses a border highlight and excludes backgrounds from pin transitions. Dragging
+does not add an outline; keyboard focus indicators remain visible. Disabled
+authority and temporary busy-state styling keep their existing meanings.
 The Atlas brand defaults to the original local logo; a bundled theme can substitute
 local artwork within the same image box and accessible name. Browser chrome/native popup dimensions
 and the small indicator injected into websites are outside the control-page

@@ -3,9 +3,14 @@
 Release history lives in [one file](version-history.md). Keep signed 0.2.8 and
 prepared unsigned 0.3.0 intact. The development tree contains later changes; do
 not rebuild over either retained release. Older local release copies were removed
-by the user-authorized cleanup. The follow-up prepares unsigned 0.3.2 and
-isolated signed-0.3.1 upgrade/restart/rollback verification. Preserve signed 0.3.1. Signing,
+by the user-authorized cleanup. The current follow-up prepares unsigned 0.3.3 and
+isolated upgrade/restart/rollback verification against retained signed baselines.
+Preserve signed 0.3.1 and 0.3.2. Signing,
 submission and live deployment remain separate actions.
+
+0.3.3 includes the compact site/Vault workflow and the preceding development-only
+compass, hostname-validation and clock catch-up work. Preserve 0.3.2 and all other
+retained artifacts; packaging this candidate does not modify an existing release.
 
 ## Release contract
 

@@ -20,9 +20,9 @@ test('editing replaces committed detail and review disclosure preserves the dura
   selectOriginal(f); f.el('edit-site').fire('click'); await f.flush(); f.sites.render(true);
   assert.equal(f.el('site-detail').hidden, true); assert.equal(f.el('site-draft').hidden, false);
   f.el('site-name').value = 'Updated label'; await f.stage();
-  assert.equal(f.el('destination-draft-items').hidden, true);
+  assert.equal(f.sites.view(), 'review', 'an acknowledged edit goes directly to review');
+  assert.equal(f.el('destination-draft-items').hidden, false);
   assert.equal(f.el('reconcile-destination-draft').hidden, true);
-  f.el('review-destination-draft').fire('click'); f.sites.render(true);
   assert.equal(f.el('destination-draft-items').hidden, false);
   const row = f.el('destination-draft-items').children[0];
   f.sites.render(true); assert.equal(f.el('destination-draft-items').children[0], row);
@@ -63,7 +63,8 @@ test('Review draft can preview saved staged changes despite an unused blank Add 
   assert.equal(f.el('review-destination-draft').disabled, false);
   f.el('review-destination-draft').fire('click'); await f.flush(); f.sites.render(true);
   const summary = f.el('destination-draft-items').children[0].children[0].children.map(n => n.textContent).join('\n');
-  assert.match(summary, /Staged research/); assert.match(summary, /staged\.example/); assert.match(summary, /Category:.*Research/);
+  assert.match(summary, /Staged research/); assert.match(summary, /staged\.example/);
+  assert.equal(f.el('destination-draft-items').children[0].children[0].children.find(n => n.className === 'change-display').textContent, 'Research');
   assert.equal(f.sites.session().value.draft.changes.length, 1);
   assert.deepEqual(f.controller.getView().snapshot, before); assert.equal(f.proposals(), 0);
 });

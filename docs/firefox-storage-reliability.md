@@ -1,5 +1,102 @@
 # Firefox authority storage reliability
 
+## Clock catch-up recovery (development, 2026-11-15)
+
+The user requests a fix for the separate CLOCK_ROLLBACK interruption below.
+The reproducible defect is a permanent controller latch **after** the clock has
+caught up, not the check that rejects a backward clock. Core now lets the existing
+OBSERVE_TIME operation recover that one condition. Firefox's existing one-second
+background refresh supplies observations; no extra timer or browser-specific
+clock enters Core.
+
+- Eligibility is exactly UNAVAILABLE / CLOCK_ROLLBACK with no pending commit.
+  Only an OBSERVE_TIME operation can take this path. Navigation and confirmation
+  commands remain blocked while the owner is unavailable.
+- The actual supplied clock must reach both the same owner's in-memory floor and
+  all saved observation checkpoints. While behind, observations return BLOCKED
+  without reading or writing storage. There is no tolerance window, clamping,
+  synthetic time, checkpoint reset or deadline adjustment.
+- Catch-up uses the existing full `open()` recovery: reload and validate complete
+  authority, enforce storage/revision checks, sample managed policy, expire state
+  normally, end interrupted Journeys and acknowledge any recovery write before
+  READY. The ordinary observation then runs with its usual validation and final
+  clock guard. No command or interrupted confirmation is replayed.
+- Grants, requests and proposals keep their original terms. Recovery cannot
+  confirm a request, revive an expired grant, resume an intermediate Journey or
+  reopen a removed document. A subsequent ordinary gated launch is required.
+- A new storage, validation, invalid-clock or internal fault stops this path.
+  Unknown outcomes retain explicit reconciliation; INTERNAL_ERROR stays latched.
+  The adapter's separately bounded transient-abort recovery is unchanged.
+
+This deliberately replaces the historical manual-only clock recovery described
+below. Explicit Recovery remains available. A frozen or substantially wrong
+clock still blocks until actual time reaches the required floor, including the
+persisted checkpoint after restart. The operating-system trigger in the user's
+exports remains unknown; this fix does not claim to correct the OS clock.
+
+See [clock recovery evidence](evidence/clock-recovery-0.3.2/README.md) for the old
+latch reproduction, regression tests and isolated native checks. No installed
+profile, version number, signed artifact or prepared package changes.
+
+## Subsequent 0.3.2 clock interruption (2026-11-15)
+
+The user's second export, from the same unchanged installation and background
+session, records a different interruption: `CLOCK_ROLLBACK` at 18:36:12.018 CET.
+Its observed time is 2,538 ms behind the saved checkpoint (18:36:14.556 CET).
+That is the adapter's observed checkpoint deficit, not the exact rejected Core
+sample or proof of the operating-system cause or full adjustment size.
+
+The earlier hostname-validation exception remains in `runtime.faults` with
+exactly the same stack, timestamp and count of one (15:45:23.854 CET). It was
+not newly recorded and is not attached as the cause of this clock interruption.
+The hostname-validation mitigation does not address this separate clock guard.
+
+No failed commit is recorded. A later navigation was allowed at 18:40:25.167 CET;
+at export the controller was COMMITTING an OBSERVE_TIME operation with one write
+pending, rather than latched UNAVAILABLE. The retained interruption describes
+history, not necessarily current controller status. This snapshot does not prove
+the pending commit's outcome or a stalled write. No runtime changes, automatic
+recovery, clock clamping or history pruning were made for this comparison.
+The [sanitized comparison](evidence/firefox-clock-rollback-0.3.2.json) excludes
+visited hostnames and the raw navigation history.
+
+## Reported 0.3.2 hostname-validation interruption (2026-11-15)
+
+The user's new export locates the caught exception at the ASCII hostname regexp
+in `normalizeHostname`, reached through `canonicalHostname`, `readJourney`,
+`readJourneyState` and `validateAtlasSnapshot`. The fault is
+`CHECK_NAVIGATION / VALIDATE_LOAD / InternalError`, with no pending commit.
+The retained 0.3.2 background bundle matches the pre-change development bundle
+byte-for-byte after removing its development-only source-map trailer; the five
+numeric frames were mapped before changing the source. This establishes the
+failing operation, not the engine condition that caused it to throw.
+
+The export reports 1,596 Journeys, eight requests and 49 grants in the last
+verified state, 175,297 committed writes, zero recorded failed commits and no
+storage failure. At export, both queues were empty and the controller was latched
+UNAVAILABLE. The background still served diagnostics and recorded content removal
+after the fault. This is an observed authority interruption, not evidence of a
+terminated Firefox process. The fault followed approximately 6.51 hours in the
+session; counters and collection sizes alone do not prove a leak or runaway loop.
+
+The targeted development mitigation replaces hostname regexp checks with a scan
+of at most 253 characters after trimming and accounting for one optional root dot.
+ASCII validation precedes case folding; label lengths, hyphen positions, numeric
+and URL-parser IP shorthand rejection remain unchanged. The existing URL-parser
+canonicalization check remains. No policy, grant, Journey, migration, storage
+format, clock, failure/recovery rule or history-retention behavior changes.
+
+The original native code did **not** reproduce the exception in the bounded
+synthetic test. The export contains an exception class and numeric frames, not
+the engine's error message, rejected input or Firefox memory/interrupt state.
+Consequently do not call this a proven fix for the user's underlying trigger or
+assume every earlier INTERNAL_ERROR had this cause. Explicit Recovery still
+reloads and validates saved authority; there is no automatic retry or reset.
+
+Sanitized evidence, comparison tests and native results are retained in
+[the hostname-validation investigation](evidence/hostname-validation-0.3.2/README.md).
+The raw export and visited-hostname history remain outside the repository.
+
 ## Reported 0.2.2 clock interruption (2026-11-07)
 
 The user's navigation table and diagnostics identify **CLOCK_ROLLBACK / UNAVAILABLE**,

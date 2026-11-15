@@ -1,0 +1,37 @@
+{
+  "release": "0.3.2",
+  "backgroundSha256": "ed1c1c926d17ea06284a40fca04e57d960ae513c602711e9b46be2d990615858",
+  "releaseMatchedPreChangeDevelopmentExceptSourceMapTrailer": true,
+  "frames": [
+    {
+      "line": 8,
+      "column": 27,
+      "source": "packages/core/src/target.ts",
+      "function": "normalizeHostname"
+    },
+    {
+      "line": 537,
+      "column": 41,
+      "source": "packages/core/src/journey-state.ts",
+      "function": "canonicalHostname"
+    },
+    {
+      "line": 573,
+      "column": 118,
+      "source": "packages/core/src/journey-state.ts",
+      "function": "readJourney"
+    },
+    {
+      "line": 620,
+      "column": 34,
+      "source": "packages/core/src/journey-state.ts",
+      "function": "readJourneyState"
+    },
+    {
+      "line": 1247,
+      "column": 42,
+      "source": "packages/core/src/atlas-state.ts",
+      "function": "validateAtlasSnapshot"
+    }
+  ]
+}

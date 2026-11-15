@@ -1,0 +1,33 @@
+{
+    "removedDirectories":  [
+                               "firefox-e2e-iw_n6nz6\\profile",
+                               "firefox-e2e-sfgz_932\\profile",
+                               "firefox-e2e-_56lmpl5\\profile",
+                               "firefox-e2e-wdvo0jka\\profile",
+                               "firefox-e2e-8q5rruhi\\profile",
+                               "firefox-e2e-h6wbuvfh\\profile",
+                               "firefox-e2e-arw10mkp\\profile",
+                               "firefox-e2e-v361w0zo\\profile",
+                               "firefox-e2e-o4tf43dv\\profile",
+                               "firefox-e2e-_o7t3_22\\profile",
+                               "firefox-e2e-1lsl4kv9\\profile",
+                               "firefox-e2e-173ts24f\\profile",
+                               "firefox-e2e-dweouxc_\\profile",
+                               "firefox-e2e-gbxrinb5\\profile",
+                               "firefox-e2e-umbx0us_\\profile",
+                               "firefox-e2e-z7wbffe0\\profile",
+                               "firefox-e2e-6w3xhlbr\\profile",
+                               "firefox-e2e-iorqfz3r\\profile",
+                               "compact-home-native-6bk0w_g7\\profile",
+                               "compact-home-native-djdev_q6\\profile",
+                               "compact-home-native-6bk0w_g7\\runtime",
+                               "compact-home-native-djdev_q6\\runtime",
+                               "ux-0.3.3\\baseline-addon",
+                               "ux-0.3.3\\reproduction"
+                           ],
+    "count":  24,
+    "allAbsent":  true,
+    "normalProfileAccessed":  false,
+    "otherSessionsRemoved":  false,
+    "retained":  "Sanitized results and screenshots in docs/evidence/site-workflow-0.3.3; ignored run logs outside removed profiles."
+}

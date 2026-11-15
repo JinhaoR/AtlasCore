@@ -43,8 +43,9 @@ self-referential source-archive hash.
 
 ## Current source and compatibility
 
-This checkout prepares unsigned 0.3.2 with a visible compass for fresh profiles,
-ordinary site-opening and pin actions in All Sites, and simpler site details.
+This checkout prepares unsigned 0.3.3 with compact site review and Vault in the
+originating section, steady compass feedback, bounded hostname validation and
+clock catch-up recovery. The backward-time guard and fixed deadlines remain.
 Both themes, Greylist & Journeys and Settings → Appearance remain. The runtime inventory
 contains 39 files, including local theme CSS, compass assets and startup code.
 Use the instructions shipped inside a particular release source ZIP to reproduce

@@ -5,17 +5,32 @@
     if (typeof input !== "string")
       return null;
     const value = input.trim();
-    if (!/^[a-z0-9.-]+$/i.test(value))
+    const length = value.length - (value.endsWith(".") ? 1 : 0);
+    if (length === 0 || length > 253)
       return null;
-    const hostname2 = value.toLowerCase().replace(/\.$/, "");
-    if (hostname2.length === 0 || hostname2.length > 253)
-      return null;
-    const labels = hostname2.split(".");
-    if (labels.some((label) => !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label))) {
-      return null;
+    let labelLength = 0, numeric = true;
+    for (let i = 0; i < length; i++) {
+      const code = value.charCodeAt(i);
+      if (code === 46) {
+        if (labelLength === 0 || value[i - 1] === "-")
+          return null;
+        labelLength = 0;
+        continue;
+      }
+      const digit = code >= 48 && code <= 57;
+      const letter = code >= 65 && code <= 90 || code >= 97 && code <= 122;
+      if (!digit && !letter && code !== 45)
+        return null;
+      if (code === 45 && labelLength === 0)
+        return null;
+      if (++labelLength > 63)
+        return null;
+      if (!digit)
+        numeric = false;
     }
-    if (/^[0-9.]+$/.test(hostname2))
+    if (labelLength === 0 || value[length - 1] === "-" || numeric)
       return null;
+    const hostname2 = value.slice(0, length).toLowerCase();
     try {
       if (new URL(`https://${hostname2}`).hostname !== hostname2)
         return null;
@@ -2167,6 +2182,11 @@
       }
     }
     async function handle(operation) {
+      if (status === "UNAVAILABLE" && reason === "CLOCK_ROLLBACK" && pending === null && hasJourneyFields(operation, ["kind"]) && operation.kind === "OBSERVE_TIME") {
+        if (sampleTime() === null)
+          return blocked();
+        await open();
+      }
       if (status !== "READY")
         return blocked();
       setStatus("LOADING");
@@ -5006,8 +5026,9 @@ ${countdown(display.expiresAt, now2)} remaining`;
       });
       return this.refreshPending;
     }
-    /** Recover authority, never replay an operation. Unknown writes, damaged data,
-     * quota and clock failures keep their explicit recovery boundary. */
+    /** Recover transient storage failures, never replay an operation. Unknown
+     * writes, damaged data and quota still require explicit recovery. Core alone
+     * handles clock catch-up through OBSERVE_TIME, outside this storage path. */
     async recoverTransientStorage() {
       const host3 = this.host;
       const view = host3?.controller.getView();

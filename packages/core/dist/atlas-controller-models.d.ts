@@ -79,6 +79,8 @@ export interface AtlasControllerActivity {
 export interface AtlasController {
     /** Initialize or explicitly recover. Does not initialize missing data or replay commands. */
     open(): Promise<AtlasControllerView>;
+    /** OBSERVE_TIME can recover CLOCK_ROLLBACK after the supplied clock catches up.
+     * It fully revalidates authority, never clamps time or replays an operation. */
     handle(operation: unknown): Promise<AtlasControllerResponse>;
     getView(): AtlasControllerView;
     getActivity?(): AtlasControllerActivity;

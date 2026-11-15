@@ -1,0 +1,26 @@
+{
+  "build": "npm.cmd --prefix extension run build",
+  "buildPassed": true,
+  "typechecks": "Both TypeScript compilers run as part of the build.",
+  "nodeVersion": "24.19.0",
+  "testCommand": "node --test extension/tests/compass-motion.test.mjs extension/tests/home-bookmarks.test.mjs extension/tests/home-greylist.test.mjs extension/tests/home-model.test.mjs extension/tests/home-organization.test.mjs extension/tests/home-overrides.test.mjs extension/tests/home-shortcuts.test.mjs extension/tests/pin-status.test.mjs extension/tests/themes.test.mjs extension/tests/ui-performance.test.mjs extension/tests/ui-reliability.test.mjs extension/tests/ui-stability.test.mjs extension/tests/website-icon-cache.test.mjs extension/tests/website-icons.test.mjs",
+  "files": [
+    "extension/tests/compass-motion.test.mjs",
+    "extension/tests/home-bookmarks.test.mjs",
+    "extension/tests/home-greylist.test.mjs",
+    "extension/tests/home-model.test.mjs",
+    "extension/tests/home-organization.test.mjs",
+    "extension/tests/home-overrides.test.mjs",
+    "extension/tests/home-shortcuts.test.mjs",
+    "extension/tests/pin-status.test.mjs",
+    "extension/tests/themes.test.mjs",
+    "extension/tests/ui-performance.test.mjs",
+    "extension/tests/ui-reliability.test.mjs",
+    "extension/tests/ui-stability.test.mjs",
+    "extension/tests/website-icon-cache.test.mjs",
+    "extension/tests/website-icons.test.mjs"
+  ],
+  "passed": 135,
+  "failed": 0,
+  "skipped": 0
+}

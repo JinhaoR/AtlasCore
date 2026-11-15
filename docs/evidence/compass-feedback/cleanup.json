@@ -1,0 +1,19 @@
+{
+  "everydayProfileUsed": false,
+  "removed": [
+    "compact-home-native-zkysf4sl/profile",
+    "compact-home-native-zkysf4sl/runtime",
+    "compact-home-native-zkysf4sl/addon",
+    "compact-home-native-_y8jgxzk/profile",
+    "compact-home-native-_y8jgxzk/runtime",
+    "compact-home-native-b5ewzzgy/profile",
+    "compact-home-native-b5ewzzgy/runtime",
+    "compact-home-native-7azuwal3/profile",
+    "compact-home-native-7azuwal3/runtime",
+    "compact-home-native-3ujx46s0/profile",
+    "compact-home-native-3ujx46s0/runtime",
+    "compact-home-native-l6avzjnn/profile",
+    "compact-home-native-l6avzjnn/runtime"
+  ],
+  "retained": "Sanitized measurements and two screenshots in docs/evidence/compass-feedback; raw test logs remain in .tools"
+}

@@ -14,12 +14,17 @@ PINS = ['service:webmail.kth.se','service:chatgpt.com','service:github.com','ser
 def main():
     baseline = '--baseline' in sys.argv
     signed_version = sys.argv[sys.argv.index('--signed-baseline')+1] if '--signed-baseline' in sys.argv else '0.2.8'
-    if signed_version not in ('0.2.1', '0.2.2', '0.2.3', '0.2.4', '0.2.5', '0.2.6', '0.2.7', '0.2.8', '0.3.0', '0.3.1'): raise ValueError('Unsupported frozen signed baseline')
+    if signed_version not in ('0.2.1', '0.2.2', '0.2.3', '0.2.4', '0.2.5', '0.2.6', '0.2.7', '0.2.8', '0.3.0', '0.3.1', '0.3.2'): raise ValueError('Unsupported frozen signed baseline')
     run = Path(tempfile.mkdtemp(prefix='compact-home-native-', dir=ROOT/'.tools'))
     print('RUN', run, flush=True)
     runtime=run/'runtime'; profile=run/'profile'; profile.mkdir()
     shutil.copytree(Path(r'C:\Program Files\Mozilla Firefox'),runtime,ignore=shutil.ignore_patterns('distribution','updates','uninstall','maintenanceservice*'))
     addon=Path(sys.argv[sys.argv.index('--addon-dir')+1]).resolve() if '--addon-dir' in sys.argv else ROOT/'extension/dist'
+    if '--hostname-validation-only' in sys.argv:
+        # Extra modules are confined to this disposable test copy. Production
+        # still ships one bundled Core; the probe also exercises ordinary loads.
+        copied=run/'addon';shutil.copytree(addon,copied);addon=copied
+        shutil.copytree(ROOT/'packages/core/dist',addon/'probe-core')
     if baseline:
         addon=run/'checkpoint/extension/dist'
         with zipfile.ZipFile(ROOT/'.tools/compact-home/checkpoint.zip') as z:
@@ -121,6 +126,10 @@ def main():
             result['friendlySites']=verify(client,h,shot,pins,is_baseline)
             result['status']='PASS';print('PASS friendly sites'+(' baseline' if is_baseline else ''),flush=True);return
         start(True);pins(6)
+        if '--hostname-validation-only' in sys.argv:
+            from firefox_hostname_validation import verify
+            result['hostnameValidation']=verify(client,h,shot)
+            result['status']='PASS';print('PASS hostname validation',flush=True);return
         if '--site-checkbox-only' in sys.argv:
             from firefox_subdomain_scope import verify_add_site_checkbox
             result['addSiteCheckbox']=verify_add_site_checkbox(client,h,shot)

@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sitesFixture, original, dom, Node } from './support/ui-fixture.mjs';
 import { initializeSettingsNavigation, settingsSection, settingsSections } from '../dist/lib/ui/settings-navigation.js';
-import { destinationChangeView } from '../dist/lib/ui/destination-change-view.js';
+import { destinationChangeView, renderDestinationChange } from '../dist/lib/ui/destination-change-view.js';
+import { hasSettingsChange, vaultWait } from '../dist/lib/ui/vault-presentation.js';
 import { initializeSites } from '../dist/lib/ui/sites.js';
 
 test('All Sites opens through the ordinary Firefox gate and cannot bypass blocked or unavailable authority', async t => {
@@ -143,4 +144,57 @@ test('before/after review retains exact scopes, classification and parent-covera
   const child = { ...before, metadata: { ...original, primaryHostname: 'lab.root.example', hostnames: ['lab.root.example'] } };
   const removal = destinationChangeView({ id: original.id, before: child, after: null }, { whitelist: ['lab.root.example'], blacklist: [], whitelistSubdomains: ['root.example'] }, { whitelist: [], blacklist: [], whitelistSubdomains: ['root.example'] });
   assert.ok(removal.warnings.some(line => line.startsWith('Still allowed by another saved scope:')));
+});
+
+test('compact review keeps addresses and scope warnings visible with full comparison collapsed', t => {
+  dom(t);
+  const container = new Node(), policy = { whitelist: [], blacklist: [] };
+  const after = { metadata: { ...original, hostnames: ['root.example', 'www.root.example'] }, pinned: true, classification: 'WHITELIST' };
+  renderDestinationChange(container, { id: original.id, before: null, after }, policy,
+    { ...policy, whitelist: after.metadata.hostnames, whitelistSubdomains: ['root.example'] });
+  const visible = container.children.filter(n => n.className !== 'technical-review').map(n => n.textContent).join('\n');
+  assert.match(visible, /root\.example, www\.root\.example/);
+  assert.match(visible, /Allowed/);
+  assert.match(visible, /all subdomains/);
+  const details = container.children.find(n => n.className === 'technical-review');
+  assert.notEqual(details.open, true);
+  assert.match(details.textContent, /Current.*Proposed/s);
+  assert.match(details.textContent, /Subdomain bases/);
+});
+
+test('long Vault waits use hours and minutes without changing readiness rules', () => {
+  assert.equal(vaultWait(79161000, 0), '22h left');
+  assert.equal(vaultWait(3661000, 0), '1h 2m left');
+  assert.equal(vaultWait(60001, 0), '2m left');
+  assert.equal(vaultWait(59001, 0), '1m left');
+  assert.equal(vaultWait(59000, 0), '59s left');
+  assert.equal(vaultWait(10, 11), '0s left');
+});
+
+test('pending navigation distinguishes changed settings from their frozen copy in a site proposal', async t => {
+  const f = await sitesFixture(t), initial = f.controller.getView().snapshot;
+  assert.equal(hasSettingsChange(f.controller.getView()), false);
+  await f.settings.propose({ kind: 'PROPOSE_POLICY', candidatePolicy: { ...initial.policy, whitelist: [...initial.policy.whitelist, 'new.example'] } });
+  const pending = f.controller.getView().snapshot.vaultState.pendingProposal;
+  assert.ok(pending.candidateConfiguration, 'policy proposals freeze unchanged settings too');
+  assert.equal(hasSettingsChange(f.controller.getView()), false);
+  await f.settings.propose({ kind: 'CANCEL_POLICY', proposalId: pending.id });
+  const candidateConfiguration = structuredClone(initial.configuration);
+  candidateConfiguration.journeyLimits.maxHops += 1;
+  await f.settings.propose({ kind: 'PROPOSE_SETTINGS', candidateConfiguration });
+  assert.equal(hasSettingsChange(f.controller.getView()), true);
+});
+
+test('only an acknowledged waiting receipt uses the compact Vault link', async t => {
+  const f = await sitesFixture(t);
+  f.el('add-site').click(); await f.flush();
+  f.el('site-name').value = 'New site'; f.el('site-hostname').value = 'new.example';
+  f.el('site-category').value = 'Reading'; f.el('site-access').value = 'WHITELIST'; await f.stage();
+  assert.equal(f.sites.view(), 'review');
+  assert.equal(f.el('destination-draft-panel').dataset.pending, 'false');
+  await f.submit();
+  assert.equal(f.el('destination-draft-panel').dataset.pending, 'true');
+  assert.equal(f.el('sites-pending').hidden, false);
+  assert.equal(f.el('vault-destination-review').hidden, false);
+  assert.ok(f.sites.session().value.receipt, 'receipt remains durable');
 });

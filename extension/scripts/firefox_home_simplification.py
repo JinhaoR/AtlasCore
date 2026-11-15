@@ -53,8 +53,9 @@ def verify(c,h,shot,reload):
     tab=c.message({'kind':'OPEN_DESTINATION','url':'http://grey.localhost/'})['tabId']
     c.call('WebDriver:SwitchToWindow',handle=ui)
     c.call('WebDriver:Navigate',url=h.UI_URL+f'?view=access&tab={tab}')
-    h.wait_for(lambda:js('return [...document.querySelectorAll(".access-signal")].some(b=>b.textContent==="Request access"&&!b.disabled);'),'inline request')
-    assert js('return !document.getElementById("access-panel")&&document.body.dataset.page==="home";')
+    h.wait_for(lambda:js('return [...document.querySelectorAll(".access-signal")].some(b=>b.textContent==="Request access"&&!b.disabled);'),'access request')
+    # Since 0.3.1, Greylist and Journeys have their own page beside All Sites.
+    assert js('return document.body.dataset.page==="access"&&!document.getElementById("access-section").hidden&&document.getElementById("workspace").hidden;')
     click('.access-signal');h.wait_for(lambda:len(view()['controller']['snapshot']['accessState']['pendingRequests'])==1,'started')
     first=view()['controller']['snapshot']['accessState']['pendingRequests'][0]
     assert not view()['controller']['snapshot']['accessState']['grants']
@@ -74,8 +75,12 @@ def verify(c,h,shot,reload):
     h.wait_for(lambda:js('return !!document.querySelector(".access-signal[data-tone=active]");'),'active')
     shot('greylist-active');click('.access-cancel')
     h.wait_for(lambda:not view()['controller']['snapshot']['accessState']['grants'],'termination')
-    click('#show-home');click('.category-shortcut');shot('category-open')
-    click('#close-category-workspace')
+    # Category browsing now lives in All Sites, leaving Home for the compass.
+    click('#show-sites');click('#sites-categories-back')
+    h.wait_for(lambda:js('return !!document.querySelector("#sites-categories button");'),'site categories')
+    click('#sites-categories button')
+    h.wait_for(lambda:js('return !!document.querySelector(".site-row");'),'category sites')
+    shot('category-open');click('#show-home')
     # Both normal and effective high-zoom/narrow viewports keep controls reachable.
     sizes=[]
     for width,height in [(1280,900),(900,760),(640,620)]:
@@ -90,8 +95,12 @@ def verify(c,h,shot,reload):
         shot(f'home-zoom-{zoom}')
     c.call('Marionette:SetContext',value='chrome');c.script('gBrowser.selectedBrowser.browsingContext.fullZoom=1;');c.call('Marionette:SetContext',value='content')
     click('#show-home');time.sleep(1)
-    js('window.__mutations=0;window.__observer=new MutationObserver(m=>window.__mutations+=m.length);window.__observer.observe(document.querySelector(".compass-composition"),{subtree:true,childList:true,attributes:true});window.__resources=performance.getEntriesByType("resource").length;')
+    js('window.__mutations=0;window.__observer=new MutationObserver(m=>window.__mutations+=m.length);window.__observer.observe(document.querySelector(".compass-composition"),{subtree:true,childList:true,attributes:true});window.__resources=performance.getEntriesByType("resource").length;window.__idleStart=performance.now();')
     time.sleep(2.2)
-    idle=js('window.__observer.disconnect();return {mutations:window.__mutations,requests:performance.getEntriesByType("resource").length-window.__resources};')
-    assert idle=={'mutations':0,'requests':0},idle
-    return {'automaticConnection':True,'folderIcon':folder,'exactNestedPages':True,'overflow':True,'inlineWaitCancelConfirmEnd':True,'folderLaunchGated':True,'keyboardDismissal':True,'iconFailureRetry':True,'zoom':[1.25,1.5,2],'idle':idle,'sizes':sizes}
+    # Resource entries arrive on completion. Separate older icon requests that
+    # finish here from requests actually started during this observation.
+    idle=js('''window.__observer.disconnect();const completed=performance.getEntriesByType('resource').slice(window.__resources);
+      return {mutations:window.__mutations,requests:completed.filter(e=>e.startTime>=window.__idleStart).length,
+        priorRequestCompletions:completed.filter(e=>e.startTime<window.__idleStart).length};''')
+    assert idle['mutations']==0 and idle['requests']==0,idle
+    return {'automaticConnection':True,'folderIcon':folder,'exactNestedPages':True,'overflow':True,'accessPageWaitCancelConfirmEnd':True,'categoriesInAllSites':True,'folderLaunchGated':True,'keyboardDismissal':True,'iconFailureRetry':True,'zoom':[1.25,1.5,2],'idle':idle,'sizes':sizes}

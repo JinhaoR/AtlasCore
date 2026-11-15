@@ -1,0 +1,6 @@
+{
+  "checks": 152106,
+  "hostnamesAndTargetsCompared": true,
+  "mismatches": 0,
+  "method": "Original 0.3.2 implementation versus candidate; exhaustive UTF-16 positions, seeded malformed inputs and boundary cases."
+}

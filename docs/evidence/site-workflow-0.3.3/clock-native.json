@@ -1,0 +1,25 @@
+{
+  "firefox": "160.0",
+  "suite": "clock-recovery",
+  "baseline": false,
+  "checks": [
+    "actual timer remains closed while the clock is behind",
+    "actual timer restores READY after clock catch-up without Recovery",
+    "policy and configuration unchanged; no failed commits; diagnosis retained",
+    "removed pages need a fresh gated launch; Blacklist and Greylist remain enforced"
+  ],
+  "observations": [
+    {
+      "deficitMs": 2538,
+      "afterCatchUp": "READY",
+      "recoveredWithoutCommand": true,
+      "failedCommits": 0
+    },
+    {
+      "deficitMs": 5993,
+      "afterCatchUp": "READY",
+      "recoveredWithoutCommand": true,
+      "failedCommits": 0
+    }
+  ]
+}

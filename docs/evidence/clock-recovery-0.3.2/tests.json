@@ -1,0 +1,32 @@
+{
+  "build": "npm --prefix extension run build",
+  "buildAndTypechecks": "passed",
+  "focused": {
+    "passed": 86,
+    "failed": 0
+  },
+  "full": {
+    "core": 264,
+    "extension": 697,
+    "failed": 0
+  },
+  "baselineCore": {
+    "test": "clock catch-up observes the original floor without polling storage or replaying commands",
+    "expected": "OBSERVED",
+    "actual": "BLOCKED"
+  },
+  "coverage": [
+    "same-owner unsaved floor and persisted floor after restart",
+    "fixed waits, grants, Vault terms and Journey expiry",
+    "no automatic confirmation or reopening",
+    "full validation on catch-up, unknown-write and internal-fault latches",
+    "second rollback during recovery",
+    "retained clock diagnostics"
+  ],
+  "pythonSyntax": "passed",
+  "backgroundSha256": "a36364ae65237f325e8f5296649396d81ab41322b1f326fbdf7b1846dd5477b0",
+  "finalControllerFile": {
+    "passed": 36,
+    "failed": 0
+  }
+}

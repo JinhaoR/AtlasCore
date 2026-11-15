@@ -1,0 +1,23 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.3.1",
+  "firefox": "160.0",
+  "controls": {
+    "baseline": false,
+    "during": {
+      "opacity": "1",
+      "disabled": true
+    },
+    "opacities": [
+      "1"
+    ],
+    "samePin": true,
+    "unstartedDismissed": true,
+    "waitingCancelled": true,
+    "failedCancelRetained": true,
+    "explicitConfirmation": true,
+    "activeEnded": true,
+    "cancelledRowsStayRemovedAfterRefresh": true
+  },
+  "status": "PASS"
+}

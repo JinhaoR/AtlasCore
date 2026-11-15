@@ -133,6 +133,162 @@ test("failed observation persistence blocks even Whitelist assessments and retai
   assert.equal(repository.envelope.snapshot.accessState.lastObservedAt, 20);
 });
 
+test('clock catch-up observes the original floor without polling storage or replaying commands', async () => {
+  const { controller, repository, clock } = await ready();
+  clock.time = 20;
+  await controller.handle({ kind: 'OBSERVE_TIME' });
+  const saved = structuredClone(repository.envelope);
+  clock.time = 19;
+  assert.equal((await controller.handle(check('root.example'))).reason, 'CLOCK_ROLLBACK');
+  const reads = repository.loads, writes = repository.commits.length;
+  for (let i = 0; i < 5; i++) {
+    assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).reason, 'CLOCK_ROLLBACK');
+  }
+  assert.equal(repository.loads, reads, 'waiting for the clock needs no storage reads');
+  assert.equal(repository.commits.length, writes);
+  assert.deepEqual(repository.envelope, saved);
+  clock.time = 20;
+  assert.equal((await controller.handle(start())).reason, 'CLOCK_ROLLBACK');
+  assert.equal((await controller.handle(check('root.example'))).reason, 'CLOCK_ROLLBACK');
+  assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).type, 'OBSERVED');
+  assert.deepEqual(repository.envelope, saved, 'catch-up alone does not create permission');
+  assert.equal((await controller.handle(check('root.example'))).decision.reason, 'WHITELISTED');
+  assert.equal((await controller.handle(check('blocked.example'))).decision.reason, 'BLACKLISTED');
+});
+
+test('clock catch-up retains a same-owner time floor beyond the saved checkpoint', async () => {
+  const { controller, repository, clock } = await ready();
+  repository.steps.push((request, repo) => repo.fail(request));
+  clock.time = 20;
+  assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).reason, 'WRITE_FAILED');
+  assert.equal(repository.envelope.snapshot.accessState.lastObservedAt, 0);
+  clock.time = 19;
+  assert.equal((await controller.open()).reason, 'CLOCK_ROLLBACK');
+  assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).reason, 'CLOCK_ROLLBACK');
+  assert.equal(repository.envelope.snapshot.accessState.lastObservedAt, 0);
+  clock.time = 20;
+  assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).type, 'OBSERVED');
+  assert.equal(repository.envelope.snapshot.accessState.lastObservedAt, 20);
+});
+
+test('a restarted owner cannot recover before the persisted clock checkpoint', async () => {
+  const { controller, repository, clock } = await ready();
+  clock.time = 100000;
+  await controller.handle({ kind: 'OBSERVE_TIME' });
+  clock.time = 1;
+  const restarted = create(repository, clock).controller;
+  assert.equal((await restarted.open()).reason, 'CLOCK_ROLLBACK');
+  for (const now of [2, 99999]) {
+    clock.time = now;
+    assert.equal((await restarted.handle({ kind: 'OBSERVE_TIME' })).reason, 'CLOCK_ROLLBACK');
+    assert.equal(repository.envelope.snapshot.accessState.lastObservedAt, 100000);
+  }
+  clock.time = 100000;
+  assert.equal((await restarted.handle({ kind: 'OBSERVE_TIME' })).type, 'OBSERVED');
+});
+
+test('clock catch-up reloads and enforces a newer persisted checkpoint', async () => {
+  const { controller, repository, clock } = await ready();
+  clock.time = 20;
+  await controller.handle({ kind: 'OBSERVE_TIME' });
+  clock.time = 19;
+  await controller.handle({ kind: 'OBSERVE_TIME' });
+  const writer = create(repository, { now: () => 30 }).controller;
+  assert.equal((await writer.open()).status, 'READY');
+  const writes = repository.commits.length;
+  clock.time = 20;
+  assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).reason, 'CLOCK_ROLLBACK');
+  assert.equal(controller.getView().snapshot.accessState.lastObservedAt, 30);
+  assert.equal(repository.commits.length, writes);
+  clock.time = 30;
+  assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).type, 'OBSERVED');
+});
+
+test('clock recovery preserves frozen waits and grants, closes Journeys, and never confirms automatically', async () => {
+  const { controller, repository, clock } = await pendingRequest();
+  await controller.handle(confirm);
+  await controller.handle(start('waiting.example'));
+  await controller.handle(propose);
+  const journey = await controller.handle({ kind: 'START_JOURNEY', root: { hostname: 'root.example' }, contextId: 'surface_a' });
+  assert.equal(journey.type, 'COMMITTED');
+  const before = structuredClone(repository.envelope.snapshot);
+  clock.time = 9;
+  assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).reason, 'CLOCK_ROLLBACK');
+  clock.time = 20;
+  assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).type, 'OBSERVED');
+  const after = controller.getView().snapshot;
+  assert.deepEqual(after.policy, before.policy);
+  assert.deepEqual(after.accessState.grants, before.accessState.grants);
+  assert.deepEqual(after.accessState.pendingRequests, before.accessState.pendingRequests);
+  assert.deepEqual(after.vaultState.pendingProposal, before.vaultState.pendingProposal);
+  assert.equal(after.journeyState.journeys[0].phase, 'ENDED');
+  assert.equal(after.journeyState.journeys[0].expiresAt, before.journeyState.journeys[0].expiresAt);
+  assert.equal((await controller.handle(check('waiting.example'))).decision.outcome, 'REQUIRE_CONFIRMATION');
+  assert.equal((await controller.handle(check())).decision.expiresAt, 110);
+  clock.time = 111;
+  assert.equal((await controller.handle(check())).decision.outcome, 'GREYLIST');
+  clock.time = 110;
+  assert.equal((await controller.handle(check())).reason, 'CLOCK_ROLLBACK');
+  clock.time = 112;
+  assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).type, 'OBSERVED');
+  assert.equal((await controller.handle(check())).decision.outcome, 'GREYLIST', 'expired grant never revives');
+  assert.equal((await controller.handle(confirm)).type, 'REJECTED');
+});
+
+test('confirmation rejected by the clock is not replayed on catch-up', async () => {
+  const { controller, clock } = await pendingRequest();
+  await controller.handle({ kind: 'OBSERVE_TIME' });
+  clock.time = 9;
+  assert.equal((await controller.handle(confirm)).reason, 'CLOCK_ROLLBACK');
+  clock.time = 10;
+  assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).type, 'OBSERVED');
+  assert.deepEqual(controller.getView().snapshot.accessState.grants, []);
+  assert.equal((await controller.handle(confirm)).type, 'COMMITTED');
+});
+
+test('clock catch-up fully revalidates authority and stops on a different failure', async () => {
+  for (const [mode, expected] of [
+    ['corrupt', 'CORRUPT_STATE'], ['unavailable', 'STORAGE_UNAVAILABLE'], ['fault', 'INTERNAL_ERROR'],
+    ['unknown', 'COMMIT_UNKNOWN'], ['failed-write', 'WRITE_FAILED'],
+    ['invalid-clock', 'INVALID_TIME'], ['throwing-clock', 'CLOCK_UNAVAILABLE'],
+  ]) {
+    const { controller, repository, clock } = await ready();
+    clock.time = 20;
+    await controller.handle({ kind: 'OBSERVE_TIME' });
+    clock.time = 19;
+    assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).reason, 'CLOCK_ROLLBACK');
+    clock.time = 21;
+    if (mode === 'corrupt') repository.loadHook = () => ({ type: 'READY', envelope: {} });
+    if (mode === 'unavailable') repository.unavailable = true;
+    if (mode === 'fault') repository.loadHook = () => ({ type: 'READY', get envelope() { throw new TypeError('Synthetic'); } });
+    if (mode === 'unknown') repository.steps.push((request, repo) => repo.unknown(request, true));
+    if (mode === 'failed-write') repository.steps.push((request, repo) => repo.fail(request));
+    if (mode === 'invalid-clock') clock.now = () => NaN;
+    if (mode === 'throwing-clock') clock.now = () => { throw new Error('Synthetic'); };
+    assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).reason, expected, mode);
+    const activity = [repository.loads, repository.commits.length, repository.resolutions.length];
+    repository.loadHook = null; repository.unavailable = false; clock.now = () => 22;
+    for (let i = 0; i < 3; i++) {
+      assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).reason, expected, mode);
+    }
+    assert.deepEqual([repository.loads, repository.commits.length, repository.resolutions.length], activity, mode);
+  }
+});
+
+test('a second clock rollback during catch-up never publishes READY', async () => {
+  const { controller, repository, clock } = await ready();
+  clock.time = 20;
+  await controller.handle({ kind: 'OBSERVE_TIME' });
+  clock.time = 19;
+  await controller.handle({ kind: 'OBSERVE_TIME' });
+  clock.time = 21;
+  repository.steps.push((request, repo) => { clock.time = 20; return repo.apply(request); });
+  assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).reason, 'CLOCK_ROLLBACK');
+  assert.equal(repository.envelope.snapshot.accessState.lastObservedAt, 21);
+  clock.time = 21;
+  assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).type, 'OBSERVED');
+});
+
 test("storage conflict reloads newer policy without replaying confirmation or overwriting changes", async () => {
   const { controller, repository } = await pendingRequest();
   repository.steps.push((request, repo) => {
@@ -480,7 +636,8 @@ test("clock rollback after a successful write withholds the response without und
   assert.equal(repository.envelope.snapshot.accessState.grants.length, 1);
   assert.equal((await controller.handle(check())).type, "BLOCKED");
   clock.time = 10;
-  assert.equal((await controller.open()).status, "READY");
+  assert.equal((await controller.handle({ kind: 'OBSERVE_TIME' })).type, 'OBSERVED');
+  assert.equal(repository.envelope.snapshot.accessState.grants.length, 1, 'catch-up never duplicates the committed grant');
   assert.equal((await controller.handle(confirm)).reason, "REQUEST_NOT_FOUND");
   assert.equal((await controller.handle(check())).decision.expiresAt, 110);
 });

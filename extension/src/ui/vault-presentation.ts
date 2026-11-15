@@ -1,4 +1,21 @@
 import type { AtlasControllerView, PolicyReview } from '@atlas/core';
+import { timingFields } from './settings-model.js';
+
+/** A policy-only proposal also freezes settings; their presence is not a change. */
+export function hasSettingsChange(controller: AtlasControllerView | null | undefined): boolean {
+  const state = controller?.snapshot, candidate = state?.vaultState.pendingProposal?.candidateConfiguration;
+  return !!state && !!candidate && timingFields.some(field => field.value(candidate) !== field.value(state.configuration));
+}
+
+/** Display only. Round long waits up; Core still owns readiness and confirmation. */
+export function vaultWait(deadline: number, now: number): string {
+  const seconds = Math.max(0, Math.ceil((deadline - now) / 1000));
+  if (seconds < 60) return `${seconds}s left`;
+  const minutes = Math.ceil(seconds / 60);
+  if (minutes < 60) return `${minutes}m left`;
+  const hours = Math.floor(minutes / 60), rest = minutes % 60;
+  return `${hours}h${rest ? ` ${rest}m` : ''} left`;
+}
 
 /** Frozen review is display data, never permission to commit. Every confirm still calls Core. */
 export function matchingReview(controller: AtlasControllerView | null | undefined, review: PolicyReview | null): PolicyReview | null {

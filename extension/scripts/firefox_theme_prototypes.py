@@ -2,6 +2,78 @@
 import math,time
 from firefox_themes import capture
 
+def verify_compass_feedback(c,h,shot,theme):
+    """Real pointer/key input and frame samples; no changes to production code."""
+    def js(code,*args):return c.script(code,*args)
+    def pointer(steps):c.call('WebDriver:PerformActions',actions=[{'type':'pointer','id':'feedback-pointer','parameters':{'pointerType':'mouse'},'actions':steps}])
+    def move(x,y):return {'type':'pointerMove','origin':'viewport','x':round(x),'y':round(y),'duration':0}
+    def key(value):c.call('WebDriver:PerformActions',actions=[{'type':'key','id':'feedback-key','actions':[{'type':'keyDown','value':value},{'type':'keyUp','value':value}]}])
+    def motion(value):
+        c.call('Marionette:SetContext',value='chrome')
+        if value is None:js('Services.prefs.clearUserPref("ui.prefersReducedMotion");')
+        else:js('Services.prefs.setIntPref("ui.prefersReducedMotion",arguments[0]);',value)
+        c.call('Marionette:SetContext',value='content')
+        if value is not None:h.wait_for(lambda:js('return matchMedia("(prefers-reduced-motion: reduce)").matches;')==bool(value),'motion preference')
+    def handle():return js('const s=getComputedStyle(document.querySelector("#compass-handle"));return {outline:s.outlineStyle,cursor:s.cursor,background:s.backgroundColor};')
+    result={'hover':[],'drag':[]}
+    try:
+        for reduced in [False,True]:
+            motion(int(reduced));pointer([move(30,80)])
+            js('''window.__feedbackPin=document.querySelector('[data-destination-id="service:github.com"]');
+              window.__feedbackIcon=window.__feedbackPin.querySelector('img');window.__feedbackFrames=[];
+              window.__feedbackRunning=true;
+              const sample=()=>{if(!window.__feedbackRunning)return;const p=window.__feedbackPin,s=getComputedStyle(p);
+                window.__feedbackFrames.push({image:s.backgroundImage,color:s.backgroundColor,opacity:s.opacity,hover:p.matches(':hover')});
+                requestAnimationFrame(sample);};sample();''')
+            x,y=js('const r=window.__feedbackPin.getBoundingClientRect();return [r.x+r.width/2,r.y+r.height/2];')
+            for _ in range(2):pointer([move(x,y),{'type':'pause','duration':200},move(30,80),{'type':'pause','duration':200}])
+            sampled=js('''window.__feedbackRunning=false;return {frames:window.__feedbackFrames,
+              samePin:window.__feedbackPin===document.querySelector('[data-destination-id="service:github.com"]'),
+              sameIcon:window.__feedbackIcon===window.__feedbackPin.querySelector('img')};''')
+            frames=sampled.pop('frames');faces={(f['image'],f['color'],f['opacity']) for f in frames}
+            assert len(frames)>4 and {f['hover'] for f in frames}=={True,False},frames
+            assert len(faces)==1 and frames[0]['image'].startswith('radial-gradient(') and frames[0]['opacity']=='1',faces
+            assert sampled['samePin'] and sampled['sameIcon'],sampled
+            result['hover'].append({'reducedMotion':reduced,'frames':len(frames),'faces':[list(f) for f in faces],**sampled})
+            cx,cy=js('const r=document.querySelector("#compass-handle").getBoundingClientRect();return [r.x+r.width/2,r.y+r.height/2];')
+            for _ in range(2):
+                pointer([move(cx+65,cy),{'type':'pointerDown','button':0}]);held=handle()
+                start=js('return getComputedStyle(document.querySelector("#pin-compass")).transform;')
+                pointer([move(cx+45,cy+45),{'type':'pause','duration':100}]);dragged=handle()
+                assert js('return document.querySelector("#compass-handle").dataset.dragging==="true";')
+                assert js('return getComputedStyle(document.querySelector("#pin-compass")).transform;')!=start
+                if not reduced:shot(theme+'-held-compass')
+                pointer([{'type':'pointerUp','button':0}]);released=handle()
+                assert all(s['outline']=='none' and s['background']=='rgba(0, 0, 0, 0)' for s in [held,dragged,released]),[held,dragged,released]
+                assert [s['cursor'] for s in [held,dragged,released]]==['grab','grabbing','grab']
+                result['drag'].append({'reducedMotion':reduced,'held':held,'dragged':dragged,'released':released})
+                # A new pointer-down stops coast without changing the angle.
+                pointer([move(cx,cy),{'type':'pointerDown','button':0},{'type':'pointerUp','button':0}])
+        pointer([move(30,80)]);key('\ue004')
+        result['keyboard']=[]
+        for selector in ['#compass-handle','[data-destination-id="service:github.com"]']:
+            focused=js('const e=document.querySelector(arguments[0]);e.focus();const s=getComputedStyle(e);return {visible:e.matches(":focus-visible"),outline:s.outlineStyle,width:parseFloat(s.outlineWidth)};',selector)
+            assert focused['visible'] and focused['outline']=='solid' and focused['width']>0,focused
+            result['keyboard'].append(focused)
+        shot(theme+'-keyboard-focus')
+        # A failed UI read must still dim/disable pins. This is a synthetic read
+        # failure, not a claim about the cause of any real authority failure.
+        js('''window.__feedbackSend=browser.runtime.sendMessage;
+          browser.runtime.sendMessage=function(m,...a){if(m.kind==='GET_VIEW')return Promise.reject(new Error('feedback probe'));
+            return window.__feedbackSend.call(this,m,...a);};''')
+        try:
+            h.wait_for(lambda:js('return window.__feedbackPin.disabled;'),'unavailable pins')
+            result['unavailableOpacity']=js('return getComputedStyle(window.__feedbackPin).opacity;')
+            assert result['unavailableOpacity']=='0.6',result
+        finally:js('browser.runtime.sendMessage=window.__feedbackSend;')
+        h.wait_for(lambda:js('return !window.__feedbackPin.disabled;'),'restored authority read')
+        result['restoredOpacity']=js('return getComputedStyle(window.__feedbackPin).opacity;')
+        assert result['restoredOpacity']=='1',result
+    finally:
+        js('window.__feedbackRunning=false;document.activeElement.blur();')
+        motion(None);c.call('WebDriver:ReleaseActions')
+    return result
+
 def verify(c,h,shot):
     def js(code,*args,**kwargs):return c.script(code,*args,**kwargs)
     def click(s):js('document.querySelector(arguments[0]).click();',s)
@@ -45,6 +117,7 @@ def verify(c,h,shot):
         assert js('return [...document.querySelectorAll(".compass-pin")].every(e=>{const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));});')
         positions=js('const p=document.querySelector(".compass-composition").getBoundingClientRect();return [...document.querySelectorAll(".compass-pin")].map(e=>{const r=e.getBoundingClientRect();return [r.x-p.x,r.y-p.y,r.width,r.height];});')
         result[theme]['pinGeometry']=positions
+        result[theme]['compassFeedback']=verify_compass_feedback(c,h,shot,theme)
         # Decorative bearings share the actual compass center, and cannot catch
         # pointer input or cause overflow. No layout/rotation owner is involved.
         field=js('''const f=document.querySelector('.home-launchers'),c=document.querySelector('.compass-composition');

@@ -1,0 +1,100 @@
+{
+  "format": "atlas-diagnostics-v1",
+  "extensionVersion": "0.3.2",
+  "storage": {
+    "readTransactions": 350597,
+    "writeTransactions": 175297,
+    "committedWrites": 175297,
+    "failedCommits": 0,
+    "lastFailure": null
+  },
+  "authorityInterruption": {
+    "status": "UNAVAILABLE",
+    "reason": "INTERNAL_ERROR",
+    "observedAt": 1794753923854,
+    "checkpointAt": 1794753923826,
+    "latestStorageFailure": null,
+    "internalFault": {
+      "sequence": 1,
+      "operation": "CHECK_NAVIGATION",
+      "stage": "VALIDATE_LOAD",
+      "error": "INTERNAL_ERROR",
+      "pendingCommitId": null,
+      "stateCounts": {
+        "journeys": 1596,
+        "requests": 8,
+        "grants": 49
+      }
+    }
+  },
+  "runtime": {
+    "startedAt": 1794730494913,
+    "faults": [
+      {
+        "sequence": 1,
+        "subsystem": "CONTROLLER",
+        "error": "INTERNAL_ERROR",
+        "frames": [
+          {
+            "asset": "BACKGROUND",
+            "line": 8,
+            "column": 27
+          },
+          {
+            "asset": "BACKGROUND",
+            "line": 537,
+            "column": 41
+          },
+          {
+            "asset": "BACKGROUND",
+            "line": 573,
+            "column": 118
+          },
+          {
+            "asset": "BACKGROUND",
+            "line": 620,
+            "column": 34
+          },
+          {
+            "asset": "BACKGROUND",
+            "line": 1247,
+            "column": 42
+          }
+        ],
+        "controller": {
+          "operation": "CHECK_NAVIGATION",
+          "stage": "VALIDATE_LOAD",
+          "sequence": 1
+        },
+        "count": 1,
+        "firstAt": 1794753923854,
+        "lastAt": 1794753923854
+      }
+    ],
+    "retention": "READY",
+    "previousSession": null,
+    "adapter": {
+      "queued": 0,
+      "activeSince": null,
+      "completed": 24165,
+      "contexts": 24,
+      "refreshPending": false
+    },
+    "controller": {
+      "status": "UNAVAILABLE",
+      "reason": "INTERNAL_ERROR",
+      "policyRevision": 52,
+      "configurationRevision": 7,
+      "pendingCommit": false,
+      "activity": {
+        "operation": "CHECK_NAVIGATION",
+        "stage": "START",
+        "active": false,
+        "queued": 0,
+        "completed": 175491
+      }
+    }
+  },
+  "rawExportSha256": "b94b0ff8a1bbb1eb4077d541ca6a7b6dbd2748e07a7cdb2a0332ad98ca8b783f",
+  "sessionSecondsBeforeFault": 23428.941
+}

@@ -28,6 +28,20 @@ export function renderDestinationChange(container, change, before, after) {
     const kind = document.createElement('p');
     kind.className = 'change-kind';
     kind.textContent = view.kind;
+    const access = document.createElement('p');
+    access.className = 'change-access';
+    const accessRow = view.rows[0];
+    access.textContent = !change.after ? 'Remove this saved site rule.' : !change.before ? `Planned access: ${accessRow[2]}`
+        : accessRow[1] === accessRow[2] ? `Access stays ${accessRow[2].toLowerCase()}.` : `${accessRow[1]} → ${accessRow[2]}`;
+    const hosts = document.createElement('p');
+    hosts.className = 'change-hosts';
+    const addresses = view.rows[1];
+    hosts.textContent = change.before && change.after && addresses[1] !== addresses[2]
+        ? `${addresses[1]} → ${addresses[2]}` : (change.after ?? change.before)?.metadata.hostnames.join(', ') ?? '';
+    const display = document.createElement('p');
+    display.className = 'change-display';
+    const item = change.after ?? change.before;
+    display.textContent = item ? `${item.metadata.category}${item.pinned ? ' · Pinned to Home' : ''}` : '';
     const table = document.createElement('table');
     table.className = 'change-comparison';
     const head = document.createElement('thead'), row = document.createElement('tr');
@@ -50,10 +64,9 @@ export function renderDestinationChange(container, change, before, after) {
     }
     table.append(body);
     const warnings = view.warnings.map(message => { const p = document.createElement('p'); p.className = 'scope-note'; p.textContent = message; return p; });
-    const details = document.createElement('details'), summary = document.createElement('summary'), full = document.createElement('p');
+    const details = document.createElement('details'), summary = document.createElement('summary');
     details.className = 'technical-review';
-    summary.textContent = 'Technical details';
-    full.textContent = view.full.join('\n');
-    details.append(summary, full);
-    container.replaceChildren(heading, kind, table, ...warnings, details);
+    summary.textContent = 'Change details';
+    details.append(summary, table);
+    container.replaceChildren(heading, kind, access, hosts, display, ...warnings, details);
 }

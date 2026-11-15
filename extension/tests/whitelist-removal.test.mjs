@@ -36,7 +36,7 @@ test('an addition and a mixed batch retain one frozen Vault wait with no early r
   for (const mixed of [false, true]) await t.test(mixed ? 'mixed' : 'addition', async child => {
     const f = await sitesFixture(child), before = f.controller.getView().snapshot;
     if (mixed) await remove(f);
-    await add(f); assert.equal(f.el('submit-destination-draft').textContent, 'Submit to Vault');
+    await add(f); assert.equal(f.el('submit-destination-draft').textContent, 'Send to Vault');
     await f.submit();
     assert.deepEqual(f.controller.getView().snapshot.policy, before.policy); assert.equal(f.removals(), 0); assert.equal(f.proposals(), 1);
     const pending = f.controller.getView().snapshot.vaultState.pendingProposal;
@@ -49,7 +49,7 @@ test('an addition and a mixed batch retain one frozen Vault wait with no early r
 
 test('Blacklist removal cannot use the immediate Whitelist workflow', async t => {
   const f = await sitesFixture(t); await remove(f, 'host:blocked.example');
-  assert.equal(f.el('submit-destination-draft').textContent, 'Submit to Vault');
+  assert.equal(f.el('submit-destination-draft').textContent, 'Send to Vault');
   await f.submit(); assert.equal(f.removals(), 0); assert.equal(f.proposals(), 1);
   assert.equal(evaluate('blocked.example', f.controller.getView().snapshot.policy).reason, 'BLACKLISTED');
 });

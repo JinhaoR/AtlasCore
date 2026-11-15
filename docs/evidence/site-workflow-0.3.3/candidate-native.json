@@ -1,0 +1,26 @@
+{
+  "firefox": "160.0",
+  "suite": "site-workflow",
+  "baseline": false,
+  "afterStage": "review",
+  "vaultLocation": {
+    "section": "sites",
+    "settingsHidden": true
+  },
+  "idle": {
+    "frames": 361,
+    "retained": true,
+    "maxMovement": 0
+  },
+  "waitedForRealDeadline": true,
+  "explicitConfirmation": true,
+  "candidateChecks": [
+    "narrow viewport",
+    "history back/forward",
+    "reload",
+    "both themes",
+    "cancellation",
+    "Settings context"
+  ],
+  "normalProfileAccessed": false
+}

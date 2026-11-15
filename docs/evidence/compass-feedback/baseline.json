@@ -1,0 +1,2486 @@
+{
+  "firefox": "160.0",
+  "source": "Unchanged 0.3.2 development bundle; isolated profile over signed 0.3.1",
+  "compassFeedback": {
+    "celestial": {
+      "enter": [
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "none",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.027)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.075)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.146)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.235)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.333)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.43)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.519)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.6)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.668)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.727)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.778)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.82)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.86)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.89)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.916)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.938)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.955)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.97)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.98)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.99)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 0.995)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 244, 220, 1)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        }
+      ],
+      "leave": [
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgb(255, 244, 220)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.973)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.925)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.855)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.766)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.668)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.571)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.481)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.402)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.333)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.273)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.223)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.18)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.14)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.11)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.085)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.063)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.045)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.03)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.02)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.01)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0.005)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(255, 244, 220, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 231) 35%, rgb(243, 229, 199) 72%, rgb(223, 196, 141))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        }
+      ],
+      "rest": {
+        "outline": "rgb(16, 32, 43) 1.58333px",
+        "background": "rgba(0, 0, 0, 0)",
+        "dragging": "false",
+        "focusVisible": false
+      },
+      "held": {
+        "outline": "rgb(16, 32, 43) 1.58333px",
+        "background": "rgba(0, 0, 0, 0)",
+        "dragging": "false",
+        "focusVisible": false
+      },
+      "dragging": {
+        "outline": "rgb(179, 149, 92) solid 0.533333px",
+        "background": "rgba(0, 0, 0, 0)",
+        "dragging": "true",
+        "focusVisible": false
+      },
+      "sameNodes": true
+    },
+    "parchment": {
+      "enter": [
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "none",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.027)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.075)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.146)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.235)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.333)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.43)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.519)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.6)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.667)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.727)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.778)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.82)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.86)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.89)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.916)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.937)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.955)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.97)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.98)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.99)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 0.995)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgba(255, 250, 240, 1)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        }
+      ],
+      "leave": [
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "none",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": true
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgb(255, 250, 240)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.971)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.924)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.85)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.763)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.665)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.57)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.48)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.4)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.33)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.27)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.22)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.178)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.14)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.11)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.084)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.062)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.044)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.03)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.02)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.01)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0.005)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(255, 250, 240, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        },
+        {
+          "image": "radial-gradient(circle at 40% 30%, rgb(255, 248, 230) 35%, rgb(246, 233, 204) 72%, rgb(226, 201, 155))",
+          "color": "rgba(0, 0, 0, 0)",
+          "opacity": "1",
+          "hover": false
+        }
+      ],
+      "rest": {
+        "outline": "rgb(255, 245, 223) 1.58333px",
+        "background": "rgba(0, 0, 0, 0)",
+        "dragging": "false",
+        "focusVisible": false
+      },
+      "held": {
+        "outline": "rgb(255, 245, 223) 1.58333px",
+        "background": "rgba(0, 0, 0, 0)",
+        "dragging": "false",
+        "focusVisible": false
+      },
+      "dragging": {
+        "outline": "rgb(135, 104, 71) solid 0.533333px",
+        "background": "rgba(0, 0, 0, 0)",
+        "dragging": "true",
+        "focusVisible": false
+      },
+      "sameNodes": true
+    }
+  }
+}

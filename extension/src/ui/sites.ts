@@ -22,6 +22,7 @@ import { directoryCategories, directoryView, matchesSite } from './site-director
 import { orderCategories, type CategoryOrderMode } from './category-order.js';
 import { readDestinationUsage, usagePreferencesKey } from './destination-usage.js';
 import { uiText } from './ui-text.js';
+import { vaultWait } from './vault-presentation.js';
 
 export interface SitesCommandResponse { readonly result?: AtlasControllerResponse; readonly view?: AdapterView; readonly error?: string; readonly opened?: boolean }
 interface SitesOptions {
@@ -78,7 +79,7 @@ export function initializeSites(options: SitesOptions) {
     options.changed();
   }
   function syncDialog(): void {
-    const open = detailVisible && !!(selection || session?.value.draft?.editor) && !reviewOpen && !element('sites-section').hidden;
+    const open = detailVisible && !!(selection || session?.value.draft?.editor) && !reviewOpen && !element('sites-section').hidden && !element('sites-workspace').hidden;
     if (open && !dialog.open) dialog.showModal?.();
     if (!open && dialog.open) dialog.close();
   }
@@ -231,8 +232,12 @@ export function initializeSites(options: SitesOptions) {
       }
       notice('Draft could not be verified as saved. Your work is retained in this page; retry saving before closing it or submitting.', session.conflict ? 'error' : 'uncertain'); options.changed(); return;
     }
-    restoreEditor(); showView('browse'); syncDialog(); queueMicrotask(focusSelection);
-    notice('Change saved to your draft. Review your changes when you’re ready.', 'success');
+    restoreEditor(); showView(immediateDisplay ? 'browse' : 'review'); syncDialog();
+    queueMicrotask(() => { if (!element('sites-section').hidden && !element('sites-workspace').hidden) {
+      if (!immediateDisplay) { element('main-content').scrollTop = 0; window.scrollTo?.({ top: 0, behavior: 'instant' }); }
+      focusSelection();
+    } });
+    notice('Draft saved. Review before applying.', 'success');
     if (immediateDisplay) { reviewOpen = true; await submit(); }
   }
   async function stageRemoval(id: string): Promise<void> {
@@ -276,7 +281,7 @@ export function initializeSites(options: SitesOptions) {
         if (await session.set({ ...session.value, draft: null, receipt: { ...receipt, phase: 'PROPOSED' } })) await applyDisplay(false);
       } else if (!removal && response?.result?.type === 'COMMITTED' && proposal && samePolicy(proposal.candidatePolicy, receipt.candidatePolicy)) {
         await session.set({ ...session.value, draft: null, receipt: { ...receipt, phase: 'PROPOSED', proposalId: proposal.id } }); restoreEditor();
-        notice('One Vault proposal saved for the complete batch. Active policy is unchanged; wait and explicitly confirm in Vault.', 'success'); options.vault();
+        notice('Saved in Vault. Nothing changes until you confirm.', 'success'); options.vault();
       } else if (response?.result?.type === 'REJECTED' || !removal && response?.result?.type === 'BLOCKED' && response.result.reason !== 'COMMIT_UNKNOWN'
         && response.result.status !== 'RECONCILING' || response?.error === 'POLICY_DRAFT_STALE') {
         await session.set({ ...session.value, receipt: { ...receipt, phase: 'RESOLVED' } }); notice('The batch was not submitted. Your saved draft is preserved; review current state before retrying.', 'error');
@@ -472,8 +477,8 @@ export function initializeSites(options: SitesOptions) {
           renderDestinationChange(row.content, change, draft!.baseline.policy, assessment?.candidatePolicy ?? draft!.baseline.policy);
           row.content.append(...errors.map(c => { const p = document.createElement('p'); p.textContent = c.message; p.className = 'draft-conflict'; return p; }));
         }
-        setProperty(row.edit, 'textContent', change.after ? 'Edit staged item' : 'Restore / edit');
-        setProperty(row.removeRule, 'hidden', change.after === null);
+        setProperty(row.edit, 'textContent', change.after ? 'Edit' : 'Restore / edit');
+        setProperty(row.removeRule, 'hidden', change.after === null || change.before === null);
         return row.node;
       });
       for (const id of draftRows.keys()) if (!retained.has(id)) draftRows.delete(id);
@@ -505,14 +510,15 @@ export function initializeSites(options: SitesOptions) {
     const removal = !!state && !!assessment?.candidatePolicy && isWhitelistRemoval(state.policy, assessment.candidatePolicy);
     setProperty(element<HTMLButtonElement>('submit-destination-draft'), 'disabled', locked || !!session?.unsaved || !!session?.failure || !reviewOpen || !assessment?.candidatePolicy
       || !!assessment.stale.length || !!draft?.editor || !draft?.changes.length || assessment.policyChanged && !removal && state?.vaultState.pendingProposal != null || preferences.pending !== null);
-    text('submit-destination-draft', removal ? 'Remove allowed sites now' : assessment?.policyChanged ? 'Submit to Vault' : 'Save display changes');
+    text('submit-destination-draft', removal ? 'Remove allowed sites now' : assessment?.policyChanged ? 'Send to Vault' : 'Save display changes');
     text('draft-submit-help', activeReceipt() ? 'This batch is frozen. Review or cancel it in Vault; resolve pending display saves before editing again.'
       : state?.vaultState.pendingProposal && !removal ? 'A proposal is already in Vault. Prepare local work freely; a new policy batch cannot replace it.'
       : session?.unsaved || session?.failure ? 'Review is a preview. Save or retry your local draft before submitting.'
+      : !state ? 'Your saved rules are unavailable. Your draft is kept; restore access before submitting.'
       : draft?.editor ? reviewOpen ? 'Showing staged changes. Open editor changes are not included; add or close the editor before submitting.' : 'Review shows your staged batch. Add or close the editor before submitting.' : !reviewOpen && draft?.changes.length ? 'Review the complete batch before submitting.'
         : assessment?.stale.length ? 'Accept a reviewed reconciliation before submission.' : conflicts.length ? 'Resolve the conflicts above before submission.'
           : removal ? 'This only removes existing allowed-site rules, so no wait is needed. Blocked sites and settings stay unchanged. Any pending Vault proposal will need to be prepared again.'
-          : assessment?.policyChanged ? `These changes need ${state!.configuration.vaultTiming.waitMs / 1000} seconds of waiting in Vault, then your confirmation. Existing access rules stay active until you confirm.` : 'Names, categories and pins save directly without a Vault cooldown.');
+          : assessment?.policyChanged ? `Wait ${vaultWait(state!.configuration.vaultTiming.waitMs, 0).replace(' left', '')} in Vault, then confirm here. Nothing changes until you confirm.` : 'Names, categories and pins save without waiting.');
     setProperty(element('retry-destination-draft'), 'hidden', !loadFailure && !session?.unsaved && !session?.failure);
     setProperty(element('discard-damaged-draft'), 'hidden', session?.loadReason !== 'INVALID');
     setProperty(element('reload-shared-draft'), 'hidden', !session?.conflict);
@@ -527,6 +533,10 @@ export function initializeSites(options: SitesOptions) {
     // Terminal receipts have no pending action; do not re-assess historical
     // policy on every page tick when its result cannot affect any control.
     const outcome = receipt && state && !['DONE', 'KEPT', 'RESOLVED'].includes(receipt.phase) ? receiptOutcome(receipt, state) : null;
+    // A verified waiting proposal already has the Vault link above the directory.
+    // Keep uncertain outcomes, unsaved work and display retries in view.
+    setProperty(element('destination-draft-panel').dataset, 'pending', String(receipt?.phase === 'PROPOSED' && outcome === 'WAITING'
+      && !draft && !session?.unsaved && !session?.failure && !session?.conflict && !loadFailure && !displayFailed && !legacyFailed));
     text('destination-receipt-status', !receipt ? '' : receipt.phase === 'DONE' ? 'Applied batch: policy (if changed), display details and pins acknowledged.'
       : receipt.phase === 'KEPT' ? 'Current saved policy and display details kept; remaining local batch terms were discarded.'
       : receipt.phase === 'RESOLVED' ? 'Proposal resolved without applying accompanying display details. Restore only as an editable draft.'

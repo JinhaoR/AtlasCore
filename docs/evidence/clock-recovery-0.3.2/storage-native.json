@@ -1,0 +1,108 @@
+{
+  "firefox": "160.0",
+  "suite": "storage-reliability",
+  "baseline": false,
+  "checks": [
+    "steady browsing uses real persisted checkpoints; ordinary loads use readonly transactions",
+    "one real readonly LOAD abort recovers before three Whitelist tabs are replaced; diagnostics retains the read failure",
+    "one native abort recovers through verified Core open before any Whitelist tab is replaced",
+    "real Greylist grant and frozen Vault proposal keep exact timestamps and policy across abort recovery",
+    "readonly LOAD recovery preserves exact grant/proposal terms and does not replay confirmation",
+    "persistent abort performs at most one automatic recovery and then withholds browsing without a retry loop",
+    "explicit Recovery remains usable after the bounded automatic attempt fails",
+    "persistent readonly abort receives one recovery load and remains closed without a retry loop",
+    "explicit Recovery restores verified authority after a persistent readonly failure clears",
+    "quota failure stays closed, reports a safe cause and retains saved authority without resetting or automatic retry",
+    "recovered authority still enforces the existing explicit Blacklist",
+    "clock rollback stays closed and its retained reason survives explicit Recovery, UI rendering and diagnostics export"
+  ],
+  "observations": [
+    {
+      "case": "five-second-steady-browsing",
+      "reads": 40,
+      "writes": 20
+    },
+    {
+      "case": "native-readonly-abort-after-fix",
+      "status": "READY",
+      "storage": {
+        "readTransactions": 189,
+        "writeTransactions": 93,
+        "committedWrites": 92,
+        "failedCommits": 0,
+        "lastFailure": {
+          "sequence": 1,
+          "operation": "LOAD",
+          "stage": "TRANSACTION_ABORT",
+          "cause": "ABORTED"
+        }
+      }
+    },
+    {
+      "case": "native-abort-after-fix",
+      "status": "READY",
+      "storage": {
+        "readTransactions": 240,
+        "writeTransactions": 119,
+        "committedWrites": 117,
+        "failedCommits": 1,
+        "lastFailure": {
+          "sequence": 2,
+          "operation": "COMMIT",
+          "stage": "TRANSACTION_ABORT",
+          "cause": "ABORTED"
+        }
+      }
+    },
+    {
+      "case": "persistent-readonly-abort",
+      "status": "UNAVAILABLE",
+      "reason": "STORAGE_UNAVAILABLE",
+      "storage": {
+        "readTransactions": 521,
+        "writeTransactions": 259,
+        "committedWrites": 254,
+        "failedCommits": 4,
+        "lastFailure": {
+          "sequence": 8,
+          "operation": "LOAD",
+          "stage": "TRANSACTION_ABORT",
+          "cause": "ABORTED"
+        }
+      }
+    },
+    {
+      "case": "quota-failure",
+      "storage": {
+        "readTransactions": 554,
+        "writeTransactions": 276,
+        "committedWrites": 270,
+        "failedCommits": 5,
+        "lastFailure": {
+          "sequence": 9,
+          "operation": "COMMIT",
+          "stage": "TRANSACTION_ABORT",
+          "cause": "QUOTA_EXCEEDED"
+        }
+      },
+      "status": "UNAVAILABLE"
+    },
+    {
+      "case": "clock-rollback-observability",
+      "status": "UNAVAILABLE",
+      "reason": "CLOCK_ROLLBACK",
+      "authorityInterruption": {
+        "status": "UNAVAILABLE",
+        "reason": "CLOCK_ROLLBACK",
+        "observedAt": 1794765187191,
+        "checkpointAt": 1794765191225,
+        "latestStorageFailure": {
+          "sequence": 9,
+          "operation": "COMMIT",
+          "stage": "TRANSACTION_ABORT",
+          "cause": "QUOTA_EXCEEDED"
+        }
+      }
+    }
+  ]
+}

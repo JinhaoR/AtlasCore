@@ -1,0 +1,16 @@
+{
+  "removed": [
+    "compact-home-native-jjjo6m84/profile",
+    "compact-home-native-jjjo6m84/runtime",
+    "compact-home-native-6983vl8j/profile",
+    "compact-home-native-6983vl8j/runtime",
+    "compact-home-native-ovjfv2x0/profile",
+    "compact-home-native-ovjfv2x0/runtime",
+    "compact-home-native-ovjfv2x0/addon",
+    "firefox-e2e-6gwbxm07/profile",
+    "firefox-e2e-3vp3n41l/profile",
+    "validation-incident/addon"
+  ],
+  "retained": "Sanitized evidence in docs/evidence/hostname-validation-0.3.2; probe source and raw synthetic logs remain in .tools",
+  "normalProfileAccessed": false
+}

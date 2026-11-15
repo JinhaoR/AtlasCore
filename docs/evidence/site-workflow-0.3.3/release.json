@@ -1,0 +1,45 @@
+{
+  "version": "0.3.3",
+  "addonId": "atlas-development@atlas.invalid",
+  "channel": "unlisted",
+  "node": "24.19.0",
+  "unsignedSha256": "e96c351ddb185280bae1f021dec5b71fe7964a0c9298bbbfd71ffc33f5b191ce",
+  "sourceSha256": "224799aab3a8a7f1f6af9fe4d0ecee3cdc605dc9cccba0cd20528dd6230a3350",
+  "lint": {
+    "count": 1,
+    "summary": {
+      "errors": 0,
+      "notices": 0,
+      "warnings": 1
+    },
+    "metadata": {
+      "id": "atlas-development@atlas.invalid",
+      "manifestVersion": 2,
+      "name": "Atlas",
+      "type": 1,
+      "version": "0.3.3",
+      "firefoxMinVersion": "140.0",
+      "firefoxStrictMinVersion": 140,
+      "experimentApiPaths": {},
+      "totalScannedFileSize": 1173621,
+      "emptyFiles": [],
+      "jsLibs": {},
+      "unknownMinifiedFiles": []
+    },
+    "errors": [],
+    "notices": [],
+    "warnings": [
+      {
+        "_type": "warning",
+        "code": "KEY_FIREFOX_ANDROID_UNSUPPORTED_BY_MIN_VERSION",
+        "message": "Manifest key not supported by the specified minimum Firefox for Android version",
+        "description": "\"strict_min_version\" requires Firefox for Android 140, which was released before version 142 introduced support for \"browser_specific_settings.gecko.data_collection_permissions\".",
+        "file": "manifest.json"
+      }
+    ]
+  },
+  "runtimeFiles": 39,
+  "sourceFiles": 281,
+  "signed": false,
+  "submitted": false
+}

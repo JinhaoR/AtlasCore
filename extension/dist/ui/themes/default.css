@@ -13,7 +13,7 @@
   --access-active-ink: #c6e7ba; --access-active-border: #678b67; --access-active-surface: #1b3029;
   --cancel-ink: #ffc3b6; --cancel-border: #a96050; --cancel-surface: #38201f; --cancel-hover: #4b2825;
   --icon-surface: #f9f5eb; --icon-border: #c4b28c;
-  --pin-surface: #f3e8cf; --pin-hover: var(--pin-surface); --pin-ink: #142331;
+  --pin-surface: #f3e8cf; --pin-ink: #142331;
   --pin-border: var(--accent-muted); --pin-border-width: 1px; --pin-shadow: none;
   --font-body: 'Source Sans 3', system-ui, sans-serif;
   --font-title: 'Cormorant Garamond', Georgia, serif;

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { normalizeTarget } from '../dist/index.js';
+import { normalizeHostname } from '../dist/target.js';
 
 test('bare hostnames normalize case, surrounding whitespace and a trailing root dot', () => {
   for (const input of ['mail.example', ' MAIL.EXAMPLE. ', 'mail.example.']) {
@@ -84,5 +85,37 @@ test('Unicode hostnames and IP literals are outside the initial supported target
     'https://[::1]',
   ]) {
     assert.equal(normalizeTarget(input), null);
+  }
+});
+
+test('hostname and label length boundaries preserve one optional root dot', () => {
+  const longest = ['a'.repeat(63), 'b'.repeat(63), 'c'.repeat(63), 'd'.repeat(61)].join('.');
+  assert.equal(longest.length, 253);
+  for (const input of [longest, longest.toUpperCase(), `${longest}.`, `  ${longest}.  `]) {
+    assert.equal(normalizeHostname(input), longest);
+  }
+  for (const input of [`${longest}a`, `${longest}a.`, `${longest}..`, `${'a'.repeat(64)}.example`,
+    'a'.repeat(1_000_000), '.', '..', '.example', 'a..example', 'a-.example', '-a.example']) {
+    assert.equal(normalizeHostname(input), null);
+  }
+});
+
+test('every non-ASCII code unit is rejected inside a hostname before case folding', () => {
+  const allowed = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.';
+  for (let code = 0; code <= 0xffff; code++) {
+    const char = String.fromCharCode(code), input = `a${char}b.example`;
+    assert.equal(normalizeHostname(input), allowed.includes(char) ? input.toLowerCase() : null, `code unit ${code}`);
+  }
+  for (const input of ['\u212a.example', '\u017f.example', '\u{1d400}.example', 'a\u{1f600}.example']) {
+    assert.equal(normalizeHostname(input), null);
+  }
+});
+
+test('ASCII labels retain numeric-label support without admitting IP or URL shorthand', () => {
+  for (const input of ['123.example', 'a-b.example', '0x7f.example', 'a', 'xn--bcher-kva.example']) {
+    assert.equal(normalizeHostname(input), input);
+  }
+  for (const input of ['123', '127.0.0.1', '127.1', '0177.0.0.1', '0x7f000001', '0x7f.1']) {
+    assert.equal(normalizeHostname(input), null);
   }
 });

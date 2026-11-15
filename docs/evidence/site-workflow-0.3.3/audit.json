@@ -1,0 +1,55 @@
+{
+  "runtime": {
+    "counts": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "packages": []
+  },
+  "all": {
+    "counts": {
+      "info": 0,
+      "low": 3,
+      "moderate": 1,
+      "high": 2,
+      "critical": 0,
+      "total": 6
+    },
+    "packages": [
+      {
+        "name": "addons-linter",
+        "severity": "low",
+        "direct": false
+      },
+      {
+        "name": "deepmerge",
+        "severity": "low",
+        "direct": false
+      },
+      {
+        "name": "fast-uri",
+        "severity": "moderate",
+        "direct": false
+      },
+      {
+        "name": "node-forge",
+        "severity": "high",
+        "direct": false
+      },
+      {
+        "name": "undici",
+        "severity": "high",
+        "direct": false
+      },
+      {
+        "name": "web-ext",
+        "severity": "low",
+        "direct": true
+      }
+    ]
+  }
+}

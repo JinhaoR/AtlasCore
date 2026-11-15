@@ -4,7 +4,21 @@ This is the single release-history file. Feature contracts describe the current
 rules; these notes explain how we got here. Core's package version remains 0.1.0.
 The Firefox identity is always `atlas-development@atlas.invalid`.
 
-## 0.3.2 — signing candidate
+## 0.3.3 — signing candidate
+
+- Keeps Add Site, review and Vault together in All Sites; timing changes stay in
+  Settings. Saved edits go directly to review.
+- Simplifies the review and Vault screens, shows readable waits and dated
+  deadlines, and keeps confirmation controls steady. Full details and failed-save
+  recovery remain available.
+- Includes the steady compass hover/drag treatment, bounded hostname validation
+  mitigation and automatic clock catch-up recovery. The original Firefox
+  InternalError trigger remains unproven; its explicit Recovery rules remain.
+- Prepares a new unsigned candidate while preserving all retained release bytes.
+
+Validation: [0.3.3 evidence](evidence/site-workflow-0.3.3/README.md).
+
+## 0.3.2
 
 - Keeps the compass visible on fresh installations, with one pin, and in narrow
   windows. No sites or permissions are silently added.

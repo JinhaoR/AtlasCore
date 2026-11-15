@@ -1,0 +1,94 @@
+{
+  "format": "atlas-diagnostics-v1",
+  "extensionVersion": "0.3.2",
+  "storage": {
+    "readTransactions": 438343,
+    "writeTransactions": 219170,
+    "committedWrites": 219169,
+    "failedCommits": 0,
+    "lastFailure": null
+  },
+  "authorityInterruption": {
+    "status": "UNAVAILABLE",
+    "reason": "CLOCK_ROLLBACK",
+    "observedAt": 1794764172018,
+    "checkpointAt": 1794764174556,
+    "latestStorageFailure": null
+  },
+  "runtime": {
+    "startedAt": 1794730494913,
+    "faults": [
+      {
+        "sequence": 1,
+        "subsystem": "CONTROLLER",
+        "error": "INTERNAL_ERROR",
+        "frames": [
+          {
+            "asset": "BACKGROUND",
+            "line": 8,
+            "column": 27
+          },
+          {
+            "asset": "BACKGROUND",
+            "line": 537,
+            "column": 41
+          },
+          {
+            "asset": "BACKGROUND",
+            "line": 573,
+            "column": 118
+          },
+          {
+            "asset": "BACKGROUND",
+            "line": 620,
+            "column": 34
+          },
+          {
+            "asset": "BACKGROUND",
+            "line": 1247,
+            "column": 42
+          }
+        ],
+        "controller": {
+          "operation": "CHECK_NAVIGATION",
+          "stage": "VALIDATE_LOAD",
+          "sequence": 1
+        },
+        "count": 1,
+        "firstAt": 1794753923854,
+        "lastAt": 1794753923854
+      }
+    ],
+    "retention": "READY",
+    "previousSession": null,
+    "adapter": {
+      "queued": 0,
+      "activeSince": 1794764474326,
+      "completed": 34795,
+      "contexts": 24,
+      "refreshPending": true
+    },
+    "controller": {
+      "status": "COMMITTING",
+      "reason": null,
+      "policyRevision": 52,
+      "configurationRevision": 7,
+      "pendingCommit": true,
+      "activity": {
+        "operation": "OBSERVE_TIME",
+        "stage": "COMMIT",
+        "active": true,
+        "queued": 0,
+        "completed": 221856
+      }
+    }
+  },
+  "comparison": {
+    "earlierInterruptionAt": 1794753923854,
+    "sameBackgroundSession": true,
+    "earlierRuntimeFaultUnchanged": true,
+    "observedCheckpointDeficitMs": 2538,
+    "laterAllowedNavigationAt": 1794764425167
+  },
+  "rawExportSha256": "a1c7ca3484f4b9a6f547d2697cc902cc38a513025b595a09d8881bfac0761605"
+}

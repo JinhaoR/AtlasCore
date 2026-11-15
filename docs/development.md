@@ -83,8 +83,30 @@ Current native theme and Add Site checks use the retained signed 0.2.8:
 ```text
 python extension/scripts/firefox_compact_home.py --theme-prototypes-only
 python extension/scripts/firefox_compact_home.py --site-checkbox-only
+python extension/scripts/firefox_compact_home.py --hostname-validation-only --signed-baseline 0.3.1
+python extension/scripts/firefox-e2e.py --clock-recovery-only --addon-dir extension/dist
+python extension/scripts/firefox-e2e.py --site-workflow-only --addon-dir extension/dist
 python extension/scripts/firefox-e2e.py --release-upgrade-only --release-baseline-version 0.2.8 --addon-dir extension/dist
 ```
+
+The hostname-validation scenario copies compiled Core modules into its disposable
+add-on only. It combines synthetic 1,596-Journey/8-request/49-grant storage with
+bounded direct validation checks. This is not a reproduction of the reported
+long-session Firefox exception; see the [investigation](firefox-storage-reliability.md).
+
+The clock-recovery scenario patches only its disposable background realm's
+Date.now, checks denial while behind and automatic catch-up through the real
+timer, and checks subsequent gated navigation. It does not change the OS clock.
+Use `--clock-recovery-baseline` with a preserved pre-fix runtime to reproduce the
+old latch. Core fake-time tests cover restart checkpoints, fixed terms and faults
+during catch-up; the native clock probe does not identify the user's OS trigger.
+
+The site-workflow scenario uses the real Add Site/review/Vault controls and real
+waiting period in an isolated profile. It checks both themes, narrow/zoomed layout,
+idle node identity/geometry, history/reload, explicit confirmation, cancellation
+and the separate Settings origin. `--site-workflow-baseline` records the prior
+directory-to-Settings workflow against a preserved runtime. No private user data
+or production test hooks are needed.
 
 Older release-specific examples below are historical. Their original signed
 baselines were removed by the user-authorized retention cleanup; restore the

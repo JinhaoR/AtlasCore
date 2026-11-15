@@ -2,7 +2,39 @@
 
 ## Current work and retention
 
-The current follow-up fixes the missing compass in fresh/one-pin and narrow
+The latest user request authorizes preparing unsigned **0.3.3** for signing,
+including the preceding compass, hostname-validation and clock-recovery work.
+It supersedes their earlier development-only/no-package limits for this candidate.
+Keep site review and Vault in All Sites, timing review in Settings, one shared
+Vault renderer, compact summaries and stable controls. Preserve all review,
+waiting, explicit confirmation, stale/conflict and failed-save boundaries.
+Validate both themes, native workflow/restart/rollback, packaging and independent
+source reproduction. Preserve every retained release; do not sign, submit, deploy,
+commit, push or change the everyday Firefox profile.
+
+The user-authorized clock fix is development-only. Core's OBSERVE_TIME may recover
+only UNAVAILABLE/CLOCK_ROLLBACK with no pending commit, after the actual supplied
+clock catches up to the same owner's in-memory and persisted floors. Use full
+open/revalidation/persistence; preserve fixed deadlines and end interrupted
+Journeys. No clock clamping, command replay, automatic internal-fault recovery,
+profile changes or new release package. Preserve all retained release bytes.
+The existing Firefox timer supplies observations; no second recovery timer.
+
+The 0.3.2 crash follow-up localizes the exported VALIDATE_LOAD/InternalError stack
+to hostname regexp validation while reading a Journey. Bounded ASCII/label checks
+remove that operation without changing accepted hostnames. This is a targeted
+mitigation: the user's underlying Firefox trigger has not been reproduced.
+Keep full validation, fail-closed latching, explicit Recovery and all saved history;
+do not prune records or add automatic internal-fault retries. This is development
+only; preserve all retained releases and the preceding compass work. See
+[storage reliability](docs/firefox-storage-reliability.md) for evidence and limits.
+
+The completed compass follow-up is development-only: remove the drag-only outline
+and keep pin faces steady on hover, with a subtle border highlight. Preserve
+keyboard focus and disabled-state feedback. Do not bump the version or replace
+any prepared/signed release files; the user explicitly chose no new package.
+
+The preceding follow-up fixes the missing compass in fresh/one-pin and narrow
 0.3.1 profiles, adds ordinary gated site opening and direct pin controls in All
 Sites, and simplifies everyday wording. Prepare unsigned **0.3.2** for signing;
 preserve signed 0.3.1 and all retained release bytes. Use isolated fresh-profile,

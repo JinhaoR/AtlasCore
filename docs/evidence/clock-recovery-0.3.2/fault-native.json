@@ -1,0 +1,214 @@
+{
+  "firefox": "160.0",
+  "suite": "internal-fault",
+  "baseline": false,
+  "checks": [
+    "actual Greylist wait/confirmation creates one fixed grant; a separate policy proposal remains frozen and inactive",
+    "PLAN: idle runtime exception reproduces the closed global latch with no failed storage commits; explicit Recovery preserves policy, original grant and frozen proposal",
+    "VERIFY_AUTHORITY: idle runtime exception reproduces the closed global latch with no failed storage commits; explicit Recovery preserves policy, original grant and frozen proposal",
+    "recovered authority still enforces manual Blacklist; no permission or new deadline comes from diagnostics",
+    "actual background unhandled rejections are separately classified and deduplicated; they do not invent a controller INTERNAL_ERROR",
+    "background restart retains sanitized previous-version evidence without restoring runtime authority or altering saved terms"
+  ],
+  "observations": [
+    {
+      "case": "PLAN",
+      "reason": "INTERNAL_ERROR",
+      "failedCommits": 0,
+      "fault": {
+        "sequence": 1,
+        "operation": "OBSERVE_TIME",
+        "stage": "PLAN",
+        "error": "TYPE_ERROR",
+        "pendingCommitId": null,
+        "stateCounts": {
+          "journeys": 3,
+          "requests": 0,
+          "grants": 1
+        }
+      },
+      "retainedAcrossRecovery": true,
+      "policyAndDeadlinesPreserved": true,
+      "exceptionTextExported": false,
+      "runtime": {
+        "startedAt": 1794765204502,
+        "faults": [
+          {
+            "sequence": 1,
+            "subsystem": "CONTROLLER",
+            "error": "TYPE_ERROR",
+            "frames": [
+              {
+                "asset": "BACKGROUND",
+                "line": 728,
+                "column": 34
+              },
+              {
+                "asset": "BACKGROUND",
+                "line": 1400,
+                "column": 12
+              },
+              {
+                "asset": "BACKGROUND",
+                "line": 1698,
+                "column": 16
+              },
+              {
+                "asset": "BACKGROUND",
+                "line": 2202,
+                "column": 38
+              }
+            ],
+            "controller": {
+              "operation": "OBSERVE_TIME",
+              "stage": "PLAN",
+              "sequence": 1
+            },
+            "count": 1,
+            "firstAt": 1794765245742,
+            "lastAt": 1794765245742
+          }
+        ],
+        "retention": "READY",
+        "previousSession": null,
+        "adapter": {
+          "queued": 0,
+          "activeSince": null,
+          "completed": 82,
+          "contexts": 5,
+          "refreshPending": false
+        },
+        "controller": {
+          "status": "UNAVAILABLE",
+          "reason": "INTERNAL_ERROR",
+          "policyRevision": 3,
+          "configurationRevision": 0,
+          "pendingCommit": false,
+          "activity": {
+            "operation": "CHECK_NAVIGATION",
+            "stage": "START",
+            "active": false,
+            "queued": 0,
+            "completed": 157
+          }
+        }
+      }
+    },
+    {
+      "case": "VERIFY_AUTHORITY",
+      "reason": "INTERNAL_ERROR",
+      "failedCommits": 0,
+      "fault": {
+        "sequence": 2,
+        "operation": "OBSERVE_TIME",
+        "stage": "VERIFY_AUTHORITY",
+        "error": "RANGE_ERROR",
+        "pendingCommitId": null,
+        "stateCounts": {
+          "journeys": 4,
+          "requests": 0,
+          "grants": 1
+        }
+      },
+      "retainedAcrossRecovery": true,
+      "policyAndDeadlinesPreserved": true,
+      "exceptionTextExported": false,
+      "runtime": {
+        "startedAt": 1794765204502,
+        "faults": [
+          {
+            "sequence": 1,
+            "subsystem": "CONTROLLER",
+            "error": "TYPE_ERROR",
+            "frames": [
+              {
+                "asset": "BACKGROUND",
+                "line": 728,
+                "column": 34
+              },
+              {
+                "asset": "BACKGROUND",
+                "line": 1400,
+                "column": 12
+              },
+              {
+                "asset": "BACKGROUND",
+                "line": 1698,
+                "column": 16
+              },
+              {
+                "asset": "BACKGROUND",
+                "line": 2202,
+                "column": 38
+              }
+            ],
+            "controller": {
+              "operation": "OBSERVE_TIME",
+              "stage": "PLAN",
+              "sequence": 1
+            },
+            "count": 1,
+            "firstAt": 1794765245742,
+            "lastAt": 1794765245742
+          },
+          {
+            "sequence": 2,
+            "subsystem": "CONTROLLER",
+            "error": "RANGE_ERROR",
+            "frames": [
+              {
+                "asset": "BACKGROUND",
+                "line": 1787,
+                "column": 26
+              },
+              {
+                "asset": "BACKGROUND",
+                "line": 1825,
+                "column": 104
+              },
+              {
+                "asset": "BACKGROUND",
+                "line": 2038,
+                "column": 70
+              }
+            ],
+            "controller": {
+              "operation": "OBSERVE_TIME",
+              "stage": "VERIFY_AUTHORITY",
+              "sequence": 2
+            },
+            "count": 1,
+            "firstAt": 1794765249742,
+            "lastAt": 1794765249742
+          }
+        ],
+        "retention": "READY",
+        "previousSession": null,
+        "adapter": {
+          "queued": 0,
+          "activeSince": null,
+          "completed": 94,
+          "contexts": 6,
+          "refreshPending": false
+        },
+        "controller": {
+          "status": "UNAVAILABLE",
+          "reason": "INTERNAL_ERROR",
+          "policyRevision": 3,
+          "configurationRevision": 0,
+          "pendingCommit": false,
+          "activity": {
+            "operation": "CHECK_NAVIGATION",
+            "stage": "START",
+            "active": false,
+            "queued": 0,
+            "completed": 207
+          }
+        }
+      }
+    }
+  ],
+  "causeOfUserIncidentEstablished": false,
+  "normalProfileAccessed": false,
+  "releaseArtifactsModified": false
+}

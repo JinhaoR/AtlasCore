@@ -1,0 +1,15 @@
+{
+  "removed": [
+    ".tools/firefox-e2e-hnhjpiow/profile",
+    ".tools/firefox-e2e-ljguhqb1/profile",
+    ".tools/firefox-e2e-ryi6d3rp/profile",
+    ".tools/firefox-e2e-b5zqtfm6/profile",
+    ".tools/firefox-e2e-lam1mm2p/profile",
+    ".tools/firefox-e2e-plgbzqx2/profile",
+    ".tools/clock-recovery/baseline-addon"
+  ],
+  "allAbsent": true,
+  "scope": "Only this task's six isolated Firefox profiles and pre-clock runtime copy",
+  "sanitizedEvidenceRetained": true,
+  "runLogsRetained": true
+}

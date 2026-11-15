@@ -1,0 +1,45 @@
+{
+  "baseline": false,
+  "signedBaseline": "0.3.1",
+  "firefox": "160.0",
+  "home": {
+    "automaticConnection": true,
+    "folderIcon": "wfpqhtN6urlH",
+    "exactNestedPages": true,
+    "overflow": true,
+    "accessPageWaitCancelConfirmEnd": true,
+    "categoriesInAllSites": true,
+    "folderLaunchGated": true,
+    "keyboardDismissal": true,
+    "iconFailureRetry": true,
+    "zoom": [
+      1.25,
+      1.5,
+      2
+    ],
+    "idle": {
+      "mutations": 0,
+      "requests": 0,
+      "priorRequestCompletions": 1
+    },
+    "sizes": [
+      {
+        "width": 1280,
+        "scroll": 1280,
+        "height": 815
+      },
+      {
+        "width": 900,
+        "scroll": 900,
+        "height": 675
+      },
+      {
+        "width": 640,
+        "scroll": 640,
+        "height": 547
+      }
+    ],
+    "restartPreserved": true
+  },
+  "status": "PASS"
+}

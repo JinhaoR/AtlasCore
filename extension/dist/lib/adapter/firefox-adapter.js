@@ -904,8 +904,9 @@ export class FirefoxAdapter {
             .finally(() => { this.refreshPending = null; });
         return this.refreshPending;
     }
-    /** Recover authority, never replay an operation. Unknown writes, damaged data,
-     * quota and clock failures keep their explicit recovery boundary. */
+    /** Recover transient storage failures, never replay an operation. Unknown
+     * writes, damaged data and quota still require explicit recovery. Core alone
+     * handles clock catch-up through OBSERVE_TIME, outside this storage path. */
     async recoverTransientStorage() {
         const host = this.host;
         const view = host?.controller.getView();

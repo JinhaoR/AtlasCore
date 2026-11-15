@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "node": "24.19.0",
+  "lockedInstall": "npm ci in isolated extracted source workspace",
+  "runtimeFiles": 39,
+  "sourceFiles": 281,
+  "allHashesMatch": true,
+  "unsignedSha256": "e96c351ddb185280bae1f021dec5b71fe7964a0c9298bbbfd71ffc33f5b191ce",
+  "sourceSha256": "224799aab3a8a7f1f6af9fe4d0ecee3cdc605dc9cccba0cd20528dd6230a3350"
+}

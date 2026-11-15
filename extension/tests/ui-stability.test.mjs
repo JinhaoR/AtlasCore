@@ -170,7 +170,7 @@ test('identical metadata storage notifications do not invalidate Sites presentat
 test('transient collection display cannot submit policy without fresh READY verification', async t => {
   const f = await sitesFixture(t); f.el('add-site').fire('click'); await f.flush();
   f.el('site-name').value = 'Protected addition'; f.el('site-hostname').value = 'new.example'; f.el('site-category').value = 'Research';
-  f.el('site-access').value = 'WHITELIST'; await f.stage(); f.el('review-destination-draft').fire('click'); f.sites.render(true);
+  f.el('site-access').value = 'WHITELIST'; await f.stage(); f.sites.render(true);
   const controller = f.settings.controller, before = structuredClone(f.controller.getView().snapshot);
   f.settings.controller = () => ({ ...controller(), status: 'LOADING' }); f.sites.render(true);
   assert.equal(f.el('submit-destination-draft').disabled, false, 'UI can queue the explicit intent against acknowledged terms');

@@ -322,6 +322,14 @@ export function createAtlasController(options: AtlasControllerOptions): AtlasCon
   }
 
   async function handle(operation: unknown): Promise<AtlasControllerResponse> {
+    // A time observation may release only the clock latch, once the actual
+    // supplied clock reaches this owner's floor. Do not poll storage while it
+    // is behind, clamp time, replay commands, or retry other authority faults.
+    if (status === 'UNAVAILABLE' && reason === 'CLOCK_ROLLBACK' && pending === null
+      && hasJourneyFields(operation, ['kind']) && operation.kind === 'OBSERVE_TIME') {
+      if (sampleTime() === null) return blocked();
+      await open(); // Full validation/persistence; interrupted Journeys end as on explicit recovery.
+    }
     if (status !== "READY") return blocked();
     setStatus("LOADING");
     if (!await loadAuthority() || authority === null) return blocked();

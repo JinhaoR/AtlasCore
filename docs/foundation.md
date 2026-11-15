@@ -90,6 +90,14 @@ Build a fresh application-independent core using Zenith as a source of lessons. 
 
 ## Decisions already made
 
+**Clock catch-up (2026-11-15):** The user requests a fix for CLOCK_ROLLBACK.
+Keep the backward-time guard, but let OBSERVE_TIME recover that single latch after
+the actual clock reaches the owner's in-memory and persisted floors. Full
+authority validation and acknowledged persistence still precede READY. No clock
+clamping, deadline changes, confirmation replay or internal-fault auto-recovery.
+This supersedes manual-only clock recovery in earlier investigation notes; see
+[storage reliability](firefox-storage-reliability.md).
+
 **0.1.18 idle INTERNAL_ERROR (2026-10-30):** New evidence shows an unavailable
 controller with no failed commits while the user left a page untouched. This
 narrows the failure class but does not identify the exception or prove that a

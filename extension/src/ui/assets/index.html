@@ -60,7 +60,7 @@
       </div>
       <nav aria-label="Atlas" class="sidebar-nav">
         <button id="show-home" type="button" aria-label="Home" title="Home" aria-pressed="true" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#icon-home"/></svg><span class="nav-label">{{home}}</span></button>
-        <button id="show-sites" type="button" aria-label="All sites (Sites &amp; Access)" title="All sites (Sites &amp; Access)" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-sites"/></svg><span class="nav-label">{{allSites}}</span></button>
+        <button id="show-sites" type="button" aria-label="All sites" title="All sites" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-sites"/></svg><span class="nav-label">{{allSites}}</span><span id="sites-nav-status" class="nav-dot" hidden aria-hidden="true"></span></button>
         <button id="show-access" type="button" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-arrow"/></svg><span class="nav-label">{{greylistAndJourneys}}</span></button>
         <button id="show-settings" type="button" aria-label="Settings" title="Settings" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-settings"/></svg><span class="nav-label">{{settings}}</span><span id="settings-nav-status" class="nav-dot" hidden aria-hidden="true"></span></button>
       </nav>
@@ -129,6 +129,7 @@
           </div>
       </section>
       <section id="sites-section" hidden aria-label="Sites and access" data-view="browse">
+        <div id="sites-workspace">
         <p id="sites-pending" class="pending-notice" hidden>{{aFrozenProposalIsWaitingIn}} <button id="sites-review-pending" class="text-button">{{reviewExistingProposal}}</button></p>
 
           <section id="draft-problem" class="feedback" data-tone="error" role="alert" hidden><h3 id="draft-problem-title"></h3><p id="draft-problem-copy"></p><div class="actions"><button id="retry-destination-draft" class="secondary compact" type="button" hidden>{{retryLocalDraftSave}}</button><button id="discard-damaged-draft" class="text-button" type="button" hidden>{{discardDamagedLocalDraftData}}</button><button id="reload-shared-draft" class="secondary compact" type="button" hidden>{{loadNewerSharedDraft}}</button></div><details class="technical-review"><summary>{{technicalDetails}}</summary><p id="draft-problem-detail" class="mono"></p></details></section>
@@ -156,11 +157,12 @@
 
           <p id="destination-draft-stale" class="pending-notice" hidden></p><div id="destination-draft-conflicts" class="draft-conflict"></div><button id="reconcile-destination-draft" class="secondary compact" type="button" disabled>{{reviewStaleDraft}}</button>
           <div id="draft-review-workspace"><header class="review-intro"><h1 id="draft-review-title" tabindex="-1">{{reviewYourChanges}}</h1><p>{{theseEditsArePreparedYourActive}}</p></header>
-          <div class="review-layout"><ul id="destination-draft-items" class="batch-items" tabindex="0" aria-label="Prepared changes"></ul><aside class="review-actions"><h2 id="draft-review-count"></h2><p id="draft-submit-help" class="note"></p><div class="actions"><button id="submit-destination-draft" type="button" disabled>{{submitToVault}}</button><button id="continue-destination-editing" type="button" class="secondary">{{continueEditing}}</button><button id="discard-destination-draft" class="text-button destructive" type="button">{{discardDraft}}</button></div></aside></div></div>
+          <div class="review-layout"><ul id="destination-draft-items" class="batch-items" tabindex="0" aria-label="Prepared changes"></ul><aside class="review-actions"><h2 id="draft-review-count" class="sr-only"></h2><p id="draft-submit-help" class="note"></p><div class="actions"><button id="submit-destination-draft" type="button" disabled>{{submitToVault}}</button><button id="continue-destination-editing" type="button" class="secondary">{{continueEditing}}</button><button id="discard-destination-draft" class="text-button destructive" type="button">{{discardDraft}}</button></div></aside></div></div>
           <div class="draft-companion-actions"><button id="resume-destination-editor" class="text-button" type="button" hidden>{{returnToEditor}}</button><button id="discard-destination-summary" class="text-button destructive" type="button" hidden>{{discardDraft}}</button></div>
           <section id="draft-reconciliation" class="draft-reconciliation" hidden><h3>{{reconciliationPreview}}</h3><p class="note">{{currentCommittedValuesYourProposedResult}}</p><p id="draft-reconciliation-conflicts" class="draft-conflict"></p><ul id="draft-reconciliation-items" class="batch-items"></ul><button id="accept-draft-reconciliation" type="button">{{acceptReviewedResultAgainstCurrentState}}</button></section>
           <details id="destination-receipt" class="draft-reconciliation" hidden><summary>{{submittedBatchAndOutcome}}</summary><p id="destination-receipt-status" class="note"></p><details><summary>{{completeSiteOutcome}}</summary><ul id="destination-receipt-items" class="batch-items"></ul></details><div class="actions"><button id="check-draft-submission" type="button" class="secondary compact" hidden>{{checkSavedSubmissionOutcome}}</button><button id="restore-submitted-draft" type="button" class="secondary compact" hidden>{{restoreAsEditableDraft}}</button><button id="keep-current-display" type="button" class="text-button" hidden>{{keepCurrentDisplayDetails}}</button></div></details>
         </section>
+        </div><div id="sites-vault-host"></div>
       </section>
       <section id="settings" hidden aria-label="Atlas settings">
         <aside class="settings-navigation"><h1>{{settings}}</h1><p class="page-subtitle">{{settingsSubtitle}}</p><nav aria-label="Settings sections">
@@ -195,15 +197,17 @@
         <p id="action-diagnostic" class="mono"></p>
         <details id="diagnostics" class="card settings-card secondary-panel"><summary>{{navigationDiagnostics}} <span class="section-meta">{{localLast200Events}}</span></summary><p class="note">{{navigationHostnamesClearOnRestartSanitized}}</p><p id="managed-conflicts" class="note"></p><div class="actions"><label class="inline-label">{{scope}}<select id="diagnostic-scope"><option value="selected">{{selectedTab}}</option><option value="all">{{allTabs}}</option></select></label><button id="export-diagnostics" class="secondary compact">{{exportJson}}</button><button id="clear-diagnostics" class="secondary compact">{{clearLog}}</button></div><div class="table-scroll"><table><caption class="sr-only">{{recentNavigationEvents}}</caption><thead><tr><th>{{sequence}}</th><th>{{event}}</th><th>{{tabNavigation}}</th><th>{{hostname}}</th><th>{{coreResult}}</th><th>{{journey}}</th></tr></thead><tbody id="diagnostic-rows"></tbody></table></div><p id="diagnostic-empty" class="note">{{noEventsInThisView}}</p></details>
       <section id="vault-section" class="vault-page" hidden aria-label="Vault"><span id="vault-section-title" class="sr-only">{{vault}}</span>
-        <div class="vault-composition"><header class="vault-intro"><h1 id="vault-heading" tabindex="-1">{{vault}}</h1><p class="page-subtitle">{{vaultSubtitle}}</p></header>
-        <p id="vault-empty" class="note"></p><div id="vault-empty-actions"></div>
-        <div id="vault-panel" class="vault-layout" hidden><section id="vault-contents" class="vault-contents" tabindex="0" aria-label="Proposed changes"><h2>{{yourProposedChanges}}</h2><ul id="vault-changes" class="change-list"></ul>
-          <div id="vault-settings-comparison" class="table-scroll" hidden><table class="settings-comparison"><caption>{{timingChanges}}</caption><thead><tr><th>{{setting}}</th><th>{{active}}</th><th>{{proposed}}</th></tr></thead><tbody id="vault-settings-rows"></tbody></table></div>
-          <section id="vault-destination-review" hidden><p class="note">{{namesCategoriesPinsAndExactScope}}</p><ul id="vault-destination-items" class="batch-items"></ul></section>
-          <h3>{{whatHappensNext}}</h3><p id="vault-impact" class="note"></p><details class="technical-review"><summary>{{fullProposalDetails}}</summary><pre id="vault-review"></pre></details>
-        </section><aside class="vault-protection"><div class="vault-state"><svg class="hourglass" aria-hidden="true" viewBox="0 0 48 64"><path d="M8 4h32M8 60h32M11 8h26c0 14-13 18-13 24s13 10 13 24H11c0-14 13-18 13-24S11 22 11 8Z"/></svg><h2 id="vault-phase"></h2><p id="vault-ready-at" class="state-deadline"></p><p id="vault-deadline" class="deadline"></p><p id="vault-summary"></p></div>
-          <div id="vault-protection-actions" class="actions"><button id="confirm-policy" hidden>{{confirmChange}}</button><button id="return-to-sites" type="button" class="secondary">{{backToSites2}}</button><button id="cancel-policy" class="text-button destructive">{{cancelProposal}}</button></div><p class="note">{{thisProposalIsFrozenToChange}}</p>
-        </aside></div></div>
+        <header class="vault-intro"><h1 id="vault-heading" tabindex="-1">{{vault}}</h1></header>
+        <p id="vault-empty" class="note" role="status"></p><div id="vault-empty-actions"></div>
+        <div id="vault-panel" hidden>
+          <div class="vault-state"><div><h2 id="vault-phase"></h2><p id="vault-ready-at"></p></div><p id="vault-deadline" class="deadline"></p><p id="vault-summary"></p></div>
+          <section id="vault-contents" class="vault-contents" tabindex="0" aria-label="Proposed changes"><h2 class="sr-only">{{yourProposedChanges}}</h2><ul id="vault-changes" class="change-list"></ul>
+            <div id="vault-settings-comparison" class="table-scroll" hidden><table class="settings-comparison"><caption>{{timingChanges}}</caption><thead><tr><th>{{setting}}</th><th>{{active}}</th><th>{{proposed}}</th></tr></thead><tbody id="vault-settings-rows"></tbody></table></div>
+            <section id="vault-destination-review" hidden><ul id="vault-destination-items" class="batch-items"></ul></section>
+            <p id="vault-impact" class="note"></p><details class="technical-review"><summary>{{fullProposalDetails}}</summary><pre id="vault-review"></pre></details>
+          </section>
+          <div class="vault-protection"><div id="vault-protection-actions" class="actions"><button id="confirm-policy" disabled>{{confirmChange}}</button><button id="return-to-sites" type="button" class="secondary">{{backToSites2}}</button><button id="cancel-policy" class="text-button destructive">{{cancelProposal}}</button></div><p class="note">{{thisProposalIsFrozenToChange}}</p></div>
+        </div>
       </section>
       </div></section>
     </main>

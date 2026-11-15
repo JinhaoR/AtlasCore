@@ -121,6 +121,10 @@ def main():
     parser.add_argument("--ui-stability-interactions-only", action="store_true", help="Exercise rendering races, failed responses, native controls, toolbar reuse and the passive indicator")
     parser.add_argument("--ui-stability-indicator-only", action="store_true", help="Measure the passive Journey indicator for 60 seconds in isolation")
     parser.add_argument("--storage-reliability-only", action="store_true", help="Exercise real IndexedDB abort recovery and conservative storage failures in a disposable profile")
+    parser.add_argument("--clock-recovery-only", action="store_true", help="Exercise clock rollback and catch-up with the real timer in a disposable profile")
+    parser.add_argument("--site-workflow-only", action="store_true", help="Exercise Add Site, compact review and Vault in an isolated profile")
+    parser.add_argument("--site-workflow-baseline", action="store_true", help="Record the prior Add Site and Vault navigation")
+    parser.add_argument("--clock-recovery-baseline", action="store_true", help="With --clock-recovery-only, reproduce the old permanent clock latch")
     parser.add_argument("--storage-baseline", action="store_true", help="Record the preserved release's sticky storage failure without expecting automatic recovery")
     parser.add_argument("--storage-read-baseline", action="store_true", help="Reproduce the preserved runtime's readonly-load outage without expecting automatic recovery")
     parser.add_argument("--internal-fault-only", action="store_true", help="Exercise an idle controller exception, safe retained diagnostics and explicit recovery in a disposable profile")
@@ -131,7 +135,7 @@ def main():
     parser.add_argument("--startup-layout-only", action="store_true", help="Measure control-page startup/icons and viewport scroll regions in isolation")
     parser.add_argument("--startup-layout-baseline", action="store_true", help="Record old startup/layout without asserting repaired geometry")
     parser.add_argument("--release-upgrade-only", action="store_true", help="Signed baseline upgrade and rollback in this isolated profile")
-    parser.add_argument("--release-baseline-version", choices=['0.1.19', '0.2.0', '0.2.1', '0.2.2', '0.2.3', '0.2.4', '0.2.5', '0.2.6', '0.2.7', '0.2.8', '0.3.1'], default='0.2.8', help="Signed upgrade/rollback baseline (older versions require externally retained artifacts)")
+    parser.add_argument("--release-baseline-version", choices=['0.1.19', '0.2.0', '0.2.1', '0.2.2', '0.2.3', '0.2.4', '0.2.5', '0.2.6', '0.2.7', '0.2.8', '0.3.1', '0.3.2'], default='0.2.8', help="Signed upgrade/rollback baseline (older versions require externally retained artifacts)")
     parser.add_argument("--visual-redesign-only", action="store_true", help="0.2.0 presentation screenshots, stable pins and responsive native checks")
     parser.add_argument("--management-ux-only", action="store_true", help="0.2.0 directory, draft review, Vault and Settings presentation workflows")
     parser.add_argument("--visual-redesign-baseline", action="store_true", help="Run matched checks against the preserved prior UI")
@@ -159,6 +163,8 @@ def main():
     arguments = parser.parse_args()
     if arguments.engineering_review_baseline and not arguments.engineering_review_only:
         parser.error('--engineering-review-baseline requires --engineering-review-only')
+    if arguments.clock_recovery_baseline and not arguments.clock_recovery_only:
+        parser.error('--clock-recovery-baseline requires --clock-recovery-only')
     if arguments.internal_fault_baseline and not arguments.internal_fault_only:
         parser.error('--internal-fault-baseline requires --internal-fault-only')
     if arguments.curated_upgrade_applied and not arguments.curated_upgrade_only:
@@ -488,6 +494,18 @@ def main():
         if arguments.performance_audit_only:
             from firefox_performance_audit import run_performance_audit
             result = run_performance_audit(client, ui_handle, UI_URL, port, wait_for, run, process.pid, arguments.performance_baseline)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.site_workflow_only:
+            from firefox_site_workflow import run_site_workflow
+            result = run_site_workflow(client, ui_handle, wait_for, run, arguments.site_workflow_baseline)
+            (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
+            print(f'Artifacts: {run}', flush=True)
+            return
+        if arguments.clock_recovery_only:
+            from firefox_clock_recovery import run_clock_recovery
+            result = run_clock_recovery(client, ui_handle, port, wait_for, arguments.clock_recovery_baseline)
             (run / 'result.json').write_text(json.dumps({'firefox': version, **result}, indent=2), encoding='utf-8')
             print(f'Artifacts: {run}', flush=True)
             return

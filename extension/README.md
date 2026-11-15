@@ -1,7 +1,7 @@
 # Atlas Firefox extension
 
 Firefox integration and UI for [`@atlas/core`](../packages/core/README.md).
-The current unsigned signing candidate is **0.3.2**. Signed 0.3.1 and all retained
+The current unsigned signing candidate is **0.3.3**. Signed 0.3.1 and all retained
 releases remain frozen; see [version history](../docs/version-history.md).
 
 ## Build and load
@@ -20,7 +20,8 @@ Keep the entire output directory together. Rebuild before reloading changed code
 The toolbar opens a read-only popup with shortcuts to the shared control page.
 Home contains search and the compass. **All Sites** owns the category directory
 and editor. **Greylist & Journeys** holds temporary access and Journey controls.
-**Settings → Appearance** selects the theme; Settings also includes Vault.
+**Settings → Appearance** selects the theme. Site review and Vault stay in All
+Sites; timing changes use the same Vault view within Settings.
 
 Fresh setup and upgrades follow the [curated policy contract](../docs/curated-expansion.md)
 and [curated subdomain migration](../docs/curated-subdomains.md). They preserve

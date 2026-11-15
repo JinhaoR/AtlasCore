@@ -435,6 +435,85 @@ test('a superseding request during recovery cannot receive the old retained-page
   assert.equal(f.adapter.view().contexts[0].latest.decision.reason, 'BLACKLISTED');
 });
 
+test('periodic clock catch-up restores authority, retains diagnostics, and leaves navigation gated', async t => {
+  const f = await fixture(t);
+  await f.firefox.visit(1, 'https://root.example/');
+  const policy = f.controller.getView().snapshot.policy;
+  f.clock.time = 999;
+  await f.adapter.refresh();
+  const issue = f.adapter.view().authorityInterruption;
+  assert.equal(issue.reason, 'CLOCK_ROLLBACK');
+  const writes = f.adapter.view().storage.committedWrites;
+  for (let i = 0; i < 3; i++) await f.adapter.refresh();
+  assert.equal(f.controller.getView().reason, 'CLOCK_ROLLBACK');
+  assert.equal(f.adapter.view().storage.committedWrites, writes);
+  assert.equal((await f.firefox.request(2, 'https://root.example/')).cancel, true);
+  const updates = f.firefox.updates.length;
+  f.clock.time = 1000;
+  await f.adapter.refresh();
+  assert.equal(f.controller.getView().status, 'READY');
+  assert.deepEqual(f.controller.getView().snapshot.policy, policy);
+  assert.deepEqual(f.adapter.view().authorityInterruption, issue);
+  assert.equal(f.firefox.updates.length, updates, 'catch-up does not silently reopen removed pages');
+  assert.equal((await f.firefox.request(1, 'https://root.example/')).cancel, undefined);
+  assert.equal((await f.firefox.request(2, 'https://blocked.example/')).cancel, true);
+  assert.equal((await f.firefox.request(3, 'https://unknown.example/')).cancel, true);
+});
+
+test('clock recovery cannot reuse Journey authority or renew its deadline', async t => {
+  const f = await fixture(t);
+  await f.firefox.request(1, 'https://root.example/');
+  await f.firefox.redirect(1, 'https://provider.example/');
+  const journey = f.adapter.view().contexts[0].journey;
+  assert.equal(journey.phase, 'IN_TRANSIT');
+  f.clock.time--;
+  await f.adapter.refresh();
+  f.clock.time = 1001;
+  await f.adapter.refresh();
+  assert.equal(f.controller.getView().status, 'READY');
+  const ended = f.controller.getView().snapshot.journeyState.journeys.find(j => j.id === journey.id);
+  assert.equal(ended.phase, 'ENDED');
+  assert.equal(ended.expiresAt, journey.expiresAt);
+  assert.equal((await f.firefox.request(1, 'https://provider.example/')).cancel, true);
+});
+
+test('clock catch-up does not confirm waiting access and preserves an existing grant expiry', async t => {
+  const f = await fixture(t);
+  await f.controller.handle({ kind: 'START_ACCESS', target: { hostname: 'grant.example' } });
+  f.clock.time = 1010;
+  await f.controller.handle({ kind: 'CONFIRM_ACCESS', requestId: 1 });
+  await f.controller.handle({ kind: 'START_ACCESS', target: { hostname: 'waiting.example' } });
+  const before = f.controller.getView().snapshot.accessState;
+  f.clock.time--;
+  await f.adapter.refresh();
+  f.clock.time = 1020;
+  await f.adapter.refresh();
+  const after = f.controller.getView().snapshot.accessState;
+  assert.deepEqual(after.grants, before.grants);
+  assert.deepEqual(after.pendingRequests, before.pendingRequests);
+  assert.equal((await f.firefox.request(1, 'https://grant.example/')).cancel, undefined);
+  assert.equal((await f.firefox.request(2, 'https://waiting.example/')).cancel, true);
+  f.clock.time = 1110;
+  await f.adapter.refresh();
+  assert.equal((await f.firefox.request(1, 'https://grant.example/')).cancel, true);
+});
+
+test('an unknown write during clock recovery stays latched without replay or receipt polling', async t => {
+  const f = await fixture(t);
+  f.clock.time--;
+  await f.adapter.refresh();
+  const commit = f.repository.commit.bind(f.repository);
+  f.repository.commit = async request => { await commit(request); return { type: 'UNKNOWN', commitId: request.commitId }; };
+  f.clock.time = 1001;
+  await f.adapter.refresh();
+  assert.equal(f.controller.getView().reason, 'COMMIT_UNKNOWN');
+  const before = f.adapter.view().storage;
+  for (let i = 0; i < 3; i++) { f.clock.time++; await f.adapter.refresh(); }
+  assert.deepEqual(f.adapter.view().storage, before);
+  assert.equal(f.controller.getView().reason, 'COMMIT_UNKNOWN');
+  assert.equal((await f.firefox.request(1, 'https://root.example/')).cancel, true);
+});
+
 test('clock interruption without a storage failure is retained after explicit successful recovery', async t => {
   const f = await fixture(t);
   await f.firefox.visit(1, 'https://root.example/');

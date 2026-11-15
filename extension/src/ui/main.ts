@@ -24,7 +24,7 @@ import { compileCuratedWhitelist, curatedWhitelist, serviceLabel } from '../pres
 import { type Policy, type PolicyReview } from '@atlas/core';
 import { setAttribute, setProperty } from './dom.js';
 import { RefreshLoop } from './refresh-loop.js';
-import { matchingReview, needsPolicyReview } from './vault-presentation.js';
+import { hasSettingsChange, matchingReview, needsPolicyReview, vaultWait } from './vault-presentation.js';
 
 const element = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const text = (id: string, value: string) => { const node = element(id); if (node.textContent !== value) setProperty(node, 'textContent', value); };
@@ -51,7 +51,9 @@ let policyReview: PolicyReview | null = null;
 let policyReviewError = '';
 type NavigationTarget = AtlasPage;
 let page: AtlasPage = atlasPage(location.hash.slice(1)) ?? (params.get('view') === 'access' ? 'access' : 'home');
-let section: 'home' | 'sites' | 'access' | 'settings' = page === 'vault' ? 'settings' : page;
+let vaultSection: 'sites' | 'settings' = history.state?.atlasVaultSection === 'settings' ? 'settings' : 'sites';
+let section: 'home' | 'sites' | 'access' | 'settings' = page === 'vault' ? vaultSection : page;
+let vaultCompletion = '';
 let settingsKey = '';
 let entries: readonly DestinationEntry[] = [];
 let matches: readonly DestinationSearchResult[] = [];
@@ -205,7 +207,11 @@ function render(): void {
   setProperty(element('setup'), 'hidden', status !== 'UNINITIALIZED');
   setProperty(element('workspace'), 'hidden', status === 'UNINITIALIZED' || section !== 'home');
   setProperty(element('settings'), 'hidden', section !== 'settings');
+  const vaultHost = element(vaultSection === 'sites' ? 'sites-vault-host' : 'settings-workspace');
+  if (element('vault-section').parentElement !== vaultHost) vaultHost.append(element('vault-section'));
   settingsNavigation.render(section === 'settings', page === 'vault' ? 'vault-section' : undefined);
+  setProperty(element('vault-section'), 'hidden', page !== 'vault');
+  setProperty(element('sites-workspace'), 'hidden', page === 'vault');
   setAttribute(element('show-vault'), 'aria-current', page === 'vault' ? 'page' : 'false');
   setAttribute(element('show-vault'), 'aria-pressed', String(page === 'vault'));
   setProperty(element('sites-section'), 'hidden', section !== 'sites');
@@ -236,21 +242,25 @@ function render(): void {
     });
   }
   if (focused instanceof HTMLButtonElement && focused.closest('#vault-section') && (focused.disabled || focused.closest('[hidden]'))
-    && section === 'settings') element('vault-heading').focus({ preventScroll: true });
+    && page === 'vault') element('vault-heading').focus({ preventScroll: true });
 }
 
 function renderSettings(controller: AdapterView['controller'] | undefined, ready: boolean, now: number): void {
   const status = controller?.status;
   const policy = controller?.snapshot?.policy;
   const proposal = controller?.snapshot?.vaultState.pendingProposal;
-  setProperty(element('settings-pending'), 'hidden', proposal == null);
-  setProperty(element('settings-nav-status'), 'hidden', proposal == null);
-  const settingsLabel = proposal == null ? 'Settings' : 'Settings, pending change';
+  setProperty(element('settings-pending'), 'hidden', proposal == null || page === 'vault');
+  const timingPending = hasSettingsChange(controller);
+  setProperty(element('settings-nav-status'), 'hidden', !timingPending);
+  setProperty(element('sites-nav-status'), 'hidden', proposal == null || timingPending);
+  setAttribute(element('show-sites'), 'aria-label', proposal != null && !timingPending ? 'All sites, pending change' : 'All sites');
+  const settingsLabel = timingPending ? 'Settings, pending change' : 'Settings';
   setAttribute(element('show-settings'), 'aria-label', settingsLabel);
   setProperty(element('show-settings'), 'title', settingsLabel);
   setProperty(element('vault-empty'), 'hidden', proposal != null);
-  text('vault-empty', hasCommittedCollection(controller) ? 'No proposal is waiting. Prepare site changes in All sites or timing changes in Settings.'
-    : 'Vault status cannot currently be verified. Retry or recover saved state before confirmation.');
+  if (proposal) vaultCompletion = '';
+  text('vault-empty', hasCommittedCollection(controller) ? vaultCompletion || 'No changes are waiting.'
+    : 'Your saved changes are unavailable. Use Recovery in Settings before continuing.');
   // This optional 294-host projection measured ~75 ms on first load. Do it only
   // when its Settings section is actually opened, retaining Core evaluation.
   const showCoverage = page === 'settings' && settingsNavigation.value() === 'recovery-section';
@@ -263,6 +273,7 @@ function renderSettings(controller: AdapterView['controller'] | undefined, ready
   setProperty(element<HTMLButtonElement>('propose-defaults'), 'disabled', busy || !ready || proposal != null);
   setProperty(element('vault-panel'), 'hidden', proposal == null);
   const vaultReturn = element('return-to-sites'), vaultActions = element(proposal ? 'vault-protection-actions' : 'vault-empty-actions');
+  text('return-to-sites', vaultSection === 'settings' ? 'Back to Settings' : 'Back to All Sites');
   if (vaultReturn.parentElement !== vaultActions) vaultActions.append(vaultReturn);
   setProperty(element('vault-empty-actions'), 'hidden', proposal != null);
   const review = matchingReview(controller, policyReview);
@@ -270,14 +281,16 @@ function renderSettings(controller: AdapterView['controller'] | undefined, ready
   text('vault-review', review
     ? `Proposal ${review.proposalId} · policy revision ${review.basePolicyRevision}\nAllowed sites additions: ${review.whitelist.added.join(', ') || '(none)'}\nAllowed sites removals: ${review.whitelist.removed.join(', ') || '(none)'}\nBlocked sites additions: ${review.blacklist.added.join(', ') || '(none)'}\nBlocked sites removals: ${review.blacklist.removed.join(', ') || '(none)'}${review.whitelistSubdomains ? `\nAll-subdomain bases added: ${review.whitelistSubdomains.added.join(', ') || '(none)'}\nAll-subdomain bases removed: ${review.whitelistSubdomains.removed.join(', ') || '(none)'}` : ''}\nClassification changes:\n${review.classifications.map((change) => `${change.hostname}: ${change.before} → ${change.after}`).join('\n') || '(none)'}${review.candidateConfiguration ? `\nCurrent settings: ${settingsCopy(review.currentConfiguration!)}\nCandidate settings: ${settingsCopy(review.candidateConfiguration)}` : ''}`
     : policyReviewError ? `Core review unavailable: ${policyReviewError}. Cancel or recover before proceeding.` : 'Loading the frozen Core review…');
-  text('vault-deadline', review?.phase === 'WAITING' ? `Vault wait ${countdown(review.readyAt, now)}`
+  text('vault-deadline', review?.phase === 'WAITING' ? vaultWait(review.readyAt, now)
     : review?.phase === 'READY' ? `Confirm within ${countdown(review.confirmBy, now)}`
       : review?.phase === 'EXPIRED' ? 'This proposal expired. Cancel it before starting a new proposal.' : '');
-  text('vault-ready-at', review?.phase === 'WAITING' ? `Ready at ${new Date(review.readyAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-    : review?.phase === 'READY' ? `Confirm by ${new Date(review.confirmBy).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : review?.phase === 'EXPIRED' ? 'Confirmation expired' : proposal ? 'Review unavailable' : '');
+  const deadlineFormat: Intl.DateTimeFormatOptions = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  text('vault-ready-at', review?.phase === 'WAITING' ? `Ready ${new Date(review.readyAt).toLocaleString([], deadlineFormat)}`
+    : review?.phase === 'READY' ? `Confirm by ${new Date(review.confirmBy).toLocaleString([], deadlineFormat)}` : review?.phase === 'EXPIRED' ? 'Confirmation expired' : proposal ? 'Review unavailable' : '');
   setProperty(element('vault-ready-at'), 'title', review
     ? `Ready at ${new Date(review.readyAt).toLocaleString()}. Confirm by ${new Date(review.confirmBy).toLocaleString()}.` : '');
-  setProperty(element('confirm-policy'), 'hidden', review?.phase !== 'READY');
+  setProperty(element('confirm-policy'), 'hidden', false);
+  text('confirm-policy', review?.phase === 'WAITING' ? 'Waiting…' : 'Confirm changes');
   setProperty(element<HTMLButtonElement>('confirm-policy'), 'disabled', busy || !ready || review?.phase !== 'READY' || now >= review.confirmBy);
   setProperty(element<HTMLButtonElement>('cancel-policy'), 'disabled', busy || !ready);
   const managed = view?.managed;
@@ -297,8 +310,8 @@ function renderSettings(controller: AdapterView['controller'] | undefined, ready
   }
   setProperty(element<HTMLButtonElement>('propose-settings'), 'disabled', busy || !ready || proposal != null);
   text('vault-impact', !review ? 'Saved authority remains active. A verified Core review is required before confirmation.'
-    : review.invalidatesAccess ? 'Policy changes invalidate current requests, grants and Journeys.'
-    : 'Settings changes preserve existing waits, grants and Journey terms. New activity uses the committed settings.');
+    : review.invalidatesAccess ? 'Applying these rules ends current temporary access requests, grants and Journeys.'
+    : 'Existing waits and access keep their original timing. The new settings apply to future activity.');
   setProperty(element<HTMLButtonElement>('recover'), 'disabled', busy || ready || status === 'UNINITIALIZED' || status === 'COMMITTING');
   text('recover', view?.startup.status === 'FAILED' ? 'Retry startup' : 'Reload and reconcile state');
   text('startup-diagnostic', view?.startup.status === 'FAILED' ? `Startup: ${view.startup.stage} · ${view.startup.reason}` : '');
@@ -401,8 +414,9 @@ function renderReview(review: PolicyReview | null, hasProposal: boolean): void {
   const tone = review?.phase === 'WAITING' ? 'wait' : review?.phase === 'READY' ? 'ready' : review?.phase === 'EXPIRED' ? 'expired' : 'unavailable';
   if (element('vault-phase').dataset.tone !== tone) setProperty(element('vault-phase').dataset, 'tone', tone);
   text('vault-phase', review?.phase === 'WAITING' ? 'Waiting' : review?.phase === 'READY' ? 'Ready to confirm' : review?.phase === 'EXPIRED' ? 'Expired' : '');
-  text('vault-summary', review ? `${review.phase === 'WAITING' ? 'Saved proposal; waiting period is running.' : review.phase === 'READY' ? 'Confirmation is available. Review the frozen contents before confirming.' : 'The confirmation window has expired.'} Your active policy and settings stay in place until explicit confirmation and a successful save.`
-    : hasProposal ? 'Waiting to verify this proposal. Confirmation is unavailable.' : '');
+  text('vault-summary', review ? review.phase === 'WAITING' ? 'You can leave and come back. Nothing changes until you confirm.'
+    : review.phase === 'READY' ? 'Review your changes, then confirm to apply them.' : 'Nothing changed. Cancel this proposal to start again.'
+    : hasProposal ? 'Checking your saved changes. Confirmation is unavailable.' : '');
   const key = JSON.stringify(review ? [review.proposalId, review.whitelist, review.blacklist, review.whitelistSubdomains, review.currentConfiguration, review.candidateConfiguration] : null);
   if (key === reviewKey) return;
   reviewKey = key;
@@ -494,7 +508,7 @@ function rememberPage(): void {
     pages: { ...navigation.value().pages, [page]: { scroll: viewportScrollSurface(page, sites.view()).scrollTop, focus: focus?.id ?? '' } } });
 }
 function historyData(): object {
-  return { atlasSitesDirectory: sites.directory(), atlasSettings: settingsNavigation.value(), atlasSitesView: sites.view(), atlasSitesSelection: sites.navigation().selection };
+  return { atlasSitesDirectory: sites.directory(), atlasSettings: settingsNavigation.value(), atlasSitesView: sites.view(), atlasSitesSelection: sites.navigation().selection, atlasVaultSection: vaultSection };
 }
 function navigate(name: NavigationTarget, preserveFeedback = false, fromHistory = false): void {
   const accessLink=name==='access';
@@ -502,9 +516,11 @@ function navigate(name: NavigationTarget, preserveFeedback = false, fromHistory 
   rememberPage();
   homePins.leave(); sites.leave(); searchOpen = false;
   if (!preserveFeedback) feedback('');
+  if (name === 'vault' && !fromHistory && page !== 'vault') vaultSection = section === 'settings' ? 'settings' : 'sites';
   if (!fromHistory && page !== name) history.pushState(historyData(), '', `#${name}`);
   if (fromHistory) { sites.restoreDirectory(history.state?.atlasSitesDirectory); settingsNavigation.restore(history.state?.atlasSettings); sites.restoreView(history.state?.atlasSitesView, history.state?.atlasSitesSelection); }
-  page = name; section = name === 'vault' ? 'settings' : name;
+  if (fromHistory) vaultSection = history.state?.atlasVaultSection === 'settings' ? 'settings' : 'sites';
+  page = name; section = name === 'vault' ? vaultSection : name;
   render();
   const target = name === 'vault' ? element('vault-section') : accessLink ? element('temporary-title') : element('main-content');
   if (name === 'sites') sites.focusSelection();
@@ -536,7 +552,7 @@ browser.runtime.onMessage.addListener(controlNavigation);
 addEventListener('pagehide',()=>browser.runtime.onMessage.removeListener(controlNavigation));
 window.addEventListener('popstate', () => { navigate(atlasPage(location.hash.slice(1)) ?? 'home', true, true); });
 window.addEventListener('pagehide', rememberPage);
-element('return-to-sites').addEventListener('click', () => navigate('sites', true));
+element('return-to-sites').addEventListener('click', () => navigate(vaultSection, true));
 for (const name of ['home', 'sites', 'access', 'vault', 'settings'] as const) element(`show-${name}`).addEventListener('click', () => { navigate(name); });
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-settings-panel]')) button.addEventListener('click', () => { if (page === 'vault') navigate('settings', true); });
 element('brand-home').addEventListener('click', (event) => { event.preventDefault(); navigate('home'); });
@@ -585,7 +601,13 @@ element('propose-defaults').addEventListener('click', () => { void send({ kind: 
 for (const [id, kind] of Object.entries({ 'confirm-policy': 'CONFIRM_POLICY', 'cancel-policy': 'CANCEL_POLICY' })) {
   element(id).addEventListener('click', () => {
     const proposalId = view?.controller?.snapshot?.vaultState.pendingProposal?.id;
-    if (proposalId !== undefined) void send({ kind, proposalId });
+    const settingsChange = hasSettingsChange(view?.controller);
+    if (proposalId !== undefined) void send({ kind, proposalId }).then(response => {
+      if (response?.result?.type !== 'COMMITTED') return;
+      vaultCompletion = kind === 'CANCEL_POLICY' ? 'Change cancelled. Your saved rules are unchanged.'
+        : settingsChange ? 'Settings updated.' : 'Access rules updated.';
+      render();
+    });
   });
 }
 async function refreshView(): Promise<void> {

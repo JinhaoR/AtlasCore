@@ -1,0 +1,15 @@
+{
+  "core": {
+    "passed": 264,
+    "failed": 0
+  },
+  "extension": {
+    "passed": 702,
+    "failed": 0
+  },
+  "totalPassed": 966,
+  "typescript": "Both packages compiled successfully during the final release build.",
+  "releaseValidate": "PASS",
+  "diffCheck": "PASS",
+  "scope": "Core policy/storage and mocked Firefox adapter/UI tests; native checks are separate evidence."
+}
